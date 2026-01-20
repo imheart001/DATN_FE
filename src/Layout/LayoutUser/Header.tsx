@@ -25,7 +25,7 @@ const Header = () => {
         <Link to={"/orther"} className="hover:text-[#EE2E24]">
           Other
         </Link>
-        <Link to={"#"}>
+        <Link to={"/login"}>
           <img srcSet="/person-circle.png/ 1.2x" alt="" />
         </Link>
       </div>

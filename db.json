@@ -1,8 +1,7 @@
 {
     "cinemas": [
         {
-            "cinema_id": 1,
-            "cinema_name": "Rạp chiếu phim ABC",
+           
             "branches": [
                 {
                     "branch_id": 1,

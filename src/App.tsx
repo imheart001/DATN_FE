@@ -8,6 +8,7 @@ import Movie_About from "./pages/Clients/MOVIE-ABOUT/Movie-About";
 import Ticket from "./pages/Clients/TICKET/Ticket";
 import Movies from "./pages/Clients/Movies/Movies";
 import F_B from "./pages/Clients/F&B/F&B";
+import Login from "./pages/Clients/Login/Login";
 
 function App() {
   const router = createBrowserRouter([
@@ -48,6 +49,10 @@ function App() {
           element: <Orther />,
         },
       ],
+    },
+    {
+      path: "/login",
+      element: <Login />,
     },
   ]);
   return <RouterProvider router={router} />;
