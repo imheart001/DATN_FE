@@ -9,7 +9,7 @@ const Movie_About = () => {
         <h1 className="font-bold text-5xl leading-[73.2px]  text-white mt-[200px]">
           Oppenheimer
         </h1>
-        <div className="flex justify-center items-center ">
+        <div className="flex justify-center text-[#8E8E8E] items-center ">
           <div className="flex space-x-5">
             <p className=" h-[21px] font-poppins font-normal text-base leading-5">
               Kịch
@@ -45,7 +45,7 @@ const Movie_About = () => {
       <body>
         <div className="items-center  mt-[200px] ">
           <h1 className="text-4xl font-bold text-white mb-[50px]">Tóm tắt</h1>
-          <p className="text-center text-secondary mt-[20px] mb-[100px]">
+          <p className="text-center text-[#8E8E8E] mt-[20px] mb-[100px]">
             Câu chuyện về nhà khoa học người Mỹ, J. Robert Oppenheimer,
             <br /> và vai trò của ông trong việc phát triển bom nguyên tử.
           </p>
@@ -54,19 +54,19 @@ const Movie_About = () => {
         <div className="flex justify-center items-center  mt-[50px] ">
           <div>
             <h3 className="text-2xl font-bold text-white">Thể loại</h3>
-            <p className="text-center text-white mt-[20px]">Kịch</p>
+            <p className="text-center text-[#8E8E8E] mt-[20px]">Kịch</p>
           </div>
           <div className=" ml-[50px]">
             <h3 className="text-2xl font-bold text-white">Khoảng thời gian</h3>
-            <p className="text-center text-white mt-[20px]">3 giờ</p>
+            <p className="text-center text-[#8E8E8E] mt-[20px]">3 giờ</p>
           </div>
           <div className=" ml-[50px]">
             <h3 className="text-2xl font-bold text-white">Giới hạn tuổi tác</h3>
-            <p className="text-center text-white mt-[20px]">13+</p>
+            <p className="text-center text-[#8E8E8E] mt-[20px]">13+</p>
           </div>
           <div className=" ml-[50px]">
             <h3 className="text-2xl font-bold text-white">Đạo diện</h3>
-            <p className="text-center text-white mt-[20px]">Christoper Nolan</p>
+            <p className="text-center text-[#8E8E8E] mt-[20px]">Christoper Nolan</p>
           </div>
         </div>
 
@@ -86,7 +86,7 @@ const Movie_About = () => {
             <h2 className="text-xl text-white font-semibold mt-4">
               Cillian Murphy
             </h2>
-            <p className="mt-2 text-secondary">J. Robert Oppenheimer</p>
+            <p className="mt-2 text-secondary text-[#8E8E8E]">J. Robert Oppenheimer</p>
           </div>
           <div className="w-294 h-448 rounded-lg  p-4 m-4">
             <img
@@ -99,7 +99,7 @@ const Movie_About = () => {
             <h2 className="text-xl text-white font-semibold mt-4">
               Florence Pugh
             </h2>
-            <p className="mt-2 text-secondary">Jean Tatlock</p>
+            <p className="mt-2 text-secondary text-[#8E8E8E]">Jean Tatlock</p>
           </div>
           <div className="w-294 h-448 rounded-lg  p-4 m-4">
             <img
@@ -112,7 +112,7 @@ const Movie_About = () => {
             <h2 className="text-xl text-white font-semibold mt-4">
               Robert Downey Jr.
             </h2>
-            <p className="mt-2 text-secondary">Lewis Strauss</p>
+            <p className="mt-2 text-secondary text-[#8E8E8E]">Lewis Strauss</p>
           </div>
           <div className="w-294 h-448 rounded-lg  p-4 m-4">
             <img
@@ -125,10 +125,10 @@ const Movie_About = () => {
             <h2 className="text-xl text-white font-semibold mt-4">
               Rami Malek
             </h2>
-            <p className="mt-2 text-secondary">David L. Hill</p>
+            <p className="mt-2 text-secondary text-[#8E8E8E]">David L. Hill</p>
           </div>
         </div>
-        <p className="underline mt-[30px] text-secondary">Xem thêm</p>
+        <p className="underline mt-[30px] text-secondary text-[#8E8E8E]">Xem thêm</p>
       </body>
     </div>
   );
