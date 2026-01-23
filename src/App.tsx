@@ -9,6 +9,8 @@ import Ticket from "./pages/Clients/TICKET/Ticket";
 import Movies from "./pages/Clients/Movies/Movies";
 import F_B from "./pages/Clients/F&B/F&B";
 import Login from "./pages/Clients/Login/Login";
+import LayoutAdmin from "./Layout/LayoutAdmin/LayoutAdmin";
+import ListFilm from "./pages/Admin/ListFilm/ListFilm";
 
 function App() {
   const router = createBrowserRouter([
@@ -47,6 +49,16 @@ function App() {
         {
           path: "/orther",
           element: <Orther />,
+        },
+      ],
+    },
+    {
+      path: "/admin",
+      element: <LayoutAdmin />,
+      children: [
+        {
+          path: "/admin/listfilm",
+          element: <ListFilm />,
         },
       ],
     },

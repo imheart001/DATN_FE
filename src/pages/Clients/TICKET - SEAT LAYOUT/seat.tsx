@@ -6,13 +6,16 @@ enum SeatStatus {
   Selected = "selected",
   kepted = "kepted",
   Reserved = "Reserved",
+}
+enum SeatType {
+  normal = "normal",
   VIP = "vip",
 }
-
 interface SeatInfo {
   row: number;
   column: number;
   status: SeatStatus;
+  type: SeatType;
 }
 
 const BookingSeat = () => {
@@ -20,55 +23,48 @@ const BookingSeat = () => {
   const numColumns = 10;
 
   const isVIPSeat = (row: number, column: number): boolean => {
-    return row >= 1 && row <= 5 && column >= 2 && column <= 8;
+    return row >= 1 && row <= 5 && column >= 2 && column <= 7;
   };
 
-  const [seats, setSeats] = useState<SeatStatus[][]>(
+  const [seats, setSeats] = useState<SeatInfo[][]>(
     [...Array(numRows)].map((_, rowIndex) =>
       Array.from({ length: numColumns }, (_, columnIndex) => {
-        if (isVIPSeat(rowIndex, columnIndex)) {
-          return SeatStatus.VIP;
-        } else {
-          return SeatStatus.Available;
-        }
+        const type = isVIPSeat(rowIndex, columnIndex)
+          ? SeatType.VIP
+          : SeatType.normal;
+        return {
+          row: rowIndex,
+          column: columnIndex,
+          status: SeatStatus.Available,
+          type,
+        };
       })
     )
   );
   const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
+  const handleSeatClick = (row: any, column: any) => {
+    const updatedSeats = [...seats];
+    const seat = updatedSeats[row][column];
 
+    if (seat.status === SeatStatus.Available) {
+      // Nếu ghế trống, bạn có thể đặt nó
+      updatedSeats[row][column] = { ...seat, status: SeatStatus.Selected };
+      setSelectedSeats([...selectedSeats, updatedSeats[row][column]]);
+    } else if (seat.status === SeatStatus.Selected) {
+      // Nếu ghế đang chọn, bạn có thể bỏ chọn nó
+      updatedSeats[row][column] = { ...seat, status: SeatStatus.Available };
+      setSelectedSeats(selectedSeats.filter((selected) => selected !== seat));
+    } else if (seat.status === SeatStatus.Booked) {
+      // Nếu ghế đã được đặt, không làm gì cả
+      return;
+    }
+
+    setSeats(updatedSeats);
+  };
   const getRowName = (row: number): string => {
     return String.fromCharCode(65 + row);
   };
 
-  const handleSeatClick = (row: number, column: number) => {
-    const currentStatus = seats[row][column];
-    let newStatus: SeatStatus;
-    switch (currentStatus) {
-      case SeatStatus.Available:
-      case SeatStatus.VIP: // Thêm trạng thái VIP vào trạng thái có thể chọn
-        newStatus = SeatStatus.Selected;
-        setSelectedSeats((prevSelectedSeats) => [
-          ...prevSelectedSeats,
-          { row, column, status: newStatus },
-        ]);
-        break;
-      case SeatStatus.Selected:
-        newStatus = SeatStatus.Available;
-        setSelectedSeats((prevSelectedSeats) =>
-          prevSelectedSeats.filter(
-            (seat) => seat.row !== row || seat.column !== column
-          )
-        );
-        break;
-      default:
-        newStatus = currentStatus;
-        break;
-    }
-    const updatedSeats = [...seats];
-    updatedSeats[row][column] = newStatus;
-    setSeats(updatedSeats);
-  };
-  // Tạo một mảng chứa các mã ghế J1
   const j1Seats = Array.from({ length: 20 }, (_, index) => `J${index + 1}`);
 
   return (
@@ -110,31 +106,36 @@ const BookingSeat = () => {
               {seats.map((row, rowIndex) => (
                 <tr key={rowIndex}>
                   <th>{getRowName(rowIndex)}</th>
-                  {row.map((status, columnIndex) => (
+                  {row.map((infoSeat, columnIndex) => (
                     <td
                       key={columnIndex}
-                      className={`seat ${status}`}
+                      className={`seat-${infoSeat.type} ${infoSeat.status}`}
                       onClick={() => handleSeatClick(rowIndex, columnIndex)}
                     >
-                      {status === SeatStatus.Available && (
-                        <span>
-                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAr0lEQVR4nO2QQQrCMBBFc4EWdO+6Z5FuCsVLSsE72Eu4rt0q6AWeBFIRaWxnmkKlecsh89/kGxNZLcAOqIAncuzOCcg00hvTudssidj+NBRHiVhTr4+HRByUKP5VdQIUwGVCww1Q2qzRVX8csHEBGulWIsqBFrgCezc7KMSlL68X9+B9tZulCnHiy+vle9s3H2Iob/liLf8nDo2J4o71Vm0CM0ZcA+cZxPUcuZFl8wJRIS97SX64DQAAAABJRU5ErkJggg==" />
-                        </span>
-                      )}
-                      {status === SeatStatus.Booked && <span>●</span>}
-                      {status === SeatStatus.Selected && (
-                        <span>
-                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAzElEQVR4nO2UTQrCMBCF3wUUdO/as4gboXhJEbyDvYLQZLryZ6ugF3ilVVGhwSRtpZJ8MJuSvi8zHQpEwiXnBJprCG8Q0rHKdzbIOHWXCs8ews/SvFRZ1tw7bSZ9yVf2Yr/xmsRXFzFbLWvCE2ccQHEBoWrwbQ8QJlWWM3uOHgHu0h3H9iLNOYQnaB6hOKue5Vx6dJwY82opD7zfukQ4dBY/x1uXV4tpKXyXyXrJpG9iX/5PLL/6kUgUM5RRt418F6cQbjsQp53kRnpNAYGXZLhQ5IrJAAAAAElFTkSuQmCC" />
-                        </span>
-                      )}
-                      {status === SeatStatus.Reserved && <span>★</span>}
-                      {status === SeatStatus.Booked && <span>×</span>}
-                      {status === SeatStatus.VIP && (
-                        <span>
-                          {" "}
-                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA5ElEQVR4nO2SsQ4BMRjHuxhJ2LyKMN0kCMnFU/AaEk+FuMHGargJT3Bn/0npQu6qpT2XuN/UfP33+7VfKkRFGQFqwBzYASmQqPVM7vmStoED+exl5lvJGNgAVz5Hnl0DI1PpEvcsTF7qi6FOLMdrSgfoWuRXOnFqIZC1nkU+0YmxEGCbFxpxHZgAR9xxAkLZW/vB1AWa6oALaStPMgAuKngG+qo+dSAOcx08Fk+3VOGGA/F9vJkOIH5Nv/lsxmj6xLIY/EAcZG4Ix+T2L43YN6IS/9+ohWfIEEfAtgBxVISnohzcAJ9YNflpnJMiAAAAAElFTkSuQmCC" />
-                        </span>
-                      )}
+                      {infoSeat.status === SeatStatus.Available &&
+                        infoSeat.type === SeatType.normal && (
+                          <span>
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAr0lEQVR4nO2QQQrCMBBFc4EWdO+6Z5FuCsVLSsE72Eu4rt0q6AWeBFIRaWxnmkKlecsh89/kGxNZLcAOqIAncuzOCcg00hvTudssidj+NBRHiVhTr4+HRByUKP5VdQIUwGVCww1Q2qzRVX8csHEBGulWIsqBFrgCezc7KMSlL68X9+B9tZulCnHiy+vle9s3H2Iob/liLf8nDo2J4o71Vm0CM0ZcA+cZxPUcuZFl8wJRIS97SX64DQAAAABJRU5ErkJggg==" />
+                          </span>
+                        )}
+                      {infoSeat.status === SeatStatus.Selected &&
+                        infoSeat.type === SeatType.normal && (
+                          <span>
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAzElEQVR4nO2UTQrCMBCF3wUUdO/as4gboXhJEbyDvYLQZLryZ6ugF3ilVVGhwSRtpZJ8MJuSvi8zHQpEwiXnBJprCG8Q0rHKdzbIOHWXCs8ews/SvFRZ1tw7bSZ9yVf2Yr/xmsRXFzFbLWvCE2ccQHEBoWrwbQ8QJlWWM3uOHgHu0h3H9iLNOYQnaB6hOKue5Vx6dJwY82opD7zfukQ4dBY/x1uXV4tpKXyXyXrJpG9iX/5PLL/6kUgUM5RRt418F6cQbjsQp53kRnpNAYGXZLhQ5IrJAAAAAElFTkSuQmCC" />
+                          </span>
+                        )}
+                      {infoSeat.status === SeatStatus.Available &&
+                        infoSeat.type === SeatType.VIP && (
+                          <span>
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA5ElEQVR4nO2SsQ4BMRjHuxhJ2LyKMN0kCMnFU/AaEk+FuMHGargJT3Bn/0npQu6qpT2XuN/UfP33+7VfKkRFGQFqwBzYASmQqPVM7vmStoED+exl5lvJGNgAVz5Hnl0DI1PpEvcsTF7qi6FOLMdrSgfoWuRXOnFqIZC1nkU+0YmxEGCbFxpxHZgAR9xxAkLZW/vB1AWa6oALaStPMgAuKngG+qo+dSAOcx08Fk+3VOGGA/F9vJkOIH5Nv/lsxmj6xLIY/EAcZG4Ix+T2L43YN6IS/9+ohWfIEEfAtgBxVISnohzcAJ9YNflpnJMiAAAAAElFTkSuQmCC" />
+                          </span>
+                        )}
+                      {infoSeat.status === SeatStatus.Selected &&
+                        infoSeat.type === SeatType.VIP && (
+                          <span>
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABDklEQVR4nO2SPUoDURRGv8ZSQTu3IlqlEhWF4Cp0G4Kr0mAKGzGN6Lt30mhcQUx/JGNik3kzI/PDgHPgg+G9O/e8P6mnkzyxJeNaxqOcLznz9Dtwlc41wiv7ciZyyIzxnNZUIuFcxkjOIioqzkLGvZyzclLjtoIslpvindYvXec0b7ej0o0SDhQ4LF1v3MXFPy+1nGA5Zhz9YUHzPDGlBbHk1Ud5Y1uBCzmhtrs1PuQM096FvLO7+qG69IW9bIlxIudzVThT4DgdT7isYcfDuMOYbaxyibNTWbw+XstyGNPoI6gqjvUxplJg0Lo4MMieqBuP9e+M2BvOL73Y/81RN41visdyHloQj1vx9HSCb4vVGyTN161SAAAAAElFTkSuQmCC" />
+                          </span>
+                        )}
                     </td>
                   ))}
                 </tr>
@@ -148,8 +149,8 @@ const BookingSeat = () => {
         <ul>
           {selectedSeats.map((seat, index) => (
             <li key={index}>
-              Row: {getRowName(seat.row)}, Column: {seat.column + 1}, Status:{" "}
-              {seat.status}
+              Row: {getRowName(seat.row)}, Column: {seat.column + 1}, Loại ghế:{" "}
+              {seat.type}
             </li>
           ))}
         </ul>
