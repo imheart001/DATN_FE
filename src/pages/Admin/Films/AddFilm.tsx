@@ -10,11 +10,16 @@ import {
   Row,
   Select,
   Space,
+  message,
 } from "antd";
+import { useNavigate } from "react-router-dom";
+import { useAddProductMutation } from "../../../service/films.service";
 
 const { Option } = Select;
 
 const AddFilm: React.FC = () => {
+  const [addProduct] = useAddProductMutation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const showDrawer = () => {
@@ -24,6 +29,20 @@ const AddFilm: React.FC = () => {
   const onClose = () => {
     setOpen(false);
   };
+
+  const onFinish = async (values: any) => {
+    try {
+      values.release_date = values.release_date.format("YYYY-MM-DD");
+      await addProduct(values).unwrap();
+      message.success("Thêm sản phẩm thành công");
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      navigate("/admin");
+    } catch (error) {
+      message.error("Thêm sản phẩm thất bại");
+    }
+  };
+
+  const [form] = Form.useForm(); // Tạo một Form instance để sử dụng validate
 
   return (
     <>
@@ -36,9 +55,12 @@ const AddFilm: React.FC = () => {
         Thêm
       </Button>
       <Drawer
-        title="Create a new account"
+        title="Thêm phim"
         width={720}
-        onClose={onClose}
+        onClose={() => {
+          onClose();
+          form.resetFields(); // Reset trường dữ liệu khi đóng Drawer
+        }}
         open={open}
         style={{
           paddingBottom: 80,
@@ -46,13 +68,28 @@ const AddFilm: React.FC = () => {
         extra={
           <Space>
             <Button onClick={onClose}>Cancel</Button>
-            <Button onClick={onClose} danger type="primary">
+
+            <Button
+              danger
+              type="primary"
+              htmlType="submit"
+              onClick={() => {
+                form.validateFields().then((values) => {
+                  onFinish(values);
+                });
+              }}
+            >
               Submit
             </Button>
           </Space>
         }
       >
-        <Form layout="vertical" hideRequiredMark>
+        <Form
+          form={form}
+          layout="vertical"
+          hideRequiredMark
+          onFinish={onFinish}
+        >
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -65,75 +102,73 @@ const AddFilm: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="url"
-                label="Url"
-                rules={[{ required: true, message: "Please enter url" }]}
+                name="image"
+                label="Image"
+                rules={[{ required: true, message: "Please select an image" }]}
               >
-                <Input
-                  style={{ width: "100%" }}
-                  addonBefore="http://"
-                  addonAfter=".com"
-                  placeholder="Please enter url"
-                />
+                <Input placeholder="Please enter user image" />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="owner"
-                label="Owner"
-                rules={[{ required: true, message: "Please select an owner" }]}
+                name="slug"
+                label="Slug"
+                rules={[{ required: true, message: "Please enter slug" }]}
               >
-                <Select placeholder="Please select an owner">
-                  <Option value="xiao">Xiaoxiao Fu</Option>
-                  <Option value="mao">Maomao Zhou</Option>
-                </Select>
+                <Input placeholder="Please enter user name" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="type"
-                label="Type"
-                rules={[{ required: true, message: "Please choose the type" }]}
+                name="trailer"
+                label="Trailer"
+                rules={[
+                  { required: true, message: "Please choose the trailer" },
+                ]}
               >
-                <Select placeholder="Please choose the type">
-                  <Option value="private">Private</Option>
-                  <Option value="public">Public</Option>
-                </Select>
+                <Input placeholder="Please enter user trailer" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={20}>
+            <Col span={12}>
+              <Form.Item
+                name="time"
+                label="Time"
+                rules={[{ required: true, message: "Please choose the time" }]}
+              >
+                <Input placeholder="Please enter user time" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="release_date"
+                label="Release Date"
+                rules={[
+                  { required: true, message: "Please choose the release date" },
+                ]}
+              >
+                <DatePicker />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="approver"
-                label="Approver"
-                rules={[
-                  { required: true, message: "Please choose the approver" },
-                ]}
+                name="status"
+                label="Status"
+                rules={[{ required: true, message: "Please select a status" }]}
               >
-                <Select placeholder="Please choose the approver">
-                  <Option value="jack">Jack Ma</Option>
-                  <Option value="tom">Tom Liu</Option>
+                <Select placeholder="Please select a status">
+                  <Option value="1">1</Option>
+                  <Option value="0">0</Option>
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                name="dateTime"
-                label="DateTime"
-                rules={[
-                  { required: true, message: "Please choose the dateTime" },
-                ]}
-              >
-                <DatePicker.RangePicker
-                  style={{ width: "100%" }}
-                  getPopupContainer={(trigger) => trigger.parentElement!}
-                />
-              </Form.Item>
-            </Col>
           </Row>
+
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item
