@@ -33,7 +33,7 @@ const filmsAPI = createApi({
     }),
     updateProduct: builder.mutation({
       query: (film: IFilms) => ({
-        url: `/film/${film._id}`,
+        url: `/film/${film.id}`,
         method: "PATCH",
         body: film,
       }),

@@ -1,13 +1,18 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Header from "../../../Layout/LayoutUser/Header";
+import { useGetProductByIdQuery } from "../../../service/films.service";
 const Movie_About = () => {
+  const { id } = useParams<string>();
+  const { data: film, error, isLoading } = useGetProductByIdQuery(id);
+  console.log(film);
+
   return (
     <div className=" text-center bg-primary">
       <section className=" text-secondary p-4 relative bg-[url(/HeadermvAB.png/)] bg-cover w-full bg-center bg-no-repeat">
         <Header />
 
         <h1 className="font-bold text-5xl leading-[73.2px]  text-white mt-[200px]">
-          Oppenheimer
+          {film?.data.name}
         </h1>
         <div className="flex justify-center text-[#8E8E8E] items-center ">
           <div className="flex space-x-5">
@@ -24,8 +29,7 @@ const Movie_About = () => {
         </div>
 
         <p className="text-center text-white mt-[16px]">
-          Câu chuyện về nhà khoa học người Mỹ, J. Robert Oppenheimer,
-          <br /> và vai trò của ông trong việc phát triển bom nguyên tử.
+          {film?.data.description}
         </p>
 
         <div className="flex justify-center  mt-[50px]">
@@ -66,7 +70,9 @@ const Movie_About = () => {
           </div>
           <div className=" ml-[50px]">
             <h3 className="text-2xl font-bold text-white">Đạo diện</h3>
-            <p className="text-center text-[#8E8E8E] mt-[20px]">Christoper Nolan</p>
+            <p className="text-center text-[#8E8E8E] mt-[20px]">
+              Christoper Nolan
+            </p>
           </div>
         </div>
 
@@ -86,7 +92,9 @@ const Movie_About = () => {
             <h2 className="text-xl text-white font-semibold mt-4">
               Cillian Murphy
             </h2>
-            <p className="mt-2 text-secondary text-[#8E8E8E]">J. Robert Oppenheimer</p>
+            <p className="mt-2 text-secondary text-[#8E8E8E]">
+              J. Robert Oppenheimer
+            </p>
           </div>
           <div className="w-294 h-448 rounded-lg  p-4 m-4">
             <img
@@ -128,7 +136,9 @@ const Movie_About = () => {
             <p className="mt-2 text-secondary text-[#8E8E8E]">David L. Hill</p>
           </div>
         </div>
-        <p className="underline mt-[30px] text-secondary text-[#8E8E8E]">Xem thêm</p>
+        <p className="underline mt-[30px] text-secondary text-[#8E8E8E]">
+          Xem thêm
+        </p>
       </body>
     </div>
   );

@@ -1,5 +1,5 @@
 export interface IFilms {
-  _id: string;
+  id: string;
   name: string;
   slug: string;
   image: string;
@@ -8,4 +8,23 @@ export interface IFilms {
   release_date: Date;
   description: string;
   status: number;
+}
+export interface ICategorys {
+  id: string;
+  name: string;
+  slug: string;
+  status: number;
+}
+export interface ICinemas {
+  id: string;
+  name: string;
+  address: string;
+  status: number;
+}
+export interface IShowTime {
+  id: string;
+  date: Date;
+  time_id: string;
+  film_id: string;
+  room_id: string;
 }

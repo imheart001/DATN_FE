@@ -69,44 +69,51 @@ const items: MenuItem[] = [
       </NavLink>
     ),
     getItem(
-      "Quản lí suất chiếu",
+      "Loại phim",
       "8",
-      <NavLink to="/admin/product/create">
+      <NavLink to="/admin/listcate">
+        <CopyOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "Quản lí suất chiếu",
+      "9",
+      <NavLink to="/admin/show">
         <FormOutlined />
       </NavLink>
     ),
   ]),
-  getItem("Quản lí rạp", "9", <HomeOutlined />, [
+  getItem("Quản lí rạp", "10", <HomeOutlined />, [
     getItem(
       "Rạp",
-      "10",
-      <NavLink to="/admin/product">
+      "11",
+      <NavLink to="/admin/cinema">
         <CopyOutlined />
       </NavLink>
     ),
   ]),
-  getItem("Quản lí khuyến mãi", "11", <ThunderboltOutlined />),
-  getItem("Quản lí khách hàng", "12", <TeamOutlined />),
-  getItem("Sản phẩm", "13", <ShopOutlined />, [
+  getItem("Quản lí khuyến mãi", "12", <ThunderboltOutlined />),
+  getItem("Quản lí khách hàng", "13", <TeamOutlined />),
+  getItem("Sản phẩm", "14", <ShopOutlined />, [
     getItem(
       "Sản phẩm",
-      "14",
+      "15",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
     ),
     getItem(
       "Bảng giá",
-      "15",
+      "16",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
     ),
   ]),
-  getItem("Hệ thống", "16", <InboxOutlined />, [
+  getItem("Hệ thống", "17", <InboxOutlined />, [
     getItem(
       "Nhân viên",
-      "17",
+      "18",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
@@ -114,7 +121,7 @@ const items: MenuItem[] = [
   ]),
   getItem(
     "Thống kê",
-    "18",
+    "19",
     <NavLink to="/admin/user">
       <PieChartOutlined />
     </NavLink>
