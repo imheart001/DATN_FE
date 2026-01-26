@@ -77,7 +77,7 @@ const ListShow: React.FC = () => {
     },
   ];
 
-  const dataCate = shows?.data?.map((show: IShowTime, index: number) => ({
+  const dataCate = (shows as any)?.data?.map((show: IShowTime, index: number) => ({
     key: index.toString(),
     id: show.id,
     date: show.date,

@@ -35,7 +35,7 @@ const Movies = () => {
             Đang chiếu
           </h1>
           <div className="grid grid-cols-4 gap-7">
-            {data?.data.map((film: IFilms, index: number) => (
+            {(data as any)?.data.map((film: IFilms, index: number) => (
               <FilmShowing key={index} data={film} />
             ))}
           </div>

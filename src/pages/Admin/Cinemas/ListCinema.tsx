@@ -73,7 +73,7 @@ const ListCinema: React.FC = () => {
     },
   ];
 
-  const dataCate = cinemas?.data?.map((cinema: ICinemas, index: number) => ({
+  const dataCate = (cinemas as any )?.data?.map((cinema: ICinemas, index: number) => ({
     key: index.toString(),
     id: cinema.id,
     name: cinema?.name,

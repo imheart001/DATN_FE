@@ -1,19 +1,39 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { setupListeners } from "@reduxjs/toolkit/dist/query";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import { setupListeners } from "@reduxjs/toolkit/query/react";
 import filmsAPI from "../service/films.service";
 import categorysAPI from "../service/cate.service";
 import cinemasAPI from "../service/brand.service";
 import showsAPI from "../service/show.service";
+import selectedCinemaReducer from "../components/CinemaSlice/selectedCinemaSlice";
+import { combineReducers } from "redux";
+
+// Import redux-persist
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["films", "cates", "cinemas", "shows", "selectedCinema"],
+};
+
+const rootReducer = combineReducers({
+  films: filmsAPI.reducer,
+  cates: categorysAPI.reducer,
+  cinemas: cinemasAPI.reducer,
+  shows: showsAPI.reducer,
+  selectedCinema: selectedCinemaReducer,
+});
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: {
-    films: filmsAPI.reducer,
-    cates: categorysAPI.reducer,
-    cinemas: cinemasAPI.reducer,
-    shows: showsAPI.reducer,
-  },
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredPaths: ["selectedCinema"], // Thêm path của action chứa giá trị không serializable vào đây
+      },
+    }).concat(
       filmsAPI.middleware,
       categorysAPI.middleware,
       cinemasAPI.middleware,
@@ -23,7 +43,7 @@ export const store = configureStore({
 
 setupListeners(store.dispatch);
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
+export const persistor = persistStore(store);
+
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;

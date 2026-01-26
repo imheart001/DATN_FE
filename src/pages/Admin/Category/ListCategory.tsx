@@ -14,10 +14,9 @@ import UpdateCategory from "./UpdateCategory";
 
 interface DataType {
   id: string;
-  nameCate: string;
+  name: string;
   slug: string;
-  status: string;
-  tags: string[];
+  status: number;
 }
 
 const { Search } = Input;
@@ -76,13 +75,16 @@ const ListCate: React.FC = () => {
     },
   ];
 
-  const dataCate = cates?.data?.map((cate: ICategorys, index: number) => ({
-    key: index.toString(),
-    id: cate.id,
-    name: cate?.name,
-    slug: cate?.slug,
-    tags: [cate.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
-  }));
+  const dataCate = (cates as any)?.data?.map(
+    (cate: ICategorys, index: number) => ({
+      key: index.toString(),
+      id: cate.id,
+      name: cate?.name,
+      slug: cate?.slug,
+      status: cate?.status,
+      tags: [cate.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+    })
+  );
 
   return (
     <>

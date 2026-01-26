@@ -1,8 +1,10 @@
+
 import Header from "../../../Layout/LayoutUser/Header";
 
 import { Link } from "react-router-dom";
 
 const Ticket = () => {
+ 
   return (
     <>
       <section
@@ -72,118 +74,6 @@ const Ticket = () => {
                 </h3>
                 <div className="space-x-5 text-[#8E8E8E] text-[11px]">
                   <span>Drama</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Link to={"/book-ticket"}>Mua vé</Link>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv2.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Oppenheimer
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Link to={"/book-ticket"}>Mua vé</Link>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv3.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Mission: Impossi..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Link to={"/book-ticket"}>Mua vé</Link>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv4.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  The Moon
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Link to={"/book-ticket"}>Mua vé</Link>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv5.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Meg 2: The Trench
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Link to={"/book-ticket"}>Mua vé</Link>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv6.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Teenage Mutant..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Link to={"/book-ticket"}>Mua vé</Link>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv7.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Smugglers
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Link to={"/book-ticket"}>Mua vé</Link>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv8.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Detective Conan:..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
                   <span>IMDB 8.6</span>
                   <span>13+</span>
                 </div>

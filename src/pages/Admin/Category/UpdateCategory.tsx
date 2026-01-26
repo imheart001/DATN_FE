@@ -33,6 +33,8 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { Option } = Select;
+  console.log(dataCate);
+
   useEffect(() => {
     if (dataCate) {
       form.setFieldsValue({
