@@ -34,7 +34,7 @@ const EditFilm: React.FC = () => {
       </Button>
 
       <Drawer
-        title="Create a new account"
+        title="Cập nhật phim"
         width={720}
         onClose={onClose}
         open={open}
@@ -43,9 +43,9 @@ const EditFilm: React.FC = () => {
         }}
         extra={
           <Space>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose}>Trở Về</Button>
             <Button onClick={onClose} danger type="primary">
-              Submit
+              Cập Nhật
             </Button>
           </Space>
         }
@@ -55,74 +55,59 @@ const EditFilm: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please enter user name" }]}
+                label="Tên Phim"
+                rules={[{ required: true, message: "Vui lòng nhập tên phim" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Vui lòng nhập tên phim" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="url"
-                label="Url"
-                rules={[{ required: true, message: "Please enter url" }]}
+                name="slug"
+                label="Slug"
+                rules={[{ required: true, message: "Vui lòng nhập slug" }]}
+              >
+                <Input placeholder="Vui lòng nhập slug" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="image"
+                label="Ảnh"
+                rules={[{ required: true, message: "Vui lòng nhập ảnh" }]}
               >
                 <Input
                   style={{ width: "100%" }}
                   addonBefore="http://"
                   addonAfter=".com"
-                  placeholder="Please enter url"
+                  placeholder="vui lòng nhập ảnh"
                 />
               </Form.Item>
             </Col>
-          </Row>
-          <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="owner"
-                label="Owner"
-                rules={[{ required: true, message: "Please select an owner" }]}
+                name="trailer"
+                label="Trailer"
+                rules={[{ required: true, message: "Vui lòng nhập Trailer" }]}
               >
-                <Select placeholder="Please select an owner">
-                  <Option value="xiao">Xiaoxiao Fu</Option>
-                  <Option value="mao">Maomao Zhou</Option>
-                </Select>
+                <Input placeholder="Vui lòng nhập Trailer" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="type"
-                label="Type"
-                rules={[{ required: true, message: "Please choose the type" }]}
+                name="time"
+                label="Thời Lượng Phim"
+                rules={[{ required: true, message: "Vui lòng nhập thời lượng phim" }]}
               >
-                <Select placeholder="Please choose the type">
-                  <Option value="private">Private</Option>
-                  <Option value="public">Public</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="approver"
-                label="Approver"
-                rules={[
-                  { required: true, message: "Please choose the approver" },
-                ]}
-              >
-                <Select placeholder="Please choose the approver">
-                  <Option value="jack">Jack Ma</Option>
-                  <Option value="tom">Tom Liu</Option>
-                </Select>
+                <Input placeholder="Vui lòng nhập thời lượng phim" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="dateTime"
-                label="DateTime"
+                label="Thời gian chiếu"
                 rules={[
-                  { required: true, message: "Please choose the dateTime" },
+                  { required: true, message: "Vui lòng nhập thời gian chiếu" },
                 ]}
               >
                 <DatePicker.RangePicker
@@ -131,22 +116,34 @@ const EditFilm: React.FC = () => {
                 />
               </Form.Item>
             </Col>
+            <Col span={12}>
+              <Form.Item
+                name="status"
+                label="Trạng Thái"
+                rules={[{ required: true, message: "Vui lòng nhập trạng thái" }]}
+              >
+                <Select placeholder="Vui lòng nhập trạng thái">
+                  <Option value="1">Hoạt Động</Option>
+                  <Option value="2">Chưa Hoạt Động</Option>
+                </Select>
+              </Form.Item>
+            </Col>
           </Row>
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item
                 name="description"
-                label="Description"
+                label="Mô Tả"
                 rules={[
                   {
                     required: true,
-                    message: "please enter url description",
+                    message: "Vui lòng nhập mô tả",
                   },
                 ]}
               >
                 <Input.TextArea
                   rows={4}
-                  placeholder="please enter url description"
+                  placeholder="Vui lòng nhập mô tả"
                 />
               </Form.Item>
             </Col>
