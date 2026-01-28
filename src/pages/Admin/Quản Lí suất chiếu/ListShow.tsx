@@ -94,7 +94,6 @@ const ListShow: React.FC = () => {
     time_id: (times as any)?.data?.find((times: ITime) => times.id === show.time_id)?.time,
     room_id: show.room_id,
   }));
-
   return (
     <>
       <div className="">
