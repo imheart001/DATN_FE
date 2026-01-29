@@ -86,13 +86,16 @@ const ListShow: React.FC = () => {
     },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataShow = (shows as any)?.data?.map((show: IShowTime, index: number) => ({
     key: index.toString(),
     id: show.id,
     date: show.date,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
     film_id: (films as any)?.data?.find((films: IFilms) => films.id === show.film_id)?.name,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
     time_id: (times as any)?.data?.find((times: ITime) => times.id === show.time_id)?.time,
-    room_id: show.room_id,
+    room_id: show.room_id
   }));
   return (
     <>

@@ -16,6 +16,9 @@ const filmsAPI = createApi({
       query: (id) => `/film/${id}`,
       providesTags: ["film"],
     }),
+    getFilmCinemeById: builder.query<IFilms, number | string>({
+      query: (id) => `/film_cinema/${id}`,
+    }),
     removeProduct: builder.mutation({
       query: (id) => ({
         url: "/film/" + id,
@@ -33,7 +36,7 @@ const filmsAPI = createApi({
     }),
     updateProduct: builder.mutation({
       query: (film: IFilms) => ({
-        url: `/film/${film._id}`,
+        url: `/film/${film.id}`,
         method: "PATCH",
         body: film,
       }),
@@ -47,5 +50,6 @@ export const {
   useAddProductMutation,
   useUpdateProductMutation,
   useGetProductByIdQuery,
+  useGetFilmCinemeByIdQuery,
 } = filmsAPI;
 export default filmsAPI;

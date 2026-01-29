@@ -30,6 +30,7 @@ const AddShow: React.FC = () => {
     const onClose = () => {
         setOpen(false);
     };
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onFinish = async (values: any) => {
         console.log(values);
@@ -159,5 +160,4 @@ const AddShow: React.FC = () => {
         </>
     )
 }
-
 export default AddShow

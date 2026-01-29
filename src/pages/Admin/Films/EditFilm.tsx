@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -10,12 +10,68 @@ import {
   Row,
   Select,
   Space,
+  message,
 } from "antd";
+import {
+  useUpdateProductMutation,
+} from "../../../service/films.service";
+import { useNavigate } from "react-router-dom";
+import moment from "moment";
 
 const { Option } = Select;
+interface DataType {
+  key: string;
+  name: string;
+  slug: string;
+  nameFilm: string;
+  images: string;
+  time: string;
+  trailer: string;
+  status: string;
+  description: string;
+  dateSt: Date;
+  dateEnd: Date;
+  tags: string[];
+}
+interface EditFilmProps {
+  dataID: DataType;
+}
 
-const EditFilm: React.FC = () => {
+const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
+  const [updateProduct] = useUpdateProductMutation();
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (dataID) {
+      form.setFieldsValue({
+        image: dataID.images,
+        slug: dataID.slug,
+        name: dataID.nameFilm,
+        trailer: dataID.trailer,
+        time: dataID.time,
+        release_date: moment(dataID.dateSt), // Sử dụng thư viện moment để xử lý ngày
+        status: dataID.status,
+        description: dataID.description,
+      });
+    }
+  }, [dataID]);
+  const onFinish = async (values: any) => {
+    try {
+      values.release_date = values.release_date.format("YYYY-MM-DD");
+      await updateProduct({ ...values, id: dataID.name });
+
+      message.success("Cập nhật sản phẩm thành công");
+
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      navigate("/admin/listfilm");
+    } catch (error) {
+      message.error("Cập nhật sản phẩm thất bại");
+    }
+  };
   const [open, setOpen] = useState(false);
+  console.log(dataID);
 
   const showDrawer = () => {
     setOpen(true);
@@ -34,7 +90,7 @@ const EditFilm: React.FC = () => {
       </Button>
 
       <Drawer
-        title="Cập nhật phim"
+        title="Cập nhật Phim"
         width={720}
         onClose={onClose}
         open={open}
@@ -43,107 +99,122 @@ const EditFilm: React.FC = () => {
         }}
         extra={
           <Space>
-            <Button onClick={onClose}>Trở Về</Button>
-            <Button onClick={onClose} danger type="primary">
-              Cập Nhật
+            <Button onClick={onClose}>Cancel</Button>
+            <Button
+              danger
+              type="primary"
+              htmlType="submit"
+              onClick={() => {
+                form.validateFields().then((values) => {
+                  onFinish(values);
+                });
+              }}
+            >
+              Submit
             </Button>
           </Space>
         }
       >
-        <Form layout="vertical" hideRequiredMark>
+        <Form
+          form={form}
+          layout="vertical"
+          hideRequiredMark
+          onFinish={onFinish}
+        >
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Tên Phim"
-                rules={[{ required: true, message: "Vui lòng nhập tên phim" }]}
+                label="Name"
+                rules={[{ required: true, message: "Please enter nameFilm" }]}
               >
-                <Input placeholder="Vui lòng nhập tên phim" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="slug"
-                label="Slug"
-                rules={[{ required: true, message: "Vui lòng nhập slug" }]}
-              >
-                <Input placeholder="Vui lòng nhập slug" />
+                <Input placeholder="Please enter nameFilm" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="image"
-                label="Ảnh"
-                rules={[{ required: true, message: "Vui lòng nhập ảnh" }]}
+                label="Image"
+                rules={[{ required: true, message: "Please select an image" }]}
               >
-                <Input
-                  style={{ width: "100%" }}
-                  addonBefore="http://"
-                  addonAfter=".com"
-                  placeholder="vui lòng nhập ảnh"
-                />
+                <Input placeholder="Please enter user image" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="slug"
+                label="Slug"
+                rules={[{ required: true, message: "Please enter slug" }]}
+              >
+                <Input placeholder="Please enter user name" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="trailer"
                 label="Trailer"
-                rules={[{ required: true, message: "Vui lòng nhập Trailer" }]}
+                rules={[
+                  { required: true, message: "Please choose the trailer" },
+                ]}
               >
-                <Input placeholder="Vui lòng nhập Trailer" />
+                <Input placeholder="Please enter user trailer" />
               </Form.Item>
             </Col>
+          </Row>
+          <Row gutter={20}>
             <Col span={12}>
               <Form.Item
                 name="time"
-                label="Thời Lượng Phim"
-                rules={[{ required: true, message: "Vui lòng nhập thời lượng phim" }]}
+                label="Time"
+                rules={[{ required: true, message: "Please choose the time" }]}
               >
-                <Input placeholder="Vui lòng nhập thời lượng phim" />
+                <Input placeholder="Please enter user time" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="dateTime"
-                label="Thời gian chiếu"
+                name="release_date"
+                label="Release Date"
                 rules={[
-                  { required: true, message: "Vui lòng nhập thời gian chiếu" },
+                  { required: true, message: "Please choose the release date" },
                 ]}
               >
-                <DatePicker.RangePicker
-                  style={{ width: "100%" }}
-                  getPopupContainer={(trigger) => trigger.parentElement!}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="status"
-                label="Trạng Thái"
-                rules={[{ required: true, message: "Vui lòng nhập trạng thái" }]}
-              >
-                <Select placeholder="Vui lòng nhập trạng thái">
-                  <Option value="1">Hoạt Động</Option>
-                  <Option value="2">Chưa Hoạt Động</Option>
-                </Select>
+                <DatePicker />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="status"
+                label="Status"
+                rules={[{ required: true, message: "Please select a status" }]}
+              >
+                <Select placeholder="Please select a status">
+                  <Option value="1">1</Option>
+                  <Option value="0">0</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={24}>
               <Form.Item
                 name="description"
-                label="Mô Tả"
+                label="Description"
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng nhập mô tả",
+                    message: "please enter url description",
                   },
                 ]}
               >
                 <Input.TextArea
                   rows={4}
-                  placeholder="Vui lòng nhập mô tả"
+                  placeholder="please enter url description"
                 />
               </Form.Item>
             </Col>
