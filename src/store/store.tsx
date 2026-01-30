@@ -14,7 +14,7 @@ import timesAPI from "../service/time.service";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["films", "cates", "cinemas", "shows", "selectedCinema"],
+  whitelist: ["films", "cates", "cinemas", "shows","times", "selectedCinema"],
 };
 
 const rootReducer = combineReducers({
