@@ -2,16 +2,12 @@ import React from "react";
 import { Space, Table, Input, Button, Popconfirm, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
-
-import {
-  useFetchShowTimeQuery,
-  useRemoveShowTimeMutation,
-} from "../../../service/show.service";
 import { IFilms, IShowTime, ITime } from "../../../interface/model";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
-import AddShow from "./AddShow";
 import EditShow from "./EditShow";
+import { useFetchShowTimeQuery, useRemoveShowTimeMutation } from "../../../service/show.service";
+import AddShow from "./AddShow";
 
 interface DataType {
   id: string;

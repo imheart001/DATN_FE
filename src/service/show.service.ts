@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { IShowTime } from "c:/Users/Acer/Desktop/DATN_FE/src/interface/model";
+import { IShowTime } from "../interface/model";
 
 const showsAPI = createApi({
   reducerPath: "shows",

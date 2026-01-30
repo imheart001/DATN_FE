@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
+
+import { useNavigate } from "react-router-dom";
 import {
     Button,
     Col,
@@ -11,42 +13,58 @@ import {
     Space,
     message,
 } from "antd";
+
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
-import { useUpdateShowTimeMutation } from "../../../service/show.service";
-import { useNavigate } from "react-router-dom";
 import { IFilms, ITime } from "../../../interface/model";
+import { useUpdateShowTimeMutation } from "../../../service/show.service";
+import moment from "moment";
 
 interface DataType {
-    id: string,
-    date: Date,
-    film_id: string,
-    time_id: string,
-    room_id: string
+    id: string;
+    date: Date;
+    time_id: string;
+    film_id: string;
+    room_id: string;
 }
 interface EditShowProps {
     dataShow: DataType;
 }
+
 const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
-    const [updateShow] = useUpdateShowTimeMutation();
-    const [open, setOpen] = useState(false);
+    const [updateShowTime] = useUpdateShowTimeMutation();
+    const [form] = Form.useForm();
+    const navigate = useNavigate();
+    const { Option } = Select;
     const { data: films } = useFetchProductQuery();
     const { data: times } = useFetchTimeQuery();
-    const navigate = useNavigate();
-    const [form] = Form.useForm();
-    const { Option } = Select;
-    console.log(dataShow);
-
     useEffect(() => {
         if (dataShow) {
             form.setFieldsValue({
-                date: dataShow.date,
-                film_id: dataShow.film_id,
+                date: moment(dataShow.date),
                 time_id: dataShow.time_id,
+                film_id: dataShow.film_id,
                 room_id: dataShow.room_id
             });
         }
     }, [dataShow]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onFinish = async (values: any) => {
+        try {
+            values.date = values.date.format("YYYY-MM-DD");
+            await updateShowTime({ ...values, id: dataShow.id });
+            console.log(values);
+            
+            message.success("Cập nhật sản phẩm thành công");
+
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+
+            navigate("/admin/show");
+        } catch (error) {
+            message.error("Cập nhật sản phẩm thất bại");
+        }
+    };
+    const [open, setOpen] = useState(false);
 
     const showDrawer = () => {
         setOpen(true);
@@ -55,18 +73,6 @@ const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
     const onClose = () => {
         setOpen(false);
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onFinish = async (values: any) => {
-        try {
-            await updateShow({ ...values, id: dataShow.id });
-            message.success("Thêm sản phẩm thành công");
-            await new Promise((resolve) => setTimeout(resolve, 5000));
-            navigate("/admin/show");
-        } catch (error) {
-            message.error("Thêm sản phẩm thất bại");
-        }
-    };
-   
 
     return (
         <>
@@ -75,10 +81,13 @@ const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
                     <EditOutlined />
                 </div>
             </Button>
+
             <Drawer
-                title="Cập Nhật Rạp Chiếu"
+                title="Thêm Rạp Chiếu"
                 width={720}
-                onClose={onClose}
+                onClose={() => {
+                    onClose();
+                }}
                 open={open}
                 style={{
                     paddingBottom: 80,
@@ -172,7 +181,7 @@ const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
                 </Form>
             </Drawer>
         </>
-    )
-}
+    );
+};
 
-export default EditShow
+export default EditShow;

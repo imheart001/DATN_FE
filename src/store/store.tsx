@@ -9,12 +9,13 @@ import showsAPI from "../service/show.service";
 import selectedCinemaReducer from "../components/CinemaSlice/selectedCinemaSlice";
 import { combineReducers } from "redux";
 import timesAPI from "../service/time.service";
+import bookTicketsAPI from "../service/book_ticket.service";
 
 // Import redux-persist
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["films", "cates", "cinemas", "shows","times", "selectedCinema"],
+  whitelist: ["films", "cates", "cinemas", "shows","times","bookTickets", "selectedCinema"],
 };
 
 const rootReducer = combineReducers({
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   cinemas: cinemasAPI.reducer,
   shows: showsAPI.reducer,
   times: timesAPI.reducer,
+  bookTickets: bookTicketsAPI.reducer,
   selectedCinema: selectedCinemaReducer,
 });
 
@@ -40,7 +42,8 @@ export const store = configureStore({
       categorysAPI.middleware,
       cinemasAPI.middleware,
       showsAPI.middleware,
-      timesAPI.middleware
+      timesAPI.middleware,
+      bookTicketsAPI.middleware,
     ),
 });
 
