@@ -14,6 +14,7 @@ import ListFilm from "./pages/Admin/ListFilm/ListFilm";
 import ListCate from "./pages/Admin/Category/ListCategory";
 import ListCinema from "./pages/Admin/Cinemas/ListCinema";
 import ListShow from "./pages/Admin/Quản Lí suất chiếu/ListShow";
+import ListBookTicket from "./pages/Admin/Book-Ticket/ListBookTicket";
 
 function App() {
   const router = createBrowserRouter([
@@ -62,6 +63,10 @@ function App() {
         {
           path: "/admin/listfilm",
           element: <ListFilm />,
+        },
+        {
+          path: "/admin/book_ticket",
+          element: <ListBookTicket />,
         },
         {
           path: "/admin/listcate",

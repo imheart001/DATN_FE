@@ -28,3 +28,16 @@ export interface IShowTime {
   film_id: string;
   room_id: string;
 }
+export interface ITime {
+  id: string,
+  time: string,
+}
+export interface IBookTicket {
+  id: string,
+  user_id: string,
+  id_time_detail: string,
+  payment: string,
+  amount: string,
+  price: string,
+  status: number,
+}

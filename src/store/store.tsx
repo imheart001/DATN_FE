@@ -8,12 +8,14 @@ import cinemasAPI from "../service/brand.service";
 import showsAPI from "../service/show.service";
 import selectedCinemaReducer from "../components/CinemaSlice/selectedCinemaSlice";
 import { combineReducers } from "redux";
+import timesAPI from "../service/time.service";
+import bookTicketsAPI from "../service/book_ticket.service";
 
 // Import redux-persist
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["films", "cates", "cinemas", "shows", "selectedCinema"],
+  whitelist: ["films", "cates", "cinemas", "shows","times","bookTickets", "selectedCinema"],
 };
 
 const rootReducer = combineReducers({
@@ -21,6 +23,8 @@ const rootReducer = combineReducers({
   cates: categorysAPI.reducer,
   cinemas: cinemasAPI.reducer,
   shows: showsAPI.reducer,
+  times: timesAPI.reducer,
+  bookTickets: bookTicketsAPI.reducer,
   selectedCinema: selectedCinemaReducer,
 });
 
@@ -37,13 +41,14 @@ export const store = configureStore({
       filmsAPI.middleware,
       categorysAPI.middleware,
       cinemasAPI.middleware,
-      showsAPI.middleware
+      showsAPI.middleware,
+      timesAPI.middleware,
+      bookTicketsAPI.middleware,
     ),
 });
 
 setupListeners(store.dispatch);
 
 export const persistor = persistStore(store);
-
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

@@ -1,13 +1,13 @@
 import React from "react";
-import { Space, Table, Input, Button, Popconfirm } from "antd";
+import { Space, Table, Input, Button, Popconfirm, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
-
-import {
-  useFetchShowTimeQuery,
-  useRemoveShowTimeMutation,
-} from "../../../service/show.service";
-import { IShowTime } from "../../../interface/model";
+import { IFilms, IShowTime, ITime } from "../../../interface/model";
+import { useFetchProductQuery } from "../../../service/films.service";
+import { useFetchTimeQuery } from "../../../service/time.service";
+import EditShow from "./EditShow";
+import { useFetchShowTimeQuery, useRemoveShowTimeMutation } from "../../../service/show.service";
+import AddShow from "./AddShow";
 
 interface DataType {
   id: string;
@@ -21,8 +21,10 @@ const { Search } = Input;
 
 const ListShow: React.FC = () => {
   const { data: shows } = useFetchShowTimeQuery();
+  const { data: films } = useFetchProductQuery();
+  const {data: times} = useFetchTimeQuery();
   const [removeShowTimes] = useRemoveShowTimeMutation();
-  console.log(shows);
+  // console.log(shows);
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã Suất Chiếu",
@@ -50,13 +52,16 @@ const ListShow: React.FC = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          {/* <EditCinema dataCinema={record} /> */}
+          <EditShow dataShow={record} />
 
           <Popconfirm
             placement="topLeft"
             title="Bạn muốn xóa sản phẩm?"
             description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeShowTimes(record.id)}
+            onConfirm={() => {
+              removeShowTimes(record.id);
+              message.success("Xóa sản phẩm thành công!");
+            }}
             okText="Yes"
             cancelText="No"
             okButtonProps={{
@@ -77,15 +82,17 @@ const ListShow: React.FC = () => {
     },
   ];
 
-  const dataCate = (shows as any)?.data?.map((show: IShowTime, index: number) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dataShow = (shows as any)?.data?.map((show: IShowTime, index: number) => ({
     key: index.toString(),
     id: show.id,
     date: show.date,
-    film_id: show.film_id,
-    time_id: show.time_id,
-    room_id: show.room_id,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    film_id: (films as any)?.data?.find((films: IFilms) => films.id === show.film_id)?.name,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    time_id: (times as any)?.data?.find((times: ITime) => times.id === show.time_id)?.time,
+    room_id: show.room_id
   }));
-
   return (
     <>
       <div className="">
@@ -96,10 +103,10 @@ const ListShow: React.FC = () => {
             style={{ width: 600 }}
           />
 
-          {/* <AddCinema /> */}
+          <AddShow />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataCate} />
+      <Table columns={columns} dataSource={dataShow} />
     </>
   );
 };

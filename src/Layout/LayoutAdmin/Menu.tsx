@@ -41,7 +41,7 @@ const items: MenuItem[] = [
     getItem(
       "Đặt vé",
       "3",
-      <NavLink to="/admin/product">
+      <NavLink to="/admin/book_ticket">
         <CopyOutlined />
       </NavLink>
     ),
