@@ -9,8 +9,16 @@ import Ticket from "./pages/Clients/TICKET/Ticket";
 import Movies from "./pages/Clients/Movies/Movies";
 import F_B from "./pages/Clients/F&B/F&B";
 import Login from "./pages/Clients/Login/Login";
+<<<<<<< Updated upstream
 import LayoutAdmin from "./Layout/LayoutAdmin/LayoutAdmin";
 import ListFilm from "./pages/Admin/ListFilm/ListFilm";
+=======
+import Dasboard from "./pages/Admin/Dasboard";
+import LayoutAdmin from "./pages/Admin/Component/Layout";
+import AdminCategory from "./pages/Admin/Page/admin/Category/AdminCategory";
+import AdminFilm from "./pages/Admin/Page/admin/Film/AdminFilm";
+import AdminAdd from "./pages/Admin/Page/admin/Category/AdminAdd";
+>>>>>>> Stashed changes
 
 function App() {
   const router = createBrowserRouter([
@@ -50,6 +58,10 @@ function App() {
           path: "/orther",
           element: <Orther />,
         },
+        {
+          path: "/dasboard",
+          element: <Dasboard />,
+        },
       ],
     },
     {
@@ -66,6 +78,21 @@ function App() {
       path: "/login",
       element: <Login />,
     },
+    {
+      path: '/admin', element: <LayoutAdmin />,
+      children : [
+        {
+          path : 'category', element: <AdminCategory />
+        },
+        {
+          path: 'addCate', element : <AdminAdd />
+        },
+        {
+          path : 'film' ,element : <AdminFilm />
+        }
+      ]
+      
+    }
   ]);
   return <RouterProvider router={router} />;
 }
