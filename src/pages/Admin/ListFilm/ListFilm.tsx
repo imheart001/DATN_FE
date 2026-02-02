@@ -10,14 +10,15 @@ import {
   message,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import {
-  UserAddOutlined,
-  DeleteOutlined,
-  EditOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import AddFilm from "../Films/AddFilm";
-import { NavLink } from "react-router-dom";
+
 import EditFilm from "../Films/EditFilm";
+import {
+  useFetchProductQuery,
+  useRemoveProductMutation,
+} from "../../../service/films.service";
+import { IFilms } from "../../../interface/model";
 interface DataType {
   key: string;
   name: string;
@@ -31,8 +32,8 @@ interface DataType {
 const columns: ColumnsType<DataType> = [
   {
     title: "Mã phim",
-    dataIndex: "name",
-    key: "name",
+    dataIndex: "key",
+    key: "key",
     render: (text) => <a className="text-blue-700">{text}</a>,
   },
   {
@@ -91,7 +92,6 @@ const columns: ColumnsType<DataType> = [
           title="Bạn muốn xóa sản phẩm?"
           description="Xóa sẽ mất sản phẩm này trong database!"
           onConfirm={() => {
-            // deleteProduct(record.key);
             message.success("Xóa sản phẩm thành công!");
           }}
           okText="Yes"
@@ -114,35 +114,38 @@ const columns: ColumnsType<DataType> = [
   },
 ];
 
-const data: DataType[] = [
-  {
-    key: "1",
-    name: "MOV10004",
-    nameFilm: "The Black Doreamon 1",
-    time: "180 phút",
-    dateSt: new Date(2023, 4, 17),
-    dateEnd: new Date(2023, 4, 30),
-    tags: ["Hoạt động"],
-  },
-];
-
 const { Search } = Input;
 const { RangePicker } = DatePicker;
-const ListFilm: React.FC = () => (
-  <>
-    <div className="">
-      <h2 className="font-bold text-2xl my-4">Quản lí phim</h2>
-      <div className="space-x-4 justify-center my-4">
-        <Search
-          placeholder="Nhập tên phim hoặc mã phim"
-          style={{ width: 600 }}
-        />
-        <RangePicker />
-        <AddFilm />
+
+const ListFilm: React.FC = () => {
+  const { data: films } = useFetchProductQuery();
+
+  const dataFilm = films?.data?.map((film: IFilms, index: number) => ({
+    key: index.toString(),
+    name: film?._id,
+    nameFilm: film?.name,
+    time: film?.time,
+    dateSt: new Date(film.release_date),
+    dateEnd: new Date(film.release_date),
+    tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+  }));
+
+  return (
+    <>
+      <div className="">
+        <h2 className="font-bold text-2xl my-4">Quản lí phim</h2>
+        <div className="space-x-4 justify-center my-4">
+          <Search
+            placeholder="Nhập tên phim hoặc mã phim"
+            style={{ width: 600 }}
+          />
+          <RangePicker />
+          <AddFilm />
+        </div>
       </div>
-    </div>
-    <Table columns={columns} dataSource={data} />
-  </>
-);
+      <Table columns={columns} dataSource={dataFilm} />
+    </>
+  );
+};
 
 export default ListFilm;
