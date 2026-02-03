@@ -7,66 +7,44 @@ import {
   DatePicker,
   Button,
   Popconfirm,
-  message,
-  Image,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
-import AddFilm from "../Films/AddFilm";
-
-import EditFilm from "../Films/EditFilm";
-import {
-  useFetchProductQuery,
-  useRemoveProductMutation,
-} from "../../../service/films.service";
-import { IFilms } from "../../../interface/model";
+// import AddFilm from "../Films/AddFilm";
+import AddCategory from "../Category/AddCategory"
+// import EditFilm from "../Films/EditFilm";
+// import {
+//   useFetchProductQuery,
+//   useRemoveProductMutation,
+// } from "../../../service/films.service";
+import { useFetchCateQuery} from "../../../service/cate.service"
+import { ICategorys } from "../../../interface/model";
+// import { useRemoveCateMutation } from "../../../service/cate.service";
 interface DataType {
   key: string;
   name: string;
-  nameFilm: string;
-  images: string;
-  time: string;
-  dateSt: Date;
-  dateEnd: Date;
+  nameCate: string;
+  slug: string;
+  status: string;
   tags: string[];
 }
 
 const columns: ColumnsType<DataType> = [
   {
-    title: "Mã phim",
+    title: "Mã Category",
     dataIndex: "key",
     key: "key",
     render: (text) => <a className="text-blue-700">{text}</a>,
   },
   {
-    title: "Tên phim",
-    dataIndex: "nameFilm",
-    key: "nameFilm",
+    title: "Tên Category",
+    dataIndex: "name",
+    key: "name",
   },
   {
-    title: "Thời lượng",
-    dataIndex: "time",
-    key: "time",
-  },
-  {
-    title: "Ngày phát hành",
-    dataIndex: "dateSt",
-    key: "dateSt",
-    render: (date) => <span>{date.toLocaleDateString()}</span>,
-  },
-  {
-    title: "Ngày kết thúc",
-    dataIndex: "dateEnd",
-    key: "dateEnd",
-    render: (date) => <span>{date.toLocaleDateString()}</span>,
-  },
-  {
-    key: "images",
-    title: "Hình ảnh",
-    dataIndex: "images",
-    align: "center",
-    width: "20%",
-    render: (text: string) => <Image width={50} src={text} />,
+    title: "Slug",
+    dataIndex: "slug",
+    key: "slug",
   },
   {
     title: "Trạng thái",
@@ -95,7 +73,7 @@ const columns: ColumnsType<DataType> = [
     key: "action",
     render: (_, record) => (
       <Space size="middle">
-        <EditFilm />
+        {/* <EditFilm /> */}
 
         <Popconfirm
           placement="topLeft"
@@ -125,21 +103,18 @@ const columns: ColumnsType<DataType> = [
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
-const ListFilm: React.FC = () => {
-  const { data: films } = useFetchProductQuery();
-  const [removeProduct] = useRemoveProductMutation();
-  console.log(films);
+const ListCate: React.FC = () => {
+  const { data: cates } = useFetchCateQuery();
+//   const [removeCate] = useRemoveCateMutation();
+  console.log(cates);
 
-  const dataFilm = films?.data?.map((film: IFilms, index: number) => ({
+  const dataCate = cates?.data?.map((cate: ICategorys, index: number) => ({
     key: index.toString(),
-    name: film?._id,
-    nameFilm: film?.name,
-    time: film?.time,
-    images: film?.image,
-    dateSt: new Date(film.release_date),
-    dateEnd: new Date(film.release_date),
-    tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+    name: cate?.name,
+    slug: cate?.slug,
+    tags: [cate.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
+  
 
   return (
     <>
@@ -151,12 +126,12 @@ const ListFilm: React.FC = () => {
             style={{ width: 600 }}
           />
           <RangePicker />
-          <AddFilm />
+          <AddCategory />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataFilm} />
+      <Table columns={columns} dataSource={dataCate} />
     </>
   );
 };
 
-export default ListFilm;
+export default ListCate;

@@ -69,8 +69,15 @@ const items: MenuItem[] = [
       </NavLink>
     ),
     getItem(
-      "Quản lí suất chiếu",
+      "Loại phim",
       "8",
+      <NavLink to="/admin/listcate">
+        <CopyOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "Quản lí suất chiếu",
+      "9",
       <NavLink to="/admin/product/create">
         <FormOutlined />
       </NavLink>

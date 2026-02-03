@@ -9,3 +9,9 @@ export interface IFilms {
   description: string;
   status: number;
 }
+export interface ICategorys {
+  _id: string;
+  name: string;
+  slug: string;
+  status: number;
+}

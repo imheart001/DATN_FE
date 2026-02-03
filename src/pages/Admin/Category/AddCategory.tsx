@@ -13,12 +13,11 @@ import {
   message,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useAddProductMutation } from "../../../service/films.service";
-
+import { useAddCateMutation } from "../../../service/cate.service";
 const { Option } = Select;
 
-const AddFilm: React.FC = () => {
-  const [addProduct] = useAddProductMutation();
+const AddCategory: React.FC = () => {
+  const [addCategory] = useAddCateMutation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -33,10 +32,10 @@ const AddFilm: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
       values.release_date = values.release_date.format("YYYY-MM-DD");
-      await addProduct(values).unwrap();
+      await addCategory(values).unwrap();
       message.success("Thêm sản phẩm thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin/listfilm");
+      navigate("/admin/listcate");
     } catch (error) {
       message.error("Thêm sản phẩm thất bại");
     }
@@ -55,7 +54,7 @@ const AddFilm: React.FC = () => {
         Thêm
       </Button>
       <Drawer
-        title="Thêm phim"
+        title="Thêm category"
         width={720}
         onClose={() => {
           onClose();
@@ -100,18 +99,9 @@ const AddFilm: React.FC = () => {
                 <Input placeholder="Please enter user name" />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                name="image"
-                label="Image"
-                rules={[{ required: true, message: "Please select an image" }]}
-              >
-                <Input placeholder="Please enter user image" />
-              </Form.Item>
-            </Col>
+           
           </Row>
-          <Row gutter={16}>
-            <Col span={12}>
+          <Col span={12}>
               <Form.Item
                 name="slug"
                 label="Slug"
@@ -120,40 +110,6 @@ const AddFilm: React.FC = () => {
                 <Input placeholder="Please enter user name" />
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                name="trailer"
-                label="Trailer"
-                rules={[
-                  { required: true, message: "Please choose the trailer" },
-                ]}
-              >
-                <Input placeholder="Please enter user trailer" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={20}>
-            <Col span={12}>
-              <Form.Item
-                name="time"
-                label="Time"
-                rules={[{ required: true, message: "Please choose the time" }]}
-              >
-                <Input placeholder="Please enter user time" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="release_date"
-                label="Release Date"
-                rules={[
-                  { required: true, message: "Please choose the release date" },
-                ]}
-              >
-                <DatePicker />
-              </Form.Item>
-            </Col>
-          </Row>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -168,30 +124,10 @@ const AddFilm: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-
-          <Row gutter={16}>
-            <Col span={24}>
-              <Form.Item
-                name="description"
-                label="Description"
-                rules={[
-                  {
-                    required: true,
-                    message: "please enter url description",
-                  },
-                ]}
-              >
-                <Input.TextArea
-                  rows={4}
-                  placeholder="please enter url description"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
         </Form>
       </Drawer>
     </>
   );
 };
 
-export default AddFilm;
+export default AddCategory;
