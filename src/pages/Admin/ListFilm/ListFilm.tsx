@@ -8,6 +8,7 @@ import {
   Button,
   Popconfirm,
   message,
+  Image,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -23,6 +24,7 @@ interface DataType {
   key: string;
   name: string;
   nameFilm: string;
+  images: string;
   time: string;
   dateSt: Date;
   dateEnd: Date;
@@ -59,6 +61,14 @@ const columns: ColumnsType<DataType> = [
     render: (date) => <span>{date.toLocaleDateString()}</span>,
   },
   {
+    key: "images",
+    title: "Hình ảnh",
+    dataIndex: "images",
+    align: "center",
+    width: "20%",
+    render: (text: string) => <Image width={50} src={text} />,
+  },
+  {
     title: "Trạng thái",
 
     key: "tags",
@@ -91,9 +101,7 @@ const columns: ColumnsType<DataType> = [
           placement="topLeft"
           title="Bạn muốn xóa sản phẩm?"
           description="Xóa sẽ mất sản phẩm này trong database!"
-          onConfirm={() => {
-            message.success("Xóa sản phẩm thành công!");
-          }}
+          // onConfirm={() => handleRemoveProduct(record.key)}
           okText="Yes"
           cancelText="No"
           okButtonProps={{
@@ -119,12 +127,15 @@ const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
   const { data: films } = useFetchProductQuery();
+  const [removeProduct] = useRemoveProductMutation();
+  console.log(films);
 
   const dataFilm = films?.data?.map((film: IFilms, index: number) => ({
     key: index.toString(),
     name: film?._id,
     nameFilm: film?.name,
     time: film?.time,
+    images: film?.image,
     dateSt: new Date(film.release_date),
     dateEnd: new Date(film.release_date),
     tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
