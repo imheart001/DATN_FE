@@ -1,12 +1,46 @@
+import { Cascader } from "antd";
 import { Link } from "react-router-dom";
+import { useFetchCinemaQuery } from "../../service/brand.service";
+import { useEffect, useState } from "react";
+import { ICinemas } from "../../interface/model";
+interface Option {
+  value: string;
+  label: string;
+  children?: Option[];
+}
 
+const displayRender = (labels: string[]) => labels[labels.length - 1];
 const Header = () => {
+  const { data: cinemas } = useFetchCinemaQuery();
+  const [cinemaOptions, setCinemaOptions] = useState<Option[]>([]);
+  useEffect(() => {
+    if (cinemas) {
+      const cinemaData = cinemas?.data.map((cinema: ICinemas) => ({
+        value: cinema.id.toString(),
+        label: cinema.name,
+        // children: cinema.theaters.map((theater) => ({
+        //   value: theater.id.toString(),
+        //   label: theater.name,
+        // })),
+      }));
+      setCinemaOptions(cinemaData);
+    }
+  }, [cinemas]);
+  const onChange = (value: string[]) => {
+    console.log(value);
+  };
   return (
     <header className="max-w-5xl mx-auto px-10 ">
       <div className="flex justify-between text-[18px]  items-center py-8 text-[#8E8E8E]">
         <Link to={"/"}>
           <img srcSet="/logo.png/" alt="" />
         </Link>
+        <Cascader
+          options={cinemaOptions}
+          expandTrigger="hover"
+          displayRender={displayRender}
+          onChange={() => onChange}
+        />
         <Link to={"/"} className="text-[#EE2E24] hover:text-[#EE2E24]">
           Home
         </Link>

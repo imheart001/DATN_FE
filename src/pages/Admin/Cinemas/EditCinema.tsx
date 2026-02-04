@@ -15,48 +15,46 @@ import {
   Space,
   message,
 } from "antd";
+import { useUpdateCinemaMutation } from "../../../service/brand.service";
 
-import { useUpdateCateMutation } from "../../../service/cate.service";
-
+const { Option } = Select;
 interface DataType {
   id: string;
   name: string;
-  slug: string;
-  status: number;
+  address: string;
 }
-interface EditCateProps {
-  dataCate: DataType;
+interface EditCinemaProps {
+  dataCinema: DataType;
 }
 
-const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
-  const [updateCate] = useUpdateCateMutation();
+const EditCinema: React.FC<EditCinemaProps> = ({ dataCinema }) => {
+  const [updateCinema] = useUpdateCinemaMutation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const { Option } = Select;
+
   useEffect(() => {
-    if (dataCate) {
+    if (dataCinema) {
       form.setFieldsValue({
-        name: dataCate.name,
-        slug: dataCate.slug,
-        status: dataCate.status,
+        name: dataCinema.name,
+        address: dataCinema.address,
       });
     }
-  }, [dataCate]);
+  }, [dataCinema]);
   const onFinish = async (values: any) => {
     try {
-      await updateCate({ ...values, id: dataCate.id });
+      await updateCinema({ ...values, id: dataCinema.id });
 
       message.success("Cập nhật sản phẩm thành công");
 
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
-      navigate("/admin/listcate");
+      navigate("/admin/cinema");
     } catch (error) {
       message.error("Cập nhật sản phẩm thất bại");
     }
   };
   const [open, setOpen] = useState(false);
-  console.log(dataCate);
+  console.log(dataCinema);
 
   const showDrawer = () => {
     setOpen(true);
@@ -75,7 +73,7 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
       </Button>
 
       <Drawer
-        title="Cập nhật Thể loại"
+        title="Cập nhật Rạp Chiếu"
         width={720}
         onClose={onClose}
         open={open}
@@ -118,25 +116,11 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="slug"
-                label="Slug"
-                rules={[{ required: true, message: "Please slug" }]}
+                name="address"
+                label="Địa chỉ"
+                rules={[{ required: true, message: "Please Địa chỉ" }]}
               >
-                <Input placeholder="Please slug" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
-              >
-                <Select placeholder="Please select a status">
-                  <Option value="1">1</Option>
-                  <Option value="0">0</Option>
-                </Select>
+                <Input placeholder="Please Địa chỉ" />
               </Form.Item>
             </Col>
           </Row>
@@ -146,4 +130,4 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
   );
 };
 
-export default UpdateCategory;
+export default EditCinema;

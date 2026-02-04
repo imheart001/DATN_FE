@@ -23,116 +23,126 @@ import { IFilms } from "../../../interface/model";
 interface DataType {
   key: string;
   name: string;
+  slug: string;
   nameFilm: string;
   images: string;
   time: string;
+  
+  trailer: string;
+  status: string;
+  description: string;
   dateSt: Date;
   dateEnd: Date;
   tags: string[];
 }
-
-const columns: ColumnsType<DataType> = [
-  {
-    title: "Mã phim",
-    dataIndex: "key",
-    key: "key",
-    render: (text) => <a className="text-blue-700">{text}</a>,
-  },
-  {
-    title: "Tên phim",
-    dataIndex: "nameFilm",
-    key: "nameFilm",
-  },
-  {
-    title: "Thời lượng",
-    dataIndex: "time",
-    key: "time",
-  },
-  {
-    title: "Ngày phát hành",
-    dataIndex: "dateSt",
-    key: "dateSt",
-    render: (date) => <span>{date.toLocaleDateString()}</span>,
-  },
-  {
-    title: "Ngày kết thúc",
-    dataIndex: "dateEnd",
-    key: "dateEnd",
-    render: (date) => <span>{date.toLocaleDateString()}</span>,
-  },
-  {
-    key: "images",
-    title: "Hình ảnh",
-    dataIndex: "images",
-    align: "center",
-    width: "20%",
-    render: (text: string) => <Image width={50} src={text} />,
-  },
-  {
-    title: "Trạng thái",
-
-    key: "tags",
-    dataIndex: "tags",
-    render: (_, { tags }) => (
-      <>
-        {tags.map((tag) => {
-          let color = tag.length > 5 ? "green" : "green";
-          if (tag === "loser") {
-            color = "volcano";
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </>
-    ),
-  },
-
-  {
-    title: "Action",
-    key: "action",
-    render: (_, record) => (
-      <Space size="middle">
-        <EditFilm />
-
-        <Popconfirm
-          placement="topLeft"
-          title="Bạn muốn xóa sản phẩm?"
-          description="Xóa sẽ mất sản phẩm này trong database!"
-          // onConfirm={() => handleRemoveProduct(record.key)}
-          okText="Yes"
-          cancelText="No"
-          okButtonProps={{
-            style: { backgroundColor: "#007bff", color: "white" },
-          }}
-          cancelButtonProps={{
-            style: { backgroundColor: "#dc3545", color: "white" },
-          }}
-        >
-          <Button>
-            <div className="flex ">
-              <DeleteOutlined />
-            </div>
-          </Button>
-        </Popconfirm>
-      </Space>
-    ),
-  },
-];
-
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
   const { data: films } = useFetchProductQuery();
   const [removeProduct] = useRemoveProductMutation();
+  const columns: ColumnsType<DataType> = [
+    {
+      title: "Mã phim",
+      dataIndex: "name",
+      key: "name",
+      render: (text) => <a className="text-blue-700">{text}</a>,
+    },
+    {
+      title: "Tên phim",
+      dataIndex: "nameFilm",
+      key: "nameFilm",
+    },
+    {
+      title: "Thời lượng",
+      dataIndex: "time",
+      key: "time",
+    },
+    {
+      title: "Ngày phát hành",
+      dataIndex: "dateSt",
+      key: "dateSt",
+      render: (date) => <span>{date.toLocaleDateString()}</span>,
+    },
+    {
+      title: "Ngày kết thúc",
+      dataIndex: "dateEnd",
+      key: "dateEnd",
+      render: (date) => <span>{date.toLocaleDateString()}</span>,
+    },
+    {
+      key: "images",
+      title: "Hình ảnh",
+      dataIndex: "images",
+      align: "center",
+      width: "20%",
+      render: (text: string) => <Image width={50} src={text} />,
+    },
+    {
+      title: "Trạng thái",
+
+      key: "tags",
+      dataIndex: "tags",
+      render: (_, { tags }) => (
+        <>
+          {tags.map((tag) => {
+            let color = tag.length > 5 ? "green" : "green";
+            if (tag === "loser") {
+              color = "volcano";
+            }
+            return (
+              <Tag color={color} key={tag}>
+                {tag.toUpperCase()}
+              </Tag>
+            );
+          })}
+        </>
+      ),
+    },
+
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <EditFilm dataID={record} />
+
+          <Popconfirm
+            placement="topLeft"
+            title="Bạn muốn xóa sản phẩm?"
+            description="Xóa sẽ mất sản phẩm này trong database!"
+            onConfirm={() => {
+              removeProduct(record.name);
+              message.success("Xóa sản phẩm thành công!");
+            }}
+            okText="Yes"
+            cancelText="No"
+            okButtonProps={{
+              style: { backgroundColor: "#007bff", color: "white" },
+            }}
+            cancelButtonProps={{
+              style: { backgroundColor: "#dc3545", color: "white" },
+            }}
+          >
+            <Button>
+              <div className="flex ">
+                <DeleteOutlined />
+              </div>
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
   console.log(films);
 
   const dataFilm = films?.data?.map((film: IFilms, index: number) => ({
     key: index.toString(),
-    name: film?._id,
+    name: film?.id,
+    slug: film.slug,
+    trailer: film.trailer,
+    status: film.status,
+    description: film.description,
     nameFilm: film?.name,
     time: film?.time,
     images: film?.image,
