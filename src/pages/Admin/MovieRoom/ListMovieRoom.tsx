@@ -1,60 +1,66 @@
+
 import React from "react";
 
-import { Space, Table, Input, Button, Popconfirm } from "antd";
+import { Space, Table, Input, Button,  Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
-import AddCategory from "../Category/AddCategory";
 
 import {
-  useFetchCateQuery,
-  useRemoveCateMutation,
-} from "../../../service/cate.service";
-import { ICategorys } from "../../../interface/model";
-import UpdateCategory from "./UpdateCategory";
+  useFetchMovieRoomQuery,
+  useRemoveMovieRoomMutation,
+} from "../../../service/movieroom.service";
+import {
+useFetchCinemaQuery
+} from "../../../service/brand.service";
+import { ICinemas, IMovieRoom } from "../../../interface/model";
+import AddMovieRoom from "./AddMovieRoom";
+import EditMovieRoom from "./EditMovieRoom";
 interface DataType {
+
   id: string;
   name: string;
-  slug: string;
-  status: number;
+  id_cinema: string
 }
 
 const { Search } = Input;
 
-const ListCate: React.FC = () => {
-  const { data: cates } = useFetchCateQuery();
-  const [removeCate] = useRemoveCateMutation();
-  console.log(cates);
+const ListMovieRoom: React.FC = () => {
+  const { data: movies } = useFetchMovieRoomQuery();
+  const { data: cinemas } = useFetchCinemaQuery();
+
+  const [removeMovie] = useRemoveMovieRoomMutation();
+  console.log(movies);
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã Category",
+      title: "Mã MovieRoom",
       dataIndex: "id",
       key: "key",
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Tên Category",
+      title: "Tên MovieRoom",
       dataIndex: "name",
       key: "name",
     },
-    {
-      title: "Slug",
-      dataIndex: "slug",
-      key: "slug",
-    },
 
     {
-      title: "Action",
-      key: "action",
+      title: "id_cinema",
+      dataIndex: "id_cinema",
+      key: "id_cinema",
+    },
+   
+    {
+
       render: (_, record) => (
         <Space size="middle">
-          <UpdateCategory dataCate={record} />
+          <EditMovieRoom dataMovieRoom={record} />
 
           <Popconfirm
             placement="topLeft"
             title="Bạn muốn xóa sản phẩm?"
             description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeCate(record.id)}
+            onConfirm={() => removeMovie(record.id)}
             okText="Yes"
             cancelText="No"
             okButtonProps={{
@@ -75,14 +81,13 @@ const ListCate: React.FC = () => {
     },
   ];
 
-  const dataCate = (cates as any)?.data?.map(
-    (cate: ICategorys, index: number) => ({
+  const dataMovie = (movies as any)?.data?.map(
+    (movie: IMovieRoom, index: number) => ({
       key: index.toString(),
-      id: cate.id,
-      name: cate?.name,
-      slug: cate?.slug,
-      status: cate?.status,
-      tags: [cate.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+      id: movie.id,
+      name: movie?.name,
+      id_cinema: (cinemas as any)?.data?.find((cinemas: ICinemas) =>cinemas.id === movie.id_cinema)?.name
+
     })
   );
 
@@ -90,21 +95,21 @@ const ListCate: React.FC = () => {
   return (
     <>
       <div className="">
-        <h2 className="font-bold text-2xl my-4">Quản lí loại phim</h2>
+        <h2 className="font-bold text-2xl my-4">Quản lí đồ ăn</h2>
         <div className="space-x-4 justify-center my-4">
           <Search
-            placeholder="Nhập tên phim hoặc mã phim"
+            placeholder="Nhập tên đồ ăn hoặc mã đồ ăn"
             style={{ width: 600 }}
           />
 
 
-          <AddCategory />
+          <AddMovieRoom />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataCate} />
+      <Table columns={columns} dataSource={dataMovie} />
     </>
   );
 };
 
 
-export default ListCate;
+export default ListMovieRoom;

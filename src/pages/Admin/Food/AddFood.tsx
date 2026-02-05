@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 
 import { UserAddOutlined } from "@ant-design/icons";
@@ -8,16 +9,16 @@ import {
   Form,
   Input,
   Row,
-  Select,
+  // Select,
   Space,
   message,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useAddCateMutation } from "../../../service/cate.service";
-const { Option } = Select;
+import { useAddFoodMutation } from "../../../service/food.sevice";
+// const { Option } = Select;
 
-const AddCategory: React.FC = () => {
-  const [addCategory] = useAddCateMutation();
+const AddFood: React.FC = () => {
+  const [addFood] = useAddFoodMutation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -32,10 +33,10 @@ const AddCategory: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
 
-      await addCategory(values).unwrap();
+      await addFood(values).unwrap();
       message.success("Thêm sản phẩm thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin/cinema");
+      navigate("/admin/food");
     } catch (error) {
       message.error("Thêm sản phẩm thất bại");
     }
@@ -55,7 +56,7 @@ const AddCategory: React.FC = () => {
       </Button>
       <Drawer
 
-        title="Thêm Loại Phim"
+        title="Thêm Loại Đồ Ăn"
         width={720}
         onClose={() => {
           onClose();
@@ -103,11 +104,11 @@ const AddCategory: React.FC = () => {
 
             <Col span={12}>
               <Form.Item
-                name="slug"
-                label="Slug"
-                rules={[{ required: true, message: "Please enter slug" }]}
+                name="image"
+                label="Image"
+                rules={[{ required: true, message: "Please enter Image" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Please enter user Image" />
               </Form.Item>
             </Col>
 
@@ -116,14 +117,11 @@ const AddCategory: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
+                name="price"
+                label="Price"
+                rules={[{ required: true, message: "Please select a Price" }]}
               >
-                <Select placeholder="Please select a status">
-                  <Option value="1">1</Option>
-                  <Option value="0">0</Option>
-                </Select>
+                <Input placeholder="Please enter user Price" />
               </Form.Item>
             </Col>
           </Row>
@@ -134,4 +132,4 @@ const AddCategory: React.FC = () => {
 };
 
 
-export default AddCategory;
+export default AddFood;

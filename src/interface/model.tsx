@@ -10,6 +10,7 @@ export interface IFilms {
   status: number;
 }
 export interface ICategorys {
+
   id: string;
   name: string;
   slug: string;
@@ -40,4 +41,25 @@ export interface IBookTicket {
   amount: string,
   price: string,
   status: number,
+}
+export interface IFood {
+
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+}
+
+export interface IMovieRoom {
+
+  id: string;
+  name: string;
+  id_cinema: string
+  // name_cinema : string
+}
+export interface ICateDetail{
+
+  id: string;
+  category_id: string;
+  film_id: string
 }

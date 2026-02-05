@@ -13,10 +13,9 @@ import {
   message,
 } from "antd";
 import {
-  useGetProductByIdQuery,
   useUpdateProductMutation,
 } from "../../../service/films.service";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
 const { Option } = Select;

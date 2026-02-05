@@ -11,10 +11,14 @@ import F_B from "./pages/Clients/F&B/F&B";
 import Login from "./pages/Clients/Login/Login";
 import LayoutAdmin from "./Layout/LayoutAdmin/LayoutAdmin";
 import ListFilm from "./pages/Admin/ListFilm/ListFilm";
+
 import ListCate from "./pages/Admin/Category/ListCategory";
 import ListCinema from "./pages/Admin/Cinemas/ListCinema";
 import ListShow from "./pages/Admin/Quản Lí suất chiếu/ListShow";
 import ListBookTicket from "./pages/Admin/Book-Ticket/ListBookTicket";
+import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
+import ListFood from "./pages/Admin/Food/ListFood";
+import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
 
 function App() {
   const router = createBrowserRouter([
@@ -72,6 +76,7 @@ function App() {
           path: "/admin/listcate",
           element: <ListCate />,
         },
+
         {
           path: "/admin/cinema",
           element: <ListCinema />,
@@ -79,6 +84,18 @@ function App() {
         {
           path: "/admin/show",
           element: <ListShow />,
+        },
+        {
+          path: "/admin/movieroom",
+          element: <ListMovieRoom />,
+        },
+        {
+          path: "/admin/food",
+          element: <ListFood />,
+        },
+        {
+          path: "/admin/category_detail",
+          element: <ListCateDetail />,
         },
       ],
     },

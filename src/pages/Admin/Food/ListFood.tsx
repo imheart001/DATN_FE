@@ -1,60 +1,68 @@
+
 import React from "react";
 
-import { Space, Table, Input, Button, Popconfirm } from "antd";
+import { Space, Table, Input, Button, Image, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
-import AddCategory from "../Category/AddCategory";
+import AddFood from "../Food/AddFood";
 
 import {
-  useFetchCateQuery,
-  useRemoveCateMutation,
-} from "../../../service/cate.service";
-import { ICategorys } from "../../../interface/model";
-import UpdateCategory from "./UpdateCategory";
+  useFetchFoodQuery,
+  useRemoveFoodMutation,
+} from "../../../service/food.sevice"
+import { IFood } from "../../../interface/model";
+import EditFood from "./EditFood";
 interface DataType {
   id: string;
   name: string;
-  slug: string;
-  status: number;
+  image: string;
+  price: number;
 }
 
 const { Search } = Input;
 
-const ListCate: React.FC = () => {
-  const { data: cates } = useFetchCateQuery();
-  const [removeCate] = useRemoveCateMutation();
-  console.log(cates);
+const ListFood: React.FC = () => {
+  const { data: foods } = useFetchFoodQuery();
+  const [removeFood] = useRemoveFoodMutation();
+  console.log(foods);
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã Category",
+      title: "Mã Food",
       dataIndex: "id",
       key: "key",
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Tên Category",
+      title: "Tên Food",
       dataIndex: "name",
       key: "name",
     },
-    {
-      title: "Slug",
-      dataIndex: "slug",
-      key: "slug",
-    },
 
     {
-      title: "Action",
-      key: "action",
+      key: "image",
+      title: "Hình ảnh",
+      dataIndex: "image",
+      align: "center",
+      width: "20%",
+      render: (text: string) => <Image width={50} src={text} />,
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+    },
+    {
+
       render: (_, record) => (
         <Space size="middle">
-          <UpdateCategory dataCate={record} />
+          <EditFood dataFood={record} />
 
           <Popconfirm
             placement="topLeft"
             title="Bạn muốn xóa sản phẩm?"
             description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeCate(record.id)}
+            onConfirm={() => removeFood(record.id)}
             okText="Yes"
             cancelText="No"
             okButtonProps={{
@@ -75,14 +83,14 @@ const ListCate: React.FC = () => {
     },
   ];
 
-  const dataCate = (cates as any)?.data?.map(
-    (cate: ICategorys, index: number) => ({
+  const dataFood = (foods as any)?.data?.map(
+    (food: IFood, index: number) => ({
       key: index.toString(),
-      id: cate.id,
-      name: cate?.name,
-      slug: cate?.slug,
-      status: cate?.status,
-      tags: [cate.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+      id: food.id,
+      name: food?.name,
+      image: food?.image,
+      price: food?.price,
+      //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
     })
   );
 
@@ -90,21 +98,21 @@ const ListCate: React.FC = () => {
   return (
     <>
       <div className="">
-        <h2 className="font-bold text-2xl my-4">Quản lí loại phim</h2>
+        <h2 className="font-bold text-2xl my-4">Quản lí đồ ăn</h2>
         <div className="space-x-4 justify-center my-4">
           <Search
-            placeholder="Nhập tên phim hoặc mã phim"
+            placeholder="Nhập tên đồ ăn hoặc mã đồ ăn"
             style={{ width: 600 }}
           />
 
 
-          <AddCategory />
+          <AddFood />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataCate} />
+      <Table columns={columns} dataSource={dataFood} />
     </>
   );
 };
 
 
-export default ListCate;
+export default ListFood;

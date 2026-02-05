@@ -36,7 +36,7 @@ const AddFilm: React.FC = () => {
       await addProduct(values).unwrap();
       message.success("Thêm sản phẩm thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin");
+      navigate("/admin/listfilm");
     } catch (error) {
       message.error("Thêm sản phẩm thất bại");
     }
