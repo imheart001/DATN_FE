@@ -29,3 +29,24 @@ export interface IShowTime {
   film_id: string;
   room_id: string;
 }
+export interface IFood {
+
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+}
+
+export interface IMovieRoom {
+
+  id: string;
+  name: string;
+  id_cinema: string
+  // name_cinema : string
+}
+export interface ICateDetail{
+
+  id: string;
+  category_id: string;
+  film_id: string
+}

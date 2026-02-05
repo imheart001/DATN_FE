@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import Header from "../../../Layout/LayoutUser/Header";
 import { useGetProductByIdQuery } from "../../../service/films.service";
-import MovieTrailer from "../MovieTrailer/MovieTrailer";
+// import MovieTrailer from "../MovieTrailer/MovieTrailer";
 const Movie_About = () => {
   const { id } = useParams<string>();
   const { data: film, error, isLoading } = useGetProductByIdQuery(id);

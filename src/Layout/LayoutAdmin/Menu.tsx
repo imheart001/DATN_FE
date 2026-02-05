@@ -82,11 +82,32 @@ const items: MenuItem[] = [
         <FormOutlined />
       </NavLink>
     ),
+    getItem(
+      "Food",
+      "10",
+      <NavLink to="/admin/food">
+        <FormOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "MovieRoom",
+      "11",
+      <NavLink to="/admin/movieroom">
+        <FormOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "CateDetail",
+      "12",
+      <NavLink to="/admin/category_detail">
+        <FormOutlined />
+      </NavLink>
+    ),
   ]),
   getItem("Quản lí rạp", "10", <HomeOutlined />, [
     getItem(
       "Rạp",
-      "11",
+      "14",
       <NavLink to="/admin/cinema">
         <CopyOutlined />
       </NavLink>

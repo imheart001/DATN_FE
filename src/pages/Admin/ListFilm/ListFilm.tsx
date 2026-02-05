@@ -27,7 +27,7 @@ interface DataType {
   nameFilm: string;
   images: string;
   time: string;
-  
+
   trailer: string;
   status: string;
   description: string;
@@ -40,6 +40,7 @@ const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
   const { data: films } = useFetchProductQuery();
+
   const [removeProduct] = useRemoveProductMutation();
   const columns: ColumnsType<DataType> = [
     {
@@ -136,7 +137,7 @@ const ListFilm: React.FC = () => {
   ];
   console.log(films);
 
-  const dataFilm = films?.data?.map((film: IFilms, index: number) => ({
+  const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
     key: index.toString(),
     name: film?.id,
     slug: film.slug,
