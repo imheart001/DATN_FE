@@ -1,13 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/dist/query";
 import filmsAPI from "../service/films.service";
+import CinemasAPI from "../service/cinemas.service";
 
 export const store = configureStore({
   reducer: {
-    films: filmsAPI.reducer,
+    Cinemas: CinemasAPI.reducer,
+    
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(filmsAPI.middleware),
+    getDefaultMiddleware().concat(CinemasAPI.middleware),
+    
 });
 
 setupListeners(store.dispatch);

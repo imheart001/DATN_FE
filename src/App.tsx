@@ -11,6 +11,7 @@ import F_B from "./pages/Clients/F&B/F&B";
 import Login from "./pages/Clients/Login/Login";
 import LayoutAdmin from "./Layout/LayoutAdmin/LayoutAdmin";
 import ListFilm from "./pages/Admin/ListFilm/ListFilm";
+import ListCinemas from "./pages/Admin/Cinemas/listCinemas";
 
 function App() {
   const router = createBrowserRouter([
@@ -59,6 +60,10 @@ function App() {
         {
           path: "/admin/listfilm",
           element: <ListFilm />,
+        },
+        {
+          path: "/admin/listCinemas",
+          element: <ListCinemas />,
         },
       ],
     },

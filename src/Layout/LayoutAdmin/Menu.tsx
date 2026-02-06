@@ -80,7 +80,7 @@ const items: MenuItem[] = [
     getItem(
       "Rạp",
       "10",
-      <NavLink to="/admin/product">
+      <NavLink to="/admin/listCinemas">
         <CopyOutlined />
       </NavLink>
     ),
