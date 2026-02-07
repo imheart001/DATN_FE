@@ -1,19 +1,32 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/dist/query";
 import filmsAPI from "../service/films.service";
-import CinemasAPI from "../service/cinemas.service";
+
+import categorysAPI from "../service/cate.service";
+import cinemasAPI from "../service/brand.service";
+import showsAPI from "../service/show.service";
+import TimeAPI from "../service/time.service";
 
 export const store = configureStore({
   reducer: {
-    Cinemas: CinemasAPI.reducer,
-    
+    films: filmsAPI.reducer,
+    cates: categorysAPI.reducer,
+    cinemas: cinemasAPI.reducer,
+    shows: showsAPI.reducer,
+    time: TimeAPI.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(CinemasAPI.middleware),
-    
+    getDefaultMiddleware().concat(
+      filmsAPI.middleware,
+      categorysAPI.middleware,
+      cinemasAPI.middleware,
+      showsAPI.middleware,
+      TimeAPI.middleware
+    ),
 });
 
 setupListeners(store.dispatch);
+
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}

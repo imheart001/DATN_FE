@@ -11,7 +11,10 @@ import F_B from "./pages/Clients/F&B/F&B";
 import Login from "./pages/Clients/Login/Login";
 import LayoutAdmin from "./Layout/LayoutAdmin/LayoutAdmin";
 import ListFilm from "./pages/Admin/ListFilm/ListFilm";
-import ListCinemas from "./pages/Admin/Cinemas/listCinemas";
+import ListCate from "./pages/Admin/Category/ListCategory";
+import ListCinema from "./pages/Admin/Cinemas/ListCinema";
+import ListShow from "./pages/Admin/Quản Lí suất chiếu/ListShow";
+import ListTime from "./pages/time/listTime";
 
 function App() {
   const router = createBrowserRouter([
@@ -28,7 +31,7 @@ function App() {
           element: <BookingSeat />,
         },
         {
-          path: "/movie_about",
+          path: "/movie_about/:id",
           element: <Movie_About />,
         },
         {
@@ -62,8 +65,21 @@ function App() {
           element: <ListFilm />,
         },
         {
-          path: "/admin/listCinemas",
-          element: <ListCinemas />,
+
+          path: "/admin/listcate",
+          element: <ListCate />,
+        },
+        {
+          path: "/admin/cinema",
+          element: <ListCinema />,
+        },
+        {
+          path: "/admin/show",
+          element: <ListShow />,
+        },
+        {
+          path: "/admin/time",
+          element: <ListTime />,
         },
       ],
     },

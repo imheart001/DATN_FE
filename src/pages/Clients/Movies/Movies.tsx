@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import Header from "../../../Layout/LayoutUser/Header";
+import { useFetchProductQuery } from "../../../service/films.service";
+import FilmShowing from "../../../components/FilmShowing";
+import { IFilms } from "../../../interface/model";
 
 const Movies = () => {
+  const { data } = useFetchProductQuery() as { data: IFilms[] };
+
   return (
     <>
       <section
@@ -30,110 +35,9 @@ const Movies = () => {
             Đang chiếu
           </h1>
           <div className="grid grid-cols-4 gap-7">
-            <div className="w-[245px] h-[420px]">
-              <Link to={"/movie_about"}>
-                <img srcSet="/mv1.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Oppenheimer
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Drama</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv2.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Oppenheimer
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv3.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Mission: Impossi..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv4.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  The Moon
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv5.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Meg 2: The Trench
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv6.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Teenage Mutant..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv7.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Smugglers
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv8.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Detective Conan:..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
+            {data?.data.map((film: IFilms, index: number) => (
+              <FilmShowing key={index} data={film} />
+            ))}
           </div>
           <button className="mx-auto block mb-[67px]">
             <span>
