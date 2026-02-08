@@ -15,7 +15,6 @@ import ListCate from "./pages/Admin/Category/ListCategory";
 import ListCinema from "./pages/Admin/Cinemas/ListCinema";
 import ListShow from "./pages/Admin/Quản Lí suất chiếu/ListShow";
 import ListTime from "./pages/time/listTime";
-import TimeCinemas from "./pages/Clients/timeCinemas/TimeCinemas";
 
 function App() {
   const router = createBrowserRouter([
