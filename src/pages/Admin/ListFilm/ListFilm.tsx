@@ -27,7 +27,6 @@ interface DataType {
   nameFilm: string;
   images: string;
   time: string;
-
   trailer: string;
   status: string;
   description: string;

@@ -13,13 +13,11 @@ const categorysAPI = createApi({
       providesTags: ["category"],
     }),
     getCateById: builder.query<ICategorys, number | string>({
-
       query: (id) => `/Category/${id}`,
       providesTags: ["category"],
     }),
     removeCate: builder.mutation({
       query: (id) => ({
-
         url: "/Category/" + id,
         method: "DELETE",
       }),
@@ -27,7 +25,6 @@ const categorysAPI = createApi({
     }),
     addCate: builder.mutation({
       query: (category: ICategorys) => ({
-
         url: "/Category/",
         method: "POST",
         body: category,
@@ -36,7 +33,6 @@ const categorysAPI = createApi({
     }),
     updateCate: builder.mutation({
       query: (category: ICategorys) => ({
-
         url: `/Category/${category.id}`,
         method: "PATCH",
         body: category,
@@ -46,7 +42,6 @@ const categorysAPI = createApi({
   }),
 });
 export const {
-
   useAddCateMutation,
   useFetchCateQuery,
   useGetCateByIdQuery,

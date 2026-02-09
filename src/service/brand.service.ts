@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { ICinemas } from "../interface/model";
 
-
 const cinemasAPI = createApi({
   reducerPath: "cinemas",
   baseQuery: fetchBaseQuery({

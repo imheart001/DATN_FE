@@ -1,10 +1,23 @@
 
+import React, { useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
-
+import { Button, Modal } from 'antd';
 import { Link } from "react-router-dom";
 
-const Ticket = () => {
- 
+const Ticket: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   return (
     <>
       <section
@@ -67,18 +80,707 @@ const Ticket = () => {
           </h2>
           <div className="grid grid-cols-4 gap-10">
             <div className="w-[245px] h-[488px]">
-              <Link to={"/movie_about"}>
-                <img srcSet="/mv1.png/ " alt="" className="rounded-2xl" />
+
+              <img srcSet="/mv1.png/ " alt="" className="rounded-2xl" />
+              <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                Oppenheimer
+              </h3>
+              <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                <span>Drama</span>
+                <span>IMDB 8.6</span>
+                <span>13+</span>
+              </div>
+              <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
+
+                <Button type="primary" onClick={showModal}>
+                  Mua vé
+                </Button>
+                <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                  <hr></hr>
+                  <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                  <div className="mt-2">
+                    <Link to={"#"}>
+                      <span className="text-xl ">17/10-T3</span>
+                    </Link>
+                    <Link to={"#"}>
+                      <span className="text-xl ml-6">20/10-T6</span>
+                    </Link>
+                    <Link to={"#"}>
+                      <span className="text-xl ml-8">21/10-T7</span>
+                    </Link>
+                    <hr />
+                  </div>
+                  <div className="mt-2">
+                    <span>2D Phụ Đề</span>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-4 mt-2">
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                  </div>
+                </Modal>
+              </button>
+
+            </div>
+            <div className="w-[245px] h-[420px]">
+              <Link to={"#"}>
+                <img srcSet="/mv2.png/ " alt="" className="rounded-2xl" />
                 <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
                   Oppenheimer
                 </h3>
                 <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Drama</span>
+                  <span>Comedy</span>
                   <span>IMDB 8.6</span>
                   <span>13+</span>
                 </div>
                 <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Link to={"/book-ticket"}>Mua vé</Link>
+                  <Button type="primary" onClick={showModal}>
+                    Mua vé
+                  </Button>
+                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <hr></hr>
+                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                    <div className="mt-2">
+                      <Link to={"#"}>
+                        <span className="text-xl ">17/10-T3</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-6">20/10-T6</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-8">21/10-T7</span>
+                      </Link>
+                      <hr />
+                    </div>
+                    <div className="mt-2">
+                      <span>2D Phụ Đề</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                    </div>
+                  </Modal>
+                </button>
+              </Link>
+            </div>
+            <div className="w-[245px] h-[420px]">
+              <Link to={"#"}>
+                <img srcSet="/mv3.png/ " alt="" className="rounded-2xl" />
+                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                  Mission: Impossi..
+                </h3>
+                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                  <span>Comedy</span>
+                  <span>IMDB 8.6</span>
+                  <span>13+</span>
+                </div>
+                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
+                  <Button type="primary" onClick={showModal}>
+                    Mua vé
+                  </Button>
+                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <hr></hr>
+                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                    <div className="mt-2">
+                      <Link to={"#"}>
+                        <span className="text-xl ">17/10-T3</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-6">20/10-T6</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-8">21/10-T7</span>
+                      </Link>
+                      <hr />
+                    </div>
+                    <div className="mt-2">
+                      <span>2D Phụ Đề</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                    </div>
+                  </Modal>
+                </button>
+              </Link>
+            </div>
+            <div className="w-[245px] h-[420px]">
+              <Link to={"#"}>
+                <img srcSet="/mv4.png/ " alt="" className="rounded-2xl" />
+                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                  The Moon
+                </h3>
+                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                  <span>Comedy</span>
+                  <span>IMDB 8.6</span>
+                  <span>13+</span>
+                </div>
+                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
+                  <Button type="primary" onClick={showModal}>
+                    Mua vé
+                  </Button>
+                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <hr></hr>
+                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                    <div className="mt-2">
+                      <Link to={"#"}>
+                        <span className="text-xl ">17/10-T3</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-6">20/10-T6</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-8">21/10-T7</span>
+                      </Link>
+                      <hr />
+                    </div>
+                    <div className="mt-2">
+                      <span>2D Phụ Đề</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                    </div>
+                  </Modal>
+                </button>
+              </Link>
+            </div>
+            <div className="w-[245px] h-[420px]">
+              <Link to={"#"}>
+                <img srcSet="/mv5.png/ " alt="" className="rounded-2xl" />
+                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                  Meg 2: The Trench
+                </h3>
+                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                  <span>Comedy</span>
+                  <span>IMDB 8.6</span>
+                  <span>13+</span>
+                </div>
+                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
+                  <Button type="primary" onClick={showModal}>
+                    Mua vé
+                  </Button>
+                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <hr></hr>
+                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                    <div className="mt-2">
+                      <Link to={"#"}>
+                        <span className="text-xl ">17/10-T3</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-6">20/10-T6</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-8">21/10-T7</span>
+                      </Link>
+                      <hr />
+                    </div>
+                    <div className="mt-2">
+                      <span>2D Phụ Đề</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                    </div>
+                  </Modal>
+                </button>
+              </Link>
+            </div>
+            <div className="w-[245px] h-[420px]">
+              <Link to={"#"}>
+                <img srcSet="/mv6.png/ " alt="" className="rounded-2xl" />
+                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                  Teenage Mutant..
+                </h3>
+                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                  <span>Comedy</span>
+                  <span>IMDB 8.6</span>
+                  <span>13+</span>
+                </div>
+                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
+                  <Button type="primary" onClick={showModal}>
+                    Mua vé
+                  </Button>
+                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <hr></hr>
+                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                    <div className="mt-2">
+                      <Link to={"#"}>
+                        <span className="text-xl ">17/10-T3</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-6">20/10-T6</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-8">21/10-T7</span>
+                      </Link>
+                      <hr />
+                    </div>
+                    <div className="mt-2">
+                      <span>2D Phụ Đề</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                    </div>
+                  </Modal>
+                </button>
+              </Link>
+            </div>
+            <div className="w-[245px] h-[420px]">
+              <Link to={"#"}>
+                <img srcSet="/mv7.png/ " alt="" className="rounded-2xl" />
+                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                  Smugglers
+                </h3>
+                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                  <span>Comedy</span>
+                  <span>IMDB 8.6</span>
+                  <span>13+</span>
+                </div>
+                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
+                  <Button type="primary" onClick={showModal}>
+                    Mua vé
+                  </Button>
+                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <hr></hr>
+                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                    <div className="mt-2">
+                      <Link to={"#"}>
+                        <span className="text-xl ">17/10-T3</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-6">20/10-T6</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-8">21/10-T7</span>
+                      </Link>
+                      <hr />
+                    </div>
+                    <div className="mt-2">
+                      <span>2D Phụ Đề</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                    </div>
+                  </Modal>
+                </button>
+              </Link>
+            </div>
+            <div className="w-[245px] h-[420px]">
+              <Link to={"#"}>
+                <img srcSet="/mv8.png/ " alt="" className="rounded-2xl" />
+                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                  Detective Conan:..
+                </h3>
+                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                  <span>Comedy</span>
+                  <span>IMDB 8.6</span>
+                  <span>13+</span>
+                </div>
+                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
+                  <Button type="primary" onClick={showModal}>
+                    Mua vé
+                  </Button>
+                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <hr></hr>
+                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                    <div className="mt-2">
+                      <Link to={"#"}>
+                        <span className="text-xl ">17/10-T3</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-6">20/10-T6</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-8">21/10-T7</span>
+                      </Link>
+                      <hr />
+                    </div>
+                    <div className="mt-2">
+                      <span>2D Phụ Đề</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                        <Button className="" >9:00</Button> <br></br>
+                        <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                    </div>
+                  </Modal>
                 </button>
               </Link>
             </div>
@@ -103,7 +805,79 @@ const Ticket = () => {
                 <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
               </div>
               <button className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                <Link to={"/book-ticket"}>Mua vé</Link>
+                <Button type="primary" onClick={showModal}>
+                  Mua vé
+                </Button>
+                <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                  <hr></hr>
+                  <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                  <div className="mt-2">
+                    <Link to={"#"}>
+                      <span className="text-xl ">17/10-T3</span>
+                    </Link>
+                    <Link to={"#"}>
+                      <span className="text-xl ml-6">20/10-T6</span>
+                    </Link>
+                    <Link to={"#"}>
+                      <span className="text-xl ml-8">21/10-T7</span>
+                    </Link>
+                    <hr />
+                  </div>
+                  <div className="mt-2">
+                    <span>2D Phụ Đề</span>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-4 mt-2">
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                  </div>
+                </Modal>
               </button>
             </div>
             <div className="cinema w-[517px] h-[469px]">
@@ -115,7 +889,79 @@ const Ticket = () => {
                 <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
               </div>
               <button className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                <Link to={"/book-ticket"}>Mua vé</Link>
+                <Button type="primary" onClick={showModal}>
+                  Mua vé
+                </Button>
+                <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                  <hr></hr>
+                  <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                  <div className="mt-2">
+                    <Link to={"#"}>
+                      <span className="text-xl ">17/10-T3</span>
+                    </Link>
+                    <Link to={"#"}>
+                      <span className="text-xl ml-6">20/10-T6</span>
+                    </Link>
+                    <Link to={"#"}>
+                      <span className="text-xl ml-8">21/10-T7</span>
+                    </Link>
+                    <hr />
+                  </div>
+                  <div className="mt-2">
+                    <span>2D Phụ Đề</span>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-4 mt-2">
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                  </div>
+                </Modal>
               </button>
             </div>
             <div className="cinema w-[517px] h-[469px]">
@@ -127,7 +973,79 @@ const Ticket = () => {
                 <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
               </div>
               <button className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                <Link to={"/book-ticket"}>Mua vé</Link>
+              <Button type="primary" onClick={showModal}>
+                    Mua vé
+                  </Button>
+                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <hr></hr>
+                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                    <div className="mt-2">
+                      <Link to={"#"}>
+                        <span className="text-xl ">17/10-T3</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-6">20/10-T6</span>
+                      </Link>
+                      <Link to={"#"}>
+                        <span className="text-xl ml-8">21/10-T7</span>
+                      </Link>
+                      <hr />
+                    </div>
+                    <div className="mt-2">
+                      <span>2D Phụ Đề</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4 mt-2">
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                      <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                      </div>
+                    </div>
+                  </Modal>
               </button>
             </div>
             <div className="cinema w-[517px] h-[469px]">
@@ -139,7 +1057,79 @@ const Ticket = () => {
                 <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
               </div>
               <button className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                <Link to={"/book-ticket"}>Mua vé</Link>
+                <Button type="primary" onClick={showModal}>
+                  Mua vé
+                </Button>
+                <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                  <hr></hr>
+                  <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
+                  <div className="mt-2">
+                    <Link to={"#"}>
+                      <span className="text-xl ">17/10-T3</span>
+                    </Link>
+                    <Link to={"#"}>
+                      <span className="text-xl ml-6">20/10-T6</span>
+                    </Link>
+                    <Link to={"#"}>
+                      <span className="text-xl ml-8">21/10-T7</span>
+                    </Link>
+                    <hr />
+                  </div>
+                  <div className="mt-2">
+                    <span>2D Phụ Đề</span>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-4 mt-2">
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                    <div>
+                      <Button className="" >9:00</Button> <br></br>
+                      <p className="mt-2">122 ghế ngồi</p>
+                    </div>
+                  </div>
+                </Modal>
               </button>
             </div>
           </div>

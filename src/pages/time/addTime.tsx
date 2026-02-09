@@ -12,11 +12,12 @@ import {
   message,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useAddCateMutation } from "../../../service/cate.service";
+import { useAddTimeMutation } from "../../service/time.service";
+
 const { Option } = Select;
 
-const AddCategory: React.FC = () => {
-  const [addCategory] = useAddCateMutation();
+const AddTime: React.FC = () => {
+  const [addtime] = useAddTimeMutation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -30,12 +31,13 @@ const AddCategory: React.FC = () => {
 
   const onFinish = async (values: any) => {
     try {
-      await addCategory(values).unwrap();
-      message.success("Thêm sản phẩm thành công");
+      values.release_date = values.release_date.format("YYYY-MM-DD");
+      await addtime(values).unwrap();
+      message.success("Thêm giờ chiếu thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin/cinema");
+      navigate("/admin/time");
     } catch (error) {
-      message.error("Thêm sản phẩm thất bại");
+      message.error("Thêm giờ chiếu thất bại");
     }
   };
 
@@ -52,7 +54,7 @@ const AddCategory: React.FC = () => {
         Thêm
       </Button>
       <Drawer
-        title="Thêm Loại Phim"
+        title="Thêm giờ chiếu"
         width={720}
         onClose={() => {
           onClose();
@@ -90,42 +92,22 @@ const AddCategory: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please enter user name" }]}
+                name="time"
+                label="time"
+                rules={[{ required: true, message: "Please enter user time" }]}
               >
-                <Input placeholder="Please enter user name" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="slug"
-                label="Slug"
-                rules={[{ required: true, message: "Please enter slug" }]}
-              >
-                <Input placeholder="Please enter user name" />
+                <Input type="time" placeholder="Please enter user time" />
               </Form.Item>
             </Col>
           </Row>
+        
+         
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
-              >
-                <Select placeholder="Please select a status">
-                  <Option value="1">1</Option>
-                  <Option value="0">0</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+          
         </Form>
       </Drawer>
     </>
   );
 };
 
-export default AddCategory;
+export default AddTime;

@@ -104,37 +104,37 @@ const items: MenuItem[] = [
       </NavLink>
     ),
   ]),
-  getItem("Quản lí rạp", "10", <HomeOutlined />, [
+  getItem("Quản lí rạp", "11", <HomeOutlined />, [
     getItem(
       "Rạp",
-      "14",
+      "12",
       <NavLink to="/admin/cinema">
         <CopyOutlined />
       </NavLink>
     ),
   ]),
-  getItem("Quản lí khuyến mãi", "12", <ThunderboltOutlined />),
-  getItem("Quản lí khách hàng", "13", <TeamOutlined />),
-  getItem("Sản phẩm", "14", <ShopOutlined />, [
+  getItem("Quản lí khuyến mãi", "13", <ThunderboltOutlined />),
+  getItem("Quản lí khách hàng", "14", <TeamOutlined />),
+  getItem("Sản phẩm", "15", <ShopOutlined />, [
     getItem(
       "Sản phẩm",
-      "15",
+      "16",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
     ),
     getItem(
       "Bảng giá",
-      "16",
+      "17",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
     ),
   ]),
-  getItem("Hệ thống", "17", <InboxOutlined />, [
+  getItem("Hệ thống", "18", <InboxOutlined />, [
     getItem(
       "Nhân viên",
-      "18",
+      "19",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
@@ -142,7 +142,7 @@ const items: MenuItem[] = [
   ]),
   getItem(
     "Thống kê",
-    "19",
+    "20",
     <NavLink to="/admin/user">
       <PieChartOutlined />
     </NavLink>

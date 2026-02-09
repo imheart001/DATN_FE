@@ -19,6 +19,7 @@ import ListBookTicket from "./pages/Admin/Book-Ticket/ListBookTicket";
 import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
 import ListFood from "./pages/Admin/Food/ListFood";
 import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
+import ListTime from "./pages/time/listTime";
 
 function App() {
   const router = createBrowserRouter([
@@ -96,6 +97,10 @@ function App() {
         {
           path: "/admin/category_detail",
           element: <ListCateDetail />,
+        },
+        {
+          path: "/admin/time",
+          element: <ListTime />,
         },
       ],
     },

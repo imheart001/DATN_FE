@@ -12,11 +12,12 @@ import {
   message,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useAddCateMutation } from "../../../service/cate.service";
+import {  useAddCinemasMutation } from "../../../service/cinemas.service";
+
 const { Option } = Select;
 
-const AddCategory: React.FC = () => {
-  const [addCategory] = useAddCateMutation();
+const AddCinemas: React.FC = () => {
+  const [addCinemas] = useAddCinemasMutation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -30,12 +31,13 @@ const AddCategory: React.FC = () => {
 
   const onFinish = async (values: any) => {
     try {
-      await addCategory(values).unwrap();
-      message.success("Thêm sản phẩm thành công");
+      values.release_date = values.release_date.format("YYYY-MM-DD");
+      await addCinemas(values).unwrap();
+      message.success("Thêm rạp thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin/cinema");
+      navigate("/admin");
     } catch (error) {
-      message.error("Thêm sản phẩm thất bại");
+      message.error("Thêm rạp thất bại");
     }
   };
 
@@ -52,7 +54,7 @@ const AddCategory: React.FC = () => {
         Thêm
       </Button>
       <Drawer
-        title="Thêm Loại Phim"
+        title="Thêm rạp"
         width={720}
         onClose={() => {
           onClose();
@@ -99,15 +101,14 @@ const AddCategory: React.FC = () => {
             </Col>
             <Col span={12}>
               <Form.Item
-                name="slug"
-                label="Slug"
-                rules={[{ required: true, message: "Please enter slug" }]}
+                name="address"
+                label="address"
+                rules={[{ required: true, message: "Please select an address" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Please enter user address" />
               </Form.Item>
             </Col>
-          </Row>
-
+          </Row>         
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -122,10 +123,12 @@ const AddCategory: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+
+          
         </Form>
       </Drawer>
     </>
   );
 };
 
-export default AddCategory;
+export default AddCinemas;

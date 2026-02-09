@@ -2,58 +2,47 @@ import React from "react";
 import { Space, Table, Input, Button, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
+import { useGetTimeQuery, useRemoveTimeMutation } from "../../service/time.service";
+import { ITime } from "../../interface/model";
+import AddTime from "./addTime";
+import EditTime from "./EditTime";
 
-import AddCategory from "../Category/AddCategory";
 
-import {
-  useFetchCateQuery,
-  useRemoveCateMutation,
-} from "../../../service/cate.service";
-import { ICategorys } from "../../../interface/model";
-import UpdateCategory from "./UpdateCategory";
 interface DataType {
   id: string;
-  name: string;
-  slug: string;
-  status: number;
+ time: string;
 }
 
 const { Search } = Input;
 
-const ListCate: React.FC = () => {
-  const { data: cates } = useFetchCateQuery();
-  const [removeCate] = useRemoveCateMutation();
-  console.log(cates);
+const ListTime: React.FC = () => {
+  const { data: time } = useGetTimeQuery();
+  const [removeCinema] = useRemoveTimeMutation();
+  console.log(time);
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã Category",
+      title: "Mã giờ chiếu",
       dataIndex: "id",
       key: "key",
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Tên Category",
-      dataIndex: "name",
-      key: "name",
+      title: "Thời gian chiếu",
+      dataIndex: "time",
+      key: "time",
     },
-    {
-      title: "Slug",
-      dataIndex: "slug",
-      key: "slug",
-    },
-
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <UpdateCategory dataCate={record} />
+          <EditTime dataTime={record} />
 
           <Popconfirm
             placement="topLeft"
             title="Bạn muốn xóa sản phẩm?"
             description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeCate(record.id)}
+            onConfirm={() => removeCinema(record.id)}
             okText="Yes"
             cancelText="No"
             okButtonProps={{
@@ -74,29 +63,23 @@ const ListCate: React.FC = () => {
     },
   ];
 
-  const dataCate = (cates as any)?.data?.map(
-    (cate: ICategorys, index: number) => ({
-      key: index.toString(),
-      id: cate.id,
-      name: cate?.name,
-      slug: cate?.slug,
-      status: cate?.status,
-      tags: [cate.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
-    })
-  );
-
+  const dataCate = time?.data?.map((time: ITime, index: number) => ({
+    key: index.toString(),
+    id: time.id,
+    time: time.time
+  }));
 
   return (
     <>
       <div className="">
-        <h2 className="font-bold text-2xl my-4">Quản lí loại phim</h2>
+        <h2 className="font-bold text-2xl my-4">Quản lí giờ chiếu</h2>
         <div className="space-x-4 justify-center my-4">
           <Search
-            placeholder="Nhập tên phim hoặc mã phim"
+            placeholder="Nhập giờ chiếu hoặc mã giờ chiếu"
             style={{ width: 600 }}
           />
 
-          <AddCategory />
+          <AddTime />
         </div>
       </div>
       <Table columns={columns} dataSource={dataCate} />
@@ -104,4 +87,4 @@ const ListCate: React.FC = () => {
   );
 };
 
-export default ListCate;
+export default ListTime;
