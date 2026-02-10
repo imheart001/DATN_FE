@@ -77,7 +77,10 @@ function App() {
           path: "/admin/listcate",
           element: <ListCate />,
         },
-
+        {
+          path: "/admin/time",
+          element: <ListTime />,
+        },
         {
           path: "/admin/cinema",
           element: <ListCinema />,
@@ -97,10 +100,6 @@ function App() {
         {
           path: "/admin/category_detail",
           element: <ListCateDetail />,
-        },
-        {
-          path: "/admin/time",
-          element: <ListTime />,
         },
       ],
     },

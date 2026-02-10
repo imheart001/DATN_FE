@@ -33,7 +33,7 @@ const CinemasAPI = createApi({
     }),
     updateCinemas: builder.mutation({
       query: (Cinemas: ICinemas) => ({
-        url: `/Cinemas/${Cinemas._id}`,
+        url: `/Cinemas/${Cinemas.id}`,
         method: "PATCH",
         body: Cinemas,
       }),
@@ -47,6 +47,5 @@ export const {
   useAddCinemasMutation,
   useRemoveCinemasMutation,
   useUpdateCinemasMutation,
-  
 } = CinemasAPI;
 export default CinemasAPI;

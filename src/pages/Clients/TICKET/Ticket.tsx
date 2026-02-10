@@ -1,15 +1,50 @@
-
 import React, { useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
-import { Button, Modal } from 'antd';
+import { Button, Modal } from "antd";
 import { Link } from "react-router-dom";
+import { useFetchProductQuery } from "../../../service/films.service";
+import { useFetchShowTimeQuery } from "../../../service/show.service";
+import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+import { useSelector } from "react-redux";
+import { useFetchCinemaQuery } from "../../../service/brand.service";
+import { useFetchTimeQuery } from "../../../service/time.service";
 
 const Ticket: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFilmId, setSelectedFilmId] = useState(null);
+  const { data: films } = useFetchProductQuery();
+  const { data: shows } = useFetchShowTimeQuery();
+  const { data: cinemas } = useFetchCinemaQuery();
+  const { data: roomsBrand } = useFetchMovieRoomQuery();
+  const { data: times } = useFetchTimeQuery();
+  const selectedCinema = useSelector((state: any) => state.selectedCinema);
+  const [filmShows, setFilmShows] = useState([]); // Bước 1
 
-  const showModal = () => {
+  const showModal = (filmId: any) => {
+    setSelectedFilmId(filmId);
     setIsModalOpen(true);
+    const showsForSelectedFilm = (shows as any)?.data.filter((show: any) => {
+      return show.film_id === filmId;
+    });
+
+    // Bước 1: Gộp suất chiếu cùng ngày
+    const uniqueShows = [];
+    showsForSelectedFilm.forEach((show) => {
+      const existingShow = uniqueShows.find((s) => s.date === show.date);
+      if (existingShow) {
+        existingShow.times.push(show.time_id);
+      } else {
+        uniqueShows.push({
+          date: show.date,
+          times: [show.time_id],
+        });
+      }
+    });
+
+    setFilmShows(uniqueShows);
   };
+
+  console.log(filmShows);
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -18,6 +53,43 @@ const Ticket: React.FC = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+  const today = new Date();
+
+  // Mảng chứa tên các ngày trong tuần
+  const daysOfWeek = [
+    "Chủ Nhật",
+    "Thứ Hai",
+    "Thứ Ba",
+    "Thứ Tư",
+    "Thứ Năm",
+    "Thứ Sáu",
+    "Thứ Bảy",
+  ];
+
+  const dayOfWeek = daysOfWeek[today.getDay()]; // Lấy tên thứ
+  const day = today.getDate(); // Lấy ngày (1-31)
+  const month = today.getMonth() + 1; // Lấy tháng (0-11, cần cộng thêm 1)
+  const year = today.getFullYear(); // Lấy năm (4 chữ số)
+
+  const fullDate = `${dayOfWeek}, ${day}/${month}/${year}`;
+  const selectedCinemaInfo = (cinemas as any)?.data.find(
+    (cinema: any) => cinema.id == selectedCinema
+  );
+
+  console.log(`Hôm nay là: ${fullDate}`);
+  const getRealTime = (timeId) => {
+    const timeInfo = (times as any)?.data.find(
+      (time: any) => time.id == timeId
+    );
+    return timeInfo ? timeInfo.time : ""; // Lấy thời gian từ thông tin thời gian
+  };
+  const validShows = (shows as any)?.data.filter((show: any) => {
+    const room = (roomsBrand as any)?.data.find(
+      (room: any) => room.id === show.room_id
+    );
+    return room && room.id_cinema == selectedCinema;
+  });
+
   return (
     <>
       <section
@@ -79,711 +151,42 @@ const Ticket: React.FC = () => {
             Đặt phim
           </h2>
           <div className="grid grid-cols-4 gap-10">
-            <div className="w-[245px] h-[488px]">
+            {(films as any)?.data.map((film: any, index: any) => {
+              const filmShows = validShows.filter(
+                (show: any) => show.film_id === film.id
+              );
 
-              <img srcSet="/mv1.png/ " alt="" className="rounded-2xl" />
-              <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                Oppenheimer
-              </h3>
-              <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                <span>Drama</span>
-                <span>IMDB 8.6</span>
-                <span>13+</span>
-              </div>
-              <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-
-                <Button type="primary" onClick={showModal}>
-                  Mua vé
-                </Button>
-                <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                  <hr></hr>
-                  <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                  <div className="mt-2">
-                    <Link to={"#"}>
-                      <span className="text-xl ">17/10-T3</span>
-                    </Link>
-                    <Link to={"#"}>
-                      <span className="text-xl ml-6">20/10-T6</span>
-                    </Link>
-                    <Link to={"#"}>
-                      <span className="text-xl ml-8">21/10-T7</span>
-                    </Link>
-                    <hr />
-                  </div>
-                  <div className="mt-2">
-                    <span>2D Phụ Đề</span>
+              return (
+                <div className="w-[245px] h-[560px]" key={film.id}>
+                  <img
+                    srcSet={film.image}
+                    alt=""
+                    className="rounded-2xl w-[228px] h-[340px]"
+                  />
+                  <div className="h-[100px]">
+                    <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                      {film.name}
+                    </h3>
+                    <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                      <span>Drama</span>
+                      <span>IMDB 8.6</span>
+                      <span>13+</span>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-4 mt-2">
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                  </div>
-                </Modal>
-              </button>
-
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv2.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Oppenheimer
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
+                  {filmShows.length > 0 ? (
+                    <button
+                      className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]"
+                      onClick={() => {
+                        showModal(film.id);
+                      }}
+                    >
+                      Mua vé
+                    </button>
+                  ) : null}
                 </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Button type="primary" onClick={showModal}>
-                    Mua vé
-                  </Button>
-                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    <hr></hr>
-                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                    <div className="mt-2">
-                      <Link to={"#"}>
-                        <span className="text-xl ">17/10-T3</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-6">20/10-T6</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-8">21/10-T7</span>
-                      </Link>
-                      <hr />
-                    </div>
-                    <div className="mt-2">
-                      <span>2D Phụ Đề</span>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                    </div>
-                  </Modal>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv3.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Mission: Impossi..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Button type="primary" onClick={showModal}>
-                    Mua vé
-                  </Button>
-                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    <hr></hr>
-                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                    <div className="mt-2">
-                      <Link to={"#"}>
-                        <span className="text-xl ">17/10-T3</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-6">20/10-T6</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-8">21/10-T7</span>
-                      </Link>
-                      <hr />
-                    </div>
-                    <div className="mt-2">
-                      <span>2D Phụ Đề</span>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                    </div>
-                  </Modal>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv4.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  The Moon
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Button type="primary" onClick={showModal}>
-                    Mua vé
-                  </Button>
-                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    <hr></hr>
-                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                    <div className="mt-2">
-                      <Link to={"#"}>
-                        <span className="text-xl ">17/10-T3</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-6">20/10-T6</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-8">21/10-T7</span>
-                      </Link>
-                      <hr />
-                    </div>
-                    <div className="mt-2">
-                      <span>2D Phụ Đề</span>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                    </div>
-                  </Modal>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv5.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Meg 2: The Trench
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Button type="primary" onClick={showModal}>
-                    Mua vé
-                  </Button>
-                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    <hr></hr>
-                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                    <div className="mt-2">
-                      <Link to={"#"}>
-                        <span className="text-xl ">17/10-T3</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-6">20/10-T6</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-8">21/10-T7</span>
-                      </Link>
-                      <hr />
-                    </div>
-                    <div className="mt-2">
-                      <span>2D Phụ Đề</span>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                    </div>
-                  </Modal>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv6.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Teenage Mutant..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Button type="primary" onClick={showModal}>
-                    Mua vé
-                  </Button>
-                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    <hr></hr>
-                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                    <div className="mt-2">
-                      <Link to={"#"}>
-                        <span className="text-xl ">17/10-T3</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-6">20/10-T6</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-8">21/10-T7</span>
-                      </Link>
-                      <hr />
-                    </div>
-                    <div className="mt-2">
-                      <span>2D Phụ Đề</span>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                    </div>
-                  </Modal>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv7.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Smugglers
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Button type="primary" onClick={showModal}>
-                    Mua vé
-                  </Button>
-                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    <hr></hr>
-                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                    <div className="mt-2">
-                      <Link to={"#"}>
-                        <span className="text-xl ">17/10-T3</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-6">20/10-T6</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-8">21/10-T7</span>
-                      </Link>
-                      <hr />
-                    </div>
-                    <div className="mt-2">
-                      <span>2D Phụ Đề</span>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                    </div>
-                  </Modal>
-                </button>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/mv8.png/ " alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Detective Conan:..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-                <button className="text-[#FFFFFF] mt-[20px] hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                  <Button type="primary" onClick={showModal}>
-                    Mua vé
-                  </Button>
-                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    <hr></hr>
-                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                    <div className="mt-2">
-                      <Link to={"#"}>
-                        <span className="text-xl ">17/10-T3</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-6">20/10-T6</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-8">21/10-T7</span>
-                      </Link>
-                      <hr />
-                    </div>
-                    <div className="mt-2">
-                      <span>2D Phụ Đề</span>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                        <Button className="" >9:00</Button> <br></br>
-                        <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                    </div>
-                  </Modal>
-                </button>
-              </Link>
-            </div>
+              );
+            })}
           </div>
           <button className="mx-auto block mt-[150px]">
             <span>
@@ -804,81 +207,6 @@ const Ticket: React.FC = () => {
                 </span>
                 <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
               </div>
-              <button className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                <Button type="primary" onClick={showModal}>
-                  Mua vé
-                </Button>
-                <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                  <hr></hr>
-                  <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                  <div className="mt-2">
-                    <Link to={"#"}>
-                      <span className="text-xl ">17/10-T3</span>
-                    </Link>
-                    <Link to={"#"}>
-                      <span className="text-xl ml-6">20/10-T6</span>
-                    </Link>
-                    <Link to={"#"}>
-                      <span className="text-xl ml-8">21/10-T7</span>
-                    </Link>
-                    <hr />
-                  </div>
-                  <div className="mt-2">
-                    <span>2D Phụ Đề</span>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-4 mt-2">
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                  </div>
-                </Modal>
-              </button>
             </div>
             <div className="cinema w-[517px] h-[469px]">
               <img src="/book-cinem2.png/" alt="" />
@@ -888,81 +216,6 @@ const Ticket: React.FC = () => {
                 </span>
                 <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
               </div>
-              <button className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                <Button type="primary" onClick={showModal}>
-                  Mua vé
-                </Button>
-                <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                  <hr></hr>
-                  <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                  <div className="mt-2">
-                    <Link to={"#"}>
-                      <span className="text-xl ">17/10-T3</span>
-                    </Link>
-                    <Link to={"#"}>
-                      <span className="text-xl ml-6">20/10-T6</span>
-                    </Link>
-                    <Link to={"#"}>
-                      <span className="text-xl ml-8">21/10-T7</span>
-                    </Link>
-                    <hr />
-                  </div>
-                  <div className="mt-2">
-                    <span>2D Phụ Đề</span>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-4 mt-2">
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                  </div>
-                </Modal>
-              </button>
             </div>
             <div className="cinema w-[517px] h-[469px]">
               <img src="/book-cinema3.png/" alt="" />
@@ -972,81 +225,6 @@ const Ticket: React.FC = () => {
                 </span>
                 <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
               </div>
-              <button className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-              <Button type="primary" onClick={showModal}>
-                    Mua vé
-                  </Button>
-                  <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                    <hr></hr>
-                    <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                    <div className="mt-2">
-                      <Link to={"#"}>
-                        <span className="text-xl ">17/10-T3</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-6">20/10-T6</span>
-                      </Link>
-                      <Link to={"#"}>
-                        <span className="text-xl ml-8">21/10-T7</span>
-                      </Link>
-                      <hr />
-                    </div>
-                    <div className="mt-2">
-                      <span>2D Phụ Đề</span>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-4 mt-2">
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                      <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                      </div>
-                    </div>
-                  </Modal>
-              </button>
             </div>
             <div className="cinema w-[517px] h-[469px]">
               <img src="/book-cinema4.png/" alt="" />
@@ -1056,81 +234,6 @@ const Ticket: React.FC = () => {
                 </span>
                 <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
               </div>
-              <button className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]">
-                <Button type="primary" onClick={showModal}>
-                  Mua vé
-                </Button>
-                <Modal title="Lịch Chiếu Phim" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                  <hr></hr>
-                  <p className="text-center text-2xl">Rạp beta Thanh Xuân</p>
-                  <div className="mt-2">
-                    <Link to={"#"}>
-                      <span className="text-xl ">17/10-T3</span>
-                    </Link>
-                    <Link to={"#"}>
-                      <span className="text-xl ml-6">20/10-T6</span>
-                    </Link>
-                    <Link to={"#"}>
-                      <span className="text-xl ml-8">21/10-T7</span>
-                    </Link>
-                    <hr />
-                  </div>
-                  <div className="mt-2">
-                    <span>2D Phụ Đề</span>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-4 mt-2">
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                    <div>
-                      <Button className="" >9:00</Button> <br></br>
-                      <p className="mt-2">122 ghế ngồi</p>
-                    </div>
-                  </div>
-                </Modal>
-              </button>
             </div>
           </div>
           <button className="mx-auto block mt-[150px]">
@@ -1140,6 +243,36 @@ const Ticket: React.FC = () => {
           </button>
         </div>
       </div>
+      <Modal
+        title="Lịch Chiếu Phim"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <hr></hr>
+        {selectedFilmId !== null && (
+          <p className="text-center text-2xl">Rạp {selectedCinemaInfo.name}</p>
+        )}
+        <div className="mt-2 ">
+          {filmShows.map((show) => (
+            <div key={show.date}>
+              <Link to={"#"}>
+                <span className="text-xl ">{show.date}</span>
+              </Link>
+              <span className="ml-4">
+                Thời gian:{" "}
+                {show.times.map((time, index) => (
+                  <div key={index}>
+                    <span className="ml-4"> {getRealTime(time)}</span>
+                  </div>
+                ))}
+              </span>
+            </div>
+          ))}
+          <hr />
+        </div>
+      </Modal>
+      ;
     </>
   );
 };

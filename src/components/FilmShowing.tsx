@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { IFilms } from "../interface/model";
+import { Button } from "antd";
 
 type Props = {
   data: IFilms;

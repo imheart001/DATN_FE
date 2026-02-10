@@ -2,21 +2,23 @@ import React from "react";
 import { Space, Table, Input, Button, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
-import { useGetTimeQuery, useRemoveTimeMutation } from "../../service/time.service";
+import {
+  useFetchTimeQuery,
+  useRemoveTimeMutation,
+} from "../../service/time.service";
 import { ITime } from "../../interface/model";
 import AddTime from "./addTime";
 import EditTime from "./EditTime";
 
-
 interface DataType {
   id: string;
- time: string;
+  time: string;
 }
 
 const { Search } = Input;
 
 const ListTime: React.FC = () => {
-  const { data: time } = useGetTimeQuery();
+  const { data: time } = useFetchTimeQuery();
   const [removeCinema] = useRemoveTimeMutation();
   console.log(time);
   const columns: ColumnsType<DataType> = [
@@ -63,10 +65,10 @@ const ListTime: React.FC = () => {
     },
   ];
 
-  const dataCate = time?.data?.map((time: ITime, index: number) => ({
+  const dataCate = (time as any)?.data?.map((time: ITime, index: number) => ({
     key: index.toString(),
     id: time.id,
-    time: time.time
+    time: time.time,
   }));
 
   return (

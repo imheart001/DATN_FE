@@ -37,21 +37,20 @@ const Header = () => {
     }
   }, [cinemas]);
   const onChange = (value: any) => {
-    console.log(value);
     dispatch(setSelectedCinema(value));
     handleCancel();
   };
-  useEffect(() => {
-    // Kiểm tra xem đã chọn chi nhánh chưa
-    if (selectedCinema) {
-      // `useGetFilmCinemeByIdQuery` sẽ tự động gửi yêu cầu API
-      // và cung cấp dữ liệu dưới dạng `filmCinemaData`
-      if (filmCinemaData) {
-        console.log("Dữ liệu từ API:", filmCinemaData);
-        // Ở đây, bạn có thể xử lý dữ liệu, lưu nó vào state hoặc hiển thị trên giao diện.
-      }
-    }
-  }, [selectedCinema]);
+  // useEffect(() => {
+  //   // Kiểm tra xem đã chọn chi nhánh chưa
+  //   if (selectedCinema) {
+  //     // `useGetFilmCinemeByIdQuery` sẽ tự động gửi yêu cầu API
+  //     // và cung cấp dữ liệu dưới dạng `filmCinemaData`
+  //     if (filmCinemaData) {
+  //       console.log("Dữ liệu từ API:", filmCinemaData);
+  //       // Ở đây, bạn có thể xử lý dữ liệu, lưu nó vào state hoặc hiển thị trên giao diện.
+  //     }
+  //   }
+  // }, [selectedCinema]);
   return (
     <>
       {!selectedCinema && (

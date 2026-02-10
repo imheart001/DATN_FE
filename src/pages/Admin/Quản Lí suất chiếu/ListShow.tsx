@@ -2,12 +2,16 @@ import React from "react";
 import { Space, Table, Input, Button, Popconfirm, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
-import { IFilms, IShowTime, ITime } from "../../../interface/model";
+import { IFilms, IMovieRoom, IShowTime, ITime } from "../../../interface/model";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import EditShow from "./EditShow";
-import { useFetchShowTimeQuery, useRemoveShowTimeMutation } from "../../../service/show.service";
+import {
+  useFetchShowTimeQuery,
+  useRemoveShowTimeMutation,
+} from "../../../service/show.service";
 import AddShow from "./AddShow";
+import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 
 interface DataType {
   id: string;
@@ -20,9 +24,10 @@ interface DataType {
 const { Search } = Input;
 
 const ListShow: React.FC = () => {
+  const { data: roomBrand } = useFetchMovieRoomQuery();
   const { data: shows } = useFetchShowTimeQuery();
   const { data: films } = useFetchProductQuery();
-  const {data: times} = useFetchTimeQuery();
+  const { data: times } = useFetchTimeQuery();
   const [removeShowTimes] = useRemoveShowTimeMutation();
   // console.log(shows);
   const columns: ColumnsType<DataType> = [
@@ -83,16 +88,24 @@ const ListShow: React.FC = () => {
   ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dataShow = (shows as any)?.data?.map((show: IShowTime, index: number) => ({
-    key: index.toString(),
-    id: show.id,
-    date: show.date,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    film_id: (films as any)?.data?.find((films: IFilms) => films.id === show.film_id)?.name,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    time_id: (times as any)?.data?.find((times: ITime) => times.id === show.time_id)?.time,
-    room_id: show.room_id
-  }));
+  const dataShow = (shows as any)?.data?.map(
+    (show: IShowTime, index: number) => ({
+      key: index.toString(),
+      id: show.id,
+      date: show.date,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      film_id: (films as any)?.data?.find(
+        (films: IFilms) => films.id === show.film_id
+      )?.name,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      time_id: (times as any)?.data?.find(
+        (times: ITime) => times.id === show.time_id
+      )?.time,
+      room_id: (roomBrand as any)?.data?.find(
+        (room: IMovieRoom) => room.id === show.room_id
+      )?.name,
+    })
+  );
   return (
     <>
       <div className="">
