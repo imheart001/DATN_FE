@@ -32,7 +32,7 @@ function App() {
           element: <HomePages />,
         },
         {
-          path: "/book-ticket",
+          path: "/book-ticket/:id",
           element: <BookingSeat />,
         },
         {

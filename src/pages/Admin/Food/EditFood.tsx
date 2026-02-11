@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
 
@@ -16,10 +14,10 @@ import {
   Select,
   Space,
   message,
-  Image
+  Image,
 } from "antd";
 
-import { useUpdateFoodMutation } from "../../../service/food.sevice";
+import { useUpdateFoodMutation } from "../../../service/food.service";
 
 interface DataType {
   id: string;
@@ -80,78 +78,76 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
       </Button>
 
       <Drawer
+        title="Thêm Loại Đồ Ăn"
+        width={720}
+        onClose={() => {
+          onClose();
+          form.resetFields(); // Reset trường dữ liệu khi đóng Drawer
+        }}
+        open={open}
+        style={{
+          paddingBottom: 80,
+        }}
+        extra={
+          <Space>
+            <Button onClick={onClose}>Cancel</Button>
 
-title="Thêm Loại Đồ Ăn"
-width={720}
-onClose={() => {
-  onClose();
-  form.resetFields(); // Reset trường dữ liệu khi đóng Drawer
-}}
-open={open}
-style={{
-  paddingBottom: 80,
-}}
-extra={
-  <Space>
-    <Button onClick={onClose}>Cancel</Button>
-
-    <Button
-      danger
-      type="primary"
-      htmlType="submit"
-      onClick={() => {
-        form.validateFields().then((values) => {
-          onFinish(values);
-        });
-      }}
-    >
-      Submit
-    </Button>
-  </Space>
-}
->
-<Form
-  form={form}
-  layout="vertical"
-  hideRequiredMark
-  onFinish={onFinish}
->
-  <Row gutter={16}>
-    <Col span={12}>
-      <Form.Item
-        name="name"
-        label="Name"
-        rules={[{ required: true, message: "Please enter user name" }]}
+            <Button
+              danger
+              type="primary"
+              htmlType="submit"
+              onClick={() => {
+                form.validateFields().then((values) => {
+                  onFinish(values);
+                });
+              }}
+            >
+              Submit
+            </Button>
+          </Space>
+        }
       >
-        <Input placeholder="Please enter user name" />
-      </Form.Item>
-    </Col>
+        <Form
+          form={form}
+          layout="vertical"
+          hideRequiredMark
+          onFinish={onFinish}
+        >
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="name"
+                label="Name"
+                rules={[{ required: true, message: "Please enter user name" }]}
+              >
+                <Input placeholder="Please enter user name" />
+              </Form.Item>
+            </Col>
 
-    <Col span={12}>
-      <Form.Item
-        name="image"
-        label="Image"
-        rules={[{ required: true, message: "Please enter Image" }]}
-      >
-        <Input placeholder="Please enter user Image" />
-      </Form.Item>
-    </Col>
+            <Col span={12}>
+              <Form.Item
+                name="image"
+                label="Image"
+                rules={[{ required: true, message: "Please enter Image" }]}
+              >
+                <Input placeholder="Please enter user Image" />
+              </Form.Item>
+            </Col>
+          </Row>
 
-  </Row>
-
-  <Row gutter={16}>
-    <Col span={12}>
-      <Form.Item
-        name="price"
-        label="Price"
-        rules={[{ required: true, message: "Please select a Price" }]}
-      >
-        <Input placeholder="Please enter user Price" />
-      </Form.Item>
-    </Col>
-  </Row>
-</Form>
-</Drawer>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="price"
+                label="Price"
+                rules={[{ required: true, message: "Please select a Price" }]}
+              >
+                <Input placeholder="Please enter user Price" />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Drawer>
     </>
   );
 };

@@ -7,19 +7,30 @@ import categorysAPI from "../service/cate.service";
 
 import cinemasAPI from "../service/brand.service";
 import showsAPI from "../service/show.service";
-import foodAPI from "../service/food.sevice";
+import foodAPI from "../service/food.service";
 import movieRoomAPI from "../service/movieroom.service";
 import selectedCinemaReducer from "../components/CinemaSlice/selectedCinemaSlice";
 import { combineReducers } from "redux";
 import timesAPI from "../service/time.service";
 import bookTicketsAPI from "../service/book_ticket.service";
 import cateDetailAPI from "../service/catedetail.service";
+import bookingSeatAPI from "../service/chairs.service";
 
 // Import redux-persist
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["films", "cates", "cinemas", "shows", "selectedCinema", "foods", "movies","catedetails"],
+  whitelist: [
+    "films",
+    "cates",
+    "cinemas",
+    "shows",
+    "selectedCinema",
+    "foods",
+    "movies",
+    "catedetails",
+    "chairs",
+  ],
 };
 
 const rootReducer = combineReducers({
@@ -31,8 +42,8 @@ const rootReducer = combineReducers({
   bookTickets: bookTicketsAPI.reducer,
   foods: foodAPI.reducer,
   movies: movieRoomAPI.reducer,
-  catedetails : cateDetailAPI.reducer,
-
+  catedetails: cateDetailAPI.reducer,
+  bkseats: bookingSeatAPI.reducer,
   selectedCinema: selectedCinemaReducer,
 });
 
@@ -48,13 +59,14 @@ const store = configureStore({
     }).concat(
       filmsAPI.middleware,
       categorysAPI.middleware,
+      bookingSeatAPI.middleware,
       cinemasAPI.middleware,
       showsAPI.middleware,
       timesAPI.middleware,
       bookTicketsAPI.middleware,
       foodAPI.middleware,
       movieRoomAPI.middleware,
-      cateDetailAPI.middleware,
+      cateDetailAPI.middleware
     ),
 });
 

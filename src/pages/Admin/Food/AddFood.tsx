@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 
 import { UserAddOutlined } from "@ant-design/icons";
@@ -14,7 +13,7 @@ import {
   message,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useAddFoodMutation } from "../../../service/food.sevice";
+import { useAddFoodMutation } from "../../../service/food.service";
 // const { Option } = Select;
 
 const AddFood: React.FC = () => {
@@ -32,7 +31,6 @@ const AddFood: React.FC = () => {
 
   const onFinish = async (values: any) => {
     try {
-
       await addFood(values).unwrap();
       message.success("Thêm sản phẩm thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -55,7 +53,6 @@ const AddFood: React.FC = () => {
         Thêm
       </Button>
       <Drawer
-
         title="Thêm Loại Đồ Ăn"
         width={720}
         onClose={() => {
@@ -111,7 +108,6 @@ const AddFood: React.FC = () => {
                 <Input placeholder="Please enter user Image" />
               </Form.Item>
             </Col>
-
           </Row>
 
           <Row gutter={16}>
@@ -130,6 +126,5 @@ const AddFood: React.FC = () => {
     </>
   );
 };
-
 
 export default AddFood;

@@ -10,7 +10,6 @@ export interface IFilms {
   status: number;
 }
 export interface ICategorys {
-
   id: string;
   name: string;
   slug: string;
@@ -30,20 +29,19 @@ export interface IShowTime {
   room_id: string;
 }
 export interface ITime {
-  id: string,
-  time: string,
+  id: string;
+  time: string;
 }
 export interface IBookTicket {
-  id: string,
-  user_id: string,
-  id_time_detail: string,
-  payment: string,
-  amount: string,
-  price: string,
-  status: number,
+  id: string;
+  user_id: string;
+  id_time_detail: string;
+  payment: string;
+  amount: string;
+  price: string;
+  status: number;
 }
 export interface IFood {
-
   id: string;
   name: string;
   image: string;
@@ -51,15 +49,20 @@ export interface IFood {
 }
 
 export interface IMovieRoom {
-
   id: string;
   name: string;
-  id_cinema: string
+  id_cinema: string;
   // name_cinema : string
 }
-export interface ICateDetail{
-
+export interface ICateDetail {
   id: string;
   category_id: string;
-  film_id: string
+  film_id: string;
+}
+export interface IChairs {
+  id: string;
+
+  name: [];
+  price: number;
+  id_time_detail: string;
 }

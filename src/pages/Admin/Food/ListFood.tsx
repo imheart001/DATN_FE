@@ -1,4 +1,3 @@
-
 import React from "react";
 
 import { Space, Table, Input, Button, Image, Popconfirm } from "antd";
@@ -10,7 +9,7 @@ import AddFood from "../Food/AddFood";
 import {
   useFetchFoodQuery,
   useRemoveFoodMutation,
-} from "../../../service/food.sevice"
+} from "../../../service/food.service";
 import { IFood } from "../../../interface/model";
 import EditFood from "./EditFood";
 interface DataType {
@@ -53,7 +52,6 @@ const ListFood: React.FC = () => {
       key: "price",
     },
     {
-
       render: (_, record) => (
         <Space size="middle">
           <EditFood dataFood={record} />
@@ -83,17 +81,14 @@ const ListFood: React.FC = () => {
     },
   ];
 
-  const dataFood = (foods as any)?.data?.map(
-    (food: IFood, index: number) => ({
-      key: index.toString(),
-      id: food.id,
-      name: food?.name,
-      image: food?.image,
-      price: food?.price,
-      //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
-    })
-  );
-
+  const dataFood = (foods as any)?.data?.map((food: IFood, index: number) => ({
+    key: index.toString(),
+    id: food.id,
+    name: food?.name,
+    image: food?.image,
+    price: food?.price,
+    //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+  }));
 
   return (
     <>
@@ -105,7 +100,6 @@ const ListFood: React.FC = () => {
             style={{ width: 600 }}
           />
 
-
           <AddFood />
         </div>
       </div>
@@ -113,6 +107,5 @@ const ListFood: React.FC = () => {
     </>
   );
 };
-
 
 export default ListFood;

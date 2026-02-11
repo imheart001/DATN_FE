@@ -1,5 +1,5 @@
 import { Cascader } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useFetchCinemaQuery } from "../../service/brand.service";
 import { useEffect, useState } from "react";
 import { ICinemas } from "../../interface/model";
@@ -20,7 +20,7 @@ const Header = () => {
   const { data: cinemas } = useFetchCinemaQuery();
   const [cinemaOptions, setCinemaOptions] = useState<Option[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(true);
-
+  const navigate = useNavigate();
   const { data: filmCinemaData } = useGetFilmCinemeByIdQuery(
     selectedCinema // Sử dụng selectedCinema làm tham số
   );
@@ -40,17 +40,19 @@ const Header = () => {
     dispatch(setSelectedCinema(value));
     handleCancel();
   };
-  // useEffect(() => {
-  //   // Kiểm tra xem đã chọn chi nhánh chưa
-  //   if (selectedCinema) {
-  //     // `useGetFilmCinemeByIdQuery` sẽ tự động gửi yêu cầu API
-  //     // và cung cấp dữ liệu dưới dạng `filmCinemaData`
-  //     if (filmCinemaData) {
-  //       console.log("Dữ liệu từ API:", filmCinemaData);
-  //       // Ở đây, bạn có thể xử lý dữ liệu, lưu nó vào state hoặc hiển thị trên giao diện.
-  //     }
-  //   }
-  // }, [selectedCinema]);
+
+  useEffect(() => {
+    const timeoutDuration = 1000 * 15 * 60;
+
+    const timeoutId = setTimeout(() => {
+      navigate("/");
+      dispatch(setSelectedCinema(null));
+    }, timeoutDuration);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [dispatch]);
   return (
     <>
       {!selectedCinema && (

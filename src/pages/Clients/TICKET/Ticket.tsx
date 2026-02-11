@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
-import { Button, Modal } from "antd";
+import { Button, Modal, Tabs } from "antd";
 import { Link } from "react-router-dom";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchShowTimeQuery } from "../../../service/show.service";
@@ -8,7 +8,7 @@ import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 import { useSelector } from "react-redux";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
-
+import type { TabsProps } from "antd";
 const Ticket: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFilmId, setSelectedFilmId] = useState(null);
@@ -18,33 +18,38 @@ const Ticket: React.FC = () => {
   const { data: roomsBrand } = useFetchMovieRoomQuery();
   const { data: times } = useFetchTimeQuery();
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
-  const [filmShows, setFilmShows] = useState([]); // Bước 1
+  const [filmShows2, setFilmShows2] = useState([]); // Bước 1
+  const onChange = (key: string) => {
+    console.log(key);
+  };
 
   const showModal = (filmId: any) => {
     setSelectedFilmId(filmId);
     setIsModalOpen(true);
-    const showsForSelectedFilm = (shows as any)?.data.filter((show: any) => {
-      return show.film_id === filmId;
-    });
+    const showsForSelectedFilm = ((shows as any)?.data || []).filter(
+      (show: any) => {
+        return show.film_id == filmId;
+      }
+    );
 
     // Bước 1: Gộp suất chiếu cùng ngày
-    const uniqueShows = [];
-    showsForSelectedFilm.forEach((show) => {
+    const uniqueShows = [] as any[];
+    showsForSelectedFilm.forEach((show: any) => {
       const existingShow = uniqueShows.find((s) => s.date === show.date);
       if (existingShow) {
-        existingShow.times.push(show.time_id);
+        existingShow.times.push(show);
       } else {
         uniqueShows.push({
           date: show.date,
-          times: [show.time_id],
+          times: [show],
         });
       }
     });
 
-    setFilmShows(uniqueShows);
+    setFilmShows2(uniqueShows as any);
   };
 
-  console.log(filmShows);
+  console.log(filmShows2);
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -77,7 +82,7 @@ const Ticket: React.FC = () => {
   );
 
   console.log(`Hôm nay là: ${fullDate}`);
-  const getRealTime = (timeId) => {
+  const getRealTime = (timeId: any) => {
     const timeInfo = (times as any)?.data.find(
       (time: any) => time.id == timeId
     );
@@ -85,11 +90,27 @@ const Ticket: React.FC = () => {
   };
   const validShows = (shows as any)?.data.filter((show: any) => {
     const room = (roomsBrand as any)?.data.find(
-      (room: any) => room.id === show.room_id
+      (room: any) => room.id == show.room_id
     );
     return room && room.id_cinema == selectedCinema;
   });
-
+  const items: TabsProps["items"] = filmShows2.map((show: any) => {
+    return {
+      key: show.date,
+      label: `Ngày ${show.date}`,
+      children: (
+        <div>
+          {show.times.map((time: any, timeIndex: number) => (
+            <div key={timeIndex}>
+              <Link to={`/book-ticket/${time.id}`} className="ml-4">
+                {getRealTime(time.time_id)}
+              </Link>
+            </div>
+          ))}
+        </div>
+      ),
+    };
+  });
   return (
     <>
       <section
@@ -152,9 +173,10 @@ const Ticket: React.FC = () => {
           </h2>
           <div className="grid grid-cols-4 gap-10">
             {(films as any)?.data.map((film: any, index: any) => {
-              const filmShows = validShows.filter(
-                (show: any) => show.film_id === film.id
-              );
+              const filmShows = validShows
+                ? validShows.filter((show: any) => show.film_id === film.id)
+                : [];
+              console.log(filmShows);
 
               return (
                 <div className="w-[245px] h-[560px]" key={film.id}>
@@ -249,28 +271,11 @@ const Ticket: React.FC = () => {
         onOk={handleOk}
         onCancel={handleCancel}
       >
-        <hr></hr>
         {selectedFilmId !== null && (
           <p className="text-center text-2xl">Rạp {selectedCinemaInfo.name}</p>
         )}
-        <div className="mt-2 ">
-          {filmShows.map((show) => (
-            <div key={show.date}>
-              <Link to={"#"}>
-                <span className="text-xl ">{show.date}</span>
-              </Link>
-              <span className="ml-4">
-                Thời gian:{" "}
-                {show.times.map((time, index) => (
-                  <div key={index}>
-                    <span className="ml-4"> {getRealTime(time)}</span>
-                  </div>
-                ))}
-              </span>
-            </div>
-          ))}
-          <hr />
-        </div>
+        <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+        <hr></hr>
       </Modal>
       ;
     </>

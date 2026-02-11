@@ -5,7 +5,8 @@ import FilmShowing from "../../../components/FilmShowing";
 import { IFilms } from "../../../interface/model";
 
 const Movies = () => {
-  const { data } = useFetchProductQuery() as { data: IFilms[] };
+  const { data } = useFetchProductQuery() as any;
+  console.log(data);
 
   return (
     <>
