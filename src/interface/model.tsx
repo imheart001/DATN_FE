@@ -66,3 +66,8 @@ export interface IChairs {
   price: number;
   id_time_detail: string;
 }
+export interface IUser {
+  name: string,
+  email: string,
+  password: string
+}

@@ -16,6 +16,7 @@ import bookTicketsAPI from "../service/book_ticket.service";
 import cateDetailAPI from "../service/catedetail.service";
 import bookingSeatAPI from "../service/chairs.service";
 
+import usersAPI from "../service/signup_login";
 // Import redux-persist
 const persistConfig = {
   key: "root",
@@ -30,6 +31,7 @@ const persistConfig = {
     "movies",
     "catedetails",
     "chairs",
+    "users"
   ],
 };
 
@@ -45,6 +47,7 @@ const rootReducer = combineReducers({
   catedetails: cateDetailAPI.reducer,
   bkseats: bookingSeatAPI.reducer,
   selectedCinema: selectedCinemaReducer,
+  users: usersAPI.reducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -66,7 +69,8 @@ const store = configureStore({
       bookTicketsAPI.middleware,
       foodAPI.middleware,
       movieRoomAPI.middleware,
-      cateDetailAPI.middleware
+      cateDetailAPI.middleware,
+      usersAPI.middleware
     ),
 });
 

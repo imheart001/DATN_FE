@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { IUser } from "../../../interface/model";
+import { useAddUserMutation } from "../../../service/signup_login";
+
 
 const Login = () => {
   const [changeisForm, setChangeisForm] = useState(false);
@@ -6,6 +9,21 @@ const Login = () => {
     setChangeisForm(!changeisForm);
   };
   console.log(changeisForm);
+
+    const [name, setName] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [onAdd] = useAddUserMutation();
+    const addUser = () =>{
+      const userNew ={
+        name,email, password
+      }
+      onAdd(userNew);
+      console.log(userNew);
+      alert("Thêm thành công")
+
+      
+    }
 
   return (
     <section className="flex justify-center items-center flex-col font-poppins overflow-hidden h-screen">
@@ -25,18 +43,22 @@ const Login = () => {
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="text"
               placeholder="Name"
+              value={name} onChange={(e) =>setName(e.target.value)}
             />
             <input
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="email"
               placeholder="Email"
+              value={email} onChange={(e) =>setEmail(e.target.value)}
             />
             <input
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="password"
               placeholder="Password"
+              value={password} onChange={(e) =>setPassword(e.target.value)}
             />
             <button
+            type="button" onClick={addUser}
               className={`
               } relative hover:tracking-widest active:scale-95 focus:outline-none rounded-3xl border border-[#4bb6b7] bg-[#4bb6b7] text-white  font-semibold m-[10px] px-20 py-2 tracking-wider  transition duration-300 ease-in-out`}
             >
@@ -84,6 +106,8 @@ const Login = () => {
           </form>
         </div>
 
+
+{/* ///đang nhap */}
         <div className="form-container login-container">
           <form
             className="bg-white flex items-center justify-center flex-col px-10 h-full text-center"
