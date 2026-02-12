@@ -42,7 +42,7 @@ const Header = () => {
   };
 
   useEffect(() => {
-    const timeoutDuration = 1000 * 15 * 60;
+    const timeoutDuration = 1000*15*60;
 
     const timeoutId = setTimeout(() => {
       navigate("/");
