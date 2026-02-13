@@ -1,34 +1,61 @@
 import React, { useState } from "react";
 import { IUser } from "../../../interface/model";
-import { useAddUserMutation } from "../../../service/signup_login";
-
+import {
+  useAddUserMutation,
+  useLoginUserMutation,
+} from "../../../service/signup_login";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { updateToken } from "../../../components/CinemaSlice/authSlice";
 
 const Login = () => {
   const [changeisForm, setChangeisForm] = useState(false);
+  const [loginUser] = useLoginUserMutation();
+  const newToken = "token_moi_tu_server";
+
+  const dispatch = useDispatch();
+  dispatch(updateToken(newToken));
   const onHandleChangeForm = () => {
     setChangeisForm(!changeisForm);
   };
   console.log(changeisForm);
+  const navigate = useNavigate();
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [onAdd] = useAddUserMutation();
+  const addUser = () => {
+    const userNew = {
+      name,
+      email,
+      password,
+    };
+    onAdd(userNew);
+    console.log(userNew);
+    alert("Thêm thành công");
+  };
+  const handleLogin = async () => {
+    try {
+      const response = await loginUser({ email, password });
+      // Xử lý kết quả đăng nhập ở đây, ví dụ:
+      if (response.data) {
+        navigate("/");
 
-    const [name, setName] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [onAdd] = useAddUserMutation();
-    const addUser = () =>{
-      const userNew ={
-        name,email, password
+        // Đăng nhập thành công, có thể chuyển hướng người dùng hoặc thực hiện các hành động khác
+        alert("Đăng nhập thành công!");
+      } else {
+        // Đăng nhập thất bại, hiển thị thông báo lỗi
+        alert("Đăng nhập không thành công");
       }
-      onAdd(userNew);
-      console.log(userNew);
-      alert("Thêm thành công")
-
-      
+    } catch (error) {
+      // Xử lý lỗi đăng nhập ở đây, ví dụ:
+      alert("Đã xảy ra lỗi: " + error.message);
     }
-
+  };
   return (
     <section className="flex justify-center items-center flex-col font-poppins overflow-hidden h-screen">
       <div
-        className={`${changeisForm ? "" : "right-panel-active"} container`}
+        className={`${changeisForm ? "right-panel-active" : ""} container`}
         id="container"
       >
         <div className="form-container register-container">
@@ -43,22 +70,26 @@ const Login = () => {
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="text"
               placeholder="Name"
-              value={name} onChange={(e) =>setName(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
             <input
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="email"
               placeholder="Email"
-              value={email} onChange={(e) =>setEmail(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <input
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="password"
               placeholder="Password"
-              value={password} onChange={(e) =>setPassword(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <button
-            type="button" onClick={addUser}
+              type="button"
+              onClick={addUser}
               className={`
               } relative hover:tracking-widest active:scale-95 focus:outline-none rounded-3xl border border-[#4bb6b7] bg-[#4bb6b7] text-white  font-semibold m-[10px] px-20 py-2 tracking-wider  transition duration-300 ease-in-out`}
             >
@@ -106,8 +137,7 @@ const Login = () => {
           </form>
         </div>
 
-
-{/* ///đang nhap */}
+        {/* ///đang nhap */}
         <div className="form-container login-container">
           <form
             className="bg-white flex items-center justify-center flex-col px-10 h-full text-center"
@@ -120,11 +150,15 @@ const Login = () => {
               className="bg-[#eee] accent-[#333] rounded-xl border-none py-2 px-4 my-2 w-full"
               type="email"
               placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <input
               className="bg-[#eee] accent-[#333] rounded-xl border-none py-2 px-4 my-2 w-full"
               type="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <div className="content">
               <div className="checkbox">
@@ -142,6 +176,7 @@ const Login = () => {
               </div>
             </div>
             <button
+              onClick={handleLogin}
               className={`
               } relative hover:tracking-widest active:scale-95 focus:outline-none rounded-3xl border border-[#4bb6b7] bg-[#4bb6b7] text-white  font-semibold m-[10px] px-20 py-2 tracking-wider  transition duration-300 ease-in-out`}
             >
