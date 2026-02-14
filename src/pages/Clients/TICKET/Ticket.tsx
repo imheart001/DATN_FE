@@ -21,6 +21,7 @@ const Ticket: React.FC = () => {
     useFetchMovieRoomQuery();
   const { data: times, isLoading: timeLoading } = useFetchTimeQuery();
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
+console.log(selectedCinema);
 
   const navigate = useNavigate();
   interface FilmShow {
@@ -147,7 +148,7 @@ const Ticket: React.FC = () => {
     const dayOfWeekLabel = daysOfWeek[dayOfWeek]; // Tên thứ
 
     const label = isToday
-      ? "Ngày hiện tại"
+      ? "Hôm nay"
       : `${dayNumber}/${month}-${dayOfWeekLabel}`;
 
     return {

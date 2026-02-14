@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { IFilms } from "../interface/model";
-import { Button, Modal } from "antd";
+
+import { Modal } from "antd";
+import { useGetALLCateDetailByIdQuery } from "../service/catedetail.service";
+
 type Props = {
-  data: IFilms;
+  data: any;
 };
 
 const FilmShowing = ({ data }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const filmIds = [data.id].flat();
+
+  const ii = filmIds.map((id: string) => useGetALLCateDetailByIdQuery(`${id}`));
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -20,6 +26,7 @@ const FilmShowing = ({ data }: Props) => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+
   return (
     <div className="relative w-[245px] h-[420px] group">
       <div className="relative rounded-2xl w-[205px] h-[300px]">
@@ -47,7 +54,7 @@ const FilmShowing = ({ data }: Props) => {
         <Link to={`/movie_about/${data.id}`}>{data.name}</Link>
       </h3>
       <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-        <span>Drama</span>
+        <span>{ii.map((item) => (item as any)?.error?.data)}</span>
         <span>IMDB 8.6</span>
         <span>13+</span>
       </div>

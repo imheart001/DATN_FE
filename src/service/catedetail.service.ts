@@ -12,14 +12,16 @@ const cateDetailAPI = createApi({
       query: () => "/category_detail/",
       providesTags: ["catedetail"],
     }),
+    getALLCateDetailById: builder.query({
+      query: (id) => `/categorie_detail_name/${id}`,
+      providesTags: ["catedetail"],
+    }),
     getCateDetailById: builder.query<ICateDetail, number | string>({
-
       query: (id) => `/category_detail/${id}`,
       providesTags: ["catedetail"],
     }),
     removeCateDetail: builder.mutation({
       query: (id) => ({
-
         // url: "/category_detail/" + id,
         url: `/category_detail/${id}`,
 
@@ -29,7 +31,6 @@ const cateDetailAPI = createApi({
     }),
     addCateDetail: builder.mutation({
       query: (catedetail: ICateDetail) => ({
-
         url: "/category_detail/",
         method: "POST",
         body: catedetail,
@@ -38,7 +39,6 @@ const cateDetailAPI = createApi({
     }),
     updateCateDetail: builder.mutation({
       query: (catedetail: ICateDetail) => ({
-
         url: `/category_detail/${catedetail.id}`,
         method: "PATCH",
         body: catedetail,
@@ -48,11 +48,11 @@ const cateDetailAPI = createApi({
   }),
 });
 export const {
-
- useFetchCateDetailQuery,
-  useAddCateDetailMutation, 
-  useGetCateDetailByIdQuery, 
-  useRemoveCateDetailMutation, 
-  useUpdateCateDetailMutation
+  useGetALLCateDetailByIdQuery,
+  useFetchCateDetailQuery,
+  useAddCateDetailMutation,
+  useGetCateDetailByIdQuery,
+  useRemoveCateDetailMutation,
+  useUpdateCateDetailMutation,
 } = cateDetailAPI;
 export default cateDetailAPI;

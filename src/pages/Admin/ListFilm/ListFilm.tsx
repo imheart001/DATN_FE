@@ -20,6 +20,7 @@ import {
   useRemoveProductMutation,
 } from "../../../service/films.service";
 import { IFilms } from "../../../interface/model";
+import Loading from "../../../components/isLoading/Loading";
 interface DataType {
   key: string;
   name: string;
@@ -38,8 +39,10 @@ const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
-  const { data: films } = useFetchProductQuery();
-
+  const { data: films, isLoading } = useFetchProductQuery();
+  if (isLoading) {
+    return <Loading />;
+  }
   const [removeProduct] = useRemoveProductMutation();
   const columns: ColumnsType<DataType> = [
     {

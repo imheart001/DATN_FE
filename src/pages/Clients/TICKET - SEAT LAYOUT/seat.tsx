@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
 import { useParams } from "react-router-dom";
+import { PacmanLoader } from "react-spinners";
 import {
   useAddChairsMutation,
   useFetchChairsQuery,
@@ -9,6 +10,18 @@ import {
   useFetchShowTimeQuery,
   useGetShowTimeByIdQuery,
 } from "../../../service/show.service";
+import { useGetProductByIdQuery } from "../../../service/films.service";
+import { IFilms } from "../../../interface/model";
+import { Button, Modal } from "antd";
+import { useSelector } from "react-redux";
+import { useGetCinemaByIdQuery } from "../../../service/brand.service";
+import { useGetTimeByIdQuery } from "../../../service/time.service";
+import Loading from "../../../components/isLoading/Loading";
+import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
+import {
+  useFetchMovieRoomQuery,
+  useGetMovieRoomByIdQuery,
+} from "../../../service/movieroom.service";
 enum SeatStatus {
   Available = "available",
   Booked = "booked",
@@ -25,25 +38,53 @@ interface SeatInfo {
   column: number;
   status: SeatStatus;
   type: SeatType;
+  price: number;
 }
 
 const BookingSeat = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   const numRows = 7;
   const numColumns = 10;
   const { id } = useParams();
-
+  const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const [addBooking] = useAddChairsMutation();
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
+
   const { data: TimeDetails } = useFetchShowTimeQuery();
-  console.log(TimeDetails);
+  const { data: TimeDetailbyId } = useGetShowTimeByIdQuery(id as string);
+  const { data: CinemaDetailbyId } = useGetCinemaByIdQuery(
+    selectedCinema as string
+  );
 
-  // const { data: TimeDetailsbyID } = useGetShowTimeByIdQuery(id as string);
-  // console.log(TimeDetailsbyID);
-
+  console.log(TimeDetailbyId);
+  const filterShow = (TimeDetails as any)?.data.filter(
+    (show: any) => `${show.id}` === id
+  );
+  const formatter = (value: number) =>
+    `${value} ₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const idTime = filterShow?.map((time: any) => time.time_id).join(" ");
+  const idFilm = filterShow?.map((film: any) => film.film_id).join(" ");
+  const idRoom = filterShow?.map((film: any) => film.room_id).join(" ");
+  const { data: FilmById } = useGetProductByIdQuery(idFilm);
+  const { data: TimeById } = useGetTimeByIdQuery(idTime);
   const isVIPSeat = (row: number, column: number): boolean => {
     return row >= 1 && row <= 5 && column >= 2 && column <= 7;
   };
-
+  const { data: RoombyId } = useGetMovieRoomByIdQuery(idRoom as string);
+  const cateallbyFilmID = useGetALLCateDetailByIdQuery(`${idFilm}` as string);
+  console.log((cateallbyFilmID as any)?.error?.data);
   const parseSeatNames = (seatNamesString: any) => {
     return seatNamesString.split(",").map((name: any) => name.trim());
   };
@@ -72,11 +113,18 @@ const BookingSeat = () => {
         const status = bookedSeatNames.includes(seatName)
           ? SeatStatus.Booked
           : SeatStatus.Available;
+        const price =
+          status === SeatStatus.Booked
+            ? 0
+            : type === SeatType.VIP
+            ? 70000
+            : 45000; // Đặt giá cho từng loại ghế
         return {
           row: rowIndex,
           column: columnIndex,
           status,
           type,
+          price,
         };
       })
     )
@@ -89,10 +137,19 @@ const BookingSeat = () => {
     const seat = updatedSeats[row][column];
 
     if (seat.status === SeatStatus.Available) {
-      updatedSeats[row][column] = { ...seat, status: SeatStatus.Selected };
+      const selectedPrice = seat.type === SeatType.VIP ? 70000 : 45000;
+      updatedSeats[row][column] = {
+        ...seat,
+        status: SeatStatus.Selected,
+        price: selectedPrice,
+      };
       setSelectedSeats([...selectedSeats, updatedSeats[row][column]]);
     } else if (seat.status === SeatStatus.Selected) {
-      updatedSeats[row][column] = { ...seat, status: SeatStatus.Available };
+      updatedSeats[row][column] = {
+        ...seat,
+        status: SeatStatus.Available,
+        price: 0,
+      };
       setSelectedSeats(selectedSeats.filter((selected) => selected !== seat));
     }
 
@@ -104,24 +161,31 @@ const BookingSeat = () => {
   };
 
   const handleConfirmation = async () => {
+    const totalPrice = selectedSeats.reduce(
+      (total, seat) => total + seat.price,
+      0
+    );
+
     const selectedSeatsData = {
       name: selectedSeats
         .map((seat) => `${getRowName(seat.row)}${seat.column + 1}`)
         .join(", "),
-      price: selectedSeats.length * 10, // Giả sử giá mỗi ghế là 10 đơn vị
+      price: totalPrice,
       id_time_detail: id,
     };
 
     try {
-      const response = await addBooking(selectedSeatsData);
+      const response = await addBooking(selectedSeatsData as any);
 
       if ((response as any)?.data) {
         console.log("Đặt ghế thành công!");
+        console.log("Tổng giá tiền: " + totalPrice);
       }
     } catch (error) {
       console.error("Lỗi khi đặt ghế:", error);
     }
   };
+
   const parseSeatName = (seatName: string) => {
     const row = seatName.charCodeAt(0) - "A".charCodeAt(0);
     const column = parseInt(seatName.slice(1)) - 1;
@@ -137,7 +201,7 @@ const BookingSeat = () => {
 
     // Tạo một danh sách tên ghế từ filteredSeats
     const bookedSeatNames = filteredSeats
-      .map((item:any) => parseSeatNames(item.name))
+      .map((item: any) => parseSeatNames(item.name))
       .flat();
 
     // Tạo một bản sao mới của mảng ghế
@@ -160,34 +224,52 @@ const BookingSeat = () => {
     setSeats(updatedSeats);
   }, [(DataSeatBooked as any)?.data]);
 
-  
- 
-
   if (isLoading) {
-    return <div className="text-5xl text-white">Loading...</div>; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
+    return <Loading />; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
   }
+  const date = (TimeDetailbyId as any)?.data.date;
+  const dateObject = new Date(date);
+  const daysOfWeek = [
+    "Chủ Nhật",
+    "Thứ Hai",
+    "Thứ Ba",
+    "Thứ Tư",
+    "Thứ Năm",
+    "Thứ Sáu",
+    "Thứ Bảy",
+  ];
+  const day = String(dateObject.getDate()).padStart(2, "0");
+  const month = String(dateObject.getMonth() + 1).padStart(2, "0");
+  const year = dateObject.getFullYear();
+
+  const dayOfWeek = daysOfWeek[dateObject.getDay()];
+  const formattedDate = `${day}/${month}/${year}`;
+
   return (
     <>
       <Header />
       <div className="title-fim text-center mx-auto space-y-[10px] my-[66px]">
         <img
-          src="/openhemer.png/"
+          src={(FilmById as any)?.data.image}
           alt=""
-          className="block text-center mx-auto"
+          className="block text-center mx-auto w-[201px] rounded-2xl h-[295px]"
         />
-        <h1 className="text-[40px]  font-bold text-[#FFFFFF]">Oppenheimer</h1>
+        <h1 className="text-[40px]  font-bold text-[#FFFFFF]">
+          {(FilmById as any)?.data.name}
+        </h1>
         <span className="text-[14px] text-[#8E8E8E] block">
-          Thứ Hai, ngày 21 tháng 8, 13:00-16:00
+          {dayOfWeek}, ngày {formattedDate}, {(TimeById as any)?.data.time}
         </span>
         <span className="text-[14px] text-[#8E8E8E] block">
-          Trung tâm mua sắm Poins - Audi 1
+          {(CinemaDetailbyId as any)?.data.name} -{" "}
+          {(CinemaDetailbyId as any)?.data.address}
         </span>
       </div>
 
       <section className="Screen max-w-6xl mx-auto px-5">
         <img src="/ic-screen.png/" alt="" />
-        <div className="status Seat flex space-x-[20px] items-center mx-auto justify-center  max-w-5xl">
-          <div className="items-center flex">
+        <div className="status Seat flex space-x-[20px] items-center mx-auto  justify-center max-w-5xl">
+          <div className="items-center flex ">
             <div className=" text-[#FFFFFF] px-6 py-5  bg-[#EE2E24] rounded-lg inline-block"></div>
             <span className="text-[17px] text-[#8E8E8E] mx-2">Ghế đã bán</span>
           </div>
@@ -316,23 +398,206 @@ const BookingSeat = () => {
           </table>
         </div>
       </section>
-      <div className="text-white mx-auto text-center">
+      <div className="text-white mx-auto text-center space-y-4">
         <h3>Thông tin các ghế đã chọn</h3>
-        <ul>
+        <ul className="flex space-x-4 text-center justify-center">
           {selectedSeats.map((seat, index) => (
             <li key={index}>
-              Row: {getRowName(seat.row)}, Column: {seat.column + 1}, Loại ghế:{" "}
-              {seat.type}
+              {getRowName(seat.row)}
+              {seat.column + 1},
             </li>
           ))}
+          <p>
+            Tổng giá tiền:{" "}
+            {formatter(
+              selectedSeats.reduce((total, seat) => total + seat.price, 0)
+            )}
+          </p>
         </ul>
-        <button
-          className="bg-white text-black rounded-lg px-4 py-3 my-10"
-          onClick={handleConfirmation}
+        <Button
+          type="primary"
+          className="bg-white text-black rounded-lg my-10 hover:danger"
+          onClick={showModal}
         >
-          Xác nhận đặt ghế
-        </button>
+          Tiếp tục
+        </Button>
       </div>
+      <Modal
+        title="XÁC NHẬN THÔNG TIN VÉ"
+        open={isModalOpen}
+        onOk={handleOk}
+        okButtonProps={{
+          style: { backgroundColor: "#007bff", color: "white" },
+        }}
+        onCancel={handleCancel}
+      >
+        <hr className="mt-4" />
+        <div className="my-10 space-y-4">
+          <div className="grid grid-cols-2 gap-8">
+            <img
+              src={(FilmById as any)?.data.image}
+              alt=""
+              className="block text-center mx-auto w-[201px] rounded-2xl h-[295px]"
+            />
+            <div className="space-y-2">
+              <h1 className="text-3xl text-[#03599d] font-semibold font-mono">
+                {(FilmById as any)?.data.name}
+              </h1>
+              <span className="block text-center">2D Phụ đề</span>
+            </div>
+          </div>
+          <div className="space-y-1 ">
+            <span className="block justify-center mx-5 flex  space-x-2 items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="currentColor"
+                className="bi bi-tags-fill"
+                viewBox="0 0 16 16"
+              >
+                <path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586V2zm3.5 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+                <path d="M1.293 7.793A1 1 0 0 1 1 7.086V2a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l.043-.043-7.457-7.457z" />
+              </svg>
+              <h4 className="">
+                Thể loại: {(cateallbyFilmID as any)?.error?.data}
+              </h4>
+            </span>
+            <span className="block justify-center  mx-5 flex  space-x-2 items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="currentColor"
+                className="bi bi-alarm"
+                viewBox="0 0 16 16"
+              >
+                <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z" />
+                <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z" />
+              </svg>
+              <h4 className="">Thời lượng: {(FilmById as any)?.data.time}</h4>
+            </span>
+          </div>
+          <hr className="border-dashed border-2 border-sky-500" />
+          <span className="block   mx-5 flex  space-x-2 items-center ">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              className="bi bi-geo-alt-fill"
+              viewBox="0 0 16 16"
+            >
+              <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" />
+            </svg>
+            <h4 className="justify-start">Địa điểm: </h4>
+            <span className="font-semibold">
+              {(CinemaDetailbyId as any)?.data.name} -{" "}
+              {(CinemaDetailbyId as any)?.data.address}
+            </span>
+          </span>
+          <span className="block   mx-5 flex  space-x-2 items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              className="bi bi-calendar2-week"
+              viewBox="0 0 16 16"
+            >
+              <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2z" />
+              <path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V4zM11 7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm-3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm-5 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z" />
+            </svg>
+            <h4 className="">
+              Ngày chiếu:{" "}
+              <span className="font-semibold ">{formattedDate}</span>
+            </h4>
+          </span>
+          <span className="block   mx-5 flex  space-x-2 items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              className="bi bi-alarm"
+              viewBox="0 0 16 16"
+            >
+              <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z" />
+              <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z" />
+            </svg>
+            <h4 className="">
+              Giờ chiếu:{" "}
+              <span className="font-semibold">
+                {(TimeById as any)?.data.time}
+              </span>
+            </h4>
+          </span>
+          <span className="block   mx-5 flex  space-x-2 items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              className="bi bi-cast"
+              viewBox="0 0 16 16"
+            >
+              <path d="m7.646 9.354-3.792 3.792a.5.5 0 0 0 .353.854h7.586a.5.5 0 0 0 .354-.854L8.354 9.354a.5.5 0 0 0-.708 0z" />
+              <path d="M11.414 11H14.5a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5h-13a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .5.5h3.086l-1 1H1.5A1.5 1.5 0 0 1 0 10.5v-7A1.5 1.5 0 0 1 1.5 2h13A1.5 1.5 0 0 1 16 3.5v7a1.5 1.5 0 0 1-1.5 1.5h-2.086l-1-1z" />
+            </svg>
+            <h4 className="">
+              Phòng chiếu:{" "}
+              <span className="font-semibold">
+                {(RoombyId as any)?.data.name}
+              </span>
+            </h4>
+          </span>
+
+          <span className="block   mx-5 flex  space-x-2 items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              className="bi bi-inboxes-fill"
+              viewBox="0 0 16 16"
+            >
+              <path d="M4.98 1a.5.5 0 0 0-.39.188L1.54 5H6a.5.5 0 0 1 .5.5 1.5 1.5 0 0 0 3 0A.5.5 0 0 1 10 5h4.46l-3.05-3.812A.5.5 0 0 0 11.02 1H4.98zM3.81.563A1.5 1.5 0 0 1 4.98 0h6.04a1.5 1.5 0 0 1 1.17.563l3.7 4.625a.5.5 0 0 1 .106.374l-.39 3.124A1.5 1.5 0 0 1 14.117 10H1.883A1.5 1.5 0 0 1 .394 8.686l-.39-3.124a.5.5 0 0 1 .106-.374L3.81.563zM.125 11.17A.5.5 0 0 1 .5 11H6a.5.5 0 0 1 .5.5 1.5 1.5 0 0 0 3 0 .5.5 0 0 1 .5-.5h5.5a.5.5 0 0 1 .496.562l-.39 3.124A1.5 1.5 0 0 1 14.117 16H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .121-.393z" />
+            </svg>
+            <h4 className="flex space-x-1">
+              <span>Ghế ngồi</span>:{" "}
+              {selectedSeats.map((seat, index) => (
+                <li key={index}>
+                  <span className="font-semibold">
+                    {getRowName(seat.row)}
+                    {seat.column + 1}
+                  </span>
+                </li>
+              ))}
+            </h4>
+          </span>
+          <span className="block   mx-5 flex  space-x-2 items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="currentColor"
+              className="bi bi-cash"
+              viewBox="0 0 16 16"
+            >
+              <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
+              <path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2H3z" />
+            </svg>
+            <h4 className="flex space-x-1">
+              <span>Tổng tiền</span>:{" "}
+              <span className="font-semibold">
+                {formatter(
+                  selectedSeats.reduce((total, seat) => total + seat.price, 0)
+                )}
+              </span>
+            </h4>
+          </span>
+        </div>
+      </Modal>
     </>
   );
 };
