@@ -5,6 +5,10 @@ import {
   useAddChairsMutation,
   useFetchChairsQuery,
 } from "../../../service/chairs.service";
+import {
+  useFetchShowTimeQuery,
+  useGetShowTimeByIdQuery,
+} from "../../../service/show.service";
 enum SeatStatus {
   Available = "available",
   Booked = "booked",
@@ -24,13 +28,17 @@ interface SeatInfo {
 }
 
 const BookingSeat = () => {
-  const seatStatusByShowtime = new Map();
-
   const numRows = 7;
   const numColumns = 10;
   const { id } = useParams();
+
   const [addBooking] = useAddChairsMutation();
-  const { data: DataSeatBooked } = useFetchChairsQuery();
+  const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
+  const { data: TimeDetails } = useFetchShowTimeQuery();
+  console.log(TimeDetails);
+
+  // const { data: TimeDetailsbyID } = useGetShowTimeByIdQuery(id as string);
+  // console.log(TimeDetailsbyID);
 
   const isVIPSeat = (row: number, column: number): boolean => {
     return row >= 1 && row <= 5 && column >= 2 && column <= 7;
@@ -39,10 +47,17 @@ const BookingSeat = () => {
   const parseSeatNames = (seatNamesString: any) => {
     return seatNamesString.split(",").map((name: any) => name.trim());
   };
+  const seatBooked = (DataSeatBooked as any)?.data || [];
+
+  // Lọc ra các phần tử có id_time_detail trùng với id từ URL params
+  const filteredSeats = seatBooked.filter(
+    (item: any) => `${item.id_time_detail}` === id
+  );
 
   const bookedSeatNames =
-    (DataSeatBooked as any)?.data
+    filteredSeats
       .map((item: any) => parseSeatNames(item.name))
+      .flat()
       .flat() || [];
 
   const [seats, setSeats] = useState<SeatInfo[][]>(
@@ -107,6 +122,50 @@ const BookingSeat = () => {
       console.error("Lỗi khi đặt ghế:", error);
     }
   };
+  const parseSeatName = (seatName: string) => {
+    const row = seatName.charCodeAt(0) - "A".charCodeAt(0);
+    const column = parseInt(seatName.slice(1)) - 1;
+    return [row, column];
+  };
+  useEffect(() => {
+    const seatBooked = (DataSeatBooked as any)?.data || [];
+
+    // Lọc ra các phần tử có id_time_detail trùng với id từ URL params
+    const filteredSeats = seatBooked.filter(
+      (item: any) => `${item.id_time_detail}` === id
+    );
+
+    // Tạo một danh sách tên ghế từ filteredSeats
+    const bookedSeatNames = filteredSeats
+      .map((item:any) => parseSeatNames(item.name))
+      .flat();
+
+    // Tạo một bản sao mới của mảng ghế
+    const updatedSeats = [...seats];
+
+    // Duyệt qua các ghế đã đặt và cập nhật trạng thái của chúng
+    bookedSeatNames.forEach((seatName: any) => {
+      const [rowIndex, columnIndex] = parseSeatName(seatName);
+      if (
+        rowIndex >= 0 &&
+        rowIndex < numRows &&
+        columnIndex >= 0 &&
+        columnIndex < numColumns
+      ) {
+        updatedSeats[rowIndex][columnIndex].status = SeatStatus.Booked;
+      }
+    });
+
+    // Cập nhật mảng ghế trong trạng thái
+    setSeats(updatedSeats);
+  }, [(DataSeatBooked as any)?.data]);
+
+  
+ 
+
+  if (isLoading) {
+    return <div className="text-5xl text-white">Loading...</div>; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
+  }
   return (
     <>
       <Header />

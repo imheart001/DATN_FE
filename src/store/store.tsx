@@ -1,9 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { persistStore, persistReducer } from "redux-persist";
+
 import storage from "redux-persist/lib/storage";
 import { setupListeners } from "@reduxjs/toolkit/query/react";
 import filmsAPI from "../service/films.service";
 import categorysAPI from "../service/cate.service";
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist'
 
 import cinemasAPI from "../service/brand.service";
 import showsAPI from "../service/show.service";
@@ -15,12 +25,13 @@ import timesAPI from "../service/time.service";
 import bookTicketsAPI from "../service/book_ticket.service";
 import cateDetailAPI from "../service/catedetail.service";
 import bookingSeatAPI from "../service/chairs.service";
-
+import authReducer from "../components/CinemaSlice/authSlice";
 import usersAPI from "../service/signup_login";
 // Import redux-persist
 const persistConfig = {
   key: "root",
   storage,
+  version: 1,
   whitelist: [
     "films",
     "cates",
@@ -47,7 +58,8 @@ const rootReducer = combineReducers({
   catedetails: cateDetailAPI.reducer,
   bkseats: bookingSeatAPI.reducer,
   selectedCinema: selectedCinemaReducer,
-  users: usersAPI.reducer
+  users: usersAPI.reducer,
+  auth: authReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -58,6 +70,7 @@ const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         ignoredPaths: ["selectedCinema"],
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }).concat(
       filmsAPI.middleware,
@@ -73,6 +86,7 @@ const store = configureStore({
       usersAPI.middleware
     ),
 });
+
 
 setupListeners(store.dispatch);
 

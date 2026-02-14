@@ -1,24 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IUser } from "../../../interface/model";
 import {
   useAddUserMutation,
   useLoginUserMutation,
 } from "../../../service/signup_login";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateToken } from "../../../components/CinemaSlice/authSlice";
+import { persistor } from "../../../store/store";
 
 const Login = () => {
   const [changeisForm, setChangeisForm] = useState(false);
   const [loginUser] = useLoginUserMutation();
-  const newToken = "token_moi_tu_server";
 
   const dispatch = useDispatch();
-  dispatch(updateToken(newToken));
+
   const onHandleChangeForm = () => {
     setChangeisForm(!changeisForm);
   };
-  console.log(changeisForm);
+
   const navigate = useNavigate();
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -31,27 +31,27 @@ const Login = () => {
       password,
     };
     onAdd(userNew);
-    console.log(userNew);
+
     alert("Thêm thành công");
   };
   const handleLogin = async () => {
     try {
       const response = await loginUser({ email, password });
-      // Xử lý kết quả đăng nhập ở đây, ví dụ:
-      if (response.data) {
-        navigate("/");
 
-        // Đăng nhập thành công, có thể chuyển hướng người dùng hoặc thực hiện các hành động khác
+      if ((response as any)?.data && (response as any).data.token) {
+        dispatch(updateToken((response as any).data.token));
+        // Update the token in localStorage
+        localStorage.setItem("authToken", (response as any).data.token);
+
         alert("Đăng nhập thành công!");
       } else {
-        // Đăng nhập thất bại, hiển thị thông báo lỗi
         alert("Đăng nhập không thành công");
       }
     } catch (error) {
-      // Xử lý lỗi đăng nhập ở đây, ví dụ:
-      alert("Đã xảy ra lỗi: " + error.message);
+      alert(`Đã xảy ra lỗi: ${error}`);
     }
   };
+
   return (
     <section className="flex justify-center items-center flex-col font-poppins overflow-hidden h-screen">
       <div
