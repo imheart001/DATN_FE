@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
 import { useParams } from "react-router-dom";
-import { PacmanLoader } from "react-spinners";
+
 import {
   useAddChairsMutation,
   useFetchChairsQuery,
@@ -11,17 +11,14 @@ import {
   useGetShowTimeByIdQuery,
 } from "../../../service/show.service";
 import { useGetProductByIdQuery } from "../../../service/films.service";
-import { IFilms } from "../../../interface/model";
-import { Button, Modal } from "antd";
+
+import { Button, Modal, message } from "antd";
 import { useSelector } from "react-redux";
 import { useGetCinemaByIdQuery } from "../../../service/brand.service";
 import { useGetTimeByIdQuery } from "../../../service/time.service";
 import Loading from "../../../components/isLoading/Loading";
 import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
-import {
-  useFetchMovieRoomQuery,
-  useGetMovieRoomByIdQuery,
-} from "../../../service/movieroom.service";
+import { useGetMovieRoomByIdQuery } from "../../../service/movieroom.service";
 enum SeatStatus {
   Available = "available",
   Booked = "booked",
@@ -46,10 +43,6 @@ const BookingSeat = () => {
 
   const showModal = () => {
     setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
   };
 
   const handleCancel = () => {
@@ -178,8 +171,9 @@ const BookingSeat = () => {
       const response = await addBooking(selectedSeatsData as any);
 
       if ((response as any)?.data) {
-        console.log("Đặt ghế thành công!");
+        message.success("Đặt ghế thành công!");
         console.log("Tổng giá tiền: " + totalPrice);
+        
       }
     } catch (error) {
       console.error("Lỗi khi đặt ghế:", error);
@@ -425,7 +419,7 @@ const BookingSeat = () => {
       <Modal
         title="XÁC NHẬN THÔNG TIN VÉ"
         open={isModalOpen}
-        onOk={handleOk}
+        onOk={handleConfirmation}
         okButtonProps={{
           style: { backgroundColor: "#007bff", color: "white" },
         }}

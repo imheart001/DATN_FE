@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
+import moment from "moment-timezone";
 import { Button, Modal, Tabs } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useFetchProductQuery } from "../../../service/films.service";
@@ -10,6 +11,8 @@ import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import type { TabsProps } from "antd";
 import { updateToken } from "../../../components/CinemaSlice/authSlice";
+import { useFetchChairsQuery } from "../../../service/chairs.service";
+import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
 
 const Ticket: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,10 +22,18 @@ const Ticket: React.FC = () => {
   const { data: cinemas, isLoading: cinemasLoading } = useFetchCinemaQuery();
   const { data: roomsBrand, isLoading: roomsLoading } =
     useFetchMovieRoomQuery();
+  const [initialSeatCount, setInitialSeatCount] = useState(70); // Số ghế ban đầu
+  // Số ghế đã đặt
+
+  const { data: chairs } = useFetchChairsQuery();
   const { data: times, isLoading: timeLoading } = useFetchTimeQuery();
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
-console.log(selectedCinema);
 
+  moment.tz.setDefault("Asia/Ho_Chi_Minh");
+
+  const currentDateTime = moment().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+  const isToday2 = new Date(currentDateTime);
+  const currentDateTime2 = moment();
   const navigate = useNavigate();
   interface FilmShow {
     date: string;
@@ -55,10 +66,6 @@ console.log(selectedCinema);
       clearTimeout(timeoutId);
     };
   }, [dispatch]);
-
-  const onChange = (key: string) => {
-    console.log(key);
-  };
 
   const showModal = (filmId: any) => {
     setSelectedFilmId(filmId);
@@ -116,25 +123,21 @@ console.log(selectedCinema);
     );
     return room && room.id_cinema == selectedCinema;
   });
-  const currentDate = new Date();
-  const daysToDisplay = [currentDate];
+
+  const daysToDisplay = [isToday2];
   for (let i = 1; i <= 3; i++) {
-    const nextDate = new Date(currentDate);
-    nextDate.setDate(currentDate.getDate() + i);
+    const nextDate = new Date(isToday2);
+    nextDate.setDate(isToday2.getDate() + i);
     daysToDisplay.push(nextDate);
   }
 
   const items: TabsProps["items"] = daysToDisplay.map((date, index) => {
     const formattedDate = date.toISOString().slice(0, 10);
     const show = filmShows2.find((show) => show.date === formattedDate);
-    const isToday = formattedDate === currentDate.toISOString().slice(0, 10);
-    {
-      show && console.log(show);
-    }
-    const dayOfWeek = (today.getDay() + index) % 7; // Lấy thứ của ngày
-    const dayNumber = date.getDate();
+    const isToday = formattedDate === isToday2.toISOString().slice(0, 10);
 
-    // Mảng chứa tên các ngày trong tuần
+    const dayOfWeek = (today.getDay() + index) % 7;
+    const dayNumber = date.getDate();
     const daysOfWeek = [
       "Chủ Nhật",
       "Thứ Hai",
@@ -144,12 +147,43 @@ console.log(selectedCinema);
       "Thứ Sáu",
       "Thứ Bảy",
     ];
-
-    const dayOfWeekLabel = daysOfWeek[dayOfWeek]; // Tên thứ
-
+    const dayOfWeekLabel = daysOfWeek[dayOfWeek];
     const label = isToday
       ? "Hôm nay"
       : `${dayNumber}/${month}-${dayOfWeekLabel}`;
+
+    // Sort the show times based on the time value
+    if (show) {
+      show.times.sort((a, b) => {
+        const timeA = getRealTime(a.time_id);
+        const timeB = getRealTime(b.time_id);
+        return timeA.localeCompare(timeB);
+      });
+      show.times = show.times.filter((time) => {
+        const showTime = getRealTime(time.time_id);
+        const showDateTime = moment(
+          show.date + "T" + showTime + "Z",
+          "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
+        );
+        return showDateTime.isAfter(currentDateTime2);
+      });
+    }
+    let remainingShowIds: number[] = [];
+
+    if (show) {
+      // Bước 2 và 3: Lặp qua mảng show.times và thu thập ID của suất chiếu còn lại
+      show.times.forEach((time: any) => {
+        const showTime = getRealTime(time.time_id);
+        const showDateTime = moment(
+          show.date + "T" + showTime + "Z",
+          "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
+        );
+
+        if (showDateTime.isAfter(currentDateTime2)) {
+          remainingShowIds.push(time.id);
+        }
+      });
+    }
 
     return {
       key: formattedDate,
@@ -158,13 +192,57 @@ console.log(selectedCinema);
         <div>
           {show && show.times.length > 0 ? (
             <div className="grid grid-cols-5 ">
-              {show.times.map((time: any, timeIndex: number) => (
-                <div key={timeIndex} className=" my-1 text-center ">
-                  <Button onClick={() => handleTimeSelection(time.id)}>
-                    {getRealTime(time.time_id)}
-                  </Button>
-                </div>
-              ))}
+              {show.times.map((time: any, timeIndex: number) => {
+                // Lấy thông tin thời gian
+                const showTime = getRealTime(time.time_id);
+
+                // Lọc ra các ghế đã đặt cho suất chiếu này
+                const reservedChairs = (chairs as any)?.data.filter(
+                  (chair: any) => time.id === chair.id_time_detail
+                );
+                const groupedChairs = reservedChairs.reduce(
+                  (result: any, chair: any) => {
+                    if (!result[chair.id_time_detail]) {
+                      result[chair.id_time_detail] = [];
+                    }
+                    result[chair.id_time_detail].push(chair.name);
+                    return result;
+                  },
+                  {}
+                );
+
+                // Chuyển đổi thành mảng cuối cùng
+                const finalResult = Object.keys(groupedChairs).map((key) => ({
+                  [key]: groupedChairs[key].join(", "),
+                }));
+
+                // finalResult bây giờ chứa thông tin gộp theo id_time_detail ở dạng mảng
+                console.log(finalResult);
+                const allNames = [];
+
+                // Lặp qua mảng finalResult để lấy tất cả phần tử 'name'
+                finalResult.forEach((group) => {
+                  const keys = Object.keys(group);
+                  keys.forEach((key) => {
+                    const names = group[key].split(", ");
+                    allNames.push(...names);
+                  });
+                });
+
+                // Tính tổng số phần tử 'name'
+                const totalNameCount = allNames.length;
+                // Tính số ghế trống còn lại
+                const remainingSeats = initialSeatCount - totalNameCount;
+
+                return (
+                  <div key={timeIndex} className="my-1 text-center">
+                    <Button onClick={() => handleTimeSelection(time.id)}>
+                      {showTime}
+                    </Button>
+                    <div className="">{remainingSeats} ghế trống</div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             "Chưa cập nhật suất chiếu của ngày này"
@@ -173,6 +251,7 @@ console.log(selectedCinema);
       ),
     };
   });
+
   // Kiểm tra xem tất cả dữ liệu đã được tải xong hay chưa
   const isAllDataLoaded =
     cinemasLoading &&
@@ -252,10 +331,12 @@ console.log(selectedCinema);
               Đặt phim
             </h2>
             <div className="grid grid-cols-4 gap-10">
-              {(films as any)?.data.map((film: any, index: any) => {
+              {(films as any)?.data.map((film: any) => {
                 const filmShows = validShows
                   ? validShows.filter((show: any) => show.film_id === film.id)
                   : [];
+
+                const cateall = useGetALLCateDetailByIdQuery(`${film.id}`);
 
                 return (
                   <div className="w-[245px] h-[560px]" key={film.id}>
@@ -266,10 +347,12 @@ console.log(selectedCinema);
                     />
                     <div className="h-[100px]">
                       <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                        {film.name}
+                        {film.name.length > 18
+                          ? `${film.name.slice(0, 17)}...`
+                          : film.name}
                       </h3>
                       <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                        <span>Drama</span>
+                        <span>{(cateall as any)?.error?.data}</span>
                         <span>IMDB 8.6</span>
                         <span>13+</span>
                       </div>
@@ -348,6 +431,9 @@ console.log(selectedCinema);
           title="Lịch Chiếu Phim"
           open={isModalOpen}
           onOk={handleOk}
+          okButtonProps={{
+            style: { backgroundColor: "#007bff", color: "white" },
+          }}
           onCancel={handleCancel}
         >
           {selectedFilmId !== null && (
@@ -356,7 +442,7 @@ console.log(selectedCinema);
             </p>
           )}
           <h2 className="font-semibold">2D PHỤ ĐỀ</h2>
-          <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+          <Tabs defaultActiveKey="1" items={items} />
 
           <hr></hr>
         </Modal>

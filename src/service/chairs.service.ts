@@ -12,6 +12,10 @@ const bookingSeatAPI = createApi({
       query: () => "/Chairs/",
       providesTags: ["chairs"],
     }),
+    getChairbyId: builder.query({
+      query: (id) => `/Chairs/${id}`,
+      providesTags: ["chairs"],
+    }),
 
     addChairs: builder.mutation({
       query: (chair: IChairs) => ({
@@ -23,5 +27,9 @@ const bookingSeatAPI = createApi({
     }),
   }),
 });
-export const { useAddChairsMutation, useFetchChairsQuery } = bookingSeatAPI;
+export const {
+  useAddChairsMutation,
+  useFetchChairsQuery,
+  useGetChairbyIdQuery,
+} = bookingSeatAPI;
 export default bookingSeatAPI;
