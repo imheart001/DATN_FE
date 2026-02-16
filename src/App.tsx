@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useNavigate,
+} from "react-router-dom";
 import LayoutUser from "./Layout/LayoutUser/LayoutUser";
 import HomePages from "./pages/Clients/Homepages/home";
 import BookingSeat from "./pages/Clients/TICKET - SEAT LAYOUT/seat";
@@ -11,7 +15,7 @@ import F_B from "./pages/Clients/F&B/F&B";
 import Login from "./pages/Clients/Login/Login";
 import LayoutAdmin from "./Layout/LayoutAdmin/LayoutAdmin";
 import ListFilm from "./pages/Admin/ListFilm/ListFilm";
-
+import { useEffect } from "react";
 import ListCate from "./pages/Admin/Category/ListCategory";
 import ListCinema from "./pages/Admin/Cinemas/ListCinema";
 import ListShow from "./pages/Admin/Quản Lí suất chiếu/ListShow";
@@ -20,6 +24,11 @@ import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
 import ListFood from "./pages/Admin/Food/ListFood";
 import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
 import ListTime from "./pages/Admin/time/listTime";
+
+import QrCode from "./components/QrCode/qr";
+import { setSelectedCinema } from "./components/CinemaSlice/selectedCinemaSlice";
+import { updateToken } from "./components/CinemaSlice/authSlice";
+import { useDispatch } from "react-redux";
 
 function App() {
   const router = createBrowserRouter([
@@ -108,6 +117,35 @@ function App() {
       element: <Login />,
     },
   ]);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const timeoutDuration = 1000 * 15 * 60; // 10 seconds
+
+    const timeoutCallback = async () => {
+      try {
+        // Dispatch the actions and wait for them to complete
+        await Promise.all([
+          dispatch(setSelectedCinema(null)),
+          dispatch(updateToken(null)),
+          localStorage.removeItem("authToken"),
+        ]);
+
+        // Once both actions are completed, navigate to the root path
+        window.location.href = "/";
+      } catch (error) {
+        // Handle any potential errors
+        console.error("Error during dispatch:", error);
+      }
+    };
+
+    const timeoutId = setInterval(timeoutCallback, timeoutDuration);
+
+    return () => {
+      clearInterval(timeoutId);
+    };
+  }, [dispatch]);
+
   return <RouterProvider router={router} />;
 }
 

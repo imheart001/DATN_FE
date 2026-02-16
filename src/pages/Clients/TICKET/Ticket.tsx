@@ -53,20 +53,6 @@ const Ticket: React.FC = () => {
     }
   };
 
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const timeoutDuration = 1000 * 15 * 60;
-
-    const timeoutId = setTimeout(() => {
-      dispatch(updateToken(null));
-    }, timeoutDuration);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [dispatch]);
-
   const showModal = (filmId: any) => {
     setSelectedFilmId(filmId);
     setIsModalOpen(true);
@@ -205,7 +191,7 @@ const Ticket: React.FC = () => {
                     if (!result[chair.id_time_detail]) {
                       result[chair.id_time_detail] = [];
                     }
-                    result[chair.id_time_detail].push(chair.name);
+                    result[chair.id_time_detail].push(chair?.name);
                     return result;
                   },
                   {}
@@ -254,12 +240,7 @@ const Ticket: React.FC = () => {
 
   // Kiểm tra xem tất cả dữ liệu đã được tải xong hay chưa
   const isAllDataLoaded =
-    cinemasLoading &&
-    timeLoading &&
-    roomsLoading &&
-    filmsLoading &&
-    showsLoading &&
-    !user;
+    filmsLoading && !user && roomsLoading && showsLoading && cinemasLoading;
 
   if (isAllDataLoaded) {
     return (
@@ -347,9 +328,9 @@ const Ticket: React.FC = () => {
                     />
                     <div className="h-[100px]">
                       <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                        {film.name.length > 18
-                          ? `${film.name.slice(0, 17)}...`
-                          : film.name}
+                        {film?.name.length > 18
+                          ? `${film?.name.slice(0, 17)}...`
+                          : film?.name}
                       </h3>
                       <div className="space-x-5 text-[#8E8E8E] text-[11px]">
                         <span>{(cateall as any)?.error?.data}</span>
@@ -438,7 +419,7 @@ const Ticket: React.FC = () => {
         >
           {selectedFilmId !== null && (
             <p className="text-center text-2xl">
-              Rạp {selectedCinemaInfo.name}
+              Rạp {selectedCinemaInfo?.name}
             </p>
           )}
           <h2 className="font-semibold">2D PHỤ ĐỀ</h2>

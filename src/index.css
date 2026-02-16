@@ -2,8 +2,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-html, body, label {
-  font-family: 'Roboto', sans-serif;
+html,
+body,
+label {
+  font-family: "Roboto", sans-serif;
 }
 * {
   box-sizing: border-box;
@@ -33,7 +35,6 @@ html, body, label {
 }
 
 .content input {
-  accent-color: #333;
   width: 12px;
   height: 12px;
 }
