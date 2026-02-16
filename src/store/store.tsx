@@ -20,6 +20,7 @@ import showsAPI from "../service/show.service";
 import foodAPI from "../service/food.service";
 import movieRoomAPI from "../service/movieroom.service";
 import selectedCinemaReducer from "../components/CinemaSlice/selectedCinemaSlice";
+import TKinformationReducer from "../components/CinemaSlice/selectSeat";
 import { combineReducers } from "redux";
 import timesAPI from "../service/time.service";
 import bookTicketsAPI from "../service/book_ticket.service";
@@ -27,6 +28,7 @@ import cateDetailAPI from "../service/catedetail.service";
 import bookingSeatAPI from "../service/chairs.service";
 import authReducer from "../components/CinemaSlice/authSlice";
 import usersAPI from "../service/signup_login";
+import payAPI from "../service/pay.service";
 // Import redux-persist
 const persistConfig = {
   key: "root",
@@ -39,10 +41,13 @@ const persistConfig = {
     "shows",
     "selectedCinema",
     "foods",
+    "auth",
     "movies",
     "catedetails",
     "bkseats",
     "users",
+    "pays",
+    "TKinformation",
   ],
 };
 
@@ -52,13 +57,14 @@ const rootReducer = combineReducers({
   cinemas: cinemasAPI.reducer,
   shows: showsAPI.reducer,
   times: timesAPI.reducer,
-
+  pays: payAPI.reducer,
   bookTickets: bookTicketsAPI.reducer,
   foods: foodAPI.reducer,
   movies: movieRoomAPI.reducer,
   catedetails: cateDetailAPI.reducer,
   bkseats: bookingSeatAPI.reducer,
   selectedCinema: selectedCinemaReducer,
+  TKinformation: TKinformationReducer,
   users: usersAPI.reducer,
   auth: authReducer,
 });
@@ -80,6 +86,7 @@ const store = configureStore({
       cinemasAPI.middleware,
       showsAPI.middleware,
       timesAPI.middleware,
+      payAPI.middleware,
       bookTicketsAPI.middleware,
       foodAPI.middleware,
       movieRoomAPI.middleware,
@@ -89,10 +96,15 @@ const store = configureStore({
 });
 
 setupListeners(store.dispatch);
-
 const persistor = persistStore(store);
 
-export { store, persistor };
+// Xóa dữ liệu đã lưu trong Redux-Persist để làm mới dữ liệu
+const refreshData = async () => {
+  await persistor.purge();
+  window.location.reload(); // Tải lại ứng dụng
+};
+
+export { store, persistor, refreshData };
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

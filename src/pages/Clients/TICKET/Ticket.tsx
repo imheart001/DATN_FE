@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
 import moment from "moment-timezone";
 import { Button, Modal, Tabs } from "antd";
@@ -6,11 +6,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchShowTimeQuery } from "../../../service/show.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import type { TabsProps } from "antd";
-import { updateToken } from "../../../components/CinemaSlice/authSlice";
+
 import { useFetchChairsQuery } from "../../../service/chairs.service";
 import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
 
@@ -22,11 +22,11 @@ const Ticket: React.FC = () => {
   const { data: cinemas, isLoading: cinemasLoading } = useFetchCinemaQuery();
   const { data: roomsBrand, isLoading: roomsLoading } =
     useFetchMovieRoomQuery();
-  const [initialSeatCount, setInitialSeatCount] = useState(70); // Số ghế ban đầu
+  const [initialSeatCount] = useState(70); // Số ghế ban đầu
   // Số ghế đã đặt
 
   const { data: chairs } = useFetchChairsQuery();
-  const { data: times, isLoading: timeLoading } = useFetchTimeQuery();
+  const { data: times } = useFetchTimeQuery();
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
 
   moment.tz.setDefault("Asia/Ho_Chi_Minh");
@@ -41,7 +41,6 @@ const Ticket: React.FC = () => {
   }
   const [filmShows2, setFilmShows2] = useState<FilmShow[]>([]);
   const user = useSelector((state: any) => state.auth?.token);
-  console.log(user);
 
   const handleTimeSelection = (timeId: any) => {
     if (user) {
@@ -93,9 +92,11 @@ const Ticket: React.FC = () => {
 
   const month = today.getMonth() + 1; // Lấy tháng (0-11, cần cộng thêm 1)
 
-  const selectedCinemaInfo = (cinemas as any)?.data.find(
-    (cinema: any) => cinema.id == selectedCinema
-  );
+  const selectedCinemaInfo = useMemo(() => {
+    return (cinemas as any)?.data.find(
+      (cinema: any) => cinema.id == selectedCinema
+    );
+  }, [selectedCinema]);
 
   const getRealTime = (timeId: any) => {
     const timeInfo = (times as any)?.data.find(
@@ -203,7 +204,7 @@ const Ticket: React.FC = () => {
                 }));
 
                 // finalResult bây giờ chứa thông tin gộp theo id_time_detail ở dạng mảng
-                console.log(finalResult);
+
                 const allNames = [];
 
                 // Lặp qua mảng finalResult để lấy tất cả phần tử 'name'
@@ -219,7 +220,7 @@ const Ticket: React.FC = () => {
                 const totalNameCount = allNames.length;
                 // Tính số ghế trống còn lại
                 const remainingSeats = initialSeatCount - totalNameCount;
-
+                // console.log(allNames);
                 return (
                   <div key={timeIndex} className="my-1 text-center">
                     <Button onClick={() => handleTimeSelection(time.id)}>
@@ -419,7 +420,7 @@ const Ticket: React.FC = () => {
         >
           {selectedFilmId !== null && (
             <p className="text-center text-2xl">
-              Rạp {selectedCinemaInfo?.name}
+              Rạp {(selectedCinemaInfo as any)?.name}
             </p>
           )}
           <h2 className="font-semibold">2D PHỤ ĐỀ</h2>

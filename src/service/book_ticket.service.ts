@@ -24,7 +24,7 @@ const bookTicketsAPI = createApi({
       invalidatesTags: ["bookTicket"],
     }),
     addBookTicket: builder.mutation({
-      query: (bookTicket: IBookTicket) => ({
+      query: (bookTicket: any) => ({
         url: "/Book_ticket/",
         method: "POST",
         body: bookTicket,
@@ -42,10 +42,10 @@ const bookTicketsAPI = createApi({
   }),
 });
 export const {
-    useFetchBookTicketQuery,
-    useGetBookTicketByIdQuery,
-    useAddBookTicketMutation,
-    useUpdateShowTimeMutation,
-    useRemoveBookTicketMutation
+  useFetchBookTicketQuery,
+  useGetBookTicketByIdQuery,
+  useAddBookTicketMutation,
+  useUpdateShowTimeMutation,
+  useRemoveBookTicketMutation,
 } = bookTicketsAPI;
 export default bookTicketsAPI;

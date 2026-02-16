@@ -9,7 +9,10 @@ import {
 } from "../../../service/signup_login";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { updateToken } from "../../../components/CinemaSlice/authSlice";
+import {
+  updateToken,
+  setUserId,
+} from "../../../components/CinemaSlice/authSlice";
 import { persistor } from "../../../store/store";
 import { message } from "antd";
 
@@ -65,11 +68,14 @@ const Login = () => {
         email: loginEmail,
         password: loginPassword,
       });
+      console.log(response);
       if ((response as any)?.data && (response as any).data.token) {
         dispatch(updateToken((response as any).data.token));
         // Update the token in localStorage
+        dispatch(setUserId((response as any).data.user.id));
         localStorage.setItem("authToken", (response as any).data.token);
-
+        localStorage.setItem("user_id", (response as any).data.user.id);
+        console.log(localStorage.getItem("user_id"));
         message.success("Đăng nhập thành công!");
         navigate("/");
       } else {

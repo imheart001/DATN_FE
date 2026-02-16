@@ -27,8 +27,9 @@ import ListTime from "./pages/Admin/time/listTime";
 
 import QrCode from "./components/QrCode/qr";
 import { setSelectedCinema } from "./components/CinemaSlice/selectedCinemaSlice";
-import { updateToken } from "./components/CinemaSlice/authSlice";
+import { updateToken, setUserId } from "./components/CinemaSlice/authSlice";
 import { useDispatch } from "react-redux";
+import Payment from "./pages/Clients/Payment/Payment";
 
 function App() {
   const router = createBrowserRouter([
@@ -116,6 +117,10 @@ function App() {
       path: "/login",
       element: <Login />,
     },
+    {
+      path: "/payment/:id_code",
+      element: <Payment />,
+    },
   ]);
   const dispatch = useDispatch();
 
@@ -128,7 +133,8 @@ function App() {
         await Promise.all([
           dispatch(setSelectedCinema(null)),
           dispatch(updateToken(null)),
-          localStorage.removeItem("authToken"),
+          dispatch(setUserId(null)),
+          localStorage.clear(),
         ]);
 
         // Once both actions are completed, navigate to the root path

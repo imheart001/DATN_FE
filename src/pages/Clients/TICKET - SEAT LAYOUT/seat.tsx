@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
 import { useParams } from "react-router-dom";
 
-import {
-  useAddChairsMutation,
-  useFetchChairsQuery,
-} from "../../../service/chairs.service";
+import { useFetchChairsQuery } from "../../../service/chairs.service";
 import {
   useFetchShowTimeQuery,
   useGetShowTimeByIdQuery,
@@ -13,12 +10,18 @@ import {
 import { useGetProductByIdQuery } from "../../../service/films.service";
 
 import { Button, Modal, message } from "antd";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useGetCinemaByIdQuery } from "../../../service/brand.service";
 import { useGetTimeByIdQuery } from "../../../service/time.service";
 import Loading from "../../../components/isLoading/Loading";
 import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
 import { useGetMovieRoomByIdQuery } from "../../../service/movieroom.service";
+import {
+  setShowtimeId,
+  setSelectSeats,
+  setTotalPrice,
+} from "../../../components/CinemaSlice/selectSeat";
+import { useGetPaybyTranferQuery } from "../../../service/pay.service";
 enum SeatStatus {
   Available = "available",
   Booked = "booked",
@@ -41,10 +44,6 @@ interface SeatInfo {
 const BookingSeat = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
   const handleCancel = () => {
     setIsModalOpen(false);
   };
@@ -52,16 +51,15 @@ const BookingSeat = () => {
   const numColumns = 10;
   const { id } = useParams();
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
-  const [addBooking] = useAddChairsMutation();
+
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
+  const [selectedSeatsCount, setSelectedSeatsCount] = useState(0);
 
   const { data: TimeDetails } = useFetchShowTimeQuery();
   const { data: TimeDetailbyId } = useGetShowTimeByIdQuery(id as string);
   const { data: CinemaDetailbyId } = useGetCinemaByIdQuery(
     selectedCinema as string
   );
-
-  console.log(TimeDetailbyId);
   const filterShow = (TimeDetails as any)?.data.filter(
     (show: any) => `${show.id}` === id
   );
@@ -77,7 +75,7 @@ const BookingSeat = () => {
   };
   const { data: RoombyId } = useGetMovieRoomByIdQuery(idRoom as string);
   const cateallbyFilmID = useGetALLCateDetailByIdQuery(`${idFilm}` as string);
-  console.log((cateallbyFilmID as any)?.error?.data);
+
   const parseSeatNames = (seatNamesString: any) => {
     return seatNamesString.split(",").map((name: any) => name.trim());
   };
@@ -110,7 +108,7 @@ const BookingSeat = () => {
           status === SeatStatus.Booked
             ? 0
             : type === SeatType.VIP
-            ? 70000
+            ? 50000
             : 45000; // Đặt giá cho từng loại ghế
         return {
           row: rowIndex,
@@ -130,13 +128,19 @@ const BookingSeat = () => {
     const seat = updatedSeats[row][column];
 
     if (seat.status === SeatStatus.Available) {
-      const selectedPrice = seat.type === SeatType.VIP ? 70000 : 45000;
-      updatedSeats[row][column] = {
-        ...seat,
-        status: SeatStatus.Selected,
-        price: selectedPrice,
-      };
-      setSelectedSeats([...selectedSeats, updatedSeats[row][column]]);
+      const selectedPrice = seat.type === SeatType.VIP ? 50000 : 45000;
+
+      if (selectedSeatsCount < 8) {
+        updatedSeats[row][column] = {
+          ...seat,
+          status: SeatStatus.Selected,
+          price: selectedPrice,
+        };
+        setSelectedSeats([...selectedSeats, updatedSeats[row][column]]);
+        setSelectedSeatsCount(selectedSeatsCount + 1);
+      } else {
+        message.warning("Bạn chỉ có thể chọn tối đa 8 ghế trong một lần mua.");
+      }
     } else if (seat.status === SeatStatus.Selected) {
       updatedSeats[row][column] = {
         ...seat,
@@ -144,41 +148,46 @@ const BookingSeat = () => {
         price: 0,
       };
       setSelectedSeats(selectedSeats.filter((selected) => selected !== seat));
+      setSelectedSeatsCount(selectedSeatsCount - 1);
     }
 
     setSeats(updatedSeats);
   };
 
+  const totalMoney = selectedSeats.reduce(
+    (total, seat) => total + seat.price,
+    0
+  );
+  const paymentLink = useGetPaybyTranferQuery(totalMoney);
+
+  const dispatch = useDispatch();
+  const selectedSeatsInSelectedState = selectedSeats.filter(
+    (seat) => seat.status === SeatStatus.Selected
+  );
+
   const getRowName = (row: number): string => {
     return String.fromCharCode(65 + row);
   };
-
-  const handleConfirmation = async () => {
-    const totalPrice = selectedSeats.reduce(
-      (total, seat) => total + seat.price,
-      0
-    );
-
-    const selectedSeatsData = {
-      name: selectedSeats
-        .map((seat) => `${getRowName(seat.row)}${seat.column + 1}`)
-        .join(", "),
-      price: totalPrice,
-      id_time_detail: id,
-    };
-
-    try {
-      const response = await addBooking(selectedSeatsData as any);
-
-      if ((response as any)?.data) {
-        message.success("Đặt ghế thành công!");
-        console.log("Tổng giá tiền: " + totalPrice);
-        
-      }
-    } catch (error) {
-      console.error("Lỗi khi đặt ghế:", error);
-    }
+  const handleOk = () => {
+    window.location.href = `${paymentLink?.data?.data}`;
   };
+  const showModal = () => {
+    if (selectedSeatsCount === 0) {
+      message.error("Vui lòng chọn ít nhất một ghế để đặt vé.");
+      return;
+    }
+    setIsModalOpen(true);
+  };
+  const seatNames = selectedSeatsInSelectedState
+    .map((seat) => `${getRowName(seat.row)}${seat.column + 1}`)
+    .join(",");
+  dispatch(setSelectSeats(seatNames));
+  dispatch(setShowtimeId(id));
+  const totalPrice2 = selectedSeats.reduce(
+    (total, seat) => total + seat.price,
+    0
+  );
+  dispatch(setTotalPrice(totalPrice2));
 
   const parseSeatName = (seatName: string) => {
     const row = seatName.charCodeAt(0) - "A".charCodeAt(0);
@@ -419,7 +428,7 @@ const BookingSeat = () => {
       <Modal
         title="XÁC NHẬN THÔNG TIN VÉ"
         open={isModalOpen}
-        onOk={handleConfirmation}
+        onOk={handleOk}
         okButtonProps={{
           style: { backgroundColor: "#007bff", color: "white" },
         }}

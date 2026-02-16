@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { MenuProps, message } from "antd";
 import { Dropdown, Space, Layout } from "antd";
 import { NavLink, useNavigate } from "react-router-dom";
-import { updateToken } from "../../components/CinemaSlice/authSlice";
+import { setUserId, updateToken } from "../../components/CinemaSlice/authSlice";
 import { useDispatch } from "react-redux";
 
 export const HeaderAdmin = () => {
@@ -42,7 +42,9 @@ export const HeaderAdmin = () => {
           onClick={() => {
             message.success("Đăng xuất thành công!");
             localStorage.removeItem("authToken");
+            localStorage.removeItem("user_id");
             dispatch(updateToken(null)),
+              dispatch(setUserId(null)),
               setTimeout(() => {
                 navigate("/");
               }, 1000);
