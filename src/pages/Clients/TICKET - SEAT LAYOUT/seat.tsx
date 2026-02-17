@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { PacmanLoader } from "react-spinners";
 import {
   useAddChairsMutation,
@@ -22,6 +22,7 @@ import {
   useFetchMovieRoomQuery,
   useGetMovieRoomByIdQuery,
 } from "../../../service/movieroom.service";
+import { useAddPaysMutation } from "../../../service/pay.service";
 enum SeatStatus {
   Available = "available",
   Booked = "booked",
@@ -40,7 +41,6 @@ interface SeatInfo {
   type: SeatType;
   price: number;
 }
-
 const BookingSeat = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -48,9 +48,7 @@ const BookingSeat = () => {
     setIsModalOpen(true);
   };
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
+  
 
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -61,13 +59,22 @@ const BookingSeat = () => {
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const [addBooking] = useAddChairsMutation();
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
-
+  const [onAddPay] = useAddPaysMutation();
   const { data: TimeDetails } = useFetchShowTimeQuery();
   const { data: TimeDetailbyId } = useGetShowTimeByIdQuery(id as string);
   const { data: CinemaDetailbyId } = useGetCinemaByIdQuery(
     selectedCinema as string
   );
+  const [amount, setAmount] = useState<any>(0);
 
+  const handleOk = () => {
+    // <Link to="/ticket"></Link>
+    console.log(amount);
+    const newAmount = selectedSeats.reduce((total, seat) => total + seat.price, 0);
+    setAmount(newAmount);
+    onAddPay({amount: newAmount})
+    setIsModalOpen(false);
+  };
   console.log(TimeDetailbyId);
   const filterShow = (TimeDetails as any)?.data.filter(
     (show: any) => `${show.id}` === id
@@ -107,9 +114,8 @@ const BookingSeat = () => {
         const type = isVIPSeat(rowIndex, columnIndex)
           ? SeatType.VIP
           : SeatType.normal;
-        const seatName = `${String.fromCharCode(65 + rowIndex)}${
-          columnIndex + 1
-        }`;
+        const seatName = `${String.fromCharCode(65 + rowIndex)}${columnIndex + 1
+          }`;
         const status = bookedSeatNames.includes(seatName)
           ? SeatStatus.Booked
           : SeatStatus.Available;
@@ -117,8 +123,8 @@ const BookingSeat = () => {
           status === SeatStatus.Booked
             ? 0
             : type === SeatType.VIP
-            ? 70000
-            : 45000; // Đặt giá cho từng loại ghế
+              ? 70000
+              : 45000; // Đặt giá cho từng loại ghế
         return {
           row: rowIndex,
           column: columnIndex,

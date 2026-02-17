@@ -27,6 +27,7 @@ import cateDetailAPI from "../service/catedetail.service";
 import bookingSeatAPI from "../service/chairs.service";
 import authReducer from "../components/CinemaSlice/authSlice";
 import usersAPI from "../service/signup_login";
+import PayAPI from "../service/pay.service";
 // Import redux-persist
 const persistConfig = {
   key: "root",
@@ -42,7 +43,8 @@ const persistConfig = {
     "movies",
     "catedetails",
     "chairs",
-    "users"
+    "users",
+    "pay"
   ],
 };
 
@@ -59,6 +61,8 @@ const rootReducer = combineReducers({
   bkseats: bookingSeatAPI.reducer,
   selectedCinema: selectedCinemaReducer,
   users: usersAPI.reducer,
+  pays: PayAPI.reducer,
+
   auth: authReducer,
 });
 
@@ -83,7 +87,8 @@ const store = configureStore({
       foodAPI.middleware,
       movieRoomAPI.middleware,
       cateDetailAPI.middleware,
-      usersAPI.middleware
+      usersAPI.middleware,
+      PayAPI.middleware
     ),
 });
 
