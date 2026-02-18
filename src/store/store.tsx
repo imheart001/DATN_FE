@@ -13,7 +13,7 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
-} from 'redux-persist'
+} from "redux-persist";
 
 import cinemasAPI from "../service/brand.service";
 import showsAPI from "../service/show.service";
@@ -45,7 +45,7 @@ const persistConfig = {
     "chairs",
     "users",
     "pay"
-  ],
+  ]
 };
 
 const rootReducer = combineReducers({
@@ -54,6 +54,7 @@ const rootReducer = combineReducers({
   cinemas: cinemasAPI.reducer,
   shows: showsAPI.reducer,
   times: timesAPI.reducer,
+
   bookTickets: bookTicketsAPI.reducer,
   foods: foodAPI.reducer,
   movies: movieRoomAPI.reducer,
@@ -91,7 +92,6 @@ const store = configureStore({
       PayAPI.middleware
     ),
 });
-
 
 setupListeners(store.dispatch);
 

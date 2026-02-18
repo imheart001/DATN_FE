@@ -12,7 +12,7 @@ import {
   message,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useAddTimeMutation } from "../../service/time.service";
+import { useAddTimeMutation } from "../../../service/time.service";
 
 const { Option } = Select;
 
@@ -31,7 +31,6 @@ const AddTime: React.FC = () => {
 
   const onFinish = async (values: any) => {
     try {
-      values.release_date = values.release_date.format("YYYY-MM-DD");
       await addtime(values).unwrap();
       message.success("Thêm giờ chiếu thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -100,10 +99,6 @@ const AddTime: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-        
-         
-
-          
         </Form>
       </Drawer>
     </>

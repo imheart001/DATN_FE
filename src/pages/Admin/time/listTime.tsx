@@ -5,8 +5,8 @@ import { DeleteOutlined } from "@ant-design/icons";
 import {
   useFetchTimeQuery,
   useRemoveTimeMutation,
-} from "../../service/time.service";
-import { ITime } from "../../interface/model";
+} from "../../../service/time.service";
+import { ITime } from "../../../interface/model";
 import AddTime from "./addTime";
 import EditTime from "./EditTime";
 

@@ -51,7 +51,9 @@ const FilmShowing = ({ data }: Props) => {
         </button>
       </div>
       <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-        <Link to={`/movie_about/${data.id}`}>{data.name}</Link>
+        <Link to={`/movie_about/${data.id}`}>
+          {data.name.length > 16 ? `${data.name.slice(0, 14)}...` : data.name}
+        </Link>
       </h3>
       <div className="space-x-5 text-[#8E8E8E] text-[11px]">
         <span>{ii.map((item) => (item as any)?.error?.data)}</span>

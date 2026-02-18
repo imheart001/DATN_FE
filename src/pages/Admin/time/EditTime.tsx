@@ -15,13 +15,12 @@ import {
   Space,
   message,
 } from "antd";
-import { useUpdateTimeMutation } from "../../service/time.service";
-
+import { useUpdateTimeMutation } from "../../../service/time.service";
 
 const { Option } = Select;
 interface DataType {
   id: string;
- time:string;
+  time: string;
 }
 interface EditTimeProps {
   dataTime: DataType;
@@ -35,7 +34,7 @@ const EditTime: React.FC<EditTimeProps> = ({ dataTime }) => {
   useEffect(() => {
     if (dataTime) {
       form.setFieldsValue({
-        time: dataTime.time
+        time: dataTime.time,
       });
     }
   }, [dataTime]);
@@ -110,7 +109,7 @@ const EditTime: React.FC<EditTimeProps> = ({ dataTime }) => {
                 label="time"
                 rules={[{ required: true, message: "Please time" }]}
               >
-                <Input type="time"  placeholder="Please time" />
+                <Input type="time" placeholder="Please time" />
               </Form.Item>
             </Col>
           </Row>
