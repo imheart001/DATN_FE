@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { PacmanLoader } from "react-spinners";
 import {
   useAddChairsMutation,
@@ -12,17 +12,16 @@ import {
 } from "../../../service/show.service";
 import { useGetProductByIdQuery } from "../../../service/films.service";
 import { IFilms } from "../../../interface/model";
-import { Button, Modal } from "antd";
+import { Alert, Button, Modal, message, notification } from "antd";
 import { useSelector } from "react-redux";
 import { useGetCinemaByIdQuery } from "../../../service/brand.service";
 import { useGetTimeByIdQuery } from "../../../service/time.service";
 import Loading from "../../../components/isLoading/Loading";
 import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
 import {
-  useFetchMovieRoomQuery,
   useGetMovieRoomByIdQuery,
 } from "../../../service/movieroom.service";
-import { useAddPaysMutation } from "../../../service/pay.service";
+import { useFetchPayByAmountQuery } from "../../../service/pay.service";
 enum SeatStatus {
   Available = "available",
   Booked = "booked",
@@ -43,12 +42,12 @@ interface SeatInfo {
 }
 const BookingSeat = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
   const showModal = () => {
     setIsModalOpen(true);
   };
 
-  
+
 
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -59,22 +58,13 @@ const BookingSeat = () => {
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const [addBooking] = useAddChairsMutation();
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
-  const [onAddPay] = useAddPaysMutation();
   const { data: TimeDetails } = useFetchShowTimeQuery();
   const { data: TimeDetailbyId } = useGetShowTimeByIdQuery(id as string);
   const { data: CinemaDetailbyId } = useGetCinemaByIdQuery(
     selectedCinema as string
   );
-  const [amount, setAmount] = useState<any>(0);
+  // const [amount, setAmount] = useState<any>(0);
 
-  const handleOk = () => {
-    // <Link to="/ticket"></Link>
-    console.log(amount);
-    const newAmount = selectedSeats.reduce((total, seat) => total + seat.price, 0);
-    setAmount(newAmount);
-    onAddPay({amount: newAmount})
-    setIsModalOpen(false);
-  };
   console.log(TimeDetailbyId);
   const filterShow = (TimeDetails as any)?.data.filter(
     (show: any) => `${show.id}` === id
@@ -136,7 +126,7 @@ const BookingSeat = () => {
     )
   );
 
-  const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
+
 
   const handleSeatClick = (row: number, column: number) => {
     const updatedSeats = [...seats];
@@ -165,13 +155,12 @@ const BookingSeat = () => {
   const getRowName = (row: number): string => {
     return String.fromCharCode(65 + row);
   };
-
+                                                        //! đang lỗi không add được chair
   const handleConfirmation = async () => {
     const totalPrice = selectedSeats.reduce(
       (total, seat) => total + seat.price,
       0
     );
-
     const selectedSeatsData = {
       name: selectedSeats
         .map((seat) => `${getRowName(seat.row)}${seat.column + 1}`)
@@ -179,7 +168,6 @@ const BookingSeat = () => {
       price: totalPrice,
       id_time_detail: id,
     };
-
     try {
       const response = await addBooking(selectedSeatsData as any);
 
@@ -191,7 +179,25 @@ const BookingSeat = () => {
       console.error("Lỗi khi đặt ghế:", error);
     }
   };
-
+  //! thêm bảng movie_chair
+  const currentUrl = window.location.href;
+  const url = new URL(currentUrl);
+  const paramValue = url.searchParams.get('vnp_ResponseCode');
+  if (paramValue === "00") {
+    //
+    useEffect(() => {
+      handleConfirmation();
+    }, [])
+    message.success("Thêm sản phẩm thành công");
+  } else if (paramValue && paramValue !== "00") {
+    message.error("Thêm sản phẩm thành công");
+  }
+  //!lấy giá tiền
+  const listPay = {
+    amount: selectedSeats.reduce((total, seat) => total + seat.price, 0),
+    time_detail_id: id
+  }
+  const { data: arr } = useFetchPayByAmountQuery(listPay);
   const parseSeatName = (seatName: string) => {
     const row = seatName.charCodeAt(0) - "A".charCodeAt(0);
     const column = parseInt(seatName.slice(1)) - 1;
@@ -251,6 +257,10 @@ const BookingSeat = () => {
   const dayOfWeek = daysOfWeek[dateObject.getDay()];
   const formattedDate = `${day}/${month}/${year}`;
 
+  const handleOk = () => {
+    window.location.href = arr.data;
+    setIsModalOpen(false);
+  };
   return (
     <>
       <Header />

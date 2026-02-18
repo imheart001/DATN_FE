@@ -13,15 +13,20 @@ const PayAPI = createApi({
       providesTags: ["pay"],
     }),
 
-    addPays: builder.mutation({
-      query: (pay: {amount: any}) => ({
-        url: "/Payment/",
-        method: "POST",
-        body: pay,
+    getPays: builder.mutation({
+      query: (amount) => ({
+        url: `/Payment?&amount=${amount}`,
+        method: "GET",
       }),
       invalidatesTags: ["pay"],
     }),
+
+    fetchPayByAmount: builder.query<Ipay, any>({
+      query: (pay) => `/Payment?amount=${pay.amount}&id=${pay.time_detail_id}`,
+      providesTags: ["pay"],
+    }),
+
   }),
 });
-export const { useAddPaysMutation, useFetchPaysQuery } = PayAPI;
+export const { useGetPaysMutation, useFetchPaysQuery, useFetchPayByAmountQuery } = PayAPI;
 export default PayAPI;

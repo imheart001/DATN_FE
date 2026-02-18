@@ -72,5 +72,6 @@ export interface IUser {
   password: string
 }
 export interface Ipay {
-  amount: number
+  amount: number,
+  time_detail_id: number
 }
