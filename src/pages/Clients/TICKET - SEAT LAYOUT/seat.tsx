@@ -12,7 +12,7 @@ import {
 } from "../../../service/show.service";
 import { useGetProductByIdQuery } from "../../../service/films.service";
 import { IFilms } from "../../../interface/model";
-import { Button, Modal } from "antd";
+import { Button, Modal, message } from "antd";
 import { useSelector } from "react-redux";
 import { useGetCinemaByIdQuery } from "../../../service/brand.service";
 import { useGetTimeByIdQuery } from "../../../service/time.service";
@@ -22,6 +22,7 @@ import {
   useFetchMovieRoomQuery,
   useGetMovieRoomByIdQuery,
 } from "../../../service/movieroom.service";
+import { useFetchPayByAmountQuery } from "../../../service/pay.service";
 enum SeatStatus {
   Available = "available",
   Booked = "booked",
@@ -46,11 +47,6 @@ const BookingSeat = () => {
   const showModal = () => {
     setIsModalOpen(true);
   };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
   const handleCancel = () => {
     setIsModalOpen(false);
   };
@@ -260,10 +256,10 @@ const BookingSeat = () => {
   const dayOfWeek = daysOfWeek[dateObject.getDay()];
   const formattedDate = `${day}/${month}/${year}`;
 
-  const handleOk = () => {
-    window.location.href = arr.data;
-    setIsModalOpen(false);
-  };
+  // const handleOk = () => {
+  //   window.location.href = arr.data;
+  //   setIsModalOpen(false);
+  // };
   return (
     <>
       <Header />
