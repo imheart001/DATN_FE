@@ -20,6 +20,7 @@ import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
 import ListFood from "./pages/Admin/Food/ListFood";
 import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
 import ListTime from "./pages/time/listTime";
+import ListVNP from "./pages/Clients/ListThanhToan/ListVNP";
 
 function App() {
   const router = createBrowserRouter([
@@ -58,6 +59,10 @@ function App() {
         {
           path: "/orther",
           element: <Orther />,
+        },
+        {
+          path: "/listvnp",
+          element: <ListVNP />,
         },
       ],
     },
