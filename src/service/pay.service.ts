@@ -21,8 +21,8 @@ const PayAPI = createApi({
       invalidatesTags: ["pay"],
     }),
 
-    fetchPayByAmount: builder.query<Ipay, any>({
-      query: (pay) => `/Payment?amount=${pay.amount}&id=${pay.time_detail_id}`,
+    fetchPayByAmount: builder.query<any, any>({
+      query: (pay) => `/Payment?amount=${pay.amount}`,
       providesTags: ["pay"],
     }),
 

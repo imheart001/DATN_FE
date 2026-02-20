@@ -258,6 +258,8 @@ const BookingSeat = () => {
   const formattedDate = `${day}/${month}/${year}`;
 
   const handleOk = () => {
+    console.log(arr);
+    
     window.location.href = arr.data;
     setIsModalOpen(false);
   };
