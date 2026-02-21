@@ -6,7 +6,6 @@ import { IFilms } from "../../../interface/model";
 
 const Movies = () => {
   const { data } = useFetchProductQuery() as any;
-  console.log(data);
 
   return (
     <>

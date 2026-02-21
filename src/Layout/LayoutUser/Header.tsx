@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import { ICinemas } from "../../interface/model";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedCinema } from "../../components/CinemaSlice/selectedCinemaSlice";
-import { Modal, Button } from "antd";
-import { useGetFilmCinemeByIdQuery } from "../../service/films.service";
+import { Modal } from "antd";
+
 interface Option {
   value: string;
   label: string;
@@ -17,13 +17,11 @@ const displayRender = (labels: string[]) => labels[labels.length - 1];
 const Header = () => {
   const dispatch = useDispatch();
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
+  const user = useSelector((state: any) => state.auth?.token);
   const { data: cinemas } = useFetchCinemaQuery();
   const [cinemaOptions, setCinemaOptions] = useState<Option[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(true);
-  const navigate = useNavigate();
-  const { data: filmCinemaData } = useGetFilmCinemeByIdQuery(
-    selectedCinema // Sử dụng selectedCinema làm tham số
-  );
+
   const handleCancel = () => {
     setIsModalVisible(false); // Đóng modal
   };
@@ -40,19 +38,7 @@ const Header = () => {
     dispatch(setSelectedCinema(value));
     handleCancel();
   };
-
-  useEffect(() => {
-    const timeoutDuration = 1000 * 15 * 60;
-
-    const timeoutId = setTimeout(() => {
-      navigate("/");
-      dispatch(setSelectedCinema(null));
-    }, timeoutDuration);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [dispatch]);
+  const linkTo = user ? "/admin" : "/login";
   return (
     <>
       {!selectedCinema && (
@@ -104,7 +90,7 @@ const Header = () => {
           <Link to={"/orther"} className="hover:text-[#EE2E24]">
             Other
           </Link>
-          <Link to={"/login"}>
+          <Link to={linkTo}>
             <img srcSet="/person-circle.png/ 1.2x" alt="" />
           </Link>
         </div>
