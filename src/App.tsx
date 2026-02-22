@@ -23,6 +23,7 @@ import ListBookTicket from "./pages/Admin/Book-Ticket/ListBookTicket";
 import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
 import ListFood from "./pages/Admin/Food/ListFood";
 import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
+import ListVNP from "./pages/Clients/ListThanhToan/ListVNP";
 import ListTime from "./pages/Admin/time/listTime";
 
 import QrCode from "./components/QrCode/qr";
@@ -67,6 +68,10 @@ function App() {
         {
           path: "/orther",
           element: <Orther />,
+        },
+        {
+          path: "/listvnp",
+          element: <ListVNP />,
         },
       ],
     },

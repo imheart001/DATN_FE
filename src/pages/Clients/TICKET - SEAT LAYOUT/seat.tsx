@@ -18,11 +18,8 @@ import { useGetCinemaByIdQuery } from "../../../service/brand.service";
 import { useGetTimeByIdQuery } from "../../../service/time.service";
 import Loading from "../../../components/isLoading/Loading";
 import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
-import {
-  useFetchMovieRoomQuery,
-  useGetMovieRoomByIdQuery,
-} from "../../../service/movieroom.service";
 import { useFetchPayByAmountQuery } from "../../../service/pay.service";
+import { useGetMovieRoomByIdQuery } from "../../../service/movieroom.service";
 enum SeatStatus {
   Available = "available",
   Booked = "booked",
@@ -256,10 +253,13 @@ const BookingSeat = () => {
   const dayOfWeek = daysOfWeek[dateObject.getDay()];
   const formattedDate = `${day}/${month}/${year}`;
 
-  // const handleOk = () => {
-  //   window.location.href = arr.data;
-  //   setIsModalOpen(false);
-  // };
+
+  const handleOk = () => {
+    console.log(arr);
+    
+    window.location.href = arr.data;
+    setIsModalOpen(false);
+  };
   return (
     <>
       <Header />
