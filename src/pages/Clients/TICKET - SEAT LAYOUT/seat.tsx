@@ -11,7 +11,6 @@ import {
   useGetShowTimeByIdQuery,
 } from "../../../service/show.service";
 import { useGetProductByIdQuery } from "../../../service/films.service";
-import { IFilms } from "../../../interface/model";
 import { Button, Modal, message } from "antd";
 import { useSelector } from "react-redux";
 import { useGetCinemaByIdQuery } from "../../../service/brand.service";
@@ -169,7 +168,7 @@ const BookingSeat = () => {
       if ((response as any)?.data) {
         message.success("Đặt ghế thành công!");
         console.log("Tổng giá tiền: " + totalPrice);
-        
+        handleOk();
       }
     } catch (error) {
       console.error("Lỗi khi đặt ghế:", error);

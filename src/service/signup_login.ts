@@ -8,6 +8,10 @@ const usersAPI = createApi({
   }),
   tagTypes: ["user"],
   endpoints: (builder) => ({
+    fetchUsers: builder.query<IUser[], void>({
+      query: () => "/users/",
+      providesTags: ["user"],
+    }),
     addUser: builder.mutation({
       query: (users: IUser) => ({
         url: "/signup/",
@@ -26,5 +30,5 @@ const usersAPI = createApi({
     }),
   }),
 });
-export const { useAddUserMutation, useLoginUserMutation } = usersAPI;
+export const { useAddUserMutation, useLoginUserMutation, useFetchUsersQuery } = usersAPI;
 export default usersAPI;

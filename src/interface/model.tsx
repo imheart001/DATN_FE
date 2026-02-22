@@ -38,8 +38,8 @@ export interface IBookTicket {
   id_time_detail: string;
   payment: string;
   amount: string;
-  price: string;
-  status: number;
+  id_chair: string;
+  time: string;
 }
 export interface IFood {
   id: string;
