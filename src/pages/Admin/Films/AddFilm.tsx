@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { UserAddOutlined } from "@ant-design/icons";
 import {
   Button,
+  Checkbox,
   Col,
   DatePicker,
   Drawer,
@@ -165,6 +166,19 @@ const AddFilm: React.FC = () => {
                   <Option value="1">1</Option>
                   <Option value="0">0</Option>
                 </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="cateDetail"
+                label="cateDetail"
+                rules={[{ required: true, message: "Please select a status" }]}
+              >
+                <Checkbox
+           
+          >
+            Check all
+          </Checkbox>
               </Form.Item>
             </Col>
           </Row>

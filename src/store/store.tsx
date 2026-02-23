@@ -44,7 +44,7 @@ const persistConfig = {
     "auth",
     "movies",
     "catedetails",
-    "bkseats",
+    "chairs",
     "users",
     "pays",
     "TKinformation",
@@ -66,6 +66,7 @@ const rootReducer = combineReducers({
   selectedCinema: selectedCinemaReducer,
   TKinformation: TKinformationReducer,
   users: usersAPI.reducer,
+
   auth: authReducer,
 });
 

@@ -19,6 +19,7 @@ import { useFetchTimeQuery } from "../../../service/time.service";
 import { IFilms, ITime } from "../../../interface/model";
 import { useUpdateShowTimeMutation } from "../../../service/show.service";
 import moment from "moment";
+import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 
 interface DataType {
   id: string;
@@ -38,6 +39,7 @@ const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
   const { Option } = Select;
   const { data: films } = useFetchProductQuery();
   const { data: times } = useFetchTimeQuery();
+  const { data: roomBrand } = useFetchMovieRoomQuery();
   useEffect(() => {
     if (dataShow) {
       form.setFieldsValue({
@@ -183,8 +185,16 @@ const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
                 ]}
               >
                 <Select placeholder="Vui Lòng Chọn Phòng Chiếu">
-                  <Option value="1">1</Option>
-                  <Option value="2">2</Option>
+                  {(roomBrand as any)?.data?.map(
+                    (room: IMovieRoom, index: number) => {
+                      return (
+                        <Option key={index} value={room.id}>
+                          {" "}
+                          {room.name}{" "}
+                        </Option>
+                      );
+                    }
+                  )}
                 </Select>
               </Form.Item>
             </Col>
