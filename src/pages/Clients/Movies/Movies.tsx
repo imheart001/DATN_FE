@@ -3,7 +3,6 @@ import Header from "../../../Layout/LayoutUser/Header";
 import { useFetchProductQuery } from "../../../service/films.service";
 import FilmShowing from "../../../components/FilmShowing";
 import { IFilms } from "../../../interface/model";
-
 const Movies = () => {
   const { data } = useFetchProductQuery() as any;
   console.log(data);

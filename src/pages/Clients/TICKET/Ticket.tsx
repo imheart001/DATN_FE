@@ -49,8 +49,6 @@ const Ticket: React.FC = () => {
     setFilmShows2(uniqueShows as any);
   };
 
-  console.log(filmShows2);
-
   const handleOk = () => {
     setIsModalOpen(false);
   };
@@ -81,7 +79,6 @@ const Ticket: React.FC = () => {
     (cinema: any) => cinema.id == selectedCinema
   );
 
-  console.log(`Hôm nay là: ${fullDate}`);
   const getRealTime = (timeId: any) => {
     const timeInfo = (times as any)?.data.find(
       (time: any) => time.id == timeId
@@ -176,7 +173,6 @@ const Ticket: React.FC = () => {
               const filmShows = validShows
                 ? validShows.filter((show: any) => show.film_id === film.id)
                 : [];
-              console.log(filmShows);
 
               return (
                 <div className="w-[245px] h-[560px]" key={film.id}>
