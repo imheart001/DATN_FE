@@ -8,6 +8,7 @@ import {
   useGetShowTimeByIdQuery,
 } from "../../../service/show.service";
 import { useGetProductByIdQuery } from "../../../service/films.service";
+
 import { Button, Modal, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetCinemaByIdQuery } from "../../../service/brand.service";
@@ -39,8 +40,10 @@ interface SeatInfo {
   type: SeatType;
   price: number;
 }
+
 const BookingSeat = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleCancel = () => {
     setIsModalOpen(false);
   };
@@ -95,8 +98,9 @@ const BookingSeat = () => {
         const type = isVIPSeat(rowIndex, columnIndex)
           ? SeatType.VIP
           : SeatType.normal;
-        const seatName = `${String.fromCharCode(65 + rowIndex)}${columnIndex + 1
-          }`;
+        const seatName = `${String.fromCharCode(65 + rowIndex)}${
+          columnIndex + 1
+        }`;
         const status = bookedSeatNames.includes(seatName)
           ? SeatStatus.Booked
           : SeatStatus.Available;
@@ -117,7 +121,7 @@ const BookingSeat = () => {
     )
   );
 
-
+  const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
 
   const handleSeatClick = (row: number, column: number) => {
     const updatedSeats = [...seats];
@@ -244,13 +248,6 @@ const BookingSeat = () => {
   const dayOfWeek = daysOfWeek[dateObject.getDay()];
   const formattedDate = `${day}/${month}/${year}`;
 
-
-  const handleOk = () => {
-    console.log(arr);
-    
-    window.location.href = arr.data;
-    setIsModalOpen(false);
-  };
   return (
     <>
       <Header />
