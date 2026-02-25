@@ -8,7 +8,6 @@ type Props = {
 };
 
 const FilmShowing = ({ data }: Props) => {
-  console.log(data);
 
   return (
     <div className="w-[245px] h-[420px]">

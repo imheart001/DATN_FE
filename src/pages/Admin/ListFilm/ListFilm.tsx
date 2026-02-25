@@ -20,6 +20,7 @@ import {
   useRemoveProductMutation,
 } from "../../../service/films.service";
 import { IFilms } from "../../../interface/model";
+import { compareDates } from "../../../utils";
 interface DataType {
   key: string;
   name: string;
@@ -30,6 +31,8 @@ interface DataType {
   trailer: string;
   status: string;
   description: string;
+  release_date: string;
+  end_date: string
   dateSt: Date;
   dateEnd: Date;
   tags: string[];
@@ -39,6 +42,7 @@ const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
   const { data: films } = useFetchProductQuery();
+  console.log("🚀 ~ file: ListFilm.tsx:44 ~ films:", films)
 
   const [removeProduct] = useRemoveProductMutation();
   const columns: ColumnsType<DataType> = [
@@ -83,21 +87,14 @@ const ListFilm: React.FC = () => {
 
       key: "tags",
       dataIndex: "tags",
-      render: (_, { tags }) => (
-        <>
-          {tags.map((tag) => {
-            let color = tag.length > 5 ? "green" : "green";
-            if (tag === "loser") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
+      render: (_, { tags, release_date, end_date }) => {
+        console.log("🚀 ~ file: ListFilm.tsx:89 ~ release_date, end_date:", release_date, end_date)
+        return  (
+          <Tag color={compareDates(release_date, end_date) ? "success" : "error"}>
+          { compareDates(release_date, end_date) ? 'Đang Hoạt Động' : 'Ngừng Hoạt Động'}
+        </Tag>
+        )
+      },
     },
 
     {
@@ -143,11 +140,13 @@ const ListFilm: React.FC = () => {
     trailer: film.trailer,
     status: film.status,
     description: film.description,
+    release_date: film.release_date,
+    end_date: film.end_date,
     nameFilm: film?.name,
     time: film?.time,
     images: film?.image,
     dateSt: new Date(film.release_date),
-    dateEnd: new Date(film.release_date),
+    dateEnd: new Date(film.end_date),
     tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
 

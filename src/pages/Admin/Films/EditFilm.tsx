@@ -51,6 +51,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         trailer: dataID.trailer,
         time: dataID.time,
         release_date: moment(dataID.dateSt), // Sử dụng thư viện moment để xử lý ngày
+        end_date:moment(dataID.dateEnd),
         status: dataID.status,
         description: dataID.description,
       });
@@ -59,6 +60,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
   const onFinish = async (values: any) => {
     try {
       values.release_date = values.release_date.format("YYYY-MM-DD");
+      values.end_date = values.end_date.format("YYYY-MM-DD");
       await updateProduct({ ...values, id: dataID.name });
 
       message.success("Cập nhật sản phẩm thành công");
@@ -71,7 +73,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
     }
   };
   const [open, setOpen] = useState(false);
-  console.log(dataID);
 
   const showDrawer = () => {
     setOpen(true);
@@ -179,6 +180,17 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                 label="Release Date"
                 rules={[
                   { required: true, message: "Please choose the release date" },
+                ]}
+              >
+                <DatePicker />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="end_date"
+                label="End date"
+                rules={[
+                  { required: true, message: "Please choose the End date" },
                 ]}
               >
                 <DatePicker />

@@ -3,9 +3,17 @@ import Header from "../../../Layout/LayoutUser/Header";
 import { useFetchProductQuery } from "../../../service/films.service";
 import FilmShowing from "../../../components/FilmShowing";
 import { IFilms } from "../../../interface/model";
+import { compareDates } from "../../../utils";
 const Movies = () => {
   const { data } = useFetchProductQuery() as any;
+  console.log("🚀 ~ file: Movies.tsx:8 ~ Movies ~ data:", data)
   console.log(data);
+
+  const movieReleases = data?.data.filter((item: any) => {
+    const result = compareDates(item.release_date, item.end_date)
+    return result
+  })  
+  console.log("🚀 ~ file: Movies.tsx:15 ~ movieReleases ~ movieReleases:", movieReleases)
 
   return (
     <>
@@ -35,7 +43,7 @@ const Movies = () => {
             Đang chiếu
           </h1>
           <div className="grid grid-cols-4 gap-7">
-            {(data as any)?.data.map((film: IFilms, index: number) => (
+            {movieReleases.map((film: IFilms, index: number) => (
               <FilmShowing key={index} data={film} />
             ))}
           </div>

@@ -26,19 +26,16 @@ const Header = () => {
   const { data: cateList } = useFetchCateQuery();
   const { data: cinemas } = useFetchCinemaQuery();
   const [movies, setMovies] = useState<any>([]);
-  console.log("🚀 ~ file: Header.tsx:26 ~ Header ~ movies:", movies);
   const [matchingNames, setMatchingNames] = useState([]);
 
   const [search, setSearch] = useState<string>("");
   const [cinemaOptions, setCinemaOptions] = useState<Option[]>([]);
-  // console.log("🚀 ~ file: Header.tsx:26 ~ Header ~ cinemaOptions:", cinemaOptions)
   const [isModalVisible, setIsModalVisible] = useState(true);
   const navigate = useNavigate();
   const { data: filmCinemaData } = useGetFilmCinemeByIdQuery(
     selectedCinema // Sử dụng selectedCinema làm tham số
   );
   const { data: films } = useFetchProductQuery();
-  console.log("🚀 ~ file: Header.tsx:33 ~ Header ~ films:", films);
   const handleCancel = () => {
     setIsModalVisible(false); // Đóng modal
   };
@@ -90,7 +87,6 @@ const Header = () => {
   const [dropdownActive, setDropDownActive] = useState(false);
   const [filmItem, setFilmItem] = useState(null);
   const [selectCategory, setSelectCategory] = useState<any>(null);
-  console.log("🚀 ~ file: Header.tsx:93 ~ Header ~ selectCategory:", selectCategory)
 
   const handleGetFilms = (id: string) => {
     const filmItem = movies.filter((film: any) => {
