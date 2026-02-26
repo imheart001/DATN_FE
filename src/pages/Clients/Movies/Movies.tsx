@@ -1,19 +1,29 @@
-import { Link } from "react-router-dom";
 import Header from "../../../Layout/LayoutUser/Header";
 import { useFetchProductQuery } from "../../../service/films.service";
 import FilmShowing from "../../../components/FilmShowing";
 import { IFilms } from "../../../interface/model";
-import { compareDates } from "../../../utils";
+import { compareDates, compareReleaseDate } from "../../../utils";
 const Movies = () => {
   const { data } = useFetchProductQuery() as any;
-  console.log("🚀 ~ file: Movies.tsx:8 ~ Movies ~ data:", data)
   console.log(data);
 
   const movieReleases = data?.data.filter((item: any) => {
     const result = compareDates(item.release_date, item.end_date)
     return result
   })  
-  console.log("🚀 ~ file: Movies.tsx:15 ~ movieReleases ~ movieReleases:", movieReleases)
+
+  const futureMovies = data?.data.filter((item: any) => {
+    const result = compareReleaseDate(item.release_date)
+    return result
+  }).filter((item1: any) => {
+      const currentDate = new Date()
+      const featureMovieDate = new Date()
+      const releaseDate = new Date(item1.release_date)
+      featureMovieDate.setDate(currentDate.getDate() + 10)
+      if (featureMovieDate > releaseDate) {
+        return item1
+      }
+    })
 
   return (
     <>
@@ -43,7 +53,7 @@ const Movies = () => {
             Đang chiếu
           </h1>
           <div className="grid grid-cols-4 gap-7">
-            {movieReleases.map((film: IFilms, index: number) => (
+            {movieReleases && movieReleases.map((film: IFilms, index: number) => (
               <FilmShowing key={index} data={film} />
             ))}
           </div>
@@ -58,110 +68,9 @@ const Movies = () => {
             Sắp chiếu
           </h1>
           <div className="grid grid-cols-4 gap-7">
-            <div className="w-[245px] h-[420px]">
-              <Link to={"/"}>
-                <img srcSet="/upmv1.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Last Voyage of th..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Drama</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/upmv2.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Gran Turismo
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/upmv3.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Strays
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/upmv4.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Catatan Si Boy
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/upmv5.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Blue Beetle
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/upmv6.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Kisah Tanah Jaw..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/upmv7.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Concrete Utopia
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
-            <div className="w-[245px] h-[420px]">
-              <Link to={"#"}>
-                <img srcSet="/upmv8.png/ 1.2x" alt="" className="rounded-2xl" />
-                <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                  Puspa Indah Tam..
-                </h3>
-                <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                  <span>Comedy</span>
-                  <span>IMDB 8.6</span>
-                  <span>13+</span>
-                </div>
-              </Link>
-            </div>
+          {futureMovies && futureMovies.map((film: IFilms, index: number) => (
+              <FilmShowing key={index} data={film} />
+            ))}
           </div>
           <button className="mx-auto block mb-[67px]">
             <span>

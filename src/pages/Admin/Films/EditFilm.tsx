@@ -27,7 +27,6 @@ interface DataType {
   images: string;
   time: string;
   trailer: string;
-  status: string;
   description: string;
   dateSt: Date;
   dateEnd: Date;
@@ -52,7 +51,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         time: dataID.time,
         release_date: moment(dataID.dateSt), // Sử dụng thư viện moment để xử lý ngày
         end_date:moment(dataID.dateEnd),
-        status: dataID.status,
         description: dataID.description,
       });
     }
@@ -197,21 +195,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
-              >
-                <Select placeholder="Please select a status">
-                  <Option value="1">1</Option>
-                  <Option value="0">0</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item

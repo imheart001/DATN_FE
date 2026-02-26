@@ -9,3 +9,10 @@ const curentDate = new Date().getTime()
     return false
   }
 };
+
+export const compareReleaseDate = (releaseDate: string) => {
+  const resleaseDateMovie = new Date(releaseDate).getTime();
+  const curentDate = new Date().getTime()
+
+ return curentDate < resleaseDateMovie ? true : false
+}

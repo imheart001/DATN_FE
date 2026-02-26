@@ -20,7 +20,7 @@ import {
   useRemoveProductMutation,
 } from "../../../service/films.service";
 import { IFilms } from "../../../interface/model";
-import { compareDates } from "../../../utils";
+import { compareDates, compareReleaseDate } from "../../../utils";
 interface DataType {
   key: string;
   name: string;
@@ -32,7 +32,7 @@ interface DataType {
   status: string;
   description: string;
   release_date: string;
-  end_date: string
+  end_date: string;
   dateSt: Date;
   dateEnd: Date;
   tags: string[];
@@ -42,8 +42,6 @@ const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
   const { data: films } = useFetchProductQuery();
-  console.log("🚀 ~ file: ListFilm.tsx:44 ~ films:", films)
-
   const [removeProduct] = useRemoveProductMutation();
   const columns: ColumnsType<DataType> = [
     {
@@ -88,10 +86,13 @@ const ListFilm: React.FC = () => {
       key: "tags",
       dataIndex: "tags",
       render: (_, { tags, release_date, end_date }) => {
-        console.log("🚀 ~ file: ListFilm.tsx:89 ~ release_date, end_date:", release_date, end_date)
         return  (
-          <Tag color={compareDates(release_date, end_date) ? "success" : "error"}>
-          { compareDates(release_date, end_date) ? 'Đang Hoạt Động' : 'Ngừng Hoạt Động'}
+          <Tag color={
+            compareDates(release_date, end_date) ? 'success' : !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) ? 'error' : 'warning'
+          }>
+          { compareDates(release_date, end_date) && 'Đang Hoạt Động'}
+          { !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) && 'Ngừng Hoạt Động'}
+          {compareReleaseDate(release_date) && !compareDates(release_date, end_date) && 'Sắp Chiếu'}
         </Tag>
         )
       },
