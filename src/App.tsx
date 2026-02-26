@@ -20,6 +20,7 @@ import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
 import ListFood from "./pages/Admin/Food/ListFood";
 import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
 import ListTime from "./pages/time/listTime";
+import CSKH from "./pages/Clients/Hỗ trợ khách hàng/cskh";
 
 function App() {
   const router = createBrowserRouter([
@@ -59,6 +60,10 @@ function App() {
           path: "/orther",
           element: <Orther />,
         },
+        {
+          path: "/cskh",
+          element: <CSKH />
+        }
       ],
     },
     {

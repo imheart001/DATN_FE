@@ -149,7 +149,7 @@ const Header = () => {
                           id: filmItemData.id,
                           name: filmItemData.name,
                         }),
-                        setDropDownActive(false);
+                          setDropDownActive(false);
                         setFilmItem(null);
                       }}
                       key={filmItemData.id}
@@ -165,10 +165,10 @@ const Header = () => {
                 className="top-[calc(100%_+_8px)] z-10 left-[calc(100%_+_8px)] absolute w-[350px] bg-gray-500"
                 onClick={() => {
                   navigate(`/movie_about/${(filmItem[0] as any).id}`),
-                  setSelectCategory({
-                    id: (filmItem[0] as any).id,
-                    name: (filmItem[0] as any).name,
-                  }),
+                    setSelectCategory({
+                      id: (filmItem[0] as any).id,
+                      name: (filmItem[0] as any).name,
+                    }),
                     setFilmItem(null),
                     setDropDownActive(false);
                 }}
