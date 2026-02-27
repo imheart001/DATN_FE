@@ -20,7 +20,7 @@ import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
 import ListFood from "./pages/Admin/Food/ListFood";
 import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
 import ListTime from "./pages/time/listTime";
-import CSKH from "./pages/Clients/Hỗ trợ khách hàng/cskh";
+import Success from "./pages/Clients/Success/Success";
 
 function App() {
   const router = createBrowserRouter([
@@ -61,8 +61,8 @@ function App() {
           element: <Orther />,
         },
         {
-          path: "/cskh",
-          element: <CSKH />
+          path: "/Success",
+          element: <Success />
         }
       ],
     },
