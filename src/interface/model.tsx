@@ -6,6 +6,7 @@ export interface IFilms {
   trailer: string;
   time: string;
   release_date: Date;
+  end_date: Date;
   description: string;
   status: number;
 }

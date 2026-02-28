@@ -21,6 +21,7 @@ import {
 } from "../../../service/films.service";
 import { IFilms } from "../../../interface/model";
 import Loading from "../../../components/isLoading/Loading";
+import { compareDates, compareReleaseDate } from "../../../utils";
 interface DataType {
   key: string;
   name: string;
@@ -31,6 +32,8 @@ interface DataType {
   trailer: string;
   status: string;
   description: string;
+  release_date: string;
+  end_date: string;
   dateSt: Date;
   dateEnd: Date;
   tags: string[];
@@ -86,21 +89,17 @@ const ListFilm: React.FC = () => {
 
       key: "tags",
       dataIndex: "tags",
-      render: (_, { tags }) => (
-        <>
-          {tags.map((tag) => {
-            let color = tag.length > 5 ? "green" : "green";
-            if (tag === "loser") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
+      render: (_, { tags, release_date, end_date }) => {
+        return  (
+          <Tag color={
+            compareDates(release_date, end_date) ? 'success' : !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) ? 'error' : 'warning'
+          }>
+          { compareDates(release_date, end_date) && 'Đang Hoạt Động'}
+          { !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) && 'Ngừng Hoạt Động'}
+          {compareReleaseDate(release_date) && !compareDates(release_date, end_date) && 'Sắp Chiếu'}
+        </Tag>
+        )
+      },
     },
 
     {
@@ -146,11 +145,13 @@ const ListFilm: React.FC = () => {
     trailer: film.trailer,
     status: film.status,
     description: film.description,
+    release_date: film.release_date,
+    end_date: film.end_date,
     nameFilm: film?.name,
     time: film?.time,
     images: film?.image,
     dateSt: new Date(film.release_date),
-    dateEnd: new Date(film.release_date),
+    dateEnd: new Date(film.end_date),
     tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
 
