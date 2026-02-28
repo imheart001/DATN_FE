@@ -1,25 +1,35 @@
 import React from "react";
-import { Space, Table, Input, Button, Popconfirm } from "antd";
+import { Space, Table, Input, Button, Popconfirm, Image } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
 import { IBookTicket, IUser } from "../../../interface/model";
-import { useFetchBookTicketQuery, useRemoveBookTicketMutation } from "../../../service/book_ticket.service";
+import {
+  useFetchBookTicketQuery,
+  useRemoveBookTicketMutation,
+} from "../../../service/book_ticket.service";
 import AddBookTicket from "./AddBookTicket";
 import EditBookTicket from "./EditBookTicket";
 import { useFetchUsersQuery } from "../../../service/signup_login";
 import { useFetchShowTimeQuery } from "../../../service/show.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+import {
+  useFetchChairsQuery,
+  useGetChairbyIdQuery,
+} from "../../../service/chairs.service";
+import { useFetchProductQuery } from "../../../service/films.service";
+import { useFetchTimeQuery } from "../../../service/time.service";
 
 interface DataType {
-  id: string,
-  user_id: string,
-  id_time_detail_date: string,
-  id_time_detail_room: string,
-  payment: string,
-  amount: string,
-  id_chair: string,
-  time: string,
+  id: string;
+  user_id: string;
+  id_time_detail_date: string;
+  id_time_detail_room: string;
+  payment: string;
+  amount: string;
+  id_chair: string;
+  time: string;
+  id_code: string;
 }
 
 const { Search } = Input;
@@ -28,56 +38,120 @@ const ListBookTicket: React.FC = () => {
   const { data: bookticket } = useFetchBookTicketQuery();
   const { data: shows } = useFetchShowTimeQuery();
   const [removeBookTicket] = useRemoveBookTicketMutation();
-  const {data: users} = useFetchUsersQuery();
+  const { data: users } = useFetchUsersQuery();
   const { data: roomBrand } = useFetchMovieRoomQuery();
+  const { data: times } = useFetchTimeQuery();
+  const { data: films } = useFetchProductQuery();
+  const formatter = (value: number) =>
+    `${value} Vn₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const { data: chairs } = useFetchChairsQuery();
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã Vé",
+      title: "Id",
       dataIndex: "id",
-      key: "key",
+      key: "id",
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
       title: "Tên Khách Hàng",
       dataIndex: "user_id",
       key: "user_id",
+      align: "center",
+      width: "10%",
+    },
+    {
+      title: "Tên Phim",
+      dataIndex: "namefilm",
+      key: "namefilm",
+      width: "10%",
+      align: "center",
+      render: (text) => (
+        <span>{text?.length > 20 ? `${text.slice(0, 15)}...` : text}</span>
+      ),
+    },
+    {
+      key: "imgfilm",
+      title: "Hình ảnh",
+      dataIndex: "imgfilm",
+      align: "center",
+      width: "5%",
+      render: (text: string) => <Image width={50} src={text} />,
     },
     {
       title: "Phòng Chiếu",
-      dataIndex: "id_time_detail_room",
-      key: "id_time_detail_room",
+      dataIndex: "room",
+      key: "room",
     },
     {
-      title: "Giá Tiền",
+      title: "Ngày chiếu",
+      dataIndex: "dateSee",
+      key: "dateSee",
+    },
+    {
+      title: "Giờ chiếu",
+      dataIndex: "timeSee",
+      key: "timeSee",
+    },
+
+    {
+      title: "Ghế đặt",
+      dataIndex: "ifseat",
+      key: "ifseat",
+      width: "10%",
+      align: "center",
+      render: (text) => (
+        <span>{text?.length > 20 ? `${text.slice(0, 10)}...` : text}</span>
+      ),
+    },
+    {
+      title: "Tổng Tiền",
       dataIndex: "amount",
       key: "amount",
+      align: "center",
+      width: "15%",
+      render: (text) => <span>{formatter(Number(text))}</span>,
+    },
+    {
+      title: "Mã vé",
+      dataIndex: "id_code",
+      key: "id_code",
+      align: "center",
+      width: "5%",
+      render: (text) => (
+        <span>{text.length > 20 ? `${text.slice(0, 20)}...` : text}</span>
+      ),
     },
     {
       title: "Phương Thức Thanh Toán",
       dataIndex: "payment",
       key: "payment",
+      align: "center",
+      width: "10%",
+      render: (payment) => {
+        let paymentName = "";
+        if (payment == "1") {
+          paymentName = "Vnpay";
+        } else if (payment == "2") {
+          paymentName = "Momo";
+        } else {
+          paymentName = "Khác";
+        }
+        return paymentName;
+      },
     },
     {
-      title: "Số Ghế",
-      dataIndex: "id_chair",
-      key: "id_chair",
-    },
-    {
-      title: "Ngày Chiếu",
-      dataIndex: "id_time_detail_time",
-      key: "id_time_detail_time",
-    },
-    {
-      title: "Thời gian chiếu",
+      title: "Thời gian mua",
       dataIndex: "time",
       key: "time",
+      align: "center",
+      width: "5%",
     },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <EditBookTicket dataCinema={record} />
+          <EditBookTicket dataCinema={record as any} />
 
           <Popconfirm
             placement="topLeft"
@@ -104,25 +178,92 @@ const ListBookTicket: React.FC = () => {
     },
   ];
 
-  const dataBookTicket = (bookticket as any)?.data?.map((bookticket: any, index: number) => ({
-    key: index.toString(),
-    id: bookticket.id,
-    user_id: (users as any)?.data?.find(
-      (users: any) => users.id === bookticket.user_id
-    )?.name,
-    id_time_detail_time: (shows as any)?.data?.find(
-      (shows: any) => shows.id === bookticket.user_id
-    )?.date,
-    id_time_detail_room: (roomBrand as any)?.data?.find(
-      (room: any) => room.id === (shows as any)?.data?.find((shows: any) => shows.id === bookticket.user_id)?.room_id
-    )?.name,
-    payment: bookticket.payment,
-    amount: bookticket.amount,
-    id_chair: bookticket.id_chair,
-    time: bookticket.time,
-  }));
-  console.log(dataBookTicket);
+  const dataBookTicket = (bookticket as any)?.data?.map(
+    (bookticket: any, index: number) => {
+      // const findChairbyBook_ticket = (chairs as any)?.data?.find(
+      //   (chair: any) => chair.id === bookticket.id_chair
+      // );
+      // const findShowbyChair = (shows as any)?.data?.find(
+      //   (show: any) => show.id === findChairbyBook_ticket?.id
+      // );
+      // console.log(findShowbyChair);
+      // const filmName = films?.data?.find(
+      //   (film: any) => film.id === id_time_detail?.id
+      // );
 
+      return {
+        key: index.toString(),
+        id: bookticket.id,
+        user_id: (users as any)?.data?.find(
+          (users: any) => users.id === bookticket.user_id
+        )?.name,
+
+        payment: bookticket.payment,
+        amount: (chairs as any)?.data?.find(
+          (chair: any) => chair.id === bookticket.id_chair
+        )?.price,
+        ifseat: (chairs as any)?.data?.find(
+          (chair: any) => chair.id === bookticket.id_chair
+        )?.name,
+        id_chair: bookticket.id_chair,
+        time: bookticket.time,
+        id_code: bookticket.id_code,
+        namefilm: (films as any)?.data.find(
+          (film: any) =>
+            film.id ===
+            (shows as any)?.data?.find(
+              (show: any) =>
+                show.id ===
+                (chairs as any)?.data?.find(
+                  (chair: any) => chair.id === bookticket.id_chair
+                )?.id_time_detail
+            )?.film_id
+        )?.name,
+        imgfilm: (films as any)?.data.find(
+          (film: any) =>
+            film.id ===
+            (shows as any)?.data?.find(
+              (show: any) =>
+                show.id ===
+                (chairs as any)?.data?.find(
+                  (chair: any) => chair.id === bookticket.id_chair
+                )?.id_time_detail
+            )?.film_id
+        )?.image,
+        room: (roomBrand as any)?.data.find(
+          (room: any) =>
+            room.id ===
+            (shows as any)?.data?.find(
+              (show: any) =>
+                show.id ===
+                (chairs as any)?.data?.find(
+                  (chair: any) => chair.id === bookticket.id_chair
+                )?.id_time_detail
+            )?.room_id
+        )?.name,
+        timeSee: (times as any)?.data.find(
+          (time: any) =>
+            time.id ===
+            (shows as any)?.data?.find(
+              (show: any) =>
+                show.id ===
+                (chairs as any)?.data?.find(
+                  (chair: any) => chair.id === bookticket.id_chair
+                )?.id_time_detail
+            )?.time_id
+        )?.time,
+        dateSee: (shows as any)?.data?.find(
+          (show: any) =>
+            show.id ===
+            (chairs as any)?.data?.find(
+              (chair: any) => chair.id === bookticket.id_chair
+            )?.id_time_detail
+        )?.date,
+        // namefilm: filmName ? filmName.name : "", // Lấy tên phim từ films
+      };
+    }
+  );
+  console.log(dataBookTicket);
   return (
     <>
       <div className="">

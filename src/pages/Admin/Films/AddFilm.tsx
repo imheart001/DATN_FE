@@ -180,19 +180,6 @@ const AddFilm: React.FC = () => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={12}>
-              <Form.Item
-                name="cateDetail"
-                label="cateDetail"
-                rules={[{ required: true, message: "Please select a status" }]}
-              >
-                <Checkbox
-           
-          >
-            Check all
-          </Checkbox>
-              </Form.Item>
-            </Col>
           </Row>
 
           <Row gutter={16}>

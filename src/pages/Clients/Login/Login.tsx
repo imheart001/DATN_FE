@@ -185,7 +185,7 @@ const Login = () => {
             autoComplete="off"
             className="bg-white login-form flex items-center justify-center flex-col px-10 h-full "
           >
-            <h1 className="text-3xl font-bold m-0 mb-4 tracking-tighter">
+            <h1 className="text-3xl font-bold m-0 mb-8 tracking-tighter">
               Login hire.
             </h1>
             <Form.Item
