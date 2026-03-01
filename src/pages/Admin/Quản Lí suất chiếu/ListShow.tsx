@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Space, Table, Input, Button, Popconfirm, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -106,6 +106,14 @@ const ListShow: React.FC = () => {
       )?.name,
     })
   );
+  console.log("🚀 ~ file: ListShow.tsx:109 ~ dataShow:", dataShow)
+
+  const [dataShows, setDateShows] = useState<any>(null)
+
+  const onSearch = (value: any, _e: any) => {
+    const results =dataShow.filter((item: any) => item.film_id.toLowerCase().includes(value.toLowerCase()))
+    setDateShows(results)
+  }
   return (
     <>
       <div className="">
@@ -114,12 +122,18 @@ const ListShow: React.FC = () => {
           <Search
             placeholder="Nhập tên phim hoặc mã phim"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
           <AddShow />
         </div>
       </div>
+      {dataShows ? (
+      <Table columns={columns} dataSource={dataShows} />
+
+      ) : (
       <Table columns={columns} dataSource={dataShow} />
+      )}
     </>
   );
 };

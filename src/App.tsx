@@ -1,7 +1,6 @@
 import {
   createBrowserRouter,
   RouterProvider,
-  useNavigate,
 } from "react-router-dom";
 import LayoutUser from "./Layout/LayoutUser/LayoutUser";
 import HomePages from "./pages/Clients/Homepages/home";
@@ -26,7 +25,6 @@ import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
 import ListVNP from "./pages/Clients/ListThanhToan/ListVNP";
 import ListTime from "./pages/Admin/time/listTime";
 
-import QrCode from "./components/QrCode/qr";
 import { setSelectedCinema } from "./components/CinemaSlice/selectedCinemaSlice";
 import { updateToken, setUserId } from "./components/CinemaSlice/authSlice";
 import { useDispatch } from "react-redux";

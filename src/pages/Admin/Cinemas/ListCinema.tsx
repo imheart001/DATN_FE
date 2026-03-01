@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Space, Table, Input, Button, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -79,7 +79,13 @@ const ListCinema: React.FC = () => {
     name: cinema?.name,
     address: cinema?.address,
   }));
+  console.log("🚀 ~ file: ListCinema.tsx:82 ~ dataCate ~ dataCate:", dataCate)
+  const [dataList, setDataList] = useState<any>(null)
 
+  const onSearch = (value: any, _e: any) => {
+    const results =dataCate.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()))
+    setDataList(results)
+  }
   return (
     <>
       <div className="">
@@ -88,12 +94,19 @@ const ListCinema: React.FC = () => {
           <Search
             placeholder="Nhập tên phim hoặc mã phim"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
           <AddCinema />
         </div>
       </div>
+      {dataList ? (
+      <Table columns={columns} dataSource={dataList} />
+
+      ) : (
+
       <Table columns={columns} dataSource={dataCate} />
+      )}
     </>
   );
 };

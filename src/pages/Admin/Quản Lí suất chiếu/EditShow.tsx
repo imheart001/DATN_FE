@@ -16,7 +16,7 @@ import {
 
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
-import { IFilms, ITime } from "../../../interface/model";
+import { IFilms, IMovieRoom, ITime } from "../../../interface/model";
 import { useUpdateShowTimeMutation } from "../../../service/show.service";
 import moment from "moment";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";

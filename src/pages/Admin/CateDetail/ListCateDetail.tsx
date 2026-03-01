@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 
 import { Space, Table, Input, Button, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -92,6 +92,13 @@ const ListCateDetail: React.FC = () => {
 
     })
   );
+  
+  const [dataList, setDataList] = useState<any>(null)
+
+  const onSearch = (value: any, _e: any) => {
+    const results =dataCateDetail.filter((item: any) => item.category_id.toLowerCase().includes(value.toLowerCase()))
+    setDataList(results)
+  }
 
 
   return (
@@ -102,13 +109,22 @@ const ListCateDetail: React.FC = () => {
           <Search
             placeholder="Nhập tên đồ ăn hoặc mã đồ ăn"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
 
           <AddCateDetail />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataCateDetail} />
+      {
+        dataList ? (
+          <Table columns={columns} dataSource={dataList} />
+
+        ) : (
+
+          <Table columns={columns} dataSource={dataCateDetail} />
+        )
+      }
     </>
   );
 };

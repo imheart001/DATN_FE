@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 
 import { Space, Table, Input, Button,  Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -90,8 +90,12 @@ const ListMovieRoom: React.FC = () => {
 
     })
   );
+  const [dataList, setDataList] = useState<any>(null)
 
-
+  const onSearch = (value: any, _e: any) => {
+    const results =dataMovie.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()))
+    setDataList(results)
+  }
   return (
     <>
       <div className="">
@@ -100,13 +104,20 @@ const ListMovieRoom: React.FC = () => {
           <Search
             placeholder="Nhập tên đồ ăn hoặc mã đồ ăn"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
 
           <AddMovieRoom />
         </div>
       </div>
+      {dataList ? (
+      <Table columns={columns} dataSource={dataList} />
+        
+      ) : (
+
       <Table columns={columns} dataSource={dataMovie} />
+      )}
     </>
   );
 };

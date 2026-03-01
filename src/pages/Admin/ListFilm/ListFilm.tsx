@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Space,
   Table,
@@ -43,9 +43,11 @@ const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
   const { data: films, isLoading } = useFetchProductQuery();
+  console.log("🚀 ~ file: ListFilm.tsx:46 ~ films:", films)
   if (isLoading) {
     return <Loading />;
   }
+  const [movies, setMovise] = useState<any>(null)
   const [removeProduct] = useRemoveProductMutation();
   const columns: ColumnsType<DataType> = [
     {
@@ -155,6 +157,13 @@ const ListFilm: React.FC = () => {
     tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
 
+
+  /* tim kien san pham */
+  const onSearch = (value: any, _e: any) => {
+    const results =dataFilm.filter((item: any) => item.nameFilm.toLowerCase().includes(value.toLowerCase()))
+      setMovise(results)
+  }
+
   return (
     <>
       <div className="">
@@ -163,12 +172,19 @@ const ListFilm: React.FC = () => {
           <Search
             placeholder="Nhập tên phim hoặc mã phim"
             style={{ width: 600 }}
+            onSearch={onSearch}
+
           />
           <RangePicker />
           <AddFilm />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataFilm} />
+      {!movies && (
+        <Table columns={columns} dataSource={dataFilm} />
+      )}
+     {movies && (
+        <Table columns={columns} dataSource={movies} />
+     )}
     </>
   );
 };

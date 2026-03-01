@@ -1,13 +1,22 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+interface initialState {
+  token: string | null
+  user_id: string | null
+  role: number | null
+}
+
 const initialToken = localStorage.getItem("authToken");
+
+const initialState: initialState = {
+  token: initialToken || null,
+  user_id: null,
+  role:  null
+}
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    token: initialToken || null,
-    user_id: null,
-  },
+  initialState,
   reducers: {
     updateToken: (state, action) => {
       state.token = action.payload;
@@ -17,8 +26,11 @@ const authSlice = createSlice({
       state.user_id = action.payload;
       localStorage.setItem("user_id", action.payload);
     },
+    setRoleAuth: (state, action) => {
+      state.role = action.payload
+    }
   },
 });
 
-export const { updateToken, setUserId } = authSlice.actions;
+export const { setRoleAuth, updateToken, setUserId } = authSlice.actions;
 export default authSlice.reducer;

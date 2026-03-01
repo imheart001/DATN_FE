@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Space, Table, Input, Button, Image, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -89,6 +89,13 @@ const ListFood: React.FC = () => {
     price: food?.price,
     //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
+  console.log("🚀 ~ file: ListFood.tsx:92 ~ dataFood ~ dataFood:", dataFood)
+  const [dataList, setDataList] = useState<any>(null)
+
+  const onSearch = (value: any, _e: any) => {
+    const results =dataFood.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()))
+    setDataList(results)
+  }
 
   return (
     <>
@@ -98,12 +105,19 @@ const ListFood: React.FC = () => {
           <Search
             placeholder="Nhập tên đồ ăn hoặc mã đồ ăn"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
           <AddFood />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataFood} />
+      {dataList ? (
+        <Table columns={columns} dataSource={dataList} />
+
+      ) : (
+
+        <Table columns={columns} dataSource={dataFood} />
+      )}
     </>
   );
 };
