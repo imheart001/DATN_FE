@@ -8,10 +8,7 @@ import { setSelectedCinema } from "../../components/CinemaSlice/selectedCinemaSl
 import { Modal } from "antd";
 import {
   useFetchProductQuery,
-  useGetFilmCinemeByIdQuery,
 } from "../../service/films.service";
-import { useFetchCateDetailQuery } from "../../service/catedetail.service";
-import { useFetchCateQuery } from "../../service/cate.service";
 interface Option {
   value: string;
   label: string;
@@ -24,22 +21,15 @@ const Header = () => {
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const user = useSelector((state: any) => state.auth?.token);
   const { data: cinemas } = useFetchCinemaQuery();
-  const { data: listCateDetail } = useFetchCateDetailQuery();
-  const { data: cateList } = useFetchCateQuery();
   const [movies, setMovies] = useState<any>([]);
-  console.log("🚀 ~ file: Header.tsx:26 ~ Header ~ movies:", movies);
   const [matchingNames, setMatchingNames] = useState([]);
 
   const [search, setSearch] = useState<string>("");
   const [cinemaOptions, setCinemaOptions] = useState<Option[]>([]);
-  // console.log("🚀 ~ file: Header.tsx:26 ~ Header ~ cinemaOptions:", cinemaOptions)
   const [isModalVisible, setIsModalVisible] = useState(true);
   const navigate = useNavigate();
-  const { data: filmCinemaData } = useGetFilmCinemeByIdQuery(
-    selectedCinema // Sử dụng selectedCinema làm tham số
-  );
+
   const { data: films } = useFetchProductQuery();
-  console.log("🚀 ~ file: Header.tsx:33 ~ Header ~ films:", films);
   const handleCancel = () => {
     setIsModalVisible(false); // Đóng modal
   };
@@ -61,22 +51,6 @@ const Header = () => {
       setMovies((films as any).data);
     }
   }, [films]);
-
-  const [dropdownActive, setDropDownActive] = useState(false);
-  const [filmItem, setFilmItem] = useState(null);
-  const [selectCategory, setSelectCategory] = useState<any>(null);
-  console.log(
-    "🚀 ~ file: Header.tsx:93 ~ Header ~ selectCategory:",
-    selectCategory
-  );
-
-  const handleGetFilms = (id: string) => {
-    const filmItem = movies.filter((film: any) => {
-      return film.id === id;
-    });
-    setFilmItem(filmItem);
-  };
-
   useEffect(() => {
     if (cinemas) {
       const cinemaData = (cinemas as any)?.data?.map((cinema: ICinemas) => ({
@@ -116,68 +90,14 @@ const Header = () => {
           <Link to={"/"}>
             <img srcSet="/logo.png/" alt="" />
           </Link>
-          {/* <Cascader
+          <Cascader
             options={cinemaOptions}
             placeholder={"Beta Thanh Xuân"}
             expandTrigger="hover"
             displayRender={displayRender}
             onChange={onChange}
             value={selectedCinema}
-          /> */}
-          <div className="relative p-3 bg-transparent rounded cursor-pointer w-[260px]">
-            <span
-              onClick={() => {
-                setDropDownActive(!dropdownActive), setFilmItem(null);
-              }}
-              className="w-full max-w-[400px] truncate"
-            >
-              {selectCategory ? selectCategory.name : "tìm kiếm sản phẩm"}
-            </span>
-            {dropdownActive && (
-              <div className="top-[calc(100%_+_8px)] z-10 absolute left-0 w-full bg-gray-400 flex gap-1 flex-col">
-                {(films as any)?.data?.map((filmItemData: any) => {
-                  return (
-                    <p
-                      onMouseOver={() => handleGetFilms(filmItemData.id)}
-                      className="py-2 px-4 bg-red-100 truncate"
-                      onClick={() => {
-                        setSelectCategory({
-                          id: filmItemData.id,
-                          name: filmItemData.name,
-                        }),
-                          setDropDownActive(false);
-                        setFilmItem(null);
-                      }}
-                      key={filmItemData.id}
-                    >
-                      {filmItemData.name}
-                    </p>
-                  );
-                })}
-              </div>
-            )}
-            {filmItem && (
-              <div
-                className="top-[calc(100%_+_8px)] z-10 left-[calc(100%_+_8px)] absolute w-[350px] bg-gray-500"
-                onClick={() => {
-                  navigate(`/movie_about/${(filmItem[0] as any).id}`),
-                    setSelectCategory({
-                      id: (filmItem[0] as any).id,
-                      name: (filmItem[0] as any).name,
-                    }),
-                    setFilmItem(null),
-                    setDropDownActive(false);
-                }}
-              >
-                <img
-                  src={(filmItem[0] as any).image}
-                  alt={(filmItem[0] as any).name}
-                  className="h-10 w-10 rounded"
-                />
-                {(filmItem[0] as any).name}
-              </div>
-            )}
-          </div>
+          />
           <Link to={"/"} className="text-[#EE2E24] hover:text-[#EE2E24]">
             Home
           </Link>

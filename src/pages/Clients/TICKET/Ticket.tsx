@@ -18,6 +18,7 @@ const Ticket: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFilmId, setSelectedFilmId] = useState(null);
   const { data: films, isLoading: filmsLoading } = useFetchProductQuery();
+  console.log("🚀 ~ file: Ticket.tsx:21 ~ films:", films)
   const { data: shows, isLoading: showsLoading } = useFetchShowTimeQuery();
   const { data: cinemas, isLoading: cinemasLoading } = useFetchCinemaQuery();
   const { data: roomsBrand, isLoading: roomsLoading } =

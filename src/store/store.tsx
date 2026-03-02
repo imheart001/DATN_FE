@@ -29,6 +29,7 @@ import bookingSeatAPI from "../service/chairs.service";
 import authReducer from "../components/CinemaSlice/authSlice";
 import usersAPI from "../service/signup_login";
 import payAPI from "../service/pay.service";
+import CinemasAPICinemas from "../service/cinemas.service";
 // Import redux-persist
 const persistConfig = {
   key: "root",
@@ -67,6 +68,7 @@ const rootReducer = combineReducers({
   TKinformation: TKinformationReducer,
   users: usersAPI.reducer,
   auth: authReducer,
+  cinemasMovie: CinemasAPICinemas.reducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

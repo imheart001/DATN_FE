@@ -49,6 +49,24 @@ const ListFilm: React.FC = () => {
   }
   const [movies, setMovise] = useState<any>(null)
   const [removeProduct] = useRemoveProductMutation();
+
+  const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
+    key: index.toString(),
+    name: film?.id,
+    slug: film.slug,
+    trailer: film.trailer,
+    status: film.status,
+    description: film.description,
+    release_date: film.release_date,
+    end_date: film.end_date,
+    nameFilm: film?.name,
+    time: film?.time,
+    images: film?.image,
+    dateSt: new Date(film.release_date),
+    dateEnd: new Date(film.end_date),
+    tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+  }));
+
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã phim",
@@ -60,6 +78,19 @@ const ListFilm: React.FC = () => {
       title: "Tên phim",
       dataIndex: "nameFilm",
       key: "nameFilm",
+      onFilter: (value: any, record: any) => {
+        console.log("🚀 ~ file: ListFilm.tsx:82 ~ value:", value)
+        
+        console.log("🚀 ~ file: ListFilm.tsx:82 ~ record:", record)
+        return (
+          record.name === value
+        )
+      },
+      filters: dataFilm.map((fileItem: any) => ({
+        text: fileItem.nameFilm,
+        value: fileItem.name
+      })),
+      filterSearch: true,
     },
     {
       title: "Thời lượng",
@@ -138,24 +169,7 @@ const ListFilm: React.FC = () => {
       ),
     },
   ];
-  console.log(films);
-
-  const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
-    key: index.toString(),
-    name: film?.id,
-    slug: film.slug,
-    trailer: film.trailer,
-    status: film.status,
-    description: film.description,
-    release_date: film.release_date,
-    end_date: film.end_date,
-    nameFilm: film?.name,
-    time: film?.time,
-    images: film?.image,
-    dateSt: new Date(film.release_date),
-    dateEnd: new Date(film.end_date),
-    tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
-  }));
+ 
 
 
   /* tim kien san pham */
