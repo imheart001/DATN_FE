@@ -15,6 +15,7 @@ import {
 import type { MenuProps } from "antd";
 import { Layout, Menu, theme } from "antd";
 import { NavLink } from "react-router-dom";
+import Dashbroad from "../../pages/Admin/Dashbroad/Dashbroad";
 
 const { Content, Sider } = Layout;
 
@@ -33,7 +34,7 @@ const items: MenuItem[] = [
   getItem(
     "Dashboard",
     "1",
-    <NavLink to="/admin/dashboard">
+    <NavLink to="/admin">
       <PieChartOutlined />
     </NavLink>
   ),
@@ -206,13 +207,13 @@ export const SideBarAdmin: React.FC<SideBarAdminProps> = ({
 
       <Layout className="site-layout">
         {header}
-
+      
         <Content>
           <div
             style={{
               margin: "16px 16px",
               padding: 24,
-              minHeight: 360,
+              minHeight: 900,
               background: colorBgContainer,
             }}
           >

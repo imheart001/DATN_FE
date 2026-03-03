@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useFetchChairsQuery } from "../../../service/chairs.service";
 import {
@@ -8,7 +8,6 @@ import {
   useGetShowTimeByIdQuery,
 } from "../../../service/show.service";
 import { useGetProductByIdQuery } from "../../../service/films.service";
-
 import { Button, Modal, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { useGetCinemaByIdQuery } from "../../../service/brand.service";
@@ -51,10 +50,9 @@ const BookingSeat = () => {
   const numColumns = 10;
   const { id } = useParams();
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
-
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
   const [selectedSeatsCount, setSelectedSeatsCount] = useState(0);
-
+  const navigate = useNavigate();
   const { data: TimeDetails } = useFetchShowTimeQuery();
   const { data: TimeDetailbyId } = useGetShowTimeByIdQuery(id as string);
   const { data: CinemaDetailbyId } = useGetCinemaByIdQuery(
@@ -164,12 +162,15 @@ const BookingSeat = () => {
   const selectedSeatsInSelectedState = selectedSeats.filter(
     (seat) => seat.status === SeatStatus.Selected
   );
-
   const getRowName = (row: number): string => {
     return String.fromCharCode(65 + row);
   };
   const handleOk = () => {
-    window.location.href = `${paymentLink?.data?.data}`;
+    // window.location.href = `${paymentLink?.data?.data}`;
+    const dataToSend = selectedSeats.reduce((total, seat) => total + seat.price, 0);
+
+    // Sử dụng history.push để thay đổi URL và thêm đường dẫn
+    navigate(`/listcombo/${dataToSend}`);
   };
   const showModal = () => {
     if (selectedSeatsCount === 0) {
