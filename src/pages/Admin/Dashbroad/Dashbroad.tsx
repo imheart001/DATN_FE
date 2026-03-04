@@ -52,7 +52,7 @@ import { PieChart, Pie } from 'recharts';
 
 
 
-const Dashbroad:FC = (props: any) => {
+const Dashbroad: FC = (props: any) => {
     const { difference, positive = false, sx, value } = props;
     const data = [
         { name: 'Tháng 1', value: 400 },
@@ -344,7 +344,7 @@ const Dashbroad:FC = (props: any) => {
 
                                     <tr>
                                         <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                            1
+                                            2
                                         </td>
                                         <td className="whitespace-nowrap px-4 py-2 text-gray-700">mov10001</td>
                                         <td className="whitespace-nowrap px-4 py-2 text-gray-700">Người vợ cuối cùng</td>
@@ -353,7 +353,7 @@ const Dashbroad:FC = (props: any) => {
 
                                     </tr><tr>
                                         <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                            1
+                                            3
                                         </td>
                                         <td className="whitespace-nowrap px-4 py-2 text-gray-700">mov10001</td>
                                         <td className="whitespace-nowrap px-4 py-2 text-gray-700">Người vợ cuối cùng</td>
@@ -372,16 +372,19 @@ const Dashbroad:FC = (props: any) => {
                                 <thead className="ltr:text-left rtl:text-right">
                                     <tr>
                                         <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                            Name
+                                            Stt
                                         </th>
                                         <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                            Date of Birth
+                                            Mã Khách Hàng
                                         </th>
                                         <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                            Role
+                                            Tên Khách Hàng
                                         </th>
                                         <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                            Salary
+                                            Rank
+                                        </th>
+                                        <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                                            Tổng tiền
                                         </th>
                                     </tr>
                                 </thead>
@@ -389,30 +392,23 @@ const Dashbroad:FC = (props: any) => {
                                 <tbody className="divide-y divide-gray-200">
                                     <tr>
                                         <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                            John Doe
+                                            1
                                         </td>
-                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">24/05/1995</td>
-                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">Web Developer</td>
-                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">$120,000</td>
+                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">67</td>
+                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">Duc Nam</td>
+                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">GOLD</td>
+                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">2,987,000 đ</td>
                                     </tr>
-
                                     <tr>
                                         <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                            Jane Doe
+                                            2
                                         </td>
-                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">04/11/1980</td>
-                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">Web Designer</td>
-                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">$100,000</td>
+                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">67</td>
+                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">Duc Nam</td>
+                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">GOLD</td>
+                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">2,987,000 đ</td>
                                     </tr>
 
-                                    <tr>
-                                        <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                            Gary Barlow
-                                        </td>
-                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">24/05/1995</td>
-                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">Singer</td>
-                                        <td className="whitespace-nowrap px-4 py-2 text-gray-700">$20,000</td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>

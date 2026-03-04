@@ -46,7 +46,7 @@ const App = () => {
                             <div className=" rounded-lg  lg:col-span-2">GHẾ THƯỜNG</div>
                             <div className=" rounded-lg ">3 x 50.000 = 45.000 vnđ </div>
                             {/* <hr  /> */}
-                            <div className="h-20 rounded-lg  lg:col-span-2">GHẾ THƯỜNG</div>
+                            <div className="h-20 rounded-lg  lg:col-span-2">GHẾ VIP</div>
                             <div className="h-20 rounded-lg ">3 x 50.000 = 45.000 vnđ </div>
                         </div>
 
