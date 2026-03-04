@@ -370,3 +370,16 @@ select::-ms-expand {
   height: 100%;
 }
  
+.round-image {
+  width: 100px; /* Điều chỉnh chiều rộng của ảnh theo nhu cầu của bạn */
+  height: 100px; /* Điều chỉnh chiều cao của ảnh theo nhu cầu của bạn */
+  border-radius: 50%; /* Tạo góc cong để ảnh trở thành hình tròn */
+  overflow: hidden; /* Đảm bảo bất kỳ nội dung nào vượt ra khỏi khu vực tròn bị ẩn đi */
+}
+
+/* Styling cho ảnh */
+.round-image img {
+  width: 100%; /* Đảm bảo ảnh điền vào toàn bộ khu vực tròn */
+  height: auto; /* Đảm bảo tỷ lệ khung hình được giữ khi thay đổi kích thước */
+  display: block; /* Loại bỏ khoảng trắng dưới ảnh */
+}

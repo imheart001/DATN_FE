@@ -29,6 +29,8 @@ import { setSelectedCinema } from "./components/CinemaSlice/selectedCinemaSlice"
 import { updateToken, setUserId } from "./components/CinemaSlice/authSlice";
 import { useDispatch } from "react-redux";
 import Payment from "./pages/Clients/Payment/Payment";
+import ListCombo from "./pages/Clients/ListCombo/ListCombo";
+import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
 
 function App() {
   const router = createBrowserRouter([
@@ -72,6 +74,10 @@ function App() {
           path: "/listvnp",
           element: <ListVNP />,
         },
+        {
+          path: "/listcombo/:price?",
+          element: <ListCombo />,
+        },
       ],
     },
     {
@@ -81,6 +87,10 @@ function App() {
         {
           path: "/admin/listfilm",
           element: <ListFilm />,
+        },
+        {
+          index: true,
+          element: <Dashbroad />,
         },
         {
           path: "/admin/book_ticket",
