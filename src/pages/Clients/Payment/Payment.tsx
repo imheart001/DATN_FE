@@ -15,7 +15,7 @@ const Payment = () => {
   const [vnpAmount, setVnpAmount] = useState("");
   const { data: allchairbked } = useFetchChairsQuery();
   const [addIfSeatByUser] = useAddBookTicketMutation();
-  console.log((allchairbked as any)?.data);
+
   moment.tz.setDefault("Asia/Ho_Chi_Minh");
 
   const currentDateTime = moment().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
@@ -24,6 +24,7 @@ const Payment = () => {
   const dateBk = format(isToday2, "dd/MM/yyyy HH:mm:ss");
   const [vnp_TransactionStatus, setVnp_TransactionStatus] = useState("");
   const [addChairCalled, setAddChairCalled] = useState(false);
+  const dataFood = localStorage.getItem("foodQuantities");
 
   const dispatch = useDispatch();
   const formatter = (value: number) =>

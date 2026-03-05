@@ -1,7 +1,4 @@
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LayoutUser from "./Layout/LayoutUser/LayoutUser";
 import HomePages from "./pages/Clients/Homepages/home";
 import BookingSeat from "./pages/Clients/TICKET - SEAT LAYOUT/seat";
@@ -22,15 +19,16 @@ import ListBookTicket from "./pages/Admin/Book-Ticket/ListBookTicket";
 import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
 import ListFood from "./pages/Admin/Food/ListFood";
 import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
-import ListVNP from "./pages/Clients/ListThanhToan/ListVNP";
+
 import ListTime from "./pages/Admin/time/listTime";
 
 import { setSelectedCinema } from "./components/CinemaSlice/selectedCinemaSlice";
 import { updateToken, setUserId } from "./components/CinemaSlice/authSlice";
 import { useDispatch } from "react-redux";
 import Payment from "./pages/Clients/Payment/Payment";
-import ListCombo from "./pages/Clients/ListCombo/ListCombo";
+
 import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
+import ChoosePop from "./pages/Clients/ChoosePop/ChoosePop";
 
 function App() {
   const router = createBrowserRouter([
@@ -71,12 +69,8 @@ function App() {
           element: <Orther />,
         },
         {
-          path: "/listvnp",
-          element: <ListVNP />,
-        },
-        {
-          path: "/listcombo/:price?",
-          element: <ListCombo />,
+          path: "/choosepop",
+          element: <ChoosePop />,
         },
       ],
     },
@@ -138,7 +132,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const timeoutDuration = 1000 * 15 * 60; // 10 seconds
+    const timeoutDuration = 1000 * 60 * 60; // 10 seconds
 
     const timeoutCallback = async () => {
       try {
