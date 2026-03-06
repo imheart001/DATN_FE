@@ -33,7 +33,6 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { Option } = Select;
-  console.log(dataCate);
 
   useEffect(() => {
     if (dataCate) {
@@ -58,7 +57,6 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
     }
   };
   const [open, setOpen] = useState(false);
-  console.log(dataCate);
 
   const showDrawer = () => {
     setOpen(true);

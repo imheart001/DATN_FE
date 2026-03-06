@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Space,
   Table,
@@ -20,6 +20,8 @@ import {
   useRemoveProductMutation,
 } from "../../../service/films.service";
 import { IFilms } from "../../../interface/model";
+import Loading from "../../../components/isLoading/Loading";
+import { compareDates, compareReleaseDate } from "../../../utils";
 interface DataType {
   key: string;
   name: string;
@@ -27,10 +29,11 @@ interface DataType {
   nameFilm: string;
   images: string;
   time: string;
-
   trailer: string;
   status: string;
   description: string;
+  release_date: string;
+  end_date: string;
   dateSt: Date;
   dateEnd: Date;
   tags: string[];
@@ -39,9 +42,31 @@ const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
-  const { data: films } = useFetchProductQuery();
-
+  const { data: films, isLoading } = useFetchProductQuery();
+  console.log("🚀 ~ file: ListFilm.tsx:46 ~ films:", films)
+  if (isLoading) {
+    return <Loading />;
+  }
+  const [movies, setMovise] = useState<any>(null)
   const [removeProduct] = useRemoveProductMutation();
+
+  const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
+    key: index.toString(),
+    name: film?.id,
+    slug: film.slug,
+    trailer: film.trailer,
+    status: film.status,
+    description: film.description,
+    release_date: film.release_date,
+    end_date: film.end_date,
+    nameFilm: film?.name,
+    time: film?.time,
+    images: film?.image,
+    dateSt: new Date(film.release_date),
+    dateEnd: new Date(film.end_date),
+    tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+  }));
+
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã phim",
@@ -53,6 +78,19 @@ const ListFilm: React.FC = () => {
       title: "Tên phim",
       dataIndex: "nameFilm",
       key: "nameFilm",
+      onFilter: (value: any, record: any) => {
+        console.log("🚀 ~ file: ListFilm.tsx:82 ~ value:", value)
+        
+        console.log("🚀 ~ file: ListFilm.tsx:82 ~ record:", record)
+        return (
+          record.name === value
+        )
+      },
+      filters: dataFilm.map((fileItem: any) => ({
+        text: fileItem.nameFilm,
+        value: fileItem.name
+      })),
+      filterSearch: true,
     },
     {
       title: "Thời lượng",
@@ -84,21 +122,17 @@ const ListFilm: React.FC = () => {
 
       key: "tags",
       dataIndex: "tags",
-      render: (_, { tags }) => (
-        <>
-          {tags.map((tag) => {
-            let color = tag.length > 5 ? "green" : "green";
-            if (tag === "loser") {
-              color = "volcano";
-            }
-            return (
-              <Tag color={color} key={tag}>
-                {tag.toUpperCase()}
-              </Tag>
-            );
-          })}
-        </>
-      ),
+      render: (_, { tags, release_date, end_date }) => {
+        return  (
+          <Tag color={
+            compareDates(release_date, end_date) ? 'success' : !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) ? 'error' : 'warning'
+          }>
+          { compareDates(release_date, end_date) && 'Đang Hoạt Động'}
+          { !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) && 'Ngừng Hoạt Động'}
+          {compareReleaseDate(release_date) && !compareDates(release_date, end_date) && 'Sắp Chiếu'}
+        </Tag>
+        )
+      },
     },
 
     {
@@ -135,22 +169,14 @@ const ListFilm: React.FC = () => {
       ),
     },
   ];
-  console.log(films);
+ 
 
-  const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
-    key: index.toString(),
-    name: film?.id,
-    slug: film.slug,
-    trailer: film.trailer,
-    status: film.status,
-    description: film.description,
-    nameFilm: film?.name,
-    time: film?.time,
-    images: film?.image,
-    dateSt: new Date(film.release_date),
-    dateEnd: new Date(film.release_date),
-    tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
-  }));
+
+  /* tim kien san pham */
+  const onSearch = (value: any, _e: any) => {
+    const results =dataFilm.filter((item: any) => item.nameFilm.toLowerCase().includes(value.toLowerCase()))
+      setMovise(results)
+  }
 
   return (
     <>
@@ -160,12 +186,19 @@ const ListFilm: React.FC = () => {
           <Search
             placeholder="Nhập tên phim hoặc mã phim"
             style={{ width: 600 }}
+            onSearch={onSearch}
+
           />
           <RangePicker />
           <AddFilm />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataFilm} />
+      {!movies && (
+        <Table columns={columns} dataSource={dataFilm} />
+      )}
+     {movies && (
+        <Table columns={columns} dataSource={movies} />
+     )}
     </>
   );
 };

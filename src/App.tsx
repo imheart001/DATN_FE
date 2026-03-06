@@ -11,9 +11,24 @@ import F_B from "./pages/Clients/F&B/F&B";
 import Login from "./pages/Clients/Login/Login";
 import LayoutAdmin from "./Layout/LayoutAdmin/LayoutAdmin";
 import ListFilm from "./pages/Admin/ListFilm/ListFilm";
+import { useEffect } from "react";
 import ListCate from "./pages/Admin/Category/ListCategory";
 import ListCinema from "./pages/Admin/Cinemas/ListCinema";
 import ListShow from "./pages/Admin/Quản Lí suất chiếu/ListShow";
+import ListBookTicket from "./pages/Admin/Book-Ticket/ListBookTicket";
+import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
+import ListFood from "./pages/Admin/Food/ListFood";
+import ListCateDetail from "./pages/Admin/CateDetail/ListCateDetail";
+
+import ListTime from "./pages/Admin/time/listTime";
+
+import { setSelectedCinema } from "./components/CinemaSlice/selectedCinemaSlice";
+import { updateToken, setUserId } from "./components/CinemaSlice/authSlice";
+import { useDispatch } from "react-redux";
+import Payment from "./pages/Clients/Payment/Payment";
+
+import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
+import ChoosePop from "./pages/Clients/ChoosePop/ChoosePop";
 
 function App() {
   const router = createBrowserRouter([
@@ -26,7 +41,7 @@ function App() {
           element: <HomePages />,
         },
         {
-          path: "/book-ticket",
+          path: "/book-ticket/:id",
           element: <BookingSeat />,
         },
         {
@@ -53,6 +68,10 @@ function App() {
           path: "/orther",
           element: <Orther />,
         },
+        {
+          path: "/choosepop",
+          element: <ChoosePop />,
+        },
       ],
     },
     {
@@ -64,8 +83,20 @@ function App() {
           element: <ListFilm />,
         },
         {
+          index: true,
+          element: <Dashbroad />,
+        },
+        {
+          path: "/admin/book_ticket",
+          element: <ListBookTicket />,
+        },
+        {
           path: "/admin/listcate",
           element: <ListCate />,
+        },
+        {
+          path: "/admin/time",
+          element: <ListTime />,
         },
         {
           path: "/admin/cinema",
@@ -75,13 +106,59 @@ function App() {
           path: "/admin/show",
           element: <ListShow />,
         },
+        {
+          path: "/admin/movieroom",
+          element: <ListMovieRoom />,
+        },
+        {
+          path: "/admin/food",
+          element: <ListFood />,
+        },
+        {
+          path: "/admin/category_detail",
+          element: <ListCateDetail />,
+        },
       ],
     },
     {
       path: "/login",
       element: <Login />,
     },
+    {
+      path: "/payment/:id_code",
+      element: <Payment />,
+    },
   ]);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const timeoutDuration = 1000 * 60 * 60; // 10 seconds
+
+    const timeoutCallback = async () => {
+      try {
+        // Dispatch the actions and wait for them to complete
+        await Promise.all([
+          dispatch(setSelectedCinema(null)),
+          dispatch(updateToken(null)),
+          dispatch(setUserId(null)),
+          localStorage.clear(),
+        ]);
+
+        // Once both actions are completed, navigate to the root path
+        window.location.href = "/";
+      } catch (error) {
+        // Handle any potential errors
+        console.error("Error during dispatch:", error);
+      }
+    };
+
+    const timeoutId = setInterval(timeoutCallback, timeoutDuration);
+
+    return () => {
+      clearInterval(timeoutId);
+    };
+  }, [dispatch]);
+
   return <RouterProvider router={router} />;
 }
 

@@ -1,16 +1,99 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { IUser } from "../../../interface/model";
+
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Form, Input } from "antd";
+import {
+  useAddUserMutation,
+  useLoginUserMutation,
+} from "../../../service/signup_login";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  updateToken,
+  setUserId,
+  setRoleAuth,
+} from "../../../components/CinemaSlice/authSlice";
+import { persistor } from "../../../store/store";
+import { message } from "antd";
 
 const Login = () => {
+  const onFinish = (values: any) => {
+    console.log("Success:", values);
+  };
+
+  const onFinishFailed = (errorInfo: any) => {
+    console.log("Failed:", errorInfo);
+  };
+
+  type FieldType = {
+    loginEmail?: string;
+    loginPassword?: string;
+    remember?: string;
+  };
   const [changeisForm, setChangeisForm] = useState(false);
+  const [loginUser] = useLoginUserMutation();
+
+  const dispatch = useDispatch();
+
   const onHandleChangeForm = () => {
     setChangeisForm(!changeisForm);
   };
-  console.log(changeisForm);
+
+  const navigate = useNavigate();
+  const [name, setName] = useState(""); // Registration form state
+  const [registerEmail, setRegisterEmail] = useState(""); // Registration form state
+  const [registerPassword, setRegisterPassword] = useState(""); // Registration form state
+  const [loginEmail, setLoginEmail] = useState(""); // Login form state
+  const [loginPassword, setLoginPassword] = useState("");
+  const [onAdd] = useAddUserMutation();
+  const addUser = () => {
+    const userNew = {
+      name,
+      email: registerEmail,
+      password: registerPassword,
+    };
+    onAdd(userNew);
+
+    message.success("Đăng kí thành công");
+    setName(""); // Reset the name field
+    setRegisterEmail(""); // Reset the email field
+    setRegisterPassword(""); // Reset the password field
+    setTimeout(() => {
+      setChangeisForm(false);
+    }, 2000);
+  };
+  const handleLogin = async () => {
+    try {
+      const response = await loginUser({
+        email: loginEmail,
+        password: loginPassword,
+      });
+      console.log(response);
+      if ((response as any)?.data && (response as any).data.token) {
+        console.log("🚀 ~ file: Login.tsx:73 ~ handleLogin ~ response:", response)
+        dispatch(updateToken((response as any).data.token));
+        // Update the token in localStorage
+        dispatch(setUserId((response as any).data.user.id));
+        dispatch(setRoleAuth((response as any).data.user.role))
+        localStorage.setItem("authToken", (response as any).data.token);
+        localStorage.setItem("user_id", (response as any).data.user.id);
+        localStorage.setItem("role", (response as any).data.user.role);
+        console.log(localStorage.getItem("user_id"));
+        message.success("Đăng nhập thành công!");
+        navigate("/");
+      } else {
+        message.error("Đăng nhập không thành công");
+      }
+    } catch (error) {
+      alert(`Đã xảy ra lỗi: ${error}`);
+    }
+  };
 
   return (
     <section className="flex justify-center items-center flex-col font-poppins overflow-hidden h-screen">
       <div
-        className={`${changeisForm ? "" : "right-panel-active"} container`}
+        className={`${changeisForm ? "right-panel-active" : ""} container`}
         id="container"
       >
         <div className="form-container register-container">
@@ -25,18 +108,26 @@ const Login = () => {
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="text"
               placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
             <input
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="email"
               placeholder="Email"
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
             />
             <input
-              className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
+              className="bg-[#e4e3e3] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="password"
               placeholder="Password"
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
             />
             <button
+              type="button"
+              onClick={addUser}
               className={`
               } relative hover:tracking-widest active:scale-95 focus:outline-none rounded-3xl border border-[#4bb6b7] bg-[#4bb6b7] text-white  font-semibold m-[10px] px-20 py-2 tracking-wider  transition duration-300 ease-in-out`}
             >
@@ -84,45 +175,76 @@ const Login = () => {
           </form>
         </div>
 
+        {/* ///đang nhap */}
         <div className="form-container login-container">
-          <form
-            className="bg-white flex items-center justify-center flex-col px-10 h-full text-center"
-            action="#"
+          <Form
+            name="normal_login"
+            layout="vertical"
+            labelCol={{ span: 10 }}
+            wrapperCol={{ span: 25 }}
+            style={{ maxWidth: 600 }}
+            initialValues={{ remember: true }}
+            onFinish={handleLogin}
+            onFinishFailed={onFinishFailed}
+            autoComplete="off"
+            className="bg-white login-form flex items-center justify-center flex-col px-10 h-full "
           >
-            <h1 className="text-3xl font-bold m-0 mb-4 tracking-tighter">
+            <h1 className="text-3xl font-bold m-0 mb-8 tracking-tighter">
               Login hire.
             </h1>
-            <input
-              className="bg-[#eee] accent-[#333] rounded-xl border-none py-2 px-4 my-2 w-full"
-              type="email"
-              placeholder="Email"
-            />
-            <input
-              className="bg-[#eee] accent-[#333] rounded-xl border-none py-2 px-4 my-2 w-full"
-              type="password"
-              placeholder="Password"
-            />
-            <div className="content">
-              <div className="checkbox">
-                <input
-                  className="bg-[#eee] rounded-xl border-none py-2 px-4 my-2 w-full"
-                  type="checkbox"
-                  name="checkbox"
-                  id="checkbox"
-                  placeholder="..."
-                />
-                <label>Remember me</label>
-              </div>
-              <div className="pass-link">
-                <a href="#">Forgot password?</a>
-              </div>
-            </div>
-            <button
-              className={`
-              } relative hover:tracking-widest active:scale-95 focus:outline-none rounded-3xl border border-[#4bb6b7] bg-[#4bb6b7] text-white  font-semibold m-[10px] px-20 py-2 tracking-wider  transition duration-300 ease-in-out`}
+            <Form.Item
+              name="loginEmail"
+              className="w-full"
+              rules={[{ required: true, message: "Please input your Email!" }]}
             >
-              Login
-            </button>
+              <Input
+                className="w-full"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                prefix={<UserOutlined className="site-form-item-icon" />}
+                placeholder="Email"
+              />
+            </Form.Item>
+            <Form.Item
+              name="loginPassword"
+              className="w-full"
+              rules={[
+                { required: true, message: "Please input your Password!" },
+              ]}
+            >
+              <Input
+                className="w-full"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                prefix={<LockOutlined className="site-form-item-icon" />}
+                type="password"
+                placeholder="Password"
+              />
+            </Form.Item>
+            <Form.Item className="w-full justify-between flex">
+              <Form.Item name="remember" valuePropName="checked" noStyle>
+                <Checkbox>Remember me</Checkbox>
+              </Form.Item>
+
+              <a className="login-form-forgot text-[#1677ff]" href="">
+                Forgot password
+              </a>
+            </Form.Item>
+
+            <Form.Item className="w-full">
+              <Button
+                danger
+                type="primary"
+                htmlType="submit"
+                className="login-form-button w-full "
+              >
+                Log in
+              </Button>
+              Or{" "}
+              <a href="" className="text-[#1677ff]">
+                register now!
+              </a>
+            </Form.Item>
             <span>or use your account</span>
             <div className="social-container">
               <a href="#" className="social">
@@ -162,7 +284,7 @@ const Login = () => {
                 </svg>
               </a>
             </div>
-          </form>
+          </Form>
         </div>
 
         <div className="overlay-container bg-[url(/image.gif/)]">

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { PlusOutlined, UserAddOutlined } from "@ant-design/icons";
+import { UserAddOutlined } from "@ant-design/icons";
 import {
   Button,
+  Checkbox,
   Col,
   DatePicker,
   Drawer,
@@ -33,10 +34,11 @@ const AddFilm: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
       values.release_date = values.release_date.format("YYYY-MM-DD");
+      values.end_date = values.end_date.format("YYYY-MM-DD");
       await addProduct(values).unwrap();
       message.success("Thêm sản phẩm thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin");
+      navigate("/admin/listfilm");
     } catch (error) {
       message.error("Thêm sản phẩm thất bại");
     }
@@ -148,6 +150,17 @@ const AddFilm: React.FC = () => {
                 label="Release Date"
                 rules={[
                   { required: true, message: "Please choose the release date" },
+                ]}
+              >
+                <DatePicker />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="end_date"
+                label="End Date"
+                rules={[
+                  { required: true, message: "Please choose the End date" },
                 ]}
               >
                 <DatePicker />

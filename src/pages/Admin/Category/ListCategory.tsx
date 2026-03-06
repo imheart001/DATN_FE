@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Space, Table, Input, Button, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -11,7 +11,6 @@ import {
 } from "../../../service/cate.service";
 import { ICategorys } from "../../../interface/model";
 import UpdateCategory from "./UpdateCategory";
-
 interface DataType {
   id: string;
   name: string;
@@ -85,6 +84,14 @@ const ListCate: React.FC = () => {
       tags: [cate.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
     })
   );
+  
+  const [categoryDetails, setCategoryDetails] = useState<any>(null)
+
+  const onSearch = (value: any, _e: any) => {
+    const results =dataCate.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()))
+    setCategoryDetails(results)
+  }
+
 
   return (
     <>
@@ -94,12 +101,14 @@ const ListCate: React.FC = () => {
           <Search
             placeholder="Nhập tên phim hoặc mã phim"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
           <AddCategory />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataCate} />
+      {!categoryDetails && (<Table columns={columns} dataSource={dataCate} />)}
+      {categoryDetails && (<Table columns={columns} dataSource={categoryDetails} />)}
     </>
   );
 };

@@ -1,13 +1,17 @@
-import React from "react";
-import { Space, Table, Input, Button, Popconfirm } from "antd";
+import React, { useState } from "react";
+import { Space, Table, Input, Button, Popconfirm, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
-
+import { IFilms, IMovieRoom, IShowTime, ITime } from "../../../interface/model";
+import { useFetchProductQuery } from "../../../service/films.service";
+import { useFetchTimeQuery } from "../../../service/time.service";
+import EditShow from "./EditShow";
 import {
   useFetchShowTimeQuery,
   useRemoveShowTimeMutation,
 } from "../../../service/show.service";
-import { IShowTime } from "../../../interface/model";
+import AddShow from "./AddShow";
+import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 
 interface DataType {
   id: string;
@@ -20,9 +24,12 @@ interface DataType {
 const { Search } = Input;
 
 const ListShow: React.FC = () => {
+  const { data: roomBrand } = useFetchMovieRoomQuery();
   const { data: shows } = useFetchShowTimeQuery();
+  const { data: films } = useFetchProductQuery();
+  const { data: times } = useFetchTimeQuery();
   const [removeShowTimes] = useRemoveShowTimeMutation();
-  console.log(shows);
+  // console.log(shows);
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã Suất Chiếu",
@@ -50,13 +57,16 @@ const ListShow: React.FC = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          {/* <EditCinema dataCinema={record} /> */}
+          <EditShow dataShow={record} />
 
           <Popconfirm
             placement="topLeft"
             title="Bạn muốn xóa sản phẩm?"
             description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeShowTimes(record.id)}
+            onConfirm={() => {
+              removeShowTimes(record.id);
+              message.success("Xóa sản phẩm thành công!");
+            }}
             okText="Yes"
             cancelText="No"
             okButtonProps={{
@@ -77,15 +87,33 @@ const ListShow: React.FC = () => {
     },
   ];
 
-  const dataCate = (shows as any)?.data?.map((show: IShowTime, index: number) => ({
-    key: index.toString(),
-    id: show.id,
-    date: show.date,
-    film_id: show.film_id,
-    time_id: show.time_id,
-    room_id: show.room_id,
-  }));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dataShow = (shows as any)?.data?.map(
+    (show: IShowTime, index: number) => ({
+      key: index.toString(),
+      id: show.id,
+      date: show.date,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      film_id: (films as any)?.data?.find(
+        (films: IFilms) => films.id === show.film_id
+      )?.name,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      time_id: (times as any)?.data?.find(
+        (times: ITime) => times.id === show.time_id
+      )?.time,
+      room_id: (roomBrand as any)?.data?.find(
+        (room: IMovieRoom) => room.id === show.room_id
+      )?.name,
+    })
+  );
+  console.log("🚀 ~ file: ListShow.tsx:109 ~ dataShow:", dataShow)
 
+  const [dataShows, setDateShows] = useState<any>(null)
+
+  const onSearch = (value: any, _e: any) => {
+    const results =dataShow.filter((item: any) => item.film_id.toLowerCase().includes(value.toLowerCase()))
+    setDateShows(results)
+  }
   return (
     <>
       <div className="">
@@ -94,12 +122,18 @@ const ListShow: React.FC = () => {
           <Search
             placeholder="Nhập tên phim hoặc mã phim"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
-          {/* <AddCinema /> */}
+          <AddShow />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataCate} />
+      {dataShows ? (
+      <Table columns={columns} dataSource={dataShows} />
+
+      ) : (
+      <Table columns={columns} dataSource={dataShow} />
+      )}
     </>
   );
 };

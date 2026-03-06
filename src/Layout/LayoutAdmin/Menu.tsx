@@ -15,6 +15,7 @@ import {
 import type { MenuProps } from "antd";
 import { Layout, Menu, theme } from "antd";
 import { NavLink } from "react-router-dom";
+import Dashbroad from "../../pages/Admin/Dashbroad/Dashbroad";
 
 const { Content, Sider } = Layout;
 
@@ -33,7 +34,7 @@ const items: MenuItem[] = [
   getItem(
     "Dashboard",
     "1",
-    <NavLink to="/admin/dashboard">
+    <NavLink to="/admin">
       <PieChartOutlined />
     </NavLink>
   ),
@@ -41,14 +42,14 @@ const items: MenuItem[] = [
     getItem(
       "Đặt vé",
       "3",
-      <NavLink to="/admin/product">
+      <NavLink to="/admin">
         <CopyOutlined />
       </NavLink>
     ),
     getItem(
       "Vé đã đặt",
       "4",
-      <NavLink to="/admin/product/create">
+      <NavLink to="/admin/book_ticket">
         <FormOutlined />
       </NavLink>
     ),
@@ -82,38 +83,59 @@ const items: MenuItem[] = [
         <FormOutlined />
       </NavLink>
     ),
+    getItem(
+      "Food",
+      "10",
+      <NavLink to="/admin/food">
+        <FormOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "MovieRoom",
+      "11",
+      <NavLink to="/admin/movieroom">
+        <FormOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "CateDetail",
+      "12",
+      <NavLink to="/admin/category_detail">
+        <FormOutlined />
+      </NavLink>
+    ),
   ]),
-  getItem("Quản lí rạp", "10", <HomeOutlined />, [
+  getItem("Quản lí rạp", "11", <HomeOutlined />, [
     getItem(
       "Rạp",
-      "11",
+      "12",
       <NavLink to="/admin/cinema">
         <CopyOutlined />
       </NavLink>
     ),
   ]),
-  getItem("Quản lí khuyến mãi", "12", <ThunderboltOutlined />),
-  getItem("Quản lí khách hàng", "13", <TeamOutlined />),
-  getItem("Sản phẩm", "14", <ShopOutlined />, [
+  getItem("Quản lí khuyến mãi", "13", <ThunderboltOutlined />),
+  getItem("Quản lí khách hàng", "14", <TeamOutlined />),
+  getItem("Sản phẩm", "15", <ShopOutlined />, [
     getItem(
       "Sản phẩm",
-      "15",
+      "16",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
     ),
     getItem(
       "Bảng giá",
-      "16",
+      "17",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
     ),
   ]),
-  getItem("Hệ thống", "17", <InboxOutlined />, [
+  getItem("Hệ thống", "18", <InboxOutlined />, [
     getItem(
       "Nhân viên",
-      "18",
+      "19",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
@@ -121,7 +143,7 @@ const items: MenuItem[] = [
   ]),
   getItem(
     "Thống kê",
-    "19",
+    "20",
     <NavLink to="/admin/user">
       <PieChartOutlined />
     </NavLink>
@@ -185,13 +207,13 @@ export const SideBarAdmin: React.FC<SideBarAdminProps> = ({
 
       <Layout className="site-layout">
         {header}
-
+      
         <Content>
           <div
             style={{
               margin: "16px 16px",
               padding: 24,
-              minHeight: 360,
+              minHeight: 900,
               background: colorBgContainer,
             }}
           >

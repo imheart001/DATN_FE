@@ -13,10 +13,9 @@ import {
   message,
 } from "antd";
 import {
-  useGetProductByIdQuery,
   useUpdateProductMutation,
 } from "../../../service/films.service";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
 const { Option } = Select;
@@ -28,7 +27,6 @@ interface DataType {
   images: string;
   time: string;
   trailer: string;
-  status: string;
   description: string;
   dateSt: Date;
   dateEnd: Date;
@@ -52,7 +50,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         trailer: dataID.trailer,
         time: dataID.time,
         release_date: moment(dataID.dateSt), // Sử dụng thư viện moment để xử lý ngày
-        status: dataID.status,
+        end_date:moment(dataID.dateEnd),
         description: dataID.description,
       });
     }
@@ -60,6 +58,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
   const onFinish = async (values: any) => {
     try {
       values.release_date = values.release_date.format("YYYY-MM-DD");
+      values.end_date = values.end_date.format("YYYY-MM-DD");
       await updateProduct({ ...values, id: dataID.name });
 
       message.success("Cập nhật sản phẩm thành công");
@@ -72,7 +71,6 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
     }
   };
   const [open, setOpen] = useState(false);
-  console.log(dataID);
 
   const showDrawer = () => {
     setOpen(true);
@@ -185,22 +183,18 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                 <DatePicker />
               </Form.Item>
             </Col>
-          </Row>
-          <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
+                name="end_date"
+                label="End date"
+                rules={[
+                  { required: true, message: "Please choose the End date" },
+                ]}
               >
-                <Select placeholder="Please select a status">
-                  <Option value="1">1</Option>
-                  <Option value="0">0</Option>
-                </Select>
+                <DatePicker />
               </Form.Item>
             </Col>
           </Row>
-
           <Row gutter={16}>
             <Col span={24}>
               <Form.Item

@@ -1,7 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,600;1,400;1,600&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+html,
+body,
+label {
+  font-family: "Roboto", sans-serif;
+}
 * {
   box-sizing: border-box;
 }
@@ -30,7 +35,6 @@
 }
 
 .content input {
-  accent-color: #333;
   width: 12px;
   height: 12px;
 }
@@ -220,6 +224,16 @@ button.ghost:hover i.login {
   height: 40px;
   width: 40px;
   transition: 0.3s ease-in-out;
+}
+.box {
+  position: fixed;
+  top: 0;
+  right: 0%;
+  transform: translateX(-50%);
+  background-color: white;
+  width: 50px;
+  height: 50px;
+  /* Thêm các thuộc tính CSS khác tùy thuộc vào yêu cầu của bạn */
 }
 
 .social-container a:hover {
