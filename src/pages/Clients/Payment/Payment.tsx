@@ -28,15 +28,6 @@ const Payment = () => {
   const [addChairCalled, setAddChairCalled] = useState(false);
   const findIdPopCorn = localStorage.getItem("foodQuantities");
   const parsedPopCorn = findIdPopCorn ? JSON.parse(findIdPopCorn) : [];
-  const dataAddFood_ticket_detail: any[] = [];
-  parsedPopCorn.map((popCorn: any) => {
-    const foodDetail = {
-      food_id: popCorn.id_food,
-      quantity: popCorn.quantity,
-    };
-    dataAddFood_ticket_detail.push(foodDetail);
-  });
-  console.log(dataAddFood_ticket_detail);
 
   const dispatch = useDispatch();
   const formatter = (value: number) =>
@@ -93,15 +84,20 @@ const Payment = () => {
             const response = await addChair(selectedSeatsData as any);
             console.log(response);
             const responseData = (response as any)?.data;
+            const IddataAfterFood_Detail: any[] = [];
             await parsedPopCorn.map((popCorn: any) => {
               const foodDetail = {
                 food_id: popCorn.id_food,
                 quantity: popCorn.quantity,
               };
               const responseAddFood = addFood(foodDetail);
+              IddataAfterFood_Detail.push(
+                (responseAddFood as any)?.data?.data.id
+              );
             });
             const newId = responseData.data.id;
             console.log(newId);
+            console.log(IddataAfterFood_Detail);
 
             // Gọi hàm addIfSeatByUser với dữ liệu mới lấy được
             const addIfSeatResponse = await addIfSeatByUser({
@@ -109,6 +105,7 @@ const Payment = () => {
               time: dateBk,
               user_id: user_id,
               id_code: idCode,
+              id_food_ticket_detail: IddataAfterFood_Detail,
             });
             console.log((addIfSeatResponse as any)?.data);
             setAddChairCalled(true);
@@ -143,7 +140,10 @@ const Payment = () => {
               {id_selectingTime_detail}
             </p>
             <p>Thông tin mã vé</p>
-            <QRCode type="svg" value={`${idCode}`} />
+            <QRCode
+              type="svg"
+              value={`http://127.0.0.1:8000/api/QR_book/${idCode}`}
+            />
             <Link to={`/`}>
               <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Quay lại trang chủ
