@@ -10,12 +10,14 @@ import {
 import moment from "moment-timezone";
 import { useAddBookTicketMutation } from "../../../service/book_ticket.service";
 import { format } from "date-fns";
+import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
+
 const Payment = () => {
   const location = useLocation();
   const [vnpAmount, setVnpAmount] = useState("");
   const { data: allchairbked } = useFetchChairsQuery();
   const [addIfSeatByUser] = useAddBookTicketMutation();
-
+  const [addFood] = useAddFoodTicketDetailMutation();
   moment.tz.setDefault("Asia/Ho_Chi_Minh");
 
   const currentDateTime = moment().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
@@ -24,7 +26,17 @@ const Payment = () => {
   const dateBk = format(isToday2, "dd/MM/yyyy HH:mm:ss");
   const [vnp_TransactionStatus, setVnp_TransactionStatus] = useState("");
   const [addChairCalled, setAddChairCalled] = useState(false);
-  const dataFood = localStorage.getItem("foodQuantities");
+  const findIdPopCorn = localStorage.getItem("foodQuantities");
+  const parsedPopCorn = findIdPopCorn ? JSON.parse(findIdPopCorn) : [];
+  const dataAddFood_ticket_detail: any[] = [];
+  parsedPopCorn.map((popCorn: any) => {
+    const foodDetail = {
+      food_id: popCorn.id_food,
+      quantity: popCorn.quantity,
+    };
+    dataAddFood_ticket_detail.push(foodDetail);
+  });
+  console.log(dataAddFood_ticket_detail);
 
   const dispatch = useDispatch();
   const formatter = (value: number) =>
@@ -81,7 +93,13 @@ const Payment = () => {
             const response = await addChair(selectedSeatsData as any);
             console.log(response);
             const responseData = (response as any)?.data;
-
+            await parsedPopCorn.map((popCorn: any) => {
+              const foodDetail = {
+                food_id: popCorn.id_food,
+                quantity: popCorn.quantity,
+              };
+              const responseAddFood = addFood(foodDetail);
+            });
             const newId = responseData.data.id;
             console.log(newId);
 

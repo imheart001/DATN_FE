@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {  IFood } from "../interface/model";
+import { IFood } from "../interface/model";
 
 const foodAPI = createApi({
   reducerPath: "foods",
@@ -13,14 +13,12 @@ const foodAPI = createApi({
       providesTags: ["food"],
     }),
     getFoodById: builder.query<IFood, number | string>({
-
       query: (id) => `/Food/${id}`,
       providesTags: ["food"],
     }),
-    
+
     removeFood: builder.mutation({
       query: (id) => ({
-
         url: "/Food/" + id,
         method: "DELETE",
       }),
@@ -28,8 +26,15 @@ const foodAPI = createApi({
     }),
     addFood: builder.mutation({
       query: (food: IFood) => ({
-
         url: "/Food/",
+        method: "POST",
+        body: food,
+      }),
+      invalidatesTags: ["food"],
+    }),
+    addFoodTicketDetail: builder.mutation({
+      query: (food: any) => ({
+        url: "/Food_ticket_detail/",
         method: "POST",
         body: food,
       }),
@@ -37,7 +42,6 @@ const foodAPI = createApi({
     }),
     updateFood: builder.mutation({
       query: (food: IFood) => ({
-
         url: `/Food/${food.id}`,
         method: "PATCH",
         body: food,
@@ -47,7 +51,11 @@ const foodAPI = createApi({
   }),
 });
 export const {
-useFetchFoodQuery, useAddFoodMutation, useGetFoodByIdQuery, useRemoveFoodMutation, useUpdateFoodMutation
-  
+  useFetchFoodQuery,
+  useAddFoodMutation,
+  useGetFoodByIdQuery,
+  useRemoveFoodMutation,
+  useUpdateFoodMutation,
+  useAddFoodTicketDetailMutation,
 } = foodAPI;
 export default foodAPI;

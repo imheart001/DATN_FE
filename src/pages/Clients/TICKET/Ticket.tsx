@@ -21,10 +21,12 @@ const Ticket: React.FC = () => {
   const { data: roomsBrand, isLoading: roomsLoading } =
     useFetchMovieRoomQuery();
   const { data: times } = useFetchTimeQuery();
-  const idChairEmpty = (shows as any)?.data?.map((show: any) => show.id).flat();
-  const getIfChairEmpty = idChairEmpty?.map((id: string) =>
-    useGetChairEmpTyQuery(`${id}`)
-  );
+  const idChairEmpty =
+    (shows as any)?.data?.map((show: any) => show.id).flat() ?? [];
+
+  const getIfChairEmpty = idChairEmpty
+    ? idChairEmpty.map((id: string) => useGetChairEmpTyQuery(`${id}`))
+    : [];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFilmId, setSelectedFilmId] = useState(null);
   const [filmShows2, setFilmShows2] = useState<FilmShow[]>([]);
@@ -76,7 +78,6 @@ const Ticket: React.FC = () => {
       }
     });
 
-    // Kiểm tra trước khi cập nhật filmShows2
     if (JSON.stringify(uniqueShows) !== JSON.stringify(filmShows2)) {
       setFilmShows2(uniqueShows as any);
     }
