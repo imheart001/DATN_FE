@@ -11,6 +11,7 @@ import moment from "moment-timezone";
 import { useAddBookTicketMutation } from "../../../service/book_ticket.service";
 import { format } from "date-fns";
 import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
+import { useSendEmailMutation } from "../../../service/pay.service";
 
 const Payment = () => {
   const location = useLocation();
@@ -18,6 +19,7 @@ const Payment = () => {
   const { data: allchairbked } = useFetchChairsQuery();
   const [addIfSeatByUser] = useAddBookTicketMutation();
   const [addFood] = useAddFoodTicketDetailMutation();
+  const [sendEmail] = useSendEmailMutation();
   moment.tz.setDefault("Asia/Ho_Chi_Minh");
 
   const currentDateTime = moment().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
@@ -108,6 +110,7 @@ const Payment = () => {
               id_food_ticket_detail: IddataAfterFood_Detail,
             });
             console.log((addIfSeatResponse as any)?.data);
+            await sendEmail;
             setAddChairCalled(true);
           } catch (error) {
             console.error(error);
