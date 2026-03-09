@@ -4,6 +4,14 @@ const payAPI = createApi({
   reducerPath: "pays",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://127.0.0.1:8000/api",
+    prepareHeaders: (headers, { getState }) => {
+      // Add your authorization header here
+      const token = localStorage.getItem("user_id");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: ["pay"],
   endpoints: (builder) => ({
@@ -11,7 +19,15 @@ const payAPI = createApi({
       query: (money) => `/Payment?&amount=${money}`,
       providesTags: ["pay"],
     }),
+    SendEmail: builder.mutation({
+      query: () => ({
+        url: "/send-book-ticket-details-email/",
+        method: "POST",
+      }),
+      invalidatesTags: ["pay"],
+    }),
   }),
 });
-export const { useGetPaybyTranferQuery } = payAPI;
+
+export const { useGetPaybyTranferQuery, useSendEmailMutation } = payAPI;
 export default payAPI;
