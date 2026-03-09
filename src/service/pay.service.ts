@@ -6,7 +6,7 @@ const payAPI = createApi({
     baseUrl: "http://127.0.0.1:8000/api",
     prepareHeaders: (headers, { getState }) => {
       // Add your authorization header here
-      const token = localStorage.getItem("user_id");
+      const token = localStorage.getItem("authToken");
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
