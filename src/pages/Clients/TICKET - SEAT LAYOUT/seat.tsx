@@ -218,7 +218,7 @@ const BookingSeat = () => {
         // If the item exists, update its quantity
         const updatedQuantities = quantitiesArray.map((item: any) =>
           item.id_food === foodId
-            ? { ...item, quantity: Math.max(0, item.quantity + change) }
+            ? { ...item, quantity: Math.max(0, item?.quantity + change) }
             : item
         );
 
@@ -318,7 +318,7 @@ const BookingSeat = () => {
         (pop: any) => pop.id_food === food.id
       );
 
-      const itemTotal = food.price * quantiTybyFoodId[0].quantity; // Sửa đoạn này
+      const itemTotal = food.price * quantiTybyFoodId[0]?.quantity; // Sửa đoạn này
 
       totalAmount += itemTotal;
     });
@@ -330,7 +330,7 @@ const BookingSeat = () => {
   useEffect(() => {
     setFoodQuantitiesUI(
       foodQuantities.reduce((acc: any, food: any) => {
-        acc[food.id_food] = food.quantity;
+        acc[food.id_food] = food?.quantity;
         return acc;
       }, {})
     );
@@ -553,7 +553,7 @@ const BookingSeat = () => {
                         Ghế {seatType}
                       </div>
                       <div className="flex w-[40%] justify-between">
-                        <div className="">Số lượng x{info.quantity}</div>
+                        <div className="">Số lượng x{info?.quantity}</div>
                         <div className="">
                           Tổng tiền {formatter(info.totalPrice)}
                         </div>
@@ -602,7 +602,7 @@ const BookingSeat = () => {
                       const quantiTybyFoodId = parsedPopCorn.filter(
                         (pop: any) => pop.id_food === food.id
                       );
-                      console.log(quantiTybyFoodId[0].quantity);
+                      console.log(quantiTybyFoodId[0]?.quantity);
 
                       return (
                         <>
@@ -663,7 +663,7 @@ const BookingSeat = () => {
                             </td>
                             <td className="whitespace-nowrap text-center px-4 py-2 text-gray-700">
                               {formatter(
-                                food.price * quantiTybyFoodId[0].quantity
+                                food.price * quantiTybyFoodId[0]?.quantity
                               )}
                             </td>
                           </tr>

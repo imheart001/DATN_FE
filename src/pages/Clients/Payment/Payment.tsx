@@ -107,7 +107,6 @@ const Payment = () => {
               time: dateBk,
               user_id: user_id,
               id_code: idCode,
-              id_food_ticket_detail: IddataAfterFood_Detail,
             });
             console.log((addIfSeatResponse as any)?.data);
             await sendEmail;
