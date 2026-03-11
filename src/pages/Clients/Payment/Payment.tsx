@@ -37,6 +37,9 @@ const Payment = () => {
   const selectingSeat = useSelector(
     (state: any) => state.TKinformation?.selectedSeats
   );
+  const id_time_details = useSelector(
+    (state: any) => state.TKinformation?.showtimeId
+  );
   const user_id = parseInt(localStorage.getItem("user_id") as any, 10);
 
   const totalPrice = useSelector(
@@ -87,16 +90,7 @@ const Payment = () => {
             console.log(response);
             const responseData = (response as any)?.data;
             const IddataAfterFood_Detail: any[] = [];
-            await parsedPopCorn.map((popCorn: any) => {
-              const foodDetail = {
-                food_id: popCorn.id_food,
-                quantity: popCorn.quantity,
-              };
-              const responseAddFood = addFood(foodDetail);
-              IddataAfterFood_Detail.push(
-                (responseAddFood as any)?.data?.data.id
-              );
-            });
+
             const newId = responseData.data.id;
             console.log(newId);
             console.log(IddataAfterFood_Detail);
@@ -104,9 +98,24 @@ const Payment = () => {
             // Gọi hàm addIfSeatByUser với dữ liệu mới lấy được
             const addIfSeatResponse = await addIfSeatByUser({
               id_chair: newId,
+              amount: totalPrice,
               time: dateBk,
               user_id: user_id,
+              id_time_detail: id_time_details,
               id_code: idCode,
+            });
+            console.log((addIfSeatResponse as any)?.data);
+
+            await parsedPopCorn.map((popCorn: any) => {
+              const foodDetail = {
+                food_id: popCorn.id_food,
+                quantity: popCorn.quantity,
+                book_ticket_id: (addIfSeatResponse as any)?.data.data.id,
+              };
+              const responseAddFood = addFood(foodDetail);
+              IddataAfterFood_Detail.push(
+                (responseAddFood as any)?.data?.data.id
+              );
             });
             console.log((addIfSeatResponse as any)?.data);
             await sendEmail;
