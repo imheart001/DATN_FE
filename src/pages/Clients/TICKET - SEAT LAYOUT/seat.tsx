@@ -48,8 +48,8 @@ const BookingSeat = () => {
     // Retrieve the values from local storage
     const storedQuantities = localStorage.getItem("foodQuantities");
 
-    // Parse the JSON string or default to an empty object
-    return storedQuantities ? JSON.parse(storedQuantities) : {};
+    // Parse the JSON string or default to an empty array
+    return storedQuantities ? JSON.parse(storedQuantities) : [];
   });
 
   const [seatInfo, setSeatInfo] = useState<{
@@ -94,7 +94,9 @@ const BookingSeat = () => {
     return row >= 1 && row <= 5 && column >= 2 && column <= 7;
   };
   const { data: RoombyId } = useGetMovieRoomByIdQuery(idRoom as string);
-
+  const [foodQuantitiesUI, setFoodQuantitiesUI] = useState<{
+    [key: string]: number;
+  }>({});
   const parseSeatNames = (seatNamesString: any) => {
     return seatNamesString.split(",").map((name: any) => name.trim());
   };
@@ -203,15 +205,48 @@ const BookingSeat = () => {
   };
   const handleQuantityChange = (foodId: string, change: number) => {
     setFoodQuantities((prevQuantities: any) => {
-      const newQuantities = {
-        ...prevQuantities,
-        [foodId]: Math.max(0, (prevQuantities[foodId] || 0) + change),
-      };
+      // Ensure prevQuantities is an array, initialize as an empty array if not
+      const quantitiesArray = Array.isArray(prevQuantities)
+        ? prevQuantities
+        : [];
 
-      // Save the updated quantities to local storage
-      localStorage.setItem("foodQuantities", JSON.stringify(newQuantities));
+      const index = quantitiesArray.findIndex(
+        (item: any) => item.id_food === foodId
+      );
 
-      return newQuantities;
+      if (index !== -1) {
+        // If the item exists, update its quantity
+        const updatedQuantities = quantitiesArray.map((item: any) =>
+          item.id_food === foodId
+            ? { ...item, quantity: Math.max(0, item?.quantity + change) }
+            : item
+        );
+
+        // Save the updated quantities to local storage
+        localStorage.setItem(
+          "foodQuantities",
+          JSON.stringify(updatedQuantities)
+        );
+
+        return updatedQuantities;
+      } else {
+        // If the item doesn't exist, add a new entry
+        const newQuantities = [
+          ...quantitiesArray,
+          { id_food: foodId, quantity: Math.max(0, change) },
+        ];
+
+        // Save the updated quantities to local storage
+        localStorage.setItem("foodQuantities", JSON.stringify(newQuantities));
+
+        return newQuantities;
+      }
+    });
+
+    // Update the food quantities UI state
+    setFoodQuantitiesUI((prevQuantitiesUI) => {
+      const updatedQuantity = (prevQuantitiesUI[foodId] || 0) + change;
+      return { ...prevQuantitiesUI, [foodId]: Math.max(0, updatedQuantity) };
     });
   };
 
@@ -239,6 +274,67 @@ const BookingSeat = () => {
     const column = parseInt(seatName.slice(1)) - 1;
     return [row, column];
   };
+
+  if (isLoading) {
+    return <Loading />; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
+  }
+  const date = (TimeDetailbyId as any)?.data.date;
+  const dateObject = new Date(date);
+  const daysOfWeek = [
+    "CHỦ NHẬT",
+    "THỨ HAI",
+    "THỨ BA",
+    "THỨ TƯ",
+    "THỨ NĂM",
+    "THỨ SÁU",
+    "THỨ BẢY",
+  ];
+  const day = String(dateObject.getDate()).padStart(2, "0");
+  const month = String(dateObject.getMonth() + 1).padStart(2, "0");
+  const year = dateObject.getFullYear();
+
+  const dayOfWeek = daysOfWeek[dateObject.getDay()];
+  const formattedDate = `${day}/${month}/${year}`;
+
+  const paymentLink = useGetPaybyTranferQuery(totalMoney + totalComboAmount);
+  const handleOk = () => {
+    window.location.href = `${paymentLink?.data?.data}`;
+    // const dataToSend = selectedSeats.reduce((total, seat) => total + seat.price, 0);
+
+    // // Sử dụng history.push để thay đổi URL và thêm đường dẫn
+    // navigate(`/listcombo/${dataToSend}`);
+  };
+  dispatch(setTotalPrice(totalMoney + totalComboAmount));
+  const findIdPopCorn = localStorage.getItem("foodQuantities");
+  const parsedPopCorn = findIdPopCorn ? JSON.parse(findIdPopCorn) : [];
+  console.log(parsedPopCorn.map((pop: any) => pop.id_food));
+  useEffect(() => {
+    // Initialize the total amount
+    let totalAmount = 0;
+
+    // Iterate through the combo items and calculate the total amount
+    (foods as any)?.data.forEach((food: any) => {
+      const quantiTybyFoodId = parsedPopCorn.filter(
+        (pop: any) => pop.id_food === food.id
+      );
+
+      const itemTotal = food.price * quantiTybyFoodId[0]?.quantity; // Sửa đoạn này
+
+      totalAmount += itemTotal;
+    });
+
+    // Update the state with the calculated total amount
+    setTotalComboAmount(totalAmount);
+  }, [foodQuantities, foods]);
+
+  useEffect(() => {
+    setFoodQuantitiesUI(
+      foodQuantities.reduce((acc: any, food: any) => {
+        acc[food.id_food] = food?.quantity;
+        return acc;
+      }, {})
+    );
+  }, [foodQuantities]);
   useEffect(() => {
     const seatBooked = (DataSeatBooked as any)?.data || [];
 
@@ -271,50 +367,6 @@ const BookingSeat = () => {
     // Cập nhật mảng ghế trong trạng thái
     setSeats(updatedSeats);
   }, [(DataSeatBooked as any)?.data]);
-
-  if (isLoading) {
-    return <Loading />; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
-  }
-  const date = (TimeDetailbyId as any)?.data.date;
-  const dateObject = new Date(date);
-  const daysOfWeek = [
-    "CHỦ NHẬT",
-    "THỨ HAI",
-    "THỨ BA",
-    "THỨ TƯ",
-    "THỨ NĂM",
-    "THỨ SÁU",
-    "THỨ BẢY",
-  ];
-  const day = String(dateObject.getDate()).padStart(2, "0");
-  const month = String(dateObject.getMonth() + 1).padStart(2, "0");
-  const year = dateObject.getFullYear();
-
-  const dayOfWeek = daysOfWeek[dateObject.getDay()];
-  const formattedDate = `${day}/${month}/${year}`;
-  useEffect(() => {
-    // Initialize the total amount
-    let totalAmount = 0;
-
-    // Iterate through the combo items and calculate the total amount
-    (foods as any)?.data.forEach((food: any) => {
-      const quantity = foodQuantities[food.id] || 0;
-      const itemTotal = food.price * quantity;
-      totalAmount += itemTotal;
-    });
-
-    // Update the state with the calculated total amount
-    setTotalComboAmount(totalAmount);
-  }, [foodQuantities, foods]);
-  const paymentLink = useGetPaybyTranferQuery(totalMoney + totalComboAmount);
-  const handleOk = () => {
-    window.location.href = `${paymentLink?.data?.data}`;
-    // const dataToSend = selectedSeats.reduce((total, seat) => total + seat.price, 0);
-
-    // // Sử dụng history.push để thay đổi URL và thêm đường dẫn
-    // navigate(`/listcombo/${dataToSend}`);
-  };
-  dispatch(setTotalPrice(totalMoney + totalComboAmount));
   return (
     <>
       <Header />
@@ -463,7 +515,7 @@ const BookingSeat = () => {
             </div>
           </section>
         </section>
-        <section className={`  ${showPopCorn ? "col-span-3" : "hidden"}`}>
+        <section className={` ${showPopCorn ? "col-span-3" : "hidden"}`}>
           <section className="bg-white rounded-lg p-8 space-y-4">
             <main className="max-w-5xl mx-auto shadow-lg  shadow-cyan-500/50 px-4 py-8 sm:px-6 lg:px-8">
               <div className="mb-8">
@@ -501,7 +553,7 @@ const BookingSeat = () => {
                         Ghế {seatType}
                       </div>
                       <div className="flex w-[40%] justify-between">
-                        <div className="">Số lượng x{info.quantity}</div>
+                        <div className="">Số lượng x{info?.quantity}</div>
                         <div className="">
                           Tổng tiền {formatter(info.totalPrice)}
                         </div>
@@ -546,72 +598,78 @@ const BookingSeat = () => {
                         Thành tiền
                       </th>
                     </tr>
-                    {(foods as any)?.data.map((food: any) => (
-                      <>
-                        <tr key={food.id}>
-                          <td className="whitespace-nowrap text-center px-4 py-2 font-medium text-gray-900">
-                            <img
-                              src={food.image}
-                              alt=""
-                              className="w-[50px] bg-[#F3F3F3] h-[50px]"
-                            />
-                          </td>
-                          <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
-                            {food.name}
-                          </td>
-                          <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
-                            {formatter(food.price)}
-                          </td>
-                          <td className="whitespace-nowrap text-center mx-auto px-4 py-2 text-gray-700">
-                            <div className="text-center mx-auto">
-                              <label
-                                htmlFor={`Quantity-${food.id}`}
-                                className="sr-only"
-                              >
-                                Quantity
-                              </label>
-                              <div className="flex items-center justify-center gap-1">
-                                <button
-                                  type="button"
-                                  className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
-                                  onClick={() =>
-                                    handleQuantityChange(food.id, -1)
-                                  }
+                    {(foods as any)?.data.map((food: any) => {
+                      const quantiTybyFoodId = parsedPopCorn.filter(
+                        (pop: any) => pop.id_food === food.id
+                      );
+                      console.log(quantiTybyFoodId[0]?.quantity);
+
+                      return (
+                        <>
+                          <tr key={food.id}>
+                            <td className="whitespace-nowrap text-center px-4 py-2 font-medium text-gray-900">
+                              <img
+                                src={food.image}
+                                alt=""
+                                className="w-[50px] bg-[#F3F3F3] h-[50px]"
+                              />
+                            </td>
+                            <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
+                              {food.name}
+                            </td>
+                            <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
+                              {formatter(food.price)}
+                            </td>
+                            <td className="whitespace-nowrap text-center mx-auto px-4 py-2 text-gray-700">
+                              <div className="text-center mx-auto">
+                                <label
+                                  htmlFor={`Quantity-${food.id}`}
+                                  className="sr-only"
                                 >
-                                  &minus;
-                                </button>
-                                <input
-                                  type="number"
-                                  id={`Quantity-${food.id}`}
-                                  value={foodQuantities[food.id] || 0}
-                                  onChange={(e) =>
-                                    handleQuantityChange(
-                                      food.id,
-                                      parseInt(e.target.value) || 0
-                                    )
-                                  }
-                                  className="h-10 w-16 rounded border-gray-200 text-center [-moz-appearance:_textfield] sm:text-sm [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none"
-                                />
-                                <button
-                                  type="button"
-                                  className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
-                                  onClick={() =>
-                                    handleQuantityChange(food.id, 1)
-                                  }
-                                >
-                                  +
-                                </button>
+                                  Quantity
+                                </label>
+                                <div className="flex items-center justify-center gap-1">
+                                  <button
+                                    type="button"
+                                    className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
+                                    onClick={() =>
+                                      handleQuantityChange(food.id, -1)
+                                    }
+                                  >
+                                    &minus;
+                                  </button>
+                                  <input
+                                    id={`Quantity-${food.id}`}
+                                    value={foodQuantitiesUI[food.id] || 0}
+                                    onChange={(e) =>
+                                      handleQuantityChange(
+                                        food.id,
+                                        parseInt(e.target.value) || 0
+                                      )
+                                    }
+                                    className="h-10 w-16 rounded border-gray-200 text-center sm:text-sm"
+                                  />
+                                  <button
+                                    type="button"
+                                    className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
+                                    onClick={() =>
+                                      handleQuantityChange(food.id, 1)
+                                    }
+                                  >
+                                    +
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className="whitespace-nowrap text-center px-4 py-2 text-gray-700">
-                            {formatter(
-                              food.price * (foodQuantities[food.id] || 0)
-                            )}
-                          </td>
-                        </tr>
-                      </>
-                    ))}
+                            </td>
+                            <td className="whitespace-nowrap text-center px-4 py-2 text-gray-700">
+                              {formatter(
+                                food.price * quantiTybyFoodId[0]?.quantity
+                              )}
+                            </td>
+                          </tr>
+                        </>
+                      );
+                    })}
                   </thead>
                 </table>
               </div>
@@ -620,7 +678,6 @@ const BookingSeat = () => {
                 <span className="block text-gray-500 text-sm">
                   Tổng số tiền:{" "}
                   <span className="text-red-500 text-lg ml-2">
-                    {/* {formatter(cart.totalPrice ? cart.totalPrice : 0)} */}{" "}
                     {formatter(totalComboAmount + totalMoney)}
                   </span>
                 </span>
