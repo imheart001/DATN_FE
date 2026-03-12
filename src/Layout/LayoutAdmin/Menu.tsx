@@ -42,7 +42,7 @@ const items: MenuItem[] = [
     getItem(
       "Đặt vé",
       "3",
-      <NavLink to="/admin">
+      <NavLink to="/admin/Tiketbookingdetail">
         <CopyOutlined />
       </NavLink>
     ),
@@ -61,6 +61,27 @@ const items: MenuItem[] = [
       </NavLink>
     ),
   ]),
+
+  getItem("Quản lí phòng chiếu", "5", <AppstoreOutlined />, [
+   
+    getItem(
+      "Quản lí suất chiếu",
+      "4",
+      <NavLink to="/admin/show">
+        <FormOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "MovieRoom",
+      "5",
+      <NavLink to="/admin/movieroom">
+        <FormOutlined />
+      </NavLink>
+    ),
+  ]),
+
+
+
   getItem("Quản lí phim", "6", <AppstoreOutlined />, [
     getItem(
       "Danh sách phim",
@@ -76,27 +97,8 @@ const items: MenuItem[] = [
         <CopyOutlined />
       </NavLink>
     ),
-    getItem(
-      "Quản lí suất chiếu",
-      "9",
-      <NavLink to="/admin/show">
-        <FormOutlined />
-      </NavLink>
-    ),
-    getItem(
-      "Food",
-      "10",
-      <NavLink to="/admin/food">
-        <FormOutlined />
-      </NavLink>
-    ),
-    getItem(
-      "MovieRoom",
-      "11",
-      <NavLink to="/admin/movieroom">
-        <FormOutlined />
-      </NavLink>
-    ),
+   
+   
     getItem(
       "CateDetail",
       "12",
@@ -111,6 +113,16 @@ const items: MenuItem[] = [
       "12",
       <NavLink to="/admin/cinema">
         <CopyOutlined />
+      </NavLink>
+    ),
+  ]),
+  getItem("Quản lí đồ ăn", "12", <HomeOutlined />, [
+    
+    getItem(
+      "Food",
+      "10",
+      <NavLink to="/admin/food">
+        <FormOutlined />
       </NavLink>
     ),
   ]),

@@ -52,7 +52,7 @@ import { PieChart, Pie } from 'recharts';
 
 
 
-const Dashbroad: FC = (props: any) => {
+const Dashbroad: React.FC = (props: any) => {
     const { difference, positive = false, sx, value } = props;
     const data = [
         { name: 'Tháng 1', value: 400 },
