@@ -239,3 +239,22 @@ button.ghost:hover i.login {
 .social-container a:hover {
   border: 1px solid #4bb6b7;
 }
+
+.center-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.center-image img {
+  max-width: 70%;
+  max-height: 70%;
+}
+.w-500 {
+  width: 500px;
+}
+/* .small-container {
+  height: 640px;
+  width: 640px;
+} */
