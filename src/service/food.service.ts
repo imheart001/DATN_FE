@@ -17,6 +17,7 @@ const foodAPI = createApi({
       query: (id) => `/Food/${id}`,
       providesTags: ["food"],
     }),
+    
     removeFood: builder.mutation({
       query: (id) => ({
 

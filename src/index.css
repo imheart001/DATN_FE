@@ -225,148 +225,17 @@ button.ghost:hover i.login {
   width: 40px;
   transition: 0.3s ease-in-out;
 }
+.box {
+  position: fixed;
+  top: 0;
+  right: 0%;
+  transform: translateX(-50%);
+  background-color: white;
+  width: 50px;
+  height: 50px;
+  /* Thêm các thuộc tính CSS khác tùy thuộc vào yêu cầu của bạn */
+}
 
 .social-container a:hover {
   border: 1px solid #4bb6b7;
 }
-
-
-select {
-  /* Reset Select */
-  appearance: none;
-  outline: 10px red;
-  border: 0;
-  box-shadow: none;
-  /* Personalize */
-  flex: 1;
-  padding: 0 1em;
-  background-color: white;
-  background-image: none;
-  cursor: pointer;
-}
-/* Remove IE arrow */
-select::-ms-expand {
-  display: none;
-}
-/* Custom Select wrapper */
-.select {
-  position: relative;
-  display: flex;
-  width: 20em;
-  height: 3em;
-  border-radius: .25em;
-  overflow: hidden;
-}
-/* Arrow */
-.select::after {
-  content: '\25BC';
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 1em;
-  background-color: #34495e;
-  transition: .25s all ease;
-  pointer-events: none;
-}
-/* Transition */
-.select:hover::after {
-  color: #f39c12;
-}
-.select > option {
-  color: #000;
-}
-
-.section-option {
-  color: #000;
-}
-
-.select-option {
-  position: absolute;
-  top: 0;
-  left: 100%;
-}
-.flex {
-  display: flex;
-}
-
-.flex-col {
-  flex-direction: column;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.min-h-screen {
-  min-height: 100vh;
-}
-
-.bg-gray-200 {
-  background-color: #f8f9fa;
-}
-
-.w-full {
-  width: 100%;
-}
-
-.max-w-5xl {
-  max-width: 5xl;
-}
-
-.p-6 {
-  padding: 6rem;
-}
-
-.md:p-12 {
-  padding: 12rem;
-}
-
-.text-3xl {
-  font-size: 3rem;
-}
-
-.font-bold {
-  font-weight: bold;
-}
-
-.text-gray-700 {
-  color: #4a5568;
-}
-
-.text-gray-900 {
-  color: #28313b
-} 
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
-}
-
-.footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
-}
-
-.banner {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  height: 300px;
-}
-
-.banner img {
-  width: 100%;
-  height: 100%;
-}
- 

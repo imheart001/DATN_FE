@@ -39,7 +39,6 @@ export interface IBookTicket {
   id_chair: string;
   time: string;
   id_code: string;
- 
 }
 export interface IFood {
   id: string;
@@ -66,6 +65,7 @@ export interface IChairs {
 }
 export interface IUser {
   name: string;
+  phone: number;
   email: string;
   password: string;
 }
