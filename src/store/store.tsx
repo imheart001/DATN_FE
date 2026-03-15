@@ -30,6 +30,7 @@ import authReducer from "../components/CinemaSlice/authSlice";
 import usersAPI from "../service/signup_login";
 import payAPI from "../service/pay.service";
 import CinemasAPICinemas from "../service/cinemas.service";
+import { analyticApi } from "../service/analytic.service";
 // Import redux-persist
 const persistConfig = {
   key: "root",
@@ -68,7 +69,8 @@ const rootReducer = combineReducers({
   TKinformation: TKinformationReducer,
   users: usersAPI.reducer,
   auth: authReducer,
-  cinemasMovie: CinemasAPICinemas.reducer
+  cinemasMovie: CinemasAPICinemas.reducer,
+  [analyticApi.reducerPath]: analyticApi.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -93,7 +95,8 @@ const store = configureStore({
       foodAPI.middleware,
       movieRoomAPI.middleware,
       cateDetailAPI.middleware,
-      usersAPI.middleware
+      usersAPI.middleware,
+      analyticApi.middleware
     ),
 });
 

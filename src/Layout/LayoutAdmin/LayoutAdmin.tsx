@@ -9,7 +9,7 @@ const LayoutAdmin = () => {
   const auth = useAppSelector((state: RootState) => state.auth)
  
     if (!auth || auth.token === null || auth.user_id === null) {
-      return <Navigate to={'/error'} />
+      return <Navigate to={'/'} />
     }
 
     if (!auth || auth.role === 0 ) {
