@@ -67,7 +67,7 @@ import { formatCurrency } from "../../../utils/formatCurrency";
 //     Phone: <PhoneIcon />
 //   };
 
-const Dashbroad: FC = (props: any) => {
+const Dashbroad = (props: any) => {
   const { difference, positive = false, sx, value } = props;
 
   const data1 = [
