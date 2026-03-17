@@ -1,4 +1,3 @@
-import React from "react";
 import { Space, Table, Input, Button, Popconfirm, Image } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -66,9 +65,12 @@ const ListBookTicket: React.FC = () => {
       width: "10%",
       align: "center",
       render: (text) => (
-        <span>{text?.length > 20 ? `${text.slice(0, 15)}...` : text}</span>
+        <span>
+          {text && text.length > 20 ? `${text.slice(0, 15)}...` : text}
+        </span>
       ),
     },
+
     {
       key: "imgfilm",
       title: "Hình ảnh",
@@ -118,7 +120,7 @@ const ListBookTicket: React.FC = () => {
       align: "center",
       width: "5%",
       render: (text) => (
-        <span>{text.length > 20 ? `${text.slice(0, 20)}...` : text}</span>
+        <span>{text?.length > 20 ? `${text.slice(0, 20)}...` : text}</span>
       ),
     },
     {

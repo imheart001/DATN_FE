@@ -30,6 +30,7 @@ import Payment from "./pages/Clients/Payment/Payment";
 import ChoosePop from "./pages/Clients/ChoosePop/ChoosePop";
 import TicketBookingDetails from "./pages/Clients/Ticket-booking-details/TicketBookingDetails";
 import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
+import PaymentMomo from "./pages/Clients/Payment/PaymentMomo";
 
 function App() {
   const router = createBrowserRouter([
@@ -132,6 +133,10 @@ function App() {
     {
       path: "/payment/:id_code",
       element: <Payment />,
+    },
+    {
+      path: "/PayMentMoMo/:id_code",
+      element: <PaymentMomo />,
     },
   ]);
   const dispatch = useDispatch();

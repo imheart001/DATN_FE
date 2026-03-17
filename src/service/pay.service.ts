@@ -26,8 +26,16 @@ const payAPI = createApi({
       }),
       invalidatesTags: ["pay"],
     }),
+    PaymentMomo: builder.query({
+      query: (money) => `/momo_payment?&amount=${money}`,
+      providesTags: ["pay"],
+    }),
   }),
 });
 
-export const { useGetPaybyTranferQuery, useSendEmailMutation } = payAPI;
+export const {
+  useGetPaybyTranferQuery,
+  useSendEmailMutation,
+  usePaymentMomoQuery,
+} = payAPI;
 export default payAPI;

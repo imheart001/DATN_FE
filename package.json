@@ -16,7 +16,7 @@
     "@heroicons/react": "^2.0.18",
     "@mui/material": "^5.14.18",
     "@reduxjs/toolkit": "^1.9.7",
-    "antd": "^5.10.1",
+    "antd": "^5.11.3",
     "axios": "^1.5.1",
     "date-fns": "^2.30.0",
     "moment": "^2.29.4",

@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
-import moment from "moment-timezone";
-import { Button, Modal, Tabs } from "antd";
+
+import { Button, Modal, Tabs, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchShowTimeQuery } from "../../../service/show.service";
@@ -13,7 +13,13 @@ import type { TabsProps } from "antd";
 
 import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
 import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
+import * as moment from "moment-timezone";
 
+declare module "moment" {
+  interface Moment {
+    tz(zone: string): moment.Moment;
+  }
+}
 const Ticket: React.FC = () => {
   const { data: films, isLoading: filmsLoading } = useFetchProductQuery();
   const { data: shows, isLoading: showsLoading } = useFetchShowTimeQuery();
@@ -22,7 +28,9 @@ const Ticket: React.FC = () => {
     useFetchMovieRoomQuery();
   const { data: times } = useFetchTimeQuery();
   const idChairEmpty =
-    (shows as any)?.data?.map((show: any) => show.id).flat() ?? [];
+    (Array.isArray((shows as any)?.data)
+      ? (shows as any).data.map((show: any) => show.id).flat()
+      : []) ?? [];
 
   const getIfChairEmpty = idChairEmpty
     ? idChairEmpty.map((id: string) => useGetChairEmpTyQuery(`${id}`))
@@ -34,11 +42,11 @@ const Ticket: React.FC = () => {
 
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
 
-  moment.tz.setDefault("Asia/Ho_Chi_Minh");
-
-  const currentDateTime = moment().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+  const currentDateTime = moment()
+    .utcOffset(420)
+    .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
   const isToday2 = new Date(currentDateTime);
-  const currentDateTime2 = moment();
+  const currentDateTime2 = moment().utcOffset(420);
   const navigate = useNavigate();
   interface FilmShow {
     date: string;
@@ -50,7 +58,7 @@ const Ticket: React.FC = () => {
       // Đã đăng nhập, chuyển đến trang đặt vé
       navigate(`/book-ticket/${timeId}`);
     } else {
-      // Chưa đăng nhập, chuyển đến trang đăng nhập
+      message.warning("Bạn chưa đăng nhập!");
       navigate("/login");
     }
   };
@@ -91,14 +99,17 @@ const Ticket: React.FC = () => {
     setIsModalOpen(false);
   };
   const today = new Date();
+  console.log(currentDateTime);
 
   const month = today.getMonth() + 1; // Lấy tháng (0-11, cần cộng thêm 1)
 
   const selectedCinemaInfo = useMemo(() => {
-    return (cinemas as any)?.data.find(
-      (cinema: any) => cinema.id == selectedCinema
+    return (
+      (cinemas as any)?.data?.find(
+        (cinema: any) => cinema.id == selectedCinema
+      ) ?? null
     );
-  }, [selectedCinema]);
+  }, [cinemas, selectedCinema]);
 
   const getRealTime = (timeId: any) => {
     const timeInfo = (times as any)?.data.find(
@@ -260,6 +271,7 @@ const Ticket: React.FC = () => {
               Tôi muốn xem một bộ phim ở
             </span>
             <select
+              title="..."
               className="rounded-[40px] px-6 py-2  text-white hover: bg-red-600 "
               name=""
               id=""

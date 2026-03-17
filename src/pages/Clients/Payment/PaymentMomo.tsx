@@ -1,3 +1,5 @@
+import { Button, Result } from "antd";
+
 import { useEffect, useState } from "react";
 
 import { Link, useLocation } from "react-router-dom";
@@ -14,7 +16,7 @@ import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
 import { useSendEmailMutation } from "../../../service/pay.service";
 import * as moment from "moment-timezone";
 
-const Payment = () => {
+const PaymentMomo: React.FC = () => {
   const location = useLocation();
   const [vnpAmount, setVnpAmount] = useState("");
   const { data: allchairbked } = useFetchChairsQuery();
@@ -66,13 +68,13 @@ const Payment = () => {
   useEffect(() => {
     const fetchData = async () => {
       const params = new URLSearchParams(location.search);
-      const amount = params.get("vnp_Amount") || "";
-      const TransactionStatus = params.get("vnp_TransactionStatus") || "";
+      const amount = params.get("amount") || "";
+      const TransactionStatus = params.get("resultCode") || "";
 
       setVnpAmount(amount);
       setVnp_TransactionStatus(TransactionStatus);
 
-      if (!addChairCalled && vnp_TransactionStatus === "00") {
+      if (!addChairCalled && vnp_TransactionStatus === "0") {
         const matchingSeats = (allchairbked as any)?.data.filter(
           (chair: any) => {
             return (
@@ -133,61 +135,58 @@ const Payment = () => {
 
     fetchData(); // Call the asynchronous function inside useEffect
   }, [vnp_TransactionStatus, addChairCalled, (allchairbked as any)?.data]);
-
-  let content;
-  if (vnp_TransactionStatus == "00") {
-    content = (
-      <div className="bg-white p-10 rounded-lg shadow-lg">
-        {/* <Header /> */}
-        <section className="rounded-3xl shadow-2xl">
-          <div className="p-8 text-center sm:p-12">
-            <h1 className="text-2xl mb-6">Thanh toán thành công</h1>
-            <p className="text-gray-700 mb-4">
-              Cảm ơn bạn đã đặt vé tại rạp của chúng tôi. Vé của bạn sẽ được gửi
-              qua email trong thời gian sớm nhất.
-            </p>
-            <p className="text-gray-700 mb-4">
-              Số tiền đã thanh toán: {formatter(totalPrice)} VND
-            </p>
-            {/* <p className="text-gray-700 mb-6">Trạng thái:{idCode} </p> */}
-            <p className="text-gray-700 mb-6">
-              Các ghế đang chọn: {selectingSeat}, suất chiếu{" "}
-              {id_selectingTime_detail}
-            </p>
-            <p>Thông tin mã vé</p>
-            <QRCode
-              type="svg"
-              value={`http://127.0.0.1:8000/api/QR_book/${idCode}`}
-            />
-            <Link to={`/`}>
+  return (
+    <div className="bg-white">
+      {vnp_TransactionStatus == "0" && (
+        <Result
+          status="success"
+          title="Thanh Toán Thành Công"
+          subTitle="Order number: 2017182818828182881 Cloud server configuration takes 1-5 minutes, please wait."
+          extra={[
+            <>
+              <p className="text-gray-700 mb-4">
+                Cảm ơn bạn đã đặt vé tại rạp của chúng tôi. Vé của bạn sẽ được
+                gửi qua email trong thời gian sớm nhất.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Số tiền đã thanh toán: {formatter(totalPrice)} VND
+              </p>
+              <p className="text-gray-700 mb-6">
+                Các ghế đang chọn: {selectingSeat}, suất chiếu{" "}
+                {id_selectingTime_detail}
+              </p>
+              <p>Thông tin mã vé</p>
+              <QRCode
+                type="svg"
+                value={`http://127.0.0.1:8000/api/QR_book/${idCode}`}
+              />
+              <Button type="primary" key="console" className="bg-blue-500">
+                <Link to={"/"}>Quay về trang chủ</Link>
+              </Button>
+              ,
+            </>,
+          ]}
+        />
+      )}
+      {vnp_TransactionStatus != "0" && (
+        <div className="bg-white p-10 rounded-lg shadow-lg">
+          {/* <Header /> */}
+          <section className="rounded-3xl shadow-2xl">
+            <div className="p-8 text-center sm:p-12">
+              <h1 className="text-2xl mb-6">Thanh toán thất bại</h1>
+              <p className="text-gray-700 mb-4">
+                Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại
+                sau.
+              </p>
               <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Quay lại trang chủ
               </button>
-            </Link>
-          </div>
-        </section>
-      </div>
-    );
-  } else {
-    content = (
-      <div className="bg-white p-10 rounded-lg shadow-lg">
-        {/* <Header /> */}
-        <section className="rounded-3xl shadow-2xl">
-          <div className="p-8 text-center sm:p-12">
-            <h1 className="text-2xl mb-6">Thanh toán thất bại</h1>
-            <p className="text-gray-700 mb-4">
-              Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại sau.
-            </p>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-              Quay lại trang chủ
-            </button>
-          </div>
-        </section>
-      </div>
-    );
-  }
-
-  return content;
+            </div>
+          </section>
+        </div>
+      )}
+    </div>
+  );
 };
 
-export default Payment;
+export default PaymentMomo;
