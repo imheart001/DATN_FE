@@ -27,9 +27,9 @@ import { updateToken, setUserId } from "./components/CinemaSlice/authSlice";
 import { useDispatch } from "react-redux";
 import Payment from "./pages/Clients/Payment/Payment";
 
-import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
 import ChoosePop from "./pages/Clients/ChoosePop/ChoosePop";
 import TicketBookingDetails from "./pages/Clients/Ticket-booking-details/TicketBookingDetails";
+import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
 
 function App() {
   const router = createBrowserRouter([
@@ -123,7 +123,6 @@ function App() {
           path: "/admin/category_detail",
           element: <ListCateDetail />,
         },
-       
       ],
     },
     {

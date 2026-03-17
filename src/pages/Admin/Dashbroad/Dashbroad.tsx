@@ -136,7 +136,7 @@ const Dashbroad = (props: any) => {
     ],
   };
 
-  const { dataAnalytic, isLoading } = useGetAnalyticsQuery();
+  const { data: dataAnalytic, isLoading } = useGetAnalyticsQuery();
   console.log("🚀 ~ file: Dashbroad.tsx:85 ~ data:", dataAnalytic);
 
   if (isLoading) {
