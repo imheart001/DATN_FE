@@ -1,4 +1,4 @@
-import { Cascader } from "antd";
+import { Cascader, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useFetchCinemaQuery } from "../../service/brand.service";
 import { useEffect, useState } from "react";
@@ -6,9 +6,11 @@ import { ICinemas } from "../../interface/model";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedCinema } from "../../components/CinemaSlice/selectedCinemaSlice";
 import { Modal } from "antd";
-import {
-  useFetchProductQuery,
-} from "../../service/films.service";
+import type { MenuProps } from "antd";
+import { Dropdown, Space, Divider, Button, theme } from "antd";
+import { useFetchProductQuery } from "../../service/films.service";
+import { setUserId, updateToken } from "../../components/CinemaSlice/authSlice";
+import FindBookQuickly from "../../components/Find&BookQuickly/Find&BookQuickly";
 interface Option {
   value: string;
   label: string;
@@ -16,7 +18,70 @@ interface Option {
 }
 
 const displayRender = (labels: string[]) => labels[labels.length - 1];
-const Header = () => {
+const Header: React.FC = () => {
+  const getIfUser = localStorage.getItem("user");
+  const IfUser = JSON.parse(`${getIfUser}`);
+  const items: MenuProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.antgroup.com"
+        >
+          Chào {IfUser?.name}
+        </a>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.aliyun.com"
+        >
+          Thông tin cá nhân
+        </a>
+      ),
+    },
+    {
+      key: "3",
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.aliyun.com"
+        >
+          Lịch sử đặt vé
+        </a>
+      ),
+    },
+
+    {
+      key: "4",
+      danger: true,
+      label: (
+        <button
+          onClick={() => {
+            message.success("Đăng xuất thành công!");
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("user_id");
+            dispatch(updateToken(null)),
+              dispatch(setUserId(null)),
+              setTimeout(() => {
+                navigate("/");
+              }, 1000);
+          }}
+        >
+          {" "}
+          Đăng xuất
+        </button>
+      ),
+    },
+  ];
+
   const dispatch = useDispatch();
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const user = useSelector((state: any) => state.auth?.token);
@@ -116,12 +181,28 @@ const Header = () => {
           <Link to={"/orther"} className="hover:text-[#EE2E24]">
             Other
           </Link>
-          <Link to={"/Tiketbookingdetail"} className="hover:text-[#EE2E24]">
-          Ticket booking detail
-          </Link>
-          <Link to={linkTo}>
-            <img srcSet="/person-circle.png/ 1.2x" alt="" />
-          </Link>
+
+          {(IfUser as any)?.role === 1 && (
+            <Link to={linkTo}>
+              <img srcSet="/person-circle.png/ 1.2x" alt="" />
+            </Link>
+          )}
+          {(IfUser as any)?.role === 0 && (
+            <Dropdown
+              menu={{ items }}
+              placement="bottomLeft"
+              arrow={{ pointAtCenter: true }}
+            >
+              <Link to={linkTo}>
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </Link>
+            </Dropdown>
+          )}
+          {(IfUser as any)?.role !== 1 && (IfUser as any)?.role !== 0 && (
+            <Link to={linkTo}>
+              <img srcSet="/person-circle.png/ 1.2x" alt="" />
+            </Link>
+          )}
         </div>
         <div className="flex items-center my-2">
           <div className="relative w-full">

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { MenuProps, message } from "antd";
 import { Dropdown, Space, Layout } from "antd";
 import { NavLink, useNavigate } from "react-router-dom";

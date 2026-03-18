@@ -716,9 +716,9 @@ const BookingSeat = () => {
 
               <div className="mb-8 flex justify-end">
                 <span className="block text-gray-500 text-sm">
-                  Tổng số tiền:{" "}
+                  Tổng số tiền bỏng nước:{" "}
                   <span className="text-red-500 text-lg ml-2">
-                    {formatter(totalComboAmount + totalMoney)}
+                    {formatter(totalComboAmount)}
                   </span>
                 </span>
               </div>
@@ -849,7 +849,7 @@ const BookingSeat = () => {
                       selectedSeats.reduce(
                         (total, seat) => total + seat.price,
                         0
-                      )
+                      ) + totalComboAmount
                     )}
                   </span>
                 </h4>

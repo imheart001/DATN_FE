@@ -1,5 +1,6 @@
 import Header from "../../../Layout/LayoutUser/Header";
 import { Link } from "react-router-dom";
+import FindBookQuickly from "../../../components/Find&BookQuickly/Find&BookQuickly";
 
 const HomePages = () => {
   return (
@@ -24,6 +25,7 @@ const HomePages = () => {
             Đặt vé !
           </Link>
         </div>
+        <FindBookQuickly />
       </section>
       <div className="What’s On max-w-6xl px-10 my-[66px] mx-auto">
         <h2 className="text-[#FFFFFF] text-[40px] font-bold text-center">
@@ -96,6 +98,7 @@ const HomePages = () => {
             />
             <span className="absolute inset-y-0 top-0  grid w-10 place-content-center">
               <button
+                title="..."
                 type="button"
                 className="text-gray-600 hover:text-gray-700"
               >
@@ -124,6 +127,7 @@ const HomePages = () => {
             />
             <span className="absolute inset-y-0 top-0 grid w-10 place-content-center">
               <button
+                title="..."
                 type="button"
                 className="text-gray-600 hover:text-gray-700"
               >

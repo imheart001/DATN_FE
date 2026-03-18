@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { IUser } from "../../../interface/model";
 
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
@@ -71,14 +71,19 @@ const Login = () => {
       });
       console.log(response);
       if ((response as any)?.data && (response as any).data.token) {
-        console.log("🚀 ~ file: Login.tsx:73 ~ handleLogin ~ response:", response)
+        console.log(
+          "🚀 ~ file: Login.tsx:73 ~ handleLogin ~ response:",
+          response
+        );
+
         dispatch(updateToken((response as any).data.token));
         // Update the token in localStorage
         dispatch(setUserId((response as any).data.user.id));
-        dispatch(setRoleAuth((response as any).data.user.role))
+        dispatch(setRoleAuth((response as any).data.user.role));
         localStorage.setItem("authToken", (response as any).data.token);
         localStorage.setItem("user_id", (response as any).data.user.id);
         localStorage.setItem("role", (response as any).data.user.role);
+        localStorage.setItem("user", JSON.stringify(response?.data.user));
         console.log(localStorage.getItem("user_id"));
         message.success("Đăng nhập thành công!");
         navigate("/");
