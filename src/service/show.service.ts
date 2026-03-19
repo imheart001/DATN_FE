@@ -16,6 +16,14 @@ const showsAPI = createApi({
       query: (id) => `/time_detail/${id}`,
       providesTags: ["show"],
     }),
+    getShowbyIdCinema: builder.query<any, number | string>({
+      query: (id) => `/check_time_detail_by_film_id/${id}`,
+      providesTags: ["show"],
+    }),
+    getAllDataShowTimeById: builder.query<any, number | string>({
+      query: (id) => `/time_detail_get_by_id/${id}`,
+      providesTags: ["show"],
+    }),
     removeShowTime: builder.mutation({
       query: (id) => ({
         url: "/time_detail/" + id,
@@ -45,7 +53,9 @@ export const {
   useAddShowTimeMutation,
   useFetchShowTimeQuery,
   useGetShowTimeByIdQuery,
+  useGetShowbyIdCinemaQuery,
   useRemoveShowTimeMutation,
   useUpdateShowTimeMutation,
+  useGetAllDataShowTimeByIdQuery,
 } = showsAPI;
 export default showsAPI;

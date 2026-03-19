@@ -30,8 +30,9 @@ const PaymentMomo: React.FC = () => {
   console.log(dateBk);
   const [vnp_TransactionStatus, setVnp_TransactionStatus] = useState("");
   const [addChairCalled, setAddChairCalled] = useState(false);
-  const findIdPopCorn = localStorage.getItem("foodQuantities");
-  const parsedPopCorn = findIdPopCorn ? JSON.parse(findIdPopCorn) : [];
+  const parsedPopCorn = useSelector(
+    (state: any) => state.TKinformation?.comboFoods
+  );
 
   const dispatch = useDispatch();
   const formatter = (value: number) =>

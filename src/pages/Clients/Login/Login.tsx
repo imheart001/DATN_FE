@@ -82,7 +82,7 @@ const Login = () => {
         dispatch(setRoleAuth((response as any).data.user.role));
         localStorage.setItem("authToken", (response as any).data.token);
         localStorage.setItem("user_id", (response as any).data.user.id);
-        localStorage.setItem("role", (response as any).data.user.role);
+
         localStorage.setItem("user", JSON.stringify(response?.data.user));
         console.log(localStorage.getItem("user_id"));
         message.success("Đăng nhập thành công!");

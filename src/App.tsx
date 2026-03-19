@@ -31,8 +31,13 @@ import ChoosePop from "./pages/Clients/ChoosePop/ChoosePop";
 import TicketBookingDetails from "./pages/Clients/Ticket-booking-details/TicketBookingDetails";
 import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
 import PaymentMomo from "./pages/Clients/Payment/PaymentMomo";
+import { ErrorPage } from "./pages/Clients/ErrorPages/ErrorPages";
+import ListVouchers from "./pages/Admin/Vouchers/ListVouchers";
 
 function App() {
+  let user = JSON.parse(localStorage.getItem("user")!);
+  
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -82,11 +87,15 @@ function App() {
     },
     {
       path: "/admin",
-      element: <LayoutAdmin />,
+      element: user?.role === 1 ? <LayoutAdmin /> : <ErrorPage />,
       children: [
         {
           path: "/admin/listfilm",
           element: <ListFilm />,
+        },
+        {
+          path: "/admin/vouchers",
+          element: <ListVouchers />,
         },
         {
           index: true,

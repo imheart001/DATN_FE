@@ -16,6 +16,15 @@ export interface ICategorys {
   slug: string;
   status: number;
 }
+export interface IVoucher {
+  id: string;
+  code: string;
+  start_time: string;
+  end_time: string;
+  usage_limit: number;
+  price_vocher: number;
+  limit: number;
+}
 export interface ICinemas {
   id: string;
   name: string;

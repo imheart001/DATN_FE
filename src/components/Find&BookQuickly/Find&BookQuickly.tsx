@@ -18,7 +18,6 @@ const FindBookQuickly: React.FC = () => {
   const { data: DataFilm } = useFetchProductQuery();
   const { data: DataRap } = useFetchCinemaQuery();
   const { data: shows } = useFetchShowTimeQuery();
-  console.log((shows as any)?.data);
 
   const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
   const [selectedCinema, setSelectedCinema] = useState<string | null>(null);
@@ -98,11 +97,7 @@ const FindBookQuickly: React.FC = () => {
                 />
               </section>
               <section>
-                <Cascader
-                  options={cinemaOptions}
-                  placeholder="Rạp"
-                  onChange={handleCinemaSelect}
-                />
+                <Cascader options={cinemaOptions} placeholder="Rạp" />
               </section>
               <section>
                 <Cascader placeholder="Ngày xem" />

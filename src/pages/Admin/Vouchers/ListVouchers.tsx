@@ -11,7 +11,7 @@ import {
   useRemoveFoodMutation,
 } from "../../../service/food.service";
 import { IFood } from "../../../interface/model";
-import EditFood from "./EditFood";
+
 interface DataType {
   id: string;
   name: string;
@@ -21,7 +21,7 @@ interface DataType {
 
 const { Search } = Input;
 
-const ListFood: React.FC = () => {
+const ListVouchers: React.FC = () => {
   const { data: foods } = useFetchFoodQuery();
   const [removeFood] = useRemoveFoodMutation();
   console.log(foods);
@@ -54,7 +54,7 @@ const ListFood: React.FC = () => {
     {
       render: (_, record) => (
         <Space size="middle">
-          <EditFood dataFood={record} />
+          {/* <EditFood dataFood={record} /> */}
 
           <Popconfirm
             placement="topLeft"
@@ -122,4 +122,4 @@ const ListFood: React.FC = () => {
   );
 };
 
-export default ListFood;
+export default ListVouchers;

@@ -17,8 +17,8 @@ const bookingSeatAPI = createApi({
       query: (id) => `/Chairs/${id}`,
       providesTags: ["chairs"],
     }),
-    getChairEmpTy: builder.query({
-      query: (id) => `/chair_count/${id}`,
+    getChairEmpTy: builder.query<any, void>({
+      query: () => `/chair_count/`,
       providesTags: ["chairs"],
     }),
     addChairs: builder.mutation({

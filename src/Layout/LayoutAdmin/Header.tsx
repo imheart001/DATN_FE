@@ -17,7 +17,6 @@ export const HeaderAdmin = () => {
       label: (
         <div className="grid border-b p-3 text-center">
           <span>{user ? user.name : "Admin"}</span>
-          <span>{user ? user.role : "Admin"}</span>
         </div>
       ),
     },

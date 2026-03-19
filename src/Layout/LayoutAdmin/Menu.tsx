@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   BookOutlined,
   UserOutlined,
@@ -63,7 +63,6 @@ const items: MenuItem[] = [
   ]),
 
   getItem("Quản lí phòng chiếu", "5", <AppstoreOutlined />, [
-   
     getItem(
       "Quản lí suất chiếu",
       "4",
@@ -80,8 +79,6 @@ const items: MenuItem[] = [
     ),
   ]),
 
-
-
   getItem("Quản lí phim", "6", <AppstoreOutlined />, [
     getItem(
       "Danh sách phim",
@@ -97,8 +94,7 @@ const items: MenuItem[] = [
         <CopyOutlined />
       </NavLink>
     ),
-   
-   
+
     getItem(
       "CateDetail",
       "12",
@@ -117,7 +113,6 @@ const items: MenuItem[] = [
     ),
   ]),
   getItem("Quản lí đồ ăn", "12", <HomeOutlined />, [
-    
     getItem(
       "Food",
       "10",
@@ -126,28 +121,36 @@ const items: MenuItem[] = [
       </NavLink>
     ),
   ]),
-  getItem("Quản lí khuyến mãi", "13", <ThunderboltOutlined />),
-  getItem("Quản lí khách hàng", "14", <TeamOutlined />),
-  getItem("Sản phẩm", "15", <ShopOutlined />, [
+  getItem("Quản lí khuyến mãi", "13", <ThunderboltOutlined />, [
+    getItem(
+      "List",
+      "14",
+      <NavLink to="/admin/vouchers">
+        <CopyOutlined />
+      </NavLink>
+    ),
+  ]),
+  getItem("Quản lí khách hàng", "15", <TeamOutlined />),
+  getItem("Sản phẩm", "16", <ShopOutlined />, [
     getItem(
       "Sản phẩm",
-      "16",
+      "17",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
     ),
     getItem(
       "Bảng giá",
-      "17",
+      "18",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
     ),
   ]),
-  getItem("Hệ thống", "18", <InboxOutlined />, [
+  getItem("Hệ thống", "19", <InboxOutlined />, [
     getItem(
       "Nhân viên",
-      "19",
+      "20",
       <NavLink to="/admin/product">
         <CopyOutlined />
       </NavLink>
@@ -155,7 +158,7 @@ const items: MenuItem[] = [
   ]),
   getItem(
     "Thống kê",
-    "20",
+    "21",
     <NavLink to="/admin/user">
       <PieChartOutlined />
     </NavLink>
@@ -219,7 +222,7 @@ export const SideBarAdmin: React.FC<SideBarAdminProps> = ({
 
       <Layout className="site-layout">
         {header}
-      
+
         <Content>
           <div
             style={{

@@ -31,32 +31,20 @@ import usersAPI from "../service/signup_login";
 import payAPI from "../service/pay.service";
 import CinemasAPICinemas from "../service/cinemas.service";
 import { analyticApi } from "../service/analytic.service";
+import vouchersAPI from "../service/voucher.service";
 // Import redux-persist
 const persistConfig = {
   key: "root",
   storage,
   version: 1,
-  whitelist: [
-    "films",
-    "cates",
-    "cinemas",
-    "shows",
-    "selectedCinema",
-    "foods",
-    "auth",
-    "movies",
-    "catedetails",
-    "bkseats",
-    "users",
-    "pays",
-    "TKinformation",
-  ],
+  whitelist: ["selectedCinema", "pays", "TKinformation"],
 };
 
 const rootReducer = combineReducers({
   films: filmsAPI.reducer,
   cates: categorysAPI.reducer,
   cinemas: cinemasAPI.reducer,
+  vouchers: vouchersAPI.reducer,
   shows: showsAPI.reducer,
   times: timesAPI.reducer,
   pays: payAPI.reducer,
@@ -90,6 +78,7 @@ const store = configureStore({
       cinemasAPI.middleware,
       showsAPI.middleware,
       timesAPI.middleware,
+      vouchersAPI.middleware,
       payAPI.middleware,
       bookTicketsAPI.middleware,
       foodAPI.middleware,

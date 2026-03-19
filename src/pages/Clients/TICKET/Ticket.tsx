@@ -1,25 +1,22 @@
 import { useMemo, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
-
 import { Button, Modal, Tabs, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useFetchProductQuery } from "../../../service/films.service";
-import { useFetchShowTimeQuery } from "../../../service/show.service";
+import {
+  useFetchShowTimeQuery,
+  useGetShowbyIdCinemaQuery,
+} from "../../../service/show.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 import { useSelector } from "react-redux";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import type { TabsProps } from "antd";
 
-import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
-import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
 import * as moment from "moment-timezone";
+import { useGetAllCateDetailByFilmQuery } from "../../../service/catedetail.service";
+import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
 
-declare module "moment" {
-  interface Moment {
-    tz(zone: string): moment.Moment;
-  }
-}
 const Ticket: React.FC = () => {
   const { data: films, isLoading: filmsLoading } = useFetchProductQuery();
   const { data: shows, isLoading: showsLoading } = useFetchShowTimeQuery();
@@ -27,20 +24,18 @@ const Ticket: React.FC = () => {
   const { data: roomsBrand, isLoading: roomsLoading } =
     useFetchMovieRoomQuery();
   const { data: times } = useFetchTimeQuery();
-  const idChairEmpty =
-    (Array.isArray((shows as any)?.data)
-      ? (shows as any).data.map((show: any) => show.id).flat()
-      : []) ?? [];
 
-  const getIfChairEmpty = idChairEmpty
-    ? idChairEmpty.map((id: string) => useGetChairEmpTyQuery(`${id}`))
-    : [];
+  const { data: cateAllDetail } = useGetAllCateDetailByFilmQuery();
+
+  const { data: dataChairEmpTy } = useGetChairEmpTyQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFilmId, setSelectedFilmId] = useState(null);
   const [filmShows2, setFilmShows2] = useState<FilmShow[]>([]);
   const user = useSelector((state: any) => state.auth?.token);
 
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
+  const { data: dataShowbyIdCinema } =
+    useGetShowbyIdCinemaQuery(selectedCinema);
 
   const currentDateTime = moment()
     .utcOffset(420)
@@ -68,7 +63,7 @@ const Ticket: React.FC = () => {
     setIsModalOpen(true);
     const showsForSelectedFilm = ((shows as any)?.data || []).filter(
       (show: any) => {
-        return show.film_id == filmId;
+        return show.film_id === filmId;
       }
     );
 
@@ -99,7 +94,6 @@ const Ticket: React.FC = () => {
     setIsModalOpen(false);
   };
   const today = new Date();
-  console.log(currentDateTime);
 
   const month = today.getMonth() + 1; // Lấy tháng (0-11, cần cộng thêm 1)
 
@@ -117,12 +111,6 @@ const Ticket: React.FC = () => {
     );
     return timeInfo ? timeInfo.time : ""; // Lấy thời gian từ thông tin thời gian
   };
-  const validShows = (shows as any)?.data.filter((show: any) => {
-    const room = (roomsBrand as any)?.data.find(
-      (room: any) => room.id == show.room_id
-    );
-    return room && room.id_cinema == selectedCinema;
-  });
 
   const daysToDisplay = [isToday2];
   for (let i = 1; i <= 3; i++) {
@@ -190,23 +178,25 @@ const Ticket: React.FC = () => {
       label,
       children: (
         <div>
-          {show && show.times?.length > 0 ? (
+          {show && show?.times?.length > 0 ? (
             <div className="grid grid-cols-5 ">
               {show?.times?.map((time: any, timeIndex: number) => {
                 // Lấy thông tin thời gian
                 const showTime = getRealTime(time.time_id);
-                const findChairEmpty = getIfChairEmpty.filter(
-                  (chairEmpty: any) => chairEmpty.originalArgs === `${time.id}`
-                );
 
-                return (
-                  <div key={timeIndex} className="my-1 text-center">
-                    <Button onClick={() => handleTimeSelection(time.id)}>
-                      {showTime}
-                    </Button>
-                    <div className="">{findChairEmpty[0].data} ghế trống</div>
-                  </div>
-                );
+                if (dataChairEmpTy) {
+                  const chairEmpty = dataChairEmpTy?.find(
+                    (item: any) => item.id === time.id
+                  );
+                  return (
+                    <div key={timeIndex} className="my-1 text-center">
+                      <Button onClick={() => handleTimeSelection(time.id)}>
+                        {showTime}
+                      </Button>
+                      <div className="">{chairEmpty.empty_chair} ghế trống</div>
+                    </div>
+                  );
+                }
               })}
             </div>
           ) : (
@@ -217,28 +207,14 @@ const Ticket: React.FC = () => {
     };
   });
 
-  // Kiểm tra xem tất cả dữ liệu đã được tải xong hay chưa
-  const isAllDataLoaded =
-    filmsLoading && !user && roomsLoading && showsLoading && cinemasLoading;
-
-  if (isAllDataLoaded) {
-    return (
-      // Hiển thị thông báo hoặc biểu tượng tải trong khi dữ liệu đang được tải
-      <div>Loading...</div>
-    );
+  if (filmsLoading && showsLoading && cinemasLoading && roomsLoading) {
+    return <div>Loading...</div>;
   }
 
-  // Tất cả dữ liệu đã được tải xong, hiển thị trang web
   return (
     <>
       <>
-        <section
-          style={{
-            backgroundImage: "url(/banner-ticket.jpg/)",
-            opacity: "0.8",
-          }}
-          className="relative   bg-cover w-full bg-center bg-no-repeat"
-        >
+        <section className="relative bg-[url('/banner-ticket.jpg/')]  opacity-80 bg-cover w-full bg-center bg-no-repeat">
           <Header />
 
           <div className="text-center my-10 px-10 h-screen py-[200px]  max-w-screen-xl mx-auto">
@@ -293,44 +269,47 @@ const Ticket: React.FC = () => {
             </h2>
             <div className="grid grid-cols-4 gap-10">
               {(films as any)?.data?.map((film: any) => {
-                const filmShows = validShows
-                  ? validShows.filter((show: any) => show.film_id === film.id)
-                  : [];
+                if (cateAllDetail && dataShowbyIdCinema) {
+                  const cate = cateAllDetail.find(
+                    (item: any) => item.id === film.id
+                  );
+                  const showbyCinema = dataShowbyIdCinema.find(
+                    (show: any) => show.film_id === film.id
+                  );
 
-                const cateall = useGetALLCateDetailByIdQuery(`${film.id}`);
-
-                return (
-                  <div className="w-[245px] h-[560px]" key={film.id}>
-                    <img
-                      srcSet={film.image}
-                      alt=""
-                      className="rounded-2xl w-[228px] h-[340px]"
-                    />
-                    <div className="h-[100px]">
-                      <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                        {film?.name?.length > 18
-                          ? `${film?.name.slice(0, 17)}...`
-                          : film?.name}
-                      </h3>
-                      <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                        <span>{(cateall as any)?.error?.data}</span>
-                        <span>IMDB 8.6</span>
-                        <span>13+</span>
+                  return (
+                    <div className="w-[245px] h-[560px]" key={film.id}>
+                      <img
+                        srcSet={film.image}
+                        alt=""
+                        className="rounded-2xl w-[228px] h-[340px]"
+                      />
+                      <div className="h-[100px]">
+                        <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                          {film?.name?.length > 18
+                            ? `${film?.name.slice(0, 17)}...`
+                            : film?.name}
+                        </h3>
+                        <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                          <span>{cate?.category_names}</span>
+                          <span>IMDB 8.6</span>
+                          <span>13+</span>
+                        </div>
                       </div>
-                    </div>
 
-                    {filmShows?.length > 0 ? (
-                      <button
-                        className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]"
-                        onClick={() => {
-                          showModal(film.id);
-                        }}
-                      >
-                        Mua vé
-                      </button>
-                    ) : null}
-                  </div>
-                );
+                      {showbyCinema && (
+                        <button
+                          className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]"
+                          onClick={() => {
+                            showModal(film.id);
+                          }}
+                        >
+                          Mua vé
+                        </button>
+                      )}
+                    </div>
+                  );
+                }
               })}
             </div>
             <button className="mx-auto block mt-[150px]">

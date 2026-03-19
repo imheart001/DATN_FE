@@ -68,6 +68,8 @@ const Header: React.FC = () => {
             message.success("Đăng xuất thành công!");
             localStorage.removeItem("authToken");
             localStorage.removeItem("user_id");
+            localStorage.removeItem("user");
+            localStorage.clear();
             dispatch(updateToken(null)),
               dispatch(setUserId(null)),
               setTimeout(() => {
@@ -193,9 +195,9 @@ const Header: React.FC = () => {
               placement="bottomLeft"
               arrow={{ pointAtCenter: true }}
             >
-              <Link to={linkTo}>
+              <button title="...">
                 <img srcSet="/person-circle.png/ 1.2x" alt="" />
-              </Link>
+              </button>
             </Dropdown>
           )}
           {(IfUser as any)?.role !== 1 && (IfUser as any)?.role !== 0 && (

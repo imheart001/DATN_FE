@@ -1,31 +1,23 @@
 import { useEffect, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { InputNumber } from "antd";
+import { NavLink, useParams } from "react-router-dom";
 import { useFetchChairsQuery } from "../../../service/chairs.service";
-import {
-  useFetchShowTimeQuery,
-  useGetShowTimeByIdQuery,
-} from "../../../service/show.service";
-import { useGetProductByIdQuery } from "../../../service/films.service";
-import { Button, Modal, message } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { useGetCinemaByIdQuery } from "../../../service/brand.service";
-import { useGetTimeByIdQuery } from "../../../service/time.service";
+import { useGetAllDataShowTimeByIdQuery } from "../../../service/show.service";
+import { message } from "antd";
+import { useDispatch } from "react-redux";
 import Loading from "../../../components/isLoading/Loading";
-import { useGetALLCateDetailByIdQuery } from "../../../service/catedetail.service";
-import { useGetMovieRoomByIdQuery } from "../../../service/movieroom.service";
 import {
   setShowtimeId,
   setSelectSeats,
   setTotalPrice,
+  setComboFoods,
 } from "../../../components/CinemaSlice/selectSeat";
 import {
   useGetPaybyTranferQuery,
   usePaymentMomoQuery,
 } from "../../../service/pay.service";
 import { useFetchFoodQuery } from "../../../service/food.service";
-import { useGetUserByIdQuery } from "../../../service/book_ticket.service";
+
 enum SeatStatus {
   Available = "available",
   Booked = "booked",
@@ -46,16 +38,34 @@ interface SeatInfo {
 }
 
 const BookingSeat = () => {
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  const { data: dataAllByTime_Byid } = useGetAllDataShowTimeByIdQuery(
+    id as string
+  );
+
+  const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
+  const { data: foods } = useFetchFoodQuery();
+
+  const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
+  const [totalComboAmount, setTotalComboAmount] = useState(0);
+  const [foodQuantities, setFoodQuantities] = useState<any[]>([]);
+  const [foodQuantitiesUI, setFoodQuantitiesUI] = useState<{
+    [key: string]: { quantity: number; price: number };
+  }>({});
+
+  const totalMoney = selectedSeats.reduce(
+    (total, seat) => total + seat.price,
+    0
+  );
+
+  dispatch(setComboFoods(foodQuantities));
+  const paymentLink = useGetPaybyTranferQuery(totalMoney + totalComboAmount);
+
+  const paymentLinkMoMo = usePaymentMomoQuery(totalMoney + totalComboAmount);
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(0);
   const [choosePayment, setChoosePayment] = useState(1);
-  const [totalComboAmount, setTotalComboAmount] = useState(0);
-  const [foodQuantities, setFoodQuantities] = useState(() => {
-    // Retrieve the values from local storage
-    const storedQuantities = localStorage.getItem("foodQuantities");
-
-    // Parse the JSON string or default to an empty array
-    return storedQuantities ? JSON.parse(storedQuantities) : [];
-  });
 
   const [seatInfo, setSeatInfo] = useState<{
     [key: string]: { quantity: number; totalPrice: number };
@@ -71,20 +81,12 @@ const BookingSeat = () => {
 
   const numRows = 12;
   const numColumns = 12;
-  const { id } = useParams();
-  const selectedCinema = useSelector((state: any) => state.selectedCinema);
-  const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
-  const { data: foods } = useFetchFoodQuery();
-  const idUser = localStorage.getItem("user_id");
-  const { data: userId } = useGetUserByIdQuery(`${idUser}`);
+
+  const getuserId = localStorage.getItem("user");
+  const userId = JSON.parse(`${getuserId}`);
 
   const [selectedSeatsCount, setSelectedSeatsCount] = useState(0);
 
-  const { data: TimeDetails } = useFetchShowTimeQuery();
-  const { data: TimeDetailbyId } = useGetShowTimeByIdQuery(id as string);
-  const { data: CinemaDetailbyId } = useGetCinemaByIdQuery(
-    selectedCinema as string
-  );
   const [showPopCorn, setShowPopCorn] = useState(false);
   const onHandleNextStep = () => {
     if (selectedSeatsCount === 0) {
@@ -94,23 +96,14 @@ const BookingSeat = () => {
 
     setShowPopCorn(!showPopCorn);
   };
-  const filterShow = (TimeDetails as any)?.data.filter(
-    (show: any) => `${show.id}` === id
-  );
+
   const formatter = (value: number) =>
     `${value} ₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  const idTime = filterShow?.map((time: any) => time.time_id).join(" ");
-  const idFilm = filterShow?.map((film: any) => film.film_id).join(" ");
-  const idRoom = filterShow?.map((film: any) => film.room_id).join(" ");
-  const { data: FilmById } = useGetProductByIdQuery(idFilm);
-  const { data: TimeById } = useGetTimeByIdQuery(idTime);
+
   const isVIPSeat = (row: number, column: number): boolean => {
     return row >= 1 && row <= 5 && column >= 2 && column <= 7;
   };
-  const { data: RoombyId } = useGetMovieRoomByIdQuery(idRoom as string);
-  const [foodQuantitiesUI, setFoodQuantitiesUI] = useState<{
-    [key: string]: number;
-  }>({});
+
   const parseSeatNames = (seatNamesString: any) => {
     return seatNamesString.split(",").map((name: any) => name.trim());
   };
@@ -156,7 +149,40 @@ const BookingSeat = () => {
     )
   );
 
-  const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
+  useEffect(() => {
+    const seatBooked = (DataSeatBooked as any)?.data || [];
+
+    // Lọc ra các phần tử có id_time_detail trùng với id từ URL params
+    const filteredSeats = seatBooked.filter(
+      (item: any) => `${item.id_time_detail}` === id
+    );
+
+    // Tạo một danh sách tên ghế từ filteredSeats
+    const bookedSeatNames = filteredSeats
+      .map((item: any) => parseSeatNames(item.name))
+      .flat();
+
+    // Tạo một bản sao mới của mảng ghế
+    const updatedSeats = [...seats];
+
+    // Duyệt qua các ghế đã đặt và cập nhật trạng thái của chúng
+    bookedSeatNames.forEach((seatName: any) => {
+      const [rowIndex, columnIndex] = parseSeatName(seatName);
+      if (
+        rowIndex >= 0 &&
+        rowIndex < numRows &&
+        columnIndex >= 0 &&
+        columnIndex < numColumns
+      ) {
+        updatedSeats[rowIndex][columnIndex].status = SeatStatus.Booked;
+      }
+    });
+
+    // Cập nhật mảng ghế trong trạng thái
+    setSeats(updatedSeats);
+  }, [(DataSeatBooked as any)?.data]);
+  useEffect(() => {}, [foodQuantitiesUI, dispatch]);
+
   const handlePaymentVnpay = () => {
     if (!selectedPaymentMethod) {
       message.error("Vui lòng chọn phương thức thanh toán.");
@@ -166,6 +192,7 @@ const BookingSeat = () => {
     window.location.href = `${paymentLink?.data?.data}`;
     // Rest of the code...
   };
+
   const handlePaymentMomo = () => {
     if (!selectedPaymentMethod) {
       message.error("Vui lòng chọn phương thức thanh toán.");
@@ -233,60 +260,47 @@ const BookingSeat = () => {
 
     setSeats(updatedSeats);
   };
-
-  const handleQuantityChange = (foodId: string, change: number) => {
-    setFoodQuantities((prevQuantities: any) => {
-      // Ensure prevQuantities is an array, initialize as an empty array if not
-      const quantitiesArray = Array.isArray(prevQuantities)
-        ? prevQuantities
-        : [];
-
-      const index = quantitiesArray.findIndex(
-        (item: any) => item.id_food === foodId
-      );
-
-      if (index !== -1) {
-        // If the item exists, update its quantity
-        const updatedQuantities = quantitiesArray.map((item: any) =>
-          item.id_food === foodId
-            ? { ...item, quantity: Math.max(0, item?.quantity + change) }
-            : item
-        );
-
-        // Save the updated quantities to local storage
-        localStorage.setItem(
-          "foodQuantities",
-          JSON.stringify(updatedQuantities)
-        );
-
-        return updatedQuantities;
-      } else {
-        // If the item doesn't exist, add a new entry
-        const newQuantities = [
-          ...quantitiesArray,
-          { id_food: foodId, quantity: Math.max(0, change) },
-        ];
-
-        // Save the updated quantities to local storage
-        localStorage.setItem("foodQuantities", JSON.stringify(newQuantities));
-
-        return newQuantities;
-      }
-    });
-
-    // Update the food quantities UI state
+  const updateFoodQuantitiesUI = (
+    foodId: string,
+    change: number,
+    price: number
+  ) => {
     setFoodQuantitiesUI((prevQuantitiesUI) => {
-      const updatedQuantity = (prevQuantitiesUI[foodId] || 0) + change;
-      return { ...prevQuantitiesUI, [foodId]: Math.max(0, updatedQuantity) };
+      const updatedQuantity =
+        (prevQuantitiesUI[foodId]?.quantity || 0) + change;
+      const updatedPrice =
+        (prevQuantitiesUI[foodId]?.price || 0) + change * price;
+
+      setTotalComboAmount((prevTotal) => prevTotal + change * price); // Tổng số tiền của combo
+
+      return {
+        ...prevQuantitiesUI,
+        [foodId]: {
+          quantity: Math.max(0, updatedQuantity),
+          price: updatedPrice,
+        },
+      };
     });
   };
+  const handleQuantityChange = (
+    foodId: string,
+    change: number,
+    price: number
+  ) => {
+    // Call the function to update state after rendering
+    updateFoodQuantitiesUI(foodId, change, price);
+  };
+  useEffect(() => {
+    const updatedFoodQuantities = Object.keys(foodQuantitiesUI).map(
+      (foodId) => ({
+        id_food: foodId,
+        quantity: foodQuantitiesUI[foodId]?.quantity,
+        price: foodQuantitiesUI[foodId]?.price,
+      })
+    );
 
-  const totalMoney = selectedSeats.reduce(
-    (total, seat) => total + seat.price,
-    0
-  );
-
-  const dispatch = useDispatch();
+    setFoodQuantities(updatedFoodQuantities);
+  }, [foodQuantitiesUI]);
   const selectedSeatsInSelectedState = selectedSeats.filter(
     (seat) => seat.status === SeatStatus.Selected
   );
@@ -309,7 +323,8 @@ const BookingSeat = () => {
   if (isLoading) {
     return <Loading />; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
   }
-  const date = (TimeDetailbyId as any)?.data.date;
+  const date = dataAllByTime_Byid?.date;
+
   const dateObject = new Date(date);
   const daysOfWeek = [
     "CHỦ NHẬT",
@@ -327,77 +342,7 @@ const BookingSeat = () => {
   const dayOfWeek = daysOfWeek[dateObject.getDay()];
   const formattedDate = `${day}/${month}/${year}`;
 
-  const paymentLink = useGetPaybyTranferQuery(totalMoney + totalComboAmount);
-
-  const paymentLinkMoMo = usePaymentMomoQuery(totalMoney + totalComboAmount);
-
   dispatch(setTotalPrice(totalMoney + totalComboAmount));
-  const findIdPopCorn = localStorage.getItem("foodQuantities");
-  const parsedPopCorn = findIdPopCorn ? JSON.parse(findIdPopCorn) : [];
-  console.log(parsedPopCorn.map((pop: any) => pop.id_food));
-  useEffect(() => {
-    // Initialize the total amount
-    let totalAmount = 0;
-
-    // Iterate through the combo items and calculate the total amount
-    (foods as any)?.data.forEach((food: any) => {
-      const quantiTybyFoodId = parsedPopCorn.filter(
-        (pop: any) => pop.id_food === food.id
-      );
-
-      const itemTotal =
-        quantiTybyFoodId[0]?.quantity > 0
-          ? food.price * quantiTybyFoodId[0]?.quantity
-          : 0;
-
-      totalAmount += itemTotal;
-    });
-
-    // Update the state with the calculated total amount
-    setTotalComboAmount(totalAmount);
-  }, [foodQuantities, foods]);
-
-  useEffect(() => {
-    setFoodQuantitiesUI(
-      foodQuantities.reduce((acc: any, food: any) => {
-        acc[food.id_food] = food?.quantity;
-        return acc;
-      }, {})
-    );
-  }, [foodQuantities]);
-  useEffect(() => {
-    const seatBooked = (DataSeatBooked as any)?.data || [];
-
-    // Lọc ra các phần tử có id_time_detail trùng với id từ URL params
-    const filteredSeats = seatBooked.filter(
-      (item: any) => `${item.id_time_detail}` === id
-    );
-
-    // Tạo một danh sách tên ghế từ filteredSeats
-    const bookedSeatNames = filteredSeats
-      .map((item: any) => parseSeatNames(item.name))
-      .flat();
-
-    // Tạo một bản sao mới của mảng ghế
-    const updatedSeats = [...seats];
-
-    // Duyệt qua các ghế đã đặt và cập nhật trạng thái của chúng
-    bookedSeatNames.forEach((seatName: any) => {
-      const [rowIndex, columnIndex] = parseSeatName(seatName);
-      if (
-        rowIndex >= 0 &&
-        rowIndex < numRows &&
-        columnIndex >= 0 &&
-        columnIndex < numColumns
-      ) {
-        updatedSeats[rowIndex][columnIndex].status = SeatStatus.Booked;
-      }
-    });
-
-    // Cập nhật mảng ghế trong trạng thái
-    setSeats(updatedSeats);
-  }, [(DataSeatBooked as any)?.data]);
-  console.log(totalComboAmount);
 
   return (
     <>
@@ -405,8 +350,8 @@ const BookingSeat = () => {
 
       <div className="py-2 max-w-6xl border-t-2 my-20 border-cyan-500 shadow-xl shadow-cyan-500/50 text-center mx-auto bg-white rounded-xl">
         <h2 className="font-semibold ">
-          THÔNG TIN ĐẶT VÉ - {(CinemaDetailbyId as any)?.data.name} -{" "}
-          {dayOfWeek}, NGÀY {formattedDate}, {(TimeById as any)?.data.time}
+          THÔNG TIN ĐẶT VÉ - {dataAllByTime_Byid?.name_cinema} - {dayOfWeek},
+          NGÀY {formattedDate}, {dataAllByTime_Byid?.time}
         </h2>
       </div>
       <section className="grid grid-cols-4 gap-4 max-w-6xl mx-auto ">
@@ -458,13 +403,8 @@ const BookingSeat = () => {
                             infoSeat.type === SeatType.normal && (
                               <span>
                                 <img
+                                  className="scale-120 inline-block ml-10 mt-5"
                                   title="..."
-                                  style={{
-                                    display: "inline-block",
-                                    marginLeft: "40px",
-                                    marginTop: "20px",
-                                    transform: "scale(1.2)",
-                                  }}
                                   src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAr0lEQVR4nO2QQQrCMBBFc4EWdO+6Z5FuCsVLSsE72Eu4rt0q6AWeBFIRaWxnmkKlecsh89/kGxNZLcAOqIAncuzOCcg00hvTudssidj+NBRHiVhTr4+HRByUKP5VdQIUwGVCww1Q2qzRVX8csHEBGulWIsqBFrgCezc7KMSlL68X9+B9tZulCnHiy+vle9s3H2Iob/liLf8nDo2J4o71Vm0CM0ZcA+cZxPUcuZFl8wJRIS97SX64DQAAAABJRU5ErkJggg=="
                                 />
                               </span>
@@ -473,13 +413,8 @@ const BookingSeat = () => {
                             infoSeat.type === SeatType.normal && (
                               <span>
                                 <img
+                                  className="scale-120 inline-block ml-10 mt-5"
                                   title="..."
-                                  style={{
-                                    display: "inline-block",
-                                    marginLeft: "40px",
-                                    marginTop: "20px",
-                                    transform: "scale(1.2)",
-                                  }}
                                   src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAzElEQVR4nO2UTQrCMBCF3wUUdO/as4gboXhJEbyDvYLQZLryZ6ugF3ilVVGhwSRtpZJ8MJuSvi8zHQpEwiXnBJprCG8Q0rHKdzbIOHWXCs8ews/SvFRZ1tw7bSZ9yVf2Yr/xmsRXFzFbLWvCE2ccQHEBoWrwbQ8QJlWWM3uOHgHu0h3H9iLNOYQnaB6hOKue5Vx6dJwY82opD7zfukQ4dBY/x1uXV4tpKXyXyXrJpG9iX/5PLL/6kUgUM5RRt418F6cQbjsQp53kRnpNAYGXZLhQ5IrJAAAAAElFTkSuQmCC"
                                 />
                               </span>
@@ -488,13 +423,8 @@ const BookingSeat = () => {
                             infoSeat.type === SeatType.VIP && (
                               <span>
                                 <img
+                                  className="scale-120 inline-block ml-10 mt-5"
                                   title="..."
-                                  style={{
-                                    display: "inline-block",
-                                    marginLeft: "40px",
-                                    marginTop: "20px",
-                                    transform: "scale(1.2)",
-                                  }}
                                   src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA5ElEQVR4nO2SsQ4BMRjHuxhJ2LyKMN0kCMnFU/AaEk+FuMHGargJT3Bn/0npQu6qpT2XuN/UfP33+7VfKkRFGQFqwBzYASmQqPVM7vmStoED+exl5lvJGNgAVz5Hnl0DI1PpEvcsTF7qi6FOLMdrSgfoWuRXOnFqIZC1nkU+0YmxEGCbFxpxHZgAR9xxAkLZW/vB1AWa6oALaStPMgAuKngG+qo+dSAOcx08Fk+3VOGGA/F9vJkOIH5Nv/lsxmj6xLIY/EAcZG4Ix+T2L43YN6IS/9+ohWfIEEfAtgBxVISnohzcAJ9YNflpnJMiAAAAAElFTkSuQmCC"
                                 />
                               </span>
@@ -503,13 +433,8 @@ const BookingSeat = () => {
                             infoSeat.type === SeatType.VIP && (
                               <span>
                                 <img
+                                  className="scale-120 inline-block ml-10 mt-5"
                                   title="..."
-                                  style={{
-                                    display: "inline-block",
-                                    marginLeft: "40px",
-                                    marginTop: "20px",
-                                    transform: "scale(1.2)",
-                                  }}
                                   src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABDklEQVR4nO2SPUoDURRGv8ZSQTu3IlqlEhWF4Cp0G4Kr0mAKGzGN6Lt30mhcQUx/JGNik3kzI/PDgHPgg+G9O/e8P6mnkzyxJeNaxqOcLznz9Dtwlc41wiv7ciZyyIzxnNZUIuFcxkjOIioqzkLGvZyzclLjtoIslpvindYvXec0b7ej0o0SDhQ4LF1v3MXFPy+1nGA5Zhz9YUHzPDGlBbHk1Ud5Y1uBCzmhtrs1PuQM096FvLO7+qG69IW9bIlxIudzVThT4DgdT7isYcfDuMOYbaxyibNTWbw+XstyGNPoI6gqjvUxplJg0Lo4MMieqBuP9e+M2BvOL73Y/81RN41visdyHloQj1vx9HSCb4vVGyTN161SAAAAAElFTkSuQmCC"
                                 />
                               </span>
@@ -518,13 +443,8 @@ const BookingSeat = () => {
                             infoSeat.type === SeatType.normal && (
                               <span>
                                 <img
+                                  className="scale-120 inline-block ml-10 mt-5"
                                   title="..."
-                                  style={{
-                                    display: "inline-block",
-                                    marginLeft: "40px",
-                                    marginTop: "20px",
-                                    transform: "scale(1.2)",
-                                  }}
                                   src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAyElEQVR4nO2UQQrCMBRE5wJW2ua7c+1ZxI1QvKQI3kEv4VrdKtgLTKkpFKSR5hul0gzMJoR5yZAfIGq0ItI5YXaElITQ0yVh9kS+UEDlpgC++l5neYCfN2Ugbz3AqnpdfviAGdIR/KbqfELM1oScPqj4TEhRZ/Wuuj3ANG0CFNAk8wCZFSFXQi6EWTYPbaMAF668TtkN7antWpb4g229XXmdco2Bdnx6jxWHBtbq/8D81dfJCMZYqkZg9QCbIyGH8GDzldyoYasCCEEvQA5QsjIAAAAASUVORK5CYII="
                                 />
                               </span>
@@ -533,13 +453,8 @@ const BookingSeat = () => {
                             infoSeat.type === SeatType.VIP && (
                               <span>
                                 <img
+                                  className="scale-120 inline-block ml-10 mt-5"
                                   title="..."
-                                  style={{
-                                    display: "inline-block",
-                                    marginLeft: "40px",
-                                    marginTop: "20px",
-                                    transform: "scale(1.2)",
-                                  }}
                                   src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAACXBIWXMAAAsTAAALEwEAmpwYAAABDElEQVR4nO2UwWoCMRRF76ZLp6jvDfgroitXpYqC9CvsbxT8Klvqwl3dunBV/YLR/ZU400WpiRMnIwOdCw8CuXknuQkBalVRBB4IfSVkRciB0CQd68zMlQSVDiFrQmmpL+MpCInHhH4QcnSArtR57TvRHuU92fx2mLXe8pw0NPQngaEDbOLN3axLaM/Dv3DFfPAA9Ajpe/gT14npAaCvH3Zwu0HEE0I3Ae/3m9Cp6e18YOkGHpvZggDQqGW712dC95lxR8hTFvtLAPDUyuB58HuXqbkVFQen8V5kELK1PYKiYHsf2ZpPY3B/cDy4OIHAsvavDJglF2ow/13UKFn8C5YloZ/lg+UunFrV0Amvia/Scg88fQAAAABJRU5ErkJggg=="
                                 />
                               </span>
@@ -553,7 +468,7 @@ const BookingSeat = () => {
             </div>
           </section>
         </section>
-        <section className={`${showPopCorn ? "col-span-3" : "hidden "}`}>
+        <section className={` ${showPopCorn ? "col-span-3 " : "hidden "}`}>
           <section className="bg-white rounded-lg p-8 space-y-4">
             <main className="max-w-5xl mx-auto shadow-lg  shadow-cyan-500/50 px-4 py-8 sm:px-6 lg:px-8">
               <div className="mb-8">
@@ -593,14 +508,14 @@ const BookingSeat = () => {
                       <div className="flex w-[40%] justify-between">
                         <div className="">Số lượng x{info?.quantity}</div>
                         <div className="">
-                          Tổng tiền {formatter(info.totalPrice)}
+                          Thành tiền {formatter(info.totalPrice)}
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-              <span className="block  text-lg font-semibold text-red-600">
+              <span className="block mb-4 text-lg font-semibold text-red-600">
                 COMBO ƯU ĐÃI
               </span>
               <div className="mb-8 border rounded-[10px]">
@@ -636,91 +551,104 @@ const BookingSeat = () => {
                         Thành tiền
                       </th>
                     </tr>
-                    {(foods as any)?.data.map((food: any) => {
-                      if (parsedPopCorn) {
-                        const quantiTybyFoodId = parsedPopCorn.filter(
-                          (pop: any) => pop.id_food === food.id
-                        );
-                        return (
-                          <>
-                            <tr key={food.id}>
-                              <td className="whitespace-nowrap text-center px-4 py-2 font-medium text-gray-900">
-                                <img
-                                  src={food.image}
-                                  alt=""
-                                  className="w-[50px] bg-[#F3F3F3] h-[50px]"
-                                />
-                              </td>
-                              <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
-                                {food.name}
-                              </td>
-                              <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
-                                {formatter(food.price)}
-                              </td>
-                              <td className="whitespace-nowrap text-center mx-auto px-4 py-2 text-gray-700">
-                                <div className="text-center mx-auto">
-                                  <label
-                                    htmlFor={`Quantity-${food.id}`}
-                                    className="sr-only"
+                    {(foods as any)?.data.map((food: any, index: any) => {
+                      return (
+                        <>
+                          <tr key={index}>
+                            <td className="whitespace-nowrap text-center px-4 py-2 font-medium text-gray-900">
+                              <img
+                                src={food.image}
+                                alt=""
+                                className="w-[50px] bg-[#F3F3F3] h-[50px]"
+                              />
+                            </td>
+                            <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
+                              {food.name}
+                            </td>
+                            <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
+                              {formatter(food.price)}
+                            </td>
+                            <td className="whitespace-nowrap text-center mx-auto px-4 py-2 text-gray-700">
+                              <div className="text-center mx-auto">
+                                <label
+                                  htmlFor={`Quantity-${food.id}`}
+                                  className="sr-only"
+                                >
+                                  Quantity
+                                </label>
+                                <div className="flex items-center justify-center gap-1">
+                                  <button
+                                    type="button"
+                                    className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
+                                    onClick={() =>
+                                      handleQuantityChange(
+                                        food.id,
+                                        -1,
+                                        food.price
+                                      )
+                                    }
                                   >
-                                    Quantity
-                                  </label>
-                                  <div className="flex items-center justify-center gap-1">
-                                    <button
-                                      type="button"
-                                      className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
-                                      onClick={() =>
-                                        handleQuantityChange(food.id, -1)
-                                      }
-                                    >
-                                      &minus;
-                                    </button>
-                                    <input
-                                      id={`Quantity-${food.id}`}
-                                      value={foodQuantitiesUI[food.id] || 0}
-                                      onChange={(e) =>
-                                        handleQuantityChange(
-                                          food.id,
-                                          parseInt(e.target.value) || 0
-                                        )
-                                      }
-                                      className="h-10 w-16 rounded border-gray-200 text-center sm:text-sm"
-                                    />
-                                    <button
-                                      type="button"
-                                      className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
-                                      onClick={() =>
-                                        handleQuantityChange(food.id, 1)
-                                      }
-                                    >
-                                      +
-                                    </button>
-                                  </div>
+                                    &minus;
+                                  </button>
+                                  <input
+                                    id={`Quantity-${food.id}`}
+                                    value={
+                                      foodQuantitiesUI[food.id]?.quantity || 0
+                                    }
+                                    onChange={(e) =>
+                                      handleQuantityChange(
+                                        food.id,
+                                        parseInt(e.target.value) || 0,
+                                        food.price
+                                      )
+                                    }
+                                    className="h-10 w-16 rounded border-gray-200 text-center sm:text-sm"
+                                  />
+                                  <button
+                                    type="button"
+                                    className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
+                                    onClick={() =>
+                                      handleQuantityChange(
+                                        food.id,
+                                        1,
+                                        food.price
+                                      )
+                                    }
+                                  >
+                                    +
+                                  </button>
                                 </div>
-                              </td>
-                              <td className="whitespace-nowrap text-center px-4 py-2 text-gray-700">
-                                {quantiTybyFoodId[0]?.quantity > 0
-                                  ? formatter(
-                                      food.price * quantiTybyFoodId[0]?.quantity
-                                    )
-                                  : formatter(0)}
-                              </td>
-                            </tr>
-                          </>
-                        );
-                      }
+                              </div>
+                            </td>
+                            <td className="whitespace-nowrap text-center px-4 py-2 text-gray-700">
+                              {foodQuantitiesUI[food.id]?.quantity > 0
+                                ? formatter(
+                                    foodQuantitiesUI[food.id]?.quantity *
+                                      food.price
+                                  )
+                                : formatter(0)}
+                            </td>
+                          </tr>
+                        </>
+                      );
                     })}
                   </thead>
                 </table>
               </div>
-
-              <div className="mb-8 flex justify-end">
-                <span className="block text-gray-500 text-sm">
-                  Tổng số tiền bỏng nước:{" "}
-                  <span className="text-red-500 text-lg ml-2">
-                    {formatter(totalComboAmount)}
-                  </span>
+              <div className="mb-8">
+                <span className="block mb-4 font-medium text-lg text-red-600 border-b-2 border-red-600">
+                  MÃ KHUYẾN MÃI
                 </span>
+                <div className="h-32 grid grid-cols-2">
+                  <div className="">
+                    <button>
+                      A<p>H</p>
+                    </button>
+                  </div>
+                  <div className="">
+                    <button>B</button>
+                  </div>
+                </div>
               </div>
               <div className="mb-8">
                 <span className="block font-medium text-lg text-red-600 border-b-2 border-red-600">
@@ -758,13 +686,13 @@ const BookingSeat = () => {
         <section className="col-span-1">
           <div className="bg-[#F3F3F3] space-y-2 rounded-lg px-4 py-10 shadow-lg shadow-cyan-500/50">
             <img
-              src={(FilmById as any)?.data.image}
+              src={dataAllByTime_Byid?.image_film}
               alt=""
               className="block mx-auto w-[201px] shadow-lg shadow-cyan-500/50 rounded-2xl h-[295px]"
             />
             <div className="w-full text-center space-y-2">
               <h1 className=" text-[#03599d] font-semibold font-mono">
-                {(FilmById as any)?.data.name}
+                {dataAllByTime_Byid?.name_film}
               </h1>
               <span className="block text-center">2D Phụ đề</span>
             </div>
@@ -785,7 +713,7 @@ const BookingSeat = () => {
                 <h4 className="">
                   Giờ chiếu:{" "}
                   <span className="font-semibold">
-                    {(TimeById as any)?.data.time}
+                    {dataAllByTime_Byid?.time}
                   </span>
                 </h4>
               </span>
@@ -804,7 +732,7 @@ const BookingSeat = () => {
                 <h4 className="">
                   Phòng chiếu:{" "}
                   <span className="font-semibold">
-                    {(RoombyId as any)?.data.name}
+                    {dataAllByTime_Byid?.room_name}
                   </span>
                 </h4>
               </span>
@@ -822,7 +750,7 @@ const BookingSeat = () => {
                 </svg>
                 <h4 className=" space-x-1">
                   <span>Ghế ngồi</span>:{" "}
-                  {selectedSeats.map((seat, index) => (
+                  {selectedSeats.map((seat) => (
                     <span className="font-semibold">
                       {getRowName(seat.row)}
                       {seat.column + 1}
