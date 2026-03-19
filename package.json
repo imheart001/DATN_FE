@@ -19,6 +19,7 @@
     "antd": "^5.11.3",
     "axios": "^1.5.1",
     "date-fns": "^2.30.0",
+    "dayjs": "^1.11.10",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
     "prop-types": "^15.8.1",

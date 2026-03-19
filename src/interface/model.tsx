@@ -23,6 +23,7 @@ export interface IVoucher {
   end_time: string;
   usage_limit: number;
   price_vocher: number;
+  remaining_limit: number;
   limit: number;
 }
 export interface ICinemas {

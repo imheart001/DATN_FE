@@ -17,6 +17,8 @@ import {
   usePaymentMomoQuery,
 } from "../../../service/pay.service";
 import { useFetchFoodQuery } from "../../../service/food.service";
+import { useFetchVoucherQuery } from "../../../service/voucher.service";
+import * as dayjs from "dayjs";
 
 enum SeatStatus {
   Available = "available",
@@ -46,6 +48,8 @@ const BookingSeat = () => {
 
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
   const { data: foods } = useFetchFoodQuery();
+  const { data: dataVouchers } = useFetchVoucherQuery();
+  console.log(dataVouchers);
 
   const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
   const [totalComboAmount, setTotalComboAmount] = useState(0);
@@ -639,15 +643,39 @@ const BookingSeat = () => {
                 <span className="block mb-4 font-medium text-lg text-red-600 border-b-2 border-red-600">
                   MÃ KHUYẾN MÃI
                 </span>
-                <div className="h-32 grid grid-cols-2">
-                  <div className="">
-                    <button>
-                      A<p>H</p>
-                    </button>
-                  </div>
-                  <div className="">
-                    <button>B</button>
-                  </div>
+                <div className="grid grid-cols-1 h-32 overflow-y-auto gap-4 lg:grid-cols-2 lg:gap-6">
+                  {(dataVouchers as any)?.data.map((vc: any) => {
+                    const formattedEndDate = dayjs(vc.end_time).format(
+                      "DD/MM/YYYY"
+                    );
+                    return (
+                      <>
+                        <button
+                          title="voucher1"
+                          className="h-30  m-2 border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-600 "
+                        >
+                          <div className="space-y-1">
+                            <h3 className="font-semibold text-base text-left">
+                              Mã {vc.code} Giảm {vc.price_vocher}k
+                            </h3>
+                            <p className="text-left">
+                              Áp dụng cho đơn hàng từ{" "}
+                              <span className="font-semibold">100k</span>
+                            </p>
+                            <div className="text-left">
+                              <span>HSD: </span>
+                              <span className="font-semibold">
+                                {formattedEndDate}
+                              </span>
+                            </div>
+                            <h3 className="text-right font-semibold">
+                              Áp dụng
+                            </h3>
+                          </div>
+                        </button>
+                      </>
+                    );
+                  })}
                 </div>
               </div>
               <div className="mb-8">

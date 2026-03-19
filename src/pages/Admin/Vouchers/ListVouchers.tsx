@@ -4,27 +4,31 @@ import { Space, Table, Input, Button, Image, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
-import AddFood from "../Food/AddFood";
-
+import { IVoucher } from "../../../interface/model";
 import {
-  useFetchFoodQuery,
-  useRemoveFoodMutation,
-} from "../../../service/food.service";
-import { IFood } from "../../../interface/model";
+  useFetchVoucherQuery,
+  useRemoveVoucherMutation,
+} from "../../../service/voucher.service";
+import AddVoucher from "./AddVouchers";
+import { formatter } from "../../../utils/formatCurrency";
 
 interface DataType {
   id: string;
-  name: string;
-  image: string;
-  price: number;
+  code: string;
+  start_time: string;
+  end_time: string;
+  usage_limit: number;
+  price_vocher: number;
+  remaining_limit: number;
+  limit: number;
 }
 
 const { Search } = Input;
 
 const ListVouchers: React.FC = () => {
-  const { data: foods } = useFetchFoodQuery();
-  const [removeFood] = useRemoveFoodMutation();
-  console.log(foods);
+  const { data: vouchers } = useFetchVoucherQuery();
+  const [removeVoucher] = useRemoveVoucherMutation();
+
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã Food",
@@ -33,23 +37,36 @@ const ListVouchers: React.FC = () => {
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Tên Food",
-      dataIndex: "name",
-      key: "name",
+      title: "Mã Voucher Code",
+      dataIndex: "code",
+      key: "code",
     },
 
     {
-      key: "image",
-      title: "Hình ảnh",
-      dataIndex: "image",
-      align: "center",
-      width: "20%",
-      render: (text: string) => <Image width={50} src={text} />,
+      title: "Ngày bắt đầu",
+      dataIndex: "start_time",
+      key: "start_time",
+    },
+    {
+      title: "Ngày kết thúc",
+      dataIndex: "end_time",
+      key: "end_time",
     },
     {
       title: "Price",
-      dataIndex: "price",
-      key: "price",
+      dataIndex: "price_vocher",
+      key: "price_vocher",
+      render: (text) => <span>{formatter(Number(text))}</span>,
+    },
+    {
+      title: "Số lượng ban đầu",
+      dataIndex: "usage_limit",
+      key: "usage_limit",
+    },
+    {
+      title: "Số lượng còn lại",
+      dataIndex: "remaining_limit",
+      key: "remaining_limit",
     },
     {
       render: (_, record) => (
@@ -60,7 +77,7 @@ const ListVouchers: React.FC = () => {
             placement="topLeft"
             title="Bạn muốn xóa sản phẩm?"
             description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeFood(record.id)}
+            onConfirm={() => removeVoucher(record.id)}
             okText="Yes"
             cancelText="No"
             okButtonProps={{
@@ -81,20 +98,25 @@ const ListVouchers: React.FC = () => {
     },
   ];
 
-  const dataFood = (foods as any)?.data?.map((food: IFood, index: number) => ({
-    key: index.toString(),
-    id: food.id,
-    name: food?.name,
-    image: food?.image,
-    price: food?.price,
-    //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
-  }));
-  console.log("🚀 ~ file: ListFood.tsx:92 ~ dataFood ~ dataFood:", dataFood);
+  const dataVoucher = (vouchers as any)?.data?.map(
+    (voucher: IVoucher, index: number) => ({
+      key: index.toString(),
+      id: voucher.id,
+      code: voucher?.code,
+      start_time: voucher?.start_time,
+      end_time: voucher?.end_time,
+      usage_limit: voucher?.usage_limit,
+      price_vocher: voucher?.price_vocher,
+      remaining_limit: voucher?.remaining_limit,
+      //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+    })
+  );
+
   const [dataList, setDataList] = useState<any>(null);
 
   const onSearch = (value: any, _e: any) => {
-    const results = dataFood.filter((item: any) =>
-      item.name.toLowerCase().includes(value.toLowerCase())
+    const results = dataVoucher.filter((item: any) =>
+      item.code.toLowerCase().includes(value.toLowerCase())
     );
     setDataList(results);
   };
@@ -110,13 +132,13 @@ const ListVouchers: React.FC = () => {
             onSearch={onSearch}
           />
 
-          <AddFood />
+          <AddVoucher />
         </div>
       </div>
       {dataList ? (
         <Table columns={columns} dataSource={dataList} />
       ) : (
-        <Table columns={columns} dataSource={dataFood} />
+        <Table columns={columns} dataSource={dataVoucher} />
       )}
     </>
   );
