@@ -9,6 +9,7 @@ const TKinformationSlice = createSlice({
     showtimeId: null,
     totalPrice: null,
     comboFoods: [],
+    chooseVoucher: "",
   },
   reducers: {
     setSelectSeats: (state, action) => {
@@ -23,10 +24,18 @@ const TKinformationSlice = createSlice({
     setComboFoods: (state, action) => {
       state.comboFoods = action.payload;
     },
+    setChooseVoucher: (state, action) => {
+      state.chooseVoucher = action.payload;
+    },
   },
 });
 
-export const { setSelectSeats, setShowtimeId, setTotalPrice, setComboFoods } =
-  TKinformationSlice.actions;
+export const {
+  setSelectSeats,
+  setShowtimeId,
+  setTotalPrice,
+  setComboFoods,
+  setChooseVoucher,
+} = TKinformationSlice.actions;
 
 export default TKinformationSlice.reducer;

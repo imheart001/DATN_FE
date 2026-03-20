@@ -36,7 +36,6 @@ import ListVouchers from "./pages/Admin/Vouchers/ListVouchers";
 
 function App() {
   let user = JSON.parse(localStorage.getItem("user")!);
-  
 
   const router = createBrowserRouter([
     {

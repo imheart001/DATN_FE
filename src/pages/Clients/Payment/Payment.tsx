@@ -11,7 +11,10 @@ import {
 import { useAddBookTicketMutation } from "../../../service/book_ticket.service";
 import { format } from "date-fns";
 import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
-import { useSendEmailMutation } from "../../../service/pay.service";
+import {
+  useSendEmailMutation,
+  useUsed_VC_ByUserIdMutation,
+} from "../../../service/pay.service";
 import * as moment from "moment-timezone";
 
 const Payment = () => {
@@ -21,7 +24,7 @@ const Payment = () => {
   const [addIfSeatByUser] = useAddBookTicketMutation();
   const [addFood] = useAddFoodTicketDetailMutation();
   const [sendEmail] = useSendEmailMutation();
-
+  const [useVCbyUserID] = useUsed_VC_ByUserIdMutation();
   const currentDateTime = moment().utcOffset(420).toDate();
   const dateBk = format(currentDateTime, "dd/MM/yyyy HH:mm:ss");
 
@@ -39,6 +42,12 @@ const Payment = () => {
   const selectingSeat = useSelector(
     (state: any) => state.TKinformation?.selectedSeats
   );
+  const VoucherCode = useSelector(
+    (state: any) => state.TKinformation?.chooseVoucher
+  );
+  const MyVoucher = {
+    voucher_code: VoucherCode,
+  };
   const id_time_details = useSelector(
     (state: any) => state.TKinformation?.showtimeId
   );
@@ -90,6 +99,9 @@ const Payment = () => {
           try {
             const response = await addChair(selectedSeatsData as any);
             console.log(response);
+            const UsedVoucher = await useVCbyUserID(`${MyVoucher}`);
+            console.log(UsedVoucher);
+
             const responseData = (response as any)?.data;
             const IddataAfterFood_Detail: any[] = [];
 

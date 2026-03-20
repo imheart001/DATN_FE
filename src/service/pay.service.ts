@@ -30,12 +30,21 @@ const payAPI = createApi({
       query: (money) => `/momo_payment?&amount=${money}`,
       providesTags: ["pay"],
     }),
+    Used_VC_ByUserId: builder.mutation({
+      query: (voucher: string) => ({
+        url: "/Category/",
+        method: "POST",
+        body: voucher,
+      }),
+      invalidatesTags: ["pay"],
+    }),
   }),
 });
 
 export const {
   useGetPaybyTranferQuery,
   useSendEmailMutation,
+  useUsed_VC_ByUserIdMutation,
   usePaymentMomoQuery,
 } = payAPI;
 export default payAPI;

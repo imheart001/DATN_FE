@@ -4,13 +4,14 @@ import { NavLink, useParams } from "react-router-dom";
 import { useFetchChairsQuery } from "../../../service/chairs.service";
 import { useGetAllDataShowTimeByIdQuery } from "../../../service/show.service";
 import { message } from "antd";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../../components/isLoading/Loading";
 import {
   setShowtimeId,
   setSelectSeats,
   setTotalPrice,
   setComboFoods,
+  setChooseVoucher,
 } from "../../../components/CinemaSlice/selectSeat";
 import {
   useGetPaybyTranferQuery,
@@ -49,10 +50,11 @@ const BookingSeat = () => {
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
   const { data: foods } = useFetchFoodQuery();
   const { data: dataVouchers } = useFetchVoucherQuery();
-  console.log(dataVouchers);
+  const [selectedVoucher, setSelectedVoucher] = useState<string | null>(null);
 
   const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
   const [totalComboAmount, setTotalComboAmount] = useState(0);
+  const [discountVoucher, setDiscountVoucher] = useState(0);
   const [foodQuantities, setFoodQuantities] = useState<any[]>([]);
   const [foodQuantitiesUI, setFoodQuantitiesUI] = useState<{
     [key: string]: { quantity: number; price: number };
@@ -62,6 +64,10 @@ const BookingSeat = () => {
     (total, seat) => total + seat.price,
     0
   );
+  const onHandleChooseVC = (voucherId: string, voucherCode: string) => {
+    setSelectedVoucher(selectedVoucher === voucherId ? null : voucherId);
+    dispatch(setChooseVoucher(voucherCode));
+  };
 
   dispatch(setComboFoods(foodQuantities));
   const paymentLink = useGetPaybyTranferQuery(totalMoney + totalComboAmount);
@@ -286,6 +292,8 @@ const BookingSeat = () => {
       };
     });
   };
+  console.log(foodQuantitiesUI);
+
   const handleQuantityChange = (
     foodId: string,
     change: number,
@@ -346,7 +354,36 @@ const BookingSeat = () => {
   const dayOfWeek = daysOfWeek[dateObject.getDay()];
   const formattedDate = `${day}/${month}/${year}`;
 
-  dispatch(setTotalPrice(totalMoney + totalComboAmount));
+  const selectedVoucherInfo = (dataVouchers as any)?.data.find(
+    (vc: any) => vc.id === selectedVoucher
+  );
+
+  const applyDiscount = () => {
+    if (selectedVoucherInfo) {
+      if (selectedVoucherInfo.limit === 1) {
+        // Giảm giá theo giá trị cố định
+        return selectedVoucherInfo.price_vocher;
+      } else if (selectedVoucherInfo.limit === 2) {
+        // Giảm giá theo phần trăm
+        const discountPercentage = selectedVoucherInfo.price_vocher;
+        if (
+          (totalMoney + totalComboAmount) * (discountPercentage / 100) >
+          discountPercentage
+        ) {
+          return discountPercentage;
+        } else {
+          return (totalMoney + totalComboAmount) * (discountPercentage / 100);
+        }
+      }
+    }
+    return 0; // Nếu không có voucher hoặc không phù hợp với các điều kiện trên
+  };
+  const discountAmount = applyDiscount();
+  dispatch(setTotalPrice(totalMoney + totalComboAmount - discountAmount));
+  const totalPrice22 = useSelector(
+    (state: any) => state.TKinformation?.totalPrice
+  );
+  console.log(totalPrice22);
 
   return (
     <>
@@ -472,7 +509,7 @@ const BookingSeat = () => {
             </div>
           </section>
         </section>
-        <section className={` ${showPopCorn ? "col-span-3 " : "hidden "}`}>
+        <section className={`${showPopCorn ? "col-span-3" : " hidden"}`}>
           <section className="bg-white rounded-lg p-8 space-y-4">
             <main className="max-w-5xl mx-auto shadow-lg  shadow-cyan-500/50 px-4 py-8 sm:px-6 lg:px-8">
               <div className="mb-8">
@@ -591,6 +628,10 @@ const BookingSeat = () => {
                                         food.price
                                       )
                                     }
+                                    disabled={
+                                      foodQuantitiesUI[food.id]?.quantity ===
+                                        0 || !foodQuantitiesUI[food.id]
+                                    }
                                   >
                                     &minus;
                                   </button>
@@ -648,16 +689,31 @@ const BookingSeat = () => {
                     const formattedEndDate = dayjs(vc.end_time).format(
                       "DD/MM/YYYY"
                     );
+                    const isSelected = selectedVoucher === vc.id;
+                    const borderClass = isSelected
+                      ? "border-2 border-red-600"
+                      : "border border-gray-200";
+                    const buttonText = isSelected ? "Hủy áp dụng" : "Áp dụng";
+                    const textClass = isSelected ? "text-red-600" : "black";
                     return (
                       <>
                         <button
-                          title="voucher1"
-                          className="h-30  m-2 border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-600 "
+                          key={vc.limit}
+                          onClick={() => onHandleChooseVC(vc.id, vc.code)}
+                          className={`h-30 m-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${borderClass}`}
                         >
                           <div className="space-y-1">
-                            <h3 className="font-semibold text-base text-left">
-                              Mã {vc.code} Giảm {vc.price_vocher}k
-                            </h3>
+                            {vc.limit === 2 ? (
+                              <h3 className="font-semibold text-base text-left">
+                                Mã {vc.code} Giảm {vc.price_vocher}% tối đa{" "}
+                                {vc.price_vocher}k
+                              </h3>
+                            ) : (
+                              <h3 className="font-semibold text-base text-left">
+                                Mã {vc.code} Giảm {vc.price_vocher}k
+                              </h3>
+                            )}
+
                             <p className="text-left">
                               Áp dụng cho đơn hàng từ{" "}
                               <span className="font-semibold">100k</span>
@@ -668,8 +724,11 @@ const BookingSeat = () => {
                                 {formattedEndDate}
                               </span>
                             </div>
-                            <h3 className="text-right font-semibold">
-                              Áp dụng
+                            <h3
+                              onClick={() => onHandleChooseVC(vc.id, vc.code)}
+                              className={`${textClass} text-right font-semibold`}
+                            >
+                              {buttonText}
                             </h3>
                           </div>
                         </button>
@@ -701,7 +760,6 @@ const BookingSeat = () => {
                   </button>
                 </div>
               </div>
-
               <div className="mb-8 flex justify-between items-center">
                 <span className="text-sm">
                   Nhấn "Đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo Điều
@@ -805,7 +863,9 @@ const BookingSeat = () => {
                       selectedSeats.reduce(
                         (total, seat) => total + seat.price,
                         0
-                      ) + totalComboAmount
+                      ) +
+                        totalComboAmount -
+                        discountAmount
                     )}
                   </span>
                 </h4>
