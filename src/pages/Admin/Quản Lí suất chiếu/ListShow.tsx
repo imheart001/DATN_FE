@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Space, Table, Input, Button, Popconfirm, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -12,6 +12,8 @@ import {
 } from "../../../service/show.service";
 import AddShow from "./AddShow";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+import { RootState } from "../../../store/store";
+import { useAppSelector } from "../../../store/hooks";
 
 interface DataType {
   id: string;
@@ -29,6 +31,9 @@ const ListShow: React.FC = () => {
   const { data: films } = useFetchProductQuery();
   const { data: times } = useFetchTimeQuery();
   const [removeShowTimes] = useRemoveShowTimeMutation();
+
+  const { role } = useAppSelector((state: RootState) => state.auth);
+
   // console.log(shows);
   const columns: ColumnsType<DataType> = [
     {
@@ -53,37 +58,41 @@ const ListShow: React.FC = () => {
       key: "room_id",
     },
     {
-      title: "Action",
+      title: role === 1 && "Action",
       key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <EditShow dataShow={record} />
+      render: (_, record) => {
+        if (role === 1) {
+          return (
+            <Space size="middle">
+              <EditShow dataShow={record} />
 
-          <Popconfirm
-            placement="topLeft"
-            title="Bạn muốn xóa sản phẩm?"
-            description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => {
-              removeShowTimes(record.id);
-              message.success("Xóa sản phẩm thành công!");
-            }}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-            cancelButtonProps={{
-              style: { backgroundColor: "#dc3545", color: "white" },
-            }}
-          >
-            <Button>
-              <div className="flex ">
-                <DeleteOutlined />
-              </div>
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+              <Popconfirm
+                placement="topLeft"
+                title="Bạn muốn xóa sản phẩm?"
+                description="Xóa sẽ mất sản phẩm này trong database!"
+                onConfirm={() => {
+                  removeShowTimes(record.id);
+                  message.success("Xóa sản phẩm thành công!");
+                }}
+                okText="Yes"
+                cancelText="No"
+                okButtonProps={{
+                  style: { backgroundColor: "#007bff", color: "white" },
+                }}
+                cancelButtonProps={{
+                  style: { backgroundColor: "#dc3545", color: "white" },
+                }}
+              >
+                <Button>
+                  <div className="flex ">
+                    <DeleteOutlined />
+                  </div>
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+      },
     },
   ];
 
@@ -106,14 +115,15 @@ const ListShow: React.FC = () => {
       )?.name,
     })
   );
-  console.log("🚀 ~ file: ListShow.tsx:109 ~ dataShow:", dataShow)
 
-  const [dataShows, setDateShows] = useState<any>(null)
+  const [dataShows, setDateShows] = useState<any>(null);
 
   const onSearch = (value: any, _e: any) => {
-    const results =dataShow.filter((item: any) => item.film_id.toLowerCase().includes(value.toLowerCase()))
-    setDateShows(results)
-  }
+    const results = dataShow.filter((item: any) =>
+      item.film_id.toLowerCase().includes(value.toLowerCase())
+    );
+    setDateShows(results);
+  };
   return (
     <>
       <div className="">
@@ -125,14 +135,13 @@ const ListShow: React.FC = () => {
             onSearch={onSearch}
           />
 
-          <AddShow />
+          {role === 1 && <AddShow />}
         </div>
       </div>
       {dataShows ? (
-      <Table columns={columns} dataSource={dataShows} />
-
+        <Table columns={columns} dataSource={dataShows} />
       ) : (
-      <Table columns={columns} dataSource={dataShow} />
+        <Table columns={columns} dataSource={dataShow} />
       )}
     </>
   );

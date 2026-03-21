@@ -38,8 +38,6 @@ const Dashbroad = (props: any) => {
     const getData = async () => {
       try {
         const response = await getDataRevenue({});
-        console.log((response as any)?.data);
-
         // Update state with new data
         setDataReal((prevData) => [...prevData, (response as any)?.data]);
       } catch (error) {
@@ -82,8 +80,7 @@ const Dashbroad = (props: any) => {
                             </Typography>
                             <Typography variant="h6" className="w-full">
                               {formatter(
-                                ((dataReal[0] as any)?.revenue_mon)[0]
-                                  .TotalAmount
+                                ((dataReal[0] as any)?.revenue_month).comparison
                               )}
                             </Typography>
                           </Stack>
@@ -111,7 +108,7 @@ const Dashbroad = (props: any) => {
                             style={{ color: "#007BFF", fontWeight: "bold" }}
                           >
                             {formatter(
-                              ((dataReal[0] as any)?.revenue_mon)[0].TotalAmount
+                              ((dataReal[0] as any)?.revenue_month).comparison
                             )}
                           </span>{" "}
                           trong tháng này

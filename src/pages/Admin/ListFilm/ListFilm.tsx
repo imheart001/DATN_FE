@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Space,
   Table,
@@ -22,6 +22,8 @@ import {
 import { IFilms } from "../../../interface/model";
 import Loading from "../../../components/isLoading/Loading";
 import { compareDates, compareReleaseDate } from "../../../utils";
+import { RootState } from "../../../store/store";
+import { useAppSelector } from "../../../store/hooks";
 interface DataType {
   key: string;
   name: string;
@@ -43,11 +45,10 @@ const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
   const { data: films, isLoading } = useFetchProductQuery();
-  console.log("🚀 ~ file: ListFilm.tsx:46 ~ films:", films)
   if (isLoading) {
     return <Loading />;
   }
-  const [movies, setMovise] = useState<any>(null)
+  const [movies, setMovise] = useState<any>(null);
   const [removeProduct] = useRemoveProductMutation();
 
   const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
@@ -67,6 +68,8 @@ const ListFilm: React.FC = () => {
     tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
 
+  const { role } = useAppSelector((state: RootState) => state.auth);
+
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã phim",
@@ -79,16 +82,11 @@ const ListFilm: React.FC = () => {
       dataIndex: "nameFilm",
       key: "nameFilm",
       onFilter: (value: any, record: any) => {
-        console.log("🚀 ~ file: ListFilm.tsx:82 ~ value:", value)
-        
-        console.log("🚀 ~ file: ListFilm.tsx:82 ~ record:", record)
-        return (
-          record.name === value
-        )
+        return record.name === value;
       },
       filters: dataFilm.map((fileItem: any) => ({
         text: fileItem.nameFilm,
-        value: fileItem.name
+        value: fileItem.name,
       })),
       filterSearch: true,
     },
@@ -123,60 +121,75 @@ const ListFilm: React.FC = () => {
       key: "tags",
       dataIndex: "tags",
       render: (_, { tags, release_date, end_date }) => {
-        return  (
-          <Tag color={
-            compareDates(release_date, end_date) ? 'success' : !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) ? 'error' : 'warning'
-          }>
-          { compareDates(release_date, end_date) && 'Đang Hoạt Động'}
-          { !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) && 'Ngừng Hoạt Động'}
-          {compareReleaseDate(release_date) && !compareDates(release_date, end_date) && 'Sắp Chiếu'}
-        </Tag>
-        )
+        return (
+          <Tag
+            color={
+              compareDates(release_date, end_date)
+                ? "success"
+                : !compareReleaseDate(release_date) &&
+                  !compareDates(release_date, end_date)
+                ? "error"
+                : "warning"
+            }
+          >
+            {compareDates(release_date, end_date) && "Đang Hoạt Động"}
+            {!compareReleaseDate(release_date) &&
+              !compareDates(release_date, end_date) &&
+              "Ngừng Hoạt Động"}
+            {compareReleaseDate(release_date) &&
+              !compareDates(release_date, end_date) &&
+              "Sắp Chiếu"}
+          </Tag>
+        );
       },
     },
 
     {
-      title: "Action",
+      title: role ===1 && "Action",
       key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <EditFilm dataID={record} />
+      render: (_, record) => {
+        if (role === 1) {
+          return (
+            <Space size="middle">
+              <EditFilm dataID={record} />
 
-          <Popconfirm
-            placement="topLeft"
-            title="Bạn muốn xóa sản phẩm?"
-            description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => {
-              removeProduct(record.name);
-              message.success("Xóa sản phẩm thành công!");
-            }}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-            cancelButtonProps={{
-              style: { backgroundColor: "#dc3545", color: "white" },
-            }}
-          >
-            <Button>
-              <div className="flex ">
-                <DeleteOutlined />
-              </div>
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+              <Popconfirm
+                placement="topLeft"
+                title="Bạn muốn xóa sản phẩm?"
+                description="Xóa sẽ mất sản phẩm này trong database!"
+                onConfirm={() => {
+                  removeProduct(record.name);
+                  message.success("Xóa sản phẩm thành công!");
+                }}
+                okText="Yes"
+                cancelText="No"
+                okButtonProps={{
+                  style: { backgroundColor: "#007bff", color: "white" },
+                }}
+                cancelButtonProps={{
+                  style: { backgroundColor: "#dc3545", color: "white" },
+                }}
+              >
+                <Button>
+                  <div className="flex ">
+                    <DeleteOutlined />
+                  </div>
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+      },
     },
   ];
- 
-
 
   /* tim kien san pham */
   const onSearch = (value: any, _e: any) => {
-    const results =dataFilm.filter((item: any) => item.nameFilm.toLowerCase().includes(value.toLowerCase()))
-      setMovise(results)
-  }
+    const results = dataFilm.filter((item: any) =>
+      item.nameFilm.toLowerCase().includes(value.toLowerCase())
+    );
+    setMovise(results);
+  };
 
   return (
     <>
@@ -187,18 +200,13 @@ const ListFilm: React.FC = () => {
             placeholder="Nhập tên phim hoặc mã phim"
             style={{ width: 600 }}
             onSearch={onSearch}
-
           />
           <RangePicker />
-          <AddFilm />
+          {role ===1 && <AddFilm />}
         </div>
       </div>
-      {!movies && (
-        <Table columns={columns} dataSource={dataFilm} />
-      )}
-     {movies && (
-        <Table columns={columns} dataSource={movies} />
-     )}
+      {!movies && <Table columns={columns} dataSource={dataFilm} />}
+      {movies && <Table columns={columns} dataSource={movies} />}
     </>
   );
 };
