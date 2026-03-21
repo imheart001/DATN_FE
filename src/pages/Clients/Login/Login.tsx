@@ -231,7 +231,7 @@ const Login = () => {
                 <Checkbox>Remember me</Checkbox>
               </Form.Item>
 
-              <a className="login-form-forgot text-[#1677ff]" href="">
+              <a className="login-form-forgot text-[#1677ff]" href="/forgot-password">
                 Forgot password
               </a>
             </Form.Item>

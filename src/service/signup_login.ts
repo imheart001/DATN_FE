@@ -28,7 +28,30 @@ const usersAPI = createApi({
       }),
       invalidatesTags: ["user"],
     }),
+
+    /* forgot passửod */
+    forgorPassword: builder.mutation<{ message: string }, FormData>({
+      query: (email) => ({
+        url: "/forgot-password",
+        method: "POST",
+        body: email,
+      }),
+    }),
+
+    resetPassword: builder.mutation<{ message: string }, FormData>({
+      query: (body: FormData) => ({
+        url: "/reset-password",
+        method: "POST",
+        body: body,
+      }),
+    }),
   }),
 });
-export const { useAddUserMutation, useLoginUserMutation, useFetchUsersQuery } = usersAPI;
+export const {
+  useAddUserMutation,
+  useLoginUserMutation,
+  useFetchUsersQuery,
+  useForgorPasswordMutation,
+  useResetPasswordMutation,
+} = usersAPI;
 export default usersAPI;

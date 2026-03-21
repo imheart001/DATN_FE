@@ -31,6 +31,8 @@ import ChoosePop from "./pages/Clients/ChoosePop/ChoosePop";
 import TicketBookingDetails from "./pages/Clients/Ticket-booking-details/TicketBookingDetails";
 import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
 import PaymentMomo from "./pages/Clients/Payment/PaymentMomo";
+import ForgotPassword from "./pages/Clients/Forgot-password";
+import ResetPassword from "./pages/Clients/Reset-password/reset-password";
 
 function App() {
   const router = createBrowserRouter([
@@ -79,6 +81,14 @@ function App() {
           element: <TicketBookingDetails />,
         },
       ],
+    },
+    {
+      path: "/forgot-password",
+      element: <ForgotPassword />,
+    },
+    {
+      path: "/reset-password",
+      element: <ResetPassword />,
     },
     {
       path: "/admin",
