@@ -2,7 +2,6 @@ import { Space, Table, Input, Button, Popconfirm, Image } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
-import { IBookTicket, IUser } from "../../../interface/model";
 import {
   useFetchBookTicketQuery,
   useRemoveBookTicketMutation,
@@ -12,12 +11,11 @@ import EditBookTicket from "./EditBookTicket";
 import { useFetchUsersQuery } from "../../../service/signup_login";
 import { useFetchShowTimeQuery } from "../../../service/show.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
-import {
-  useFetchChairsQuery,
-  useGetChairbyIdQuery,
-} from "../../../service/chairs.service";
+import { useFetchChairsQuery } from "../../../service/chairs.service";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
+import { useAppSelector } from "../../../store/hooks";
+import { RootState } from "../../../store/store";
 
 interface DataType {
   id: string;
@@ -44,6 +42,9 @@ const ListBookTicket: React.FC = () => {
   const formatter = (value: number) =>
     `${value} Vn₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const { data: chairs } = useFetchChairsQuery();
+
+  const { role } = useAppSelector((state: RootState) => state.auth);
+
   const columns: ColumnsType<DataType> = [
     {
       title: "Id",
@@ -149,34 +150,38 @@ const ListBookTicket: React.FC = () => {
       width: "5%",
     },
     {
-      title: "Action",
+      title: role === 1 ? "Action" : null,
       key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <EditBookTicket dataCinema={record as any} />
+      render: (_, record) => {
+        if (role === 1) {
+          return (
+            <Space size="middle">
+              <EditBookTicket dataCinema={record as any} />
 
-          <Popconfirm
-            placement="topLeft"
-            title="Bạn muốn xóa sản phẩm?"
-            description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeBookTicket(record.id)}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-            cancelButtonProps={{
-              style: { backgroundColor: "#dc3545", color: "white" },
-            }}
-          >
-            <Button>
-              <div className="flex ">
-                <DeleteOutlined />
-              </div>
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+              <Popconfirm
+                placement="topLeft"
+                title="Bạn muốn xóa sản phẩm?"
+                description="Xóa sẽ mất sản phẩm này trong database!"
+                onConfirm={() => removeBookTicket(record.id)}
+                okText="Yes"
+                cancelText="No"
+                okButtonProps={{
+                  style: { backgroundColor: "#007bff", color: "white" },
+                }}
+                cancelButtonProps={{
+                  style: { backgroundColor: "#dc3545", color: "white" },
+                }}
+              >
+                <Button>
+                  <div className="flex ">
+                    <DeleteOutlined />
+                  </div>
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+      },
     },
   ];
 
@@ -276,7 +281,7 @@ const ListBookTicket: React.FC = () => {
             style={{ width: 600 }}
           />
 
-          <AddBookTicket />
+          {role === 1 && <AddBookTicket />}
         </div>
       </div>
       <Table columns={columns} dataSource={dataBookTicket} />

@@ -12,6 +12,8 @@ import {
 } from "../../../service/food.service";
 import { IFood } from "../../../interface/model";
 import EditFood from "./EditFood";
+import { RootState } from "../../../store/store";
+import { useAppSelector } from "../../../store/hooks";
 interface DataType {
   id: string;
   name: string;
@@ -24,7 +26,9 @@ const { Search } = Input;
 const ListFood: React.FC = () => {
   const { data: foods } = useFetchFoodQuery();
   const [removeFood] = useRemoveFoodMutation();
-  console.log(foods);
+
+  const { role } = useAppSelector((state: RootState) => state.auth);
+
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã Food",
@@ -52,32 +56,35 @@ const ListFood: React.FC = () => {
       key: "price",
     },
     {
-      render: (_, record) => (
-        <Space size="middle">
-          <EditFood dataFood={record} />
-
-          <Popconfirm
-            placement="topLeft"
-            title="Bạn muốn xóa sản phẩm?"
-            description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeFood(record.id)}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-            cancelButtonProps={{
-              style: { backgroundColor: "#dc3545", color: "white" },
-            }}
-          >
-            <Button>
-              <div className="flex ">
-                <DeleteOutlined />
-              </div>
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+      render: (_, record) => {
+        if (role === 1) {
+          return (
+            <Space size="middle">
+              <EditFood dataFood={record} />
+              <Popconfirm
+                placement="topLeft"
+                title="Bạn muốn xóa sản phẩm?"
+                description="Xóa sẽ mất sản phẩm này trong database!"
+                onConfirm={() => removeFood(record.id)}
+                okText="Yes"
+                cancelText="No"
+                okButtonProps={{
+                  style: { backgroundColor: "#007bff", color: "white" },
+                }}
+                cancelButtonProps={{
+                  style: { backgroundColor: "#dc3545", color: "white" },
+                }}
+              >
+                <Button>
+                  <div className="flex ">
+                    <DeleteOutlined />
+                  </div>
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+      },
     },
   ];
 
@@ -110,7 +117,7 @@ const ListFood: React.FC = () => {
             onSearch={onSearch}
           />
 
-          <AddFood />
+          {role === 1 && <AddFood />}
         </div>
       </div>
       {dataList ? (
