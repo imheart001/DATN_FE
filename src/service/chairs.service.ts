@@ -35,6 +35,7 @@ export const {
   useAddChairsMutation,
   useFetchChairsQuery,
   useGetChairbyIdQuery,
+
   useGetChairEmpTyQuery,
 } = bookingSeatAPI;
 export default bookingSeatAPI;

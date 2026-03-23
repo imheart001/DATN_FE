@@ -41,7 +41,7 @@ export const HeaderAdmin = () => {
           onClick={() => {
             message.success("Đăng xuất thành công!");
             localStorage.removeItem("authToken");
-            localStorage.removeItem("user_id");
+            localStorage.clear();
             dispatch(updateToken(null)),
               dispatch(setUserId(null)),
               setTimeout(() => {

@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const sendEmailAPI = createApi({
-  reducerPath: "sendEmail",
+const payMoMoAPI = createApi({
+  reducerPath: "paymentmomo",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://127.0.0.1:8000/api",
     prepareHeaders: (headers, { getState }) => {
@@ -13,16 +13,14 @@ const sendEmailAPI = createApi({
       return headers;
     },
   }),
-  tagTypes: ["send"],
+  tagTypes: ["paymomo"],
   endpoints: (builder) => ({
-    SendEmail: builder.mutation({
-      query: () => ({
-        url: "/send-book-ticket-details-email/",
-        method: "POST",
-      }),
-      invalidatesTags: ["send"],
+    PaymentMomo: builder.query({
+      query: (money) => `/momo_payment?&amount=${money}`,
+      providesTags: ["paymomo"],
     }),
   }),
 });
-export const { useSendEmailMutation } = sendEmailAPI;
-export default sendEmailAPI;
+
+export const { usePaymentMomoQuery } = payMoMoAPI;
+export default payMoMoAPI;

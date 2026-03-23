@@ -2,20 +2,25 @@ import { Space, Table, Input, Button, Popconfirm, Image } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
+import { IBookTicket, IUser } from "../../../interface/model";
 import {
   useFetchBookTicketQuery,
   useRemoveBookTicketMutation,
 } from "../../../service/book_ticket.service";
 import AddBookTicket from "./AddBookTicket";
 import EditBookTicket from "./EditBookTicket";
-import { useFetchUsersQuery } from "../../../service/signup_login";
+
 import { useFetchShowTimeQuery } from "../../../service/show.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
-import { useFetchChairsQuery } from "../../../service/chairs.service";
+import {
+  useFetchChairsQuery,
+  useGetChairbyIdQuery,
+} from "../../../service/chairs.service";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
-import { useAppSelector } from "../../../store/hooks";
-import { RootState } from "../../../store/store";
+import { id } from "date-fns/locale";
+import { useState } from "react";
+import { useFetchUsersQuery } from "../../../service/signup_login.service";
 
 interface DataType {
   id: string;
@@ -43,7 +48,15 @@ const ListBookTicket: React.FC = () => {
     `${value} Vn₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const { data: chairs } = useFetchChairsQuery();
 
-  const { role } = useAppSelector((state: RootState) => state.auth);
+  const [selectedIdCode, setSelectedIdCode] = useState<string | null>(null);
+  const handlePrintTicket = (idCode: string) => {
+    console.log(`In vé với id_code: ${idCode}`);
+
+    // const { data: qrCodeData } = useGetQRcodeByIdQuery(idCode);
+
+    // console.log("Dữ liệu từ useGetQRcodeByIdQuery:", qrCodeData);
+    window.location.href = `http://127.0.0.1:8000/api/print-ticket/${idCode}`;
+  };
 
   const columns: ColumnsType<DataType> = [
     {
@@ -150,38 +163,13 @@ const ListBookTicket: React.FC = () => {
       width: "5%",
     },
     {
-      title: role === 1 ? "Action" : null,
+      title: "Action",
       key: "action",
-      render: (_, record) => {
-        if (role === 1) {
-          return (
-            <Space size="middle">
-              <EditBookTicket dataCinema={record as any} />
-
-              <Popconfirm
-                placement="topLeft"
-                title="Bạn muốn xóa sản phẩm?"
-                description="Xóa sẽ mất sản phẩm này trong database!"
-                onConfirm={() => removeBookTicket(record.id)}
-                okText="Yes"
-                cancelText="No"
-                okButtonProps={{
-                  style: { backgroundColor: "#007bff", color: "white" },
-                }}
-                cancelButtonProps={{
-                  style: { backgroundColor: "#dc3545", color: "white" },
-                }}
-              >
-                <Button>
-                  <div className="flex ">
-                    <DeleteOutlined />
-                  </div>
-                </Button>
-              </Popconfirm>
-            </Space>
-          );
-        }
-      },
+      render: (_, record) => (
+        <Space size="middle">
+          <Button onClick={() => handlePrintTicket(record.id)}>In vé</Button>
+        </Space>
+      ),
     },
   ];
 
@@ -281,7 +269,7 @@ const ListBookTicket: React.FC = () => {
             style={{ width: 600 }}
           />
 
-          {role === 1 && <AddBookTicket />}
+          <AddBookTicket />
         </div>
       </div>
       <Table columns={columns} dataSource={dataBookTicket} />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { UserAddOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -33,7 +33,7 @@ const AddCategory: React.FC = () => {
       await addCategory(values).unwrap();
       message.success("Thêm sản phẩm thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin/cinema");
+      navigate("/admin/listcate");
     } catch (error) {
       message.error("Thêm sản phẩm thất bại");
     }

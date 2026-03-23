@@ -181,8 +181,10 @@ export const SideBarAdmin: React.FC<SideBarAdminProps> = ({
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+  let user = JSON.parse(localStorage.getItem("user")!);
 
-  const {role} = useAppSelector((state: RootState) => state.auth)
+  const role = user.role;
+  console.log(1);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -221,7 +223,7 @@ export const SideBarAdmin: React.FC<SideBarAdminProps> = ({
           theme="dark"
           defaultSelectedKeys={["1"]}
           mode="inline"
-          items={role === 1 ? itemsAdmin : itemStaffs}
+          items={role === 1 ? items : itemStaffs}
         />
       </Sider>
 

@@ -11,11 +11,11 @@ import {
 import { useAddBookTicketMutation } from "../../../service/book_ticket.service";
 import { format } from "date-fns";
 import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
-import {
-  useSendEmailMutation,
-  useUsed_VC_ByUserIdMutation,
-} from "../../../service/pay.service";
+
 import * as moment from "moment-timezone";
+import { useSendEmailMutation } from "../../../service/sendEmail.service";
+import { useUsed_VC_ByUserIdMutation } from "../../../service/voucher.service";
+
 
 const Payment = () => {
   const location = useLocation();

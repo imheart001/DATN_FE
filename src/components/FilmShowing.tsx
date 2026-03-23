@@ -61,7 +61,7 @@ const FilmShowing = ({ data }: Props) => {
             <span>
               {
                 getCateAll.find((film: any) => film.id === data.id)
-                  .category_names
+                  ?.category_names
               }
             </span>
             <span>IMDB 8.6</span>

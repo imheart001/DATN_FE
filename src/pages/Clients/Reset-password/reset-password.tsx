@@ -2,14 +2,17 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useState } from "react";
-import { useResetPasswordMutation } from "../../../service/signup_login";
+import { useResetPasswordMutation } from "../../../service/signup_login.service";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
   currentPassword: yup.string().required(),
-  password: yup.string().min(4, "Password length should be at least 4 characters").required("Password is required"),
+  password: yup
+    .string()
+    .min(4, "Password length should be at least 4 characters")
+    .required("Password is required"),
   cpassword: yup
     .string()
     .required("Confirm Password is required")
@@ -43,7 +46,6 @@ const ResetPassword = () => {
     password: string;
     cpassword: string;
   }) => {
-
     const formData = new FormData();
     formData.append("email", data.email);
     formData.append("token", data.currentPassword);

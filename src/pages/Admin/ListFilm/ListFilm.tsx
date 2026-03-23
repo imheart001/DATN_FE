@@ -68,7 +68,9 @@ const ListFilm: React.FC = () => {
     tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
 
-  const { role } = useAppSelector((state: RootState) => state.auth);
+  let user = JSON.parse(localStorage.getItem("user")!);
+
+  const role = user.role;
 
   const columns: ColumnsType<DataType> = [
     {
@@ -145,7 +147,7 @@ const ListFilm: React.FC = () => {
     },
 
     {
-      title: role ===1 && "Action",
+      title: role === 1 && "Action",
       key: "action",
       render: (_, record) => {
         if (role === 1) {
@@ -202,7 +204,7 @@ const ListFilm: React.FC = () => {
             onSearch={onSearch}
           />
           <RangePicker />
-          {role ===1 && <AddFilm />}
+          {role === 1 && <AddFilm />}
         </div>
       </div>
       {!movies && <Table columns={columns} dataSource={dataFilm} />}

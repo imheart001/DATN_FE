@@ -27,7 +27,9 @@ const ListFood: React.FC = () => {
   const { data: foods } = useFetchFoodQuery();
   const [removeFood] = useRemoveFoodMutation();
 
-  const { role } = useAppSelector((state: RootState) => state.auth);
+  let user = JSON.parse(localStorage.getItem("user")!);
+
+  const role = user.role;
 
   const columns: ColumnsType<DataType> = [
     {

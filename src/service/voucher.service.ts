@@ -5,6 +5,14 @@ const vouchersAPI = createApi({
   reducerPath: "vouchers",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://127.0.0.1:8000/api",
+    prepareHeaders: (headers, { getState }) => {
+      // Add your authorization header here
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: ["voucher"],
   endpoints: (builder) => ({
@@ -39,6 +47,14 @@ const vouchersAPI = createApi({
       }),
       invalidatesTags: ["voucher"],
     }),
+    Used_VC_ByUserId: builder.mutation({
+      query: (voucher: string) => ({
+        url: "/usevoucher/",
+        method: "POST",
+        body: voucher,
+      }),
+      invalidatesTags: ["voucher"],
+    }),
   }),
 });
 export const {
@@ -47,5 +63,6 @@ export const {
   useGetVoucherByIdQuery,
   useRemoveVoucherMutation,
   useUpdateVoucherMutation,
+  useUsed_VC_ByUserIdMutation,
 } = vouchersAPI;
 export default vouchersAPI;

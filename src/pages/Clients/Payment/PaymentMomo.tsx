@@ -13,8 +13,9 @@ import {
 import { useAddBookTicketMutation } from "../../../service/book_ticket.service";
 import { format } from "date-fns";
 import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
-import { useSendEmailMutation } from "../../../service/pay.service";
+
 import * as moment from "moment-timezone";
+import { useSendEmailMutation } from "../../../service/sendEmail.service";
 
 const PaymentMomo: React.FC = () => {
   const location = useLocation();

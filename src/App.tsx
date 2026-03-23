@@ -37,8 +37,6 @@ import ForgotPassword from "./pages/Clients/Forgot-password";
 import ResetPassword from "./pages/Clients/Reset-password/reset-password";
 
 function App() {
-  let user = JSON.parse(localStorage.getItem("user")!);
-
   const router = createBrowserRouter([
     {
       path: "/",
@@ -96,7 +94,8 @@ function App() {
     },
     {
       path: "/admin",
-      element: user?.role === 1 ? <LayoutAdmin /> : <ErrorPage />,
+      element: <LayoutAdmin />,
+
       children: [
         {
           path: "/admin/listfilm",

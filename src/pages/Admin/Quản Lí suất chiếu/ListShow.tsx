@@ -32,7 +32,9 @@ const ListShow: React.FC = () => {
   const { data: times } = useFetchTimeQuery();
   const [removeShowTimes] = useRemoveShowTimeMutation();
 
-  const { role } = useAppSelector((state: RootState) => state.auth);
+  let user = JSON.parse(localStorage.getItem("user")!);
+
+  const role = user.role;
 
   // console.log(shows);
   const columns: ColumnsType<DataType> = [

@@ -1,6 +1,6 @@
 import { Cascader, Dropdown, Menu } from "antd";
 import { useFetchProductQuery } from "../../service/films.service";
-import {} from "../../service/cinemas.service";
+
 import { useFetchCinemaQuery } from "../../service/brand.service";
 import { useEffect, useState } from "react";
 import { useFetchShowTimeQuery } from "../../service/show.service";

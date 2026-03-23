@@ -16,13 +16,13 @@ import type { TabsProps } from "antd";
 import * as moment from "moment-timezone";
 import { useGetAllCateDetailByFilmQuery } from "../../../service/catedetail.service";
 import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
+import Loading from "../../../components/isLoading/Loading";
 
 const Ticket: React.FC = () => {
   const { data: films, isLoading: filmsLoading } = useFetchProductQuery();
   const { data: shows, isLoading: showsLoading } = useFetchShowTimeQuery();
   const { data: cinemas, isLoading: cinemasLoading } = useFetchCinemaQuery();
-  const { data: roomsBrand, isLoading: roomsLoading } =
-    useFetchMovieRoomQuery();
+
   const { data: times } = useFetchTimeQuery();
 
   const { data: cateAllDetail } = useGetAllCateDetailByFilmQuery();
@@ -207,8 +207,8 @@ const Ticket: React.FC = () => {
     };
   });
 
-  if (filmsLoading && showsLoading && cinemasLoading && roomsLoading) {
-    return <div>Loading...</div>;
+  if (filmsLoading && showsLoading && cinemasLoading) {
+    return <Loading />;
   }
 
   return (

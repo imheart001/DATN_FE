@@ -26,7 +26,9 @@ const ListMovieRoom: React.FC = () => {
   const { data: movies } = useFetchMovieRoomQuery();
   const { data: cinemas } = useFetchCinemaQuery();
 
-  const { role } = useAppSelector((state: RootState) => state.auth);
+  let user = JSON.parse(localStorage.getItem("user")!);
+
+  const role = user.role;
 
   const [removeMovie] = useRemoveMovieRoomMutation();
   console.log(movies);
@@ -112,7 +114,7 @@ const ListMovieRoom: React.FC = () => {
             onSearch={onSearch}
           />
 
-         {role == 1 && <AddMovieRoom />}
+          {role == 1 && <AddMovieRoom />}
         </div>
       </div>
       {dataList ? (
