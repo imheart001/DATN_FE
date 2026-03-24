@@ -50,7 +50,7 @@ const ListBookTicket: React.FC = () => {
 
   const [selectedIdCode, setSelectedIdCode] = useState<string | null>(null);
   const handlePrintTicket = (idCode: string) => {
-    console.log(`In vé với id_code: ${idCode}`);
+    // console.log(`In vé với id_code: ${idCode}`);
 
     // const { data: qrCodeData } = useGetQRcodeByIdQuery(idCode);
 
@@ -167,7 +167,9 @@ const ListBookTicket: React.FC = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button onClick={() => handlePrintTicket(record.id)}>In vé</Button>
+          <Button onClick={() => handlePrintTicket(record.id_code)}>
+            In vé
+          </Button>
         </Space>
       ),
     },

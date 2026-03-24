@@ -22,9 +22,12 @@ export interface IVoucher {
   start_time: string;
   end_time: string;
   usage_limit: number;
-  price_vocher: number;
+  price_voucher: number;
   remaining_limit: number;
   limit: number;
+  percent: number;
+  minimum_amount: number;
+  description: string;
 }
 export interface ICinemas {
   id: string;

@@ -106,7 +106,7 @@ const AddVoucher: React.FC = () => {
 
             <Col span={12}>
               <Form.Item
-                name="price_vocher"
+                name="price_voucher"
                 label="Price"
                 rules={[{ required: true, message: "Please enter Price" }]}
               >
@@ -141,6 +141,27 @@ const AddVoucher: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
+                name="minimum_amount"
+                label="Áp dụng cho đơn từ ?"
+                rules={[{ required: true, message: "Please Max Sale Price" }]}
+              >
+                <Input placeholder="Please Max Sale Price" />
+              </Form.Item>
+            </Col>
+
+            <Col span={12}>
+              <Form.Item
+                name="percent"
+                label="Số % giảm"
+                rules={[{ required: true, message: "Please Số % giảm" }]}
+              >
+                <Input placeholder="Please enter Số % giảm" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
                 name="start_time"
                 label="Thời gian bắt đầu"
                 rules={[
@@ -166,6 +187,25 @@ const AddVoucher: React.FC = () => {
                   showTime={{ format: "HH:mm:ss" }}
                   format="YYYY-MM-DD HH:mm:ss"
                   className="w-full"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="description"
+                label="Mô tả"
+                rules={[
+                  {
+                    required: true,
+                    message: "please enter url description",
+                  },
+                ]}
+              >
+                <Input.TextArea
+                  rows={4}
+                  placeholder="please enter url description"
                 />
               </Form.Item>
             </Col>

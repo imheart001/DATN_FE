@@ -18,7 +18,7 @@ interface DataType {
   start_time: string;
   end_time: string;
   usage_limit: number;
-  price_vocher: number;
+  price_voucher: number;
   remaining_limit: number;
   limit: number;
 }
@@ -54,8 +54,8 @@ const ListVouchers: React.FC = () => {
     },
     {
       title: "Price",
-      dataIndex: "price_vocher",
-      key: "price_vocher",
+      dataIndex: "price_voucher",
+      key: "price_voucher",
       render: (text) => <span>{formatter(Number(text))}</span>,
     },
     {
@@ -106,7 +106,7 @@ const ListVouchers: React.FC = () => {
       start_time: voucher?.start_time,
       end_time: voucher?.end_time,
       usage_limit: voucher?.usage_limit,
-      price_vocher: voucher?.price_vocher,
+      price_voucher: voucher?.price_voucher,
       remaining_limit: voucher?.remaining_limit,
       //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
     })

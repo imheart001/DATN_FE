@@ -14,6 +14,7 @@ import { IFood } from "../../../interface/model";
 import EditFood from "./EditFood";
 import { RootState } from "../../../store/store";
 import { useAppSelector } from "../../../store/hooks";
+import { formatter } from "../../../utils/formatCurrency";
 interface DataType {
   id: string;
   name: string;
@@ -56,6 +57,7 @@ const ListFood: React.FC = () => {
       title: "Price",
       dataIndex: "price",
       key: "price",
+      render: (text) => <span>{formatter(Number(text))}</span>,
     },
     {
       render: (_, record) => {
