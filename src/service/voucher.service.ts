@@ -48,10 +48,10 @@ const vouchersAPI = createApi({
       invalidatesTags: ["voucher"],
     }),
     Used_VC_ByUserId: builder.mutation({
-      query: (voucher: string) => ({
+      query: (voucher_code: any) => ({
         url: "/usevoucher/",
         method: "POST",
-        body: voucher,
+        body: voucher_code,
       }),
       invalidatesTags: ["voucher"],
     }),

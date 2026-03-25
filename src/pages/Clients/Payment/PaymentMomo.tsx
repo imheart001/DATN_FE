@@ -171,20 +171,19 @@ const PaymentMomo: React.FC = () => {
         />
       )}
       {vnp_TransactionStatus != "0" && (
-        <div className="bg-white p-10 rounded-lg shadow-lg">
+        <div className="bg-white p-10 rounded-lg shadow-lg text-center">
           {/* <Header /> */}
-          <section className="rounded-3xl shadow-2xl">
-            <div className="p-8 text-center sm:p-12">
-              <h1 className="text-2xl mb-6">Thanh toán thất bại</h1>
-              <p className="text-gray-700 mb-4">
-                Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại
-                sau.
-              </p>
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Quay lại trang chủ
-              </button>
-            </div>
-          </section>
+          <Result
+            status="error"
+            title="Thanh toán Thất Bại!"
+            subTitle="Vui lòng thử lại sau "
+          >
+            <Link to={"/"} className="text-center ">
+              <Button type="primary" className="bg-blue-600">
+                Back Home
+              </Button>
+            </Link>
+          </Result>
         </div>
       )}
     </div>

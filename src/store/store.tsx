@@ -76,6 +76,7 @@ const store = configureStore({
         ignoredPaths: ["selectedCinema"],
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
+      immutableCheck: false,
     }).concat(
       filmsAPI.middleware as any,
       categorysAPI.middleware as any,

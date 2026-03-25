@@ -1,15 +1,23 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { ISeatKepting } from "../interface/model";
 
 const seatkepingAPI = createApi({
   reducerPath: "seatKeping",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://127.0.0.1:8000/api",
+    prepareHeaders: (headers, { getState }) => {
+      // Add your authorization header here
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: ["kepingseat"],
   endpoints: (builder) => ({
-    getAllSeatKepings: builder.query({
-      query: (id_time_detail) =>
-        `/getReservedSeatsByTimeDetail/${id_time_detail}`,
+    getAllSeatKepings: builder.query<ISeatKepting[], string>({
+      query: (id) => `/getReservedSeatsByTimeDetail/${id}`,
       providesTags: ["kepingseat"],
     }),
 

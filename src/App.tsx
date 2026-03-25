@@ -35,6 +35,7 @@ import { ErrorPage } from "./pages/Clients/ErrorPages/ErrorPages";
 import ListVouchers from "./pages/Admin/Vouchers/ListVouchers";
 import ForgotPassword from "./pages/Clients/Forgot-password";
 import ResetPassword from "./pages/Clients/Reset-password/reset-password";
+import NotFound from "./pages/Clients/NotFoundPages/NotFound";
 
 function App() {
   const router = createBrowserRouter([
@@ -154,6 +155,10 @@ function App() {
     {
       path: "/PayMentMoMo/:id_code",
       element: <PaymentMomo />,
+    },
+    {
+      path: "/*",
+      element: <NotFound />,
     },
   ]);
   const dispatch = useDispatch();

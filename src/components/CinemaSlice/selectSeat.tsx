@@ -7,7 +7,7 @@ const TKinformationSlice = createSlice({
   initialState: {
     selectedSeats: [],
     showtimeId: null,
-    totalPrice: null,
+    totalPrice: 0,
     comboFoods: [],
     chooseVoucher: "",
   },

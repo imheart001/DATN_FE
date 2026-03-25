@@ -35,6 +35,10 @@ export interface ICinemas {
   address: string;
   status: number;
 }
+export interface ISeatKepting {
+  seat: string;
+  id_user: string;
+}
 export interface IShowTime {
   id: string;
   date: Date;
