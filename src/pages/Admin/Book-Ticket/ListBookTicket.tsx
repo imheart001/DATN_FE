@@ -37,6 +37,7 @@ interface DataType {
 const { Search } = Input;
 
 const ListBookTicket: React.FC = () => {
+  const [booked, setBooked] = useState<any>(null);
   const { data: bookticket } = useFetchBookTicketQuery();
   const { data: shows } = useFetchShowTimeQuery();
   const [removeBookTicket] = useRemoveBookTicketMutation();
@@ -261,6 +262,12 @@ const ListBookTicket: React.FC = () => {
     }
   );
   console.log(dataBookTicket);
+  const onSearch = (value: any, _e: any) => {
+    const results = (bookticket as any)?.filter((item: any) =>
+      item.id_code.toLowerCase().includes(value.toLowerCase())
+    );
+    setBooked(results);
+  };
   return (
     <>
       <div className="">
@@ -269,6 +276,7 @@ const ListBookTicket: React.FC = () => {
           <Search
             placeholder="Nhập thông tin tìm kiếm"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
           <AddBookTicket />

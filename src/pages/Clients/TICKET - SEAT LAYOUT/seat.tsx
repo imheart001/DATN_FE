@@ -28,7 +28,7 @@ enum SeatStatus {
   Available = "available",
   Booked = "booked",
   Selected = "selected",
-  kepted = "kepted",
+  Kepted = "kepted",
   Reserved = "Reserved",
 }
 enum SeatType {
@@ -77,9 +77,6 @@ const BookingSeat = () => {
   };
 
   dispatch(setComboFoods(foodQuantities));
-  // const paymentLink = useGetPaybyTranferQuery(totalMoney + totalComboAmount);
-
-  // const paymentLinkMoMo = usePaymentMomoQuery(totalMoney + totalComboAmount);
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(0);
   const [choosePayment, setChoosePayment] = useState(1);
@@ -158,168 +155,6 @@ const BookingSeat = () => {
     )
   );
 
-  const onHandleNextStep = () => {
-    if (selectedSeatsCount === 0) {
-      message.error("Vui lòng chọn ít nhất một ghế để đặt vé.");
-      return;
-    }
-    const seatNearOutermost = selectedSeats.find((seat) => seat.column === 10);
-
-    if (seatNearOutermost) {
-      const NearSeatOutermost = seatNearOutermost?.row;
-      const test3 = seats[NearSeatOutermost].find(
-        (seat) =>
-          seat.row === NearSeatOutermost &&
-          seat.column === seatNearOutermost?.column + 1
-      );
-      console.log(test3);
-      if (seatNearOutermost && test3?.status === "available") {
-        message.error(
-          "Bạn không được bỏ trống ghế " +
-            getRowName(seatNearOutermost.row) +
-            (seatNearOutermost.column + 2)
-        );
-        return;
-      }
-    }
-
-    const findSeats = () => {
-      for (let i = 0; i < selectedSeats.length - 1; i++) {
-        const seat1 = selectedSeats[i];
-
-        for (let j = i + 1; j < selectedSeats.length; j++) {
-          const seat2 = selectedSeats[j];
-
-          if (
-            seat1.row === seat2.row &&
-            Math.abs(seat1.column - seat2.column) === 2
-          ) {
-            return [seat1, seat2];
-          }
-        }
-      }
-
-      return null;
-    };
-
-    const result = findSeats();
-    if (result) {
-      const rowCheck = result
-        .filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.row === item.row)
-        )
-        .map((item) => item.row)[0];
-
-      const seatBetween = seats[rowCheck].find(
-        (seat: any) =>
-          seat.row === rowCheck &&
-          seat.column === (result[0]?.column + result[1]?.column) / 2
-      );
-      console.log(seatBetween);
-      if (result && seatBetween?.status === "available") {
-        message.error(
-          "Bạn không được bỏ trống ghế " +
-            getRowName(seatBetween.row) +
-            (seatBetween.column + 1)
-        );
-        return;
-      }
-    }
-    if (selectedSeats) {
-      const rowseatCheck = selectedSeats
-        .filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.row === item.row)
-        )
-        .map((item) => item.row)[0];
-      const seatChoosing = selectedSeats.filter(
-        (item, index, self) =>
-          index === self.findIndex((t) => t.row === item.row)
-      );
-      console.log(seatChoosing);
-
-      const seat2 = selectedSeats
-        .filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.row === item.row)
-        )
-        .map((item) => item.column)[0];
-      console.log(seat2);
-
-      const seatFinded = seats[rowseatCheck].map((s) => s.column);
-
-      const findSeats = () => {
-        const result = [];
-
-        for (let i = 0; i < seatFinded.length; i++) {
-          if (seat2 && Math.abs(seat2 - seatFinded[i]) === 2) {
-            result.push(seatFinded[i]);
-          }
-        }
-
-        return result.length > 0 ? result : null;
-      };
-
-      const testtt = findSeats();
-      console.log(testtt);
-      if (testtt && seatChoosing) {
-        if (seats[rowseatCheck][testtt[1]]?.status === "booked") {
-          const seatBetween = seats[rowseatCheck].find(
-            (seat: any) =>
-              seat.row === rowseatCheck &&
-              seat.column ===
-                (seats[rowseatCheck][testtt[1]]?.column +
-                  seatChoosing[0]?.column) /
-                  2
-          );
-          console.log(seatBetween);
-
-          if (
-            (seats[rowseatCheck][testtt[0]]?.status === "booked" ||
-              seats[rowseatCheck][testtt[1]]?.status === "booked") &&
-            seatBetween?.status === "available"
-          ) {
-            message.error(
-              "Bạn không được bỏ trống ghế " +
-                getRowName(seatBetween.row) +
-                (seatBetween.column + 1)
-            );
-            return;
-          }
-        } else if (seats[rowseatCheck][testtt[0]]?.status === "booked") {
-          const seatBetween = seats[rowseatCheck].find(
-            (seat: any) =>
-              seat.row === rowseatCheck &&
-              seat.column ===
-                (seats[rowseatCheck][testtt[0]]?.column +
-                  seatChoosing[0]?.column) /
-                  2
-          );
-          console.log(seatBetween);
-
-          if (
-            (seats[rowseatCheck][testtt[0]]?.status === "booked" ||
-              seats[rowseatCheck][testtt[1]]?.status === "booked") &&
-            seatBetween?.status === "available"
-          ) {
-            message.error(
-              "Bạn không được bỏ trống ghế " +
-                getRowName(seatBetween.row) +
-                (seatBetween.column + 1)
-            );
-            return;
-          }
-        }
-      }
-    }
-    setShowPopCorn(!showPopCorn);
-  };
-  // const test3 = seats.find(
-  //   (seat) => seat.row === testttt?.row && seat.column === testttt?.column + 1
-  // );
-
-  // console.log(test3);
   useEffect(() => {
     const seatBooked = (DataSeatBooked as any)?.data || [];
 
@@ -335,7 +170,10 @@ const BookingSeat = () => {
 
     // Tạo một bản sao mới của mảng ghế
     const updatedSeats = [...seats];
-
+    const parseSeatName = (seatNamesString: any) => {
+      return seatNamesString.split(",").map((name: any) => name.trim());
+    };
+    console.log(parseSeatName("A4"));
     // Duyệt qua các ghế đã đặt và cập nhật trạng thái của chúng
     bookedSeatNames.forEach((seatName: any) => {
       const [rowIndex, columnIndex] = parseSeatName(seatName);
@@ -360,9 +198,6 @@ const BookingSeat = () => {
       message.error("Vui lòng chọn phương thức thanh toán.");
       return;
     }
-
-    // window.location.href = `${paymentLink?.data?.data}`;
-    // Rest of the code...
   };
 
   const handlePaymentMomo = () => {
@@ -370,23 +205,10 @@ const BookingSeat = () => {
       message.error("Vui lòng chọn phương thức thanh toán.");
       return;
     }
-    // window.location.href = `${paymentLinkMoMo?.data?.payUrl}`;
   };
   const handleSeatClick = async (row: number, column: number) => {
     const updatedSeats = [...seats];
     const seat = updatedSeats[row][column];
-    const lastSelectedSeat = selectedSeats[selectedSeats.length - 1];
-
-    // const ChooseEeatKeping = `${getRowName(lastSelectedSeat?.row)}${
-    //   lastSelectedSeat?.column + 1
-    // }`;
-    // const seatKeping = {
-    //   id_time_detail: id,
-    //   id_user: userId.id,
-    //   selected_seats: ChooseEeatKeping,
-    // };
-    // const reponse = await keptSeat(seatKeping);
-
     if (seat.status === SeatStatus.Available) {
       const selectedPrice = seat.type === SeatType.VIP ? 50000 : 45000;
 
@@ -436,9 +258,51 @@ const BookingSeat = () => {
       setSelectedSeats(selectedSeats.filter((selected) => selected !== seat));
       setSelectedSeatsCount(selectedSeatsCount - 1);
     }
+    if (seat.type === SeatType.normal && seat.status === SeatStatus.Available) {
+      updatedSeats[row][column] = {
+        ...seat,
+        status: SeatStatus.Kepted,
+        price: 0, // Có thể đặt giá là 0 cho trạng thái giữ ghế
+      };
 
+      // Cập nhật mảng ghế trong trạng thái
+      setSeats(updatedSeats);
+
+      // Gọi mutation để đặt ghế vào trạng thái giữ ghế
+      const seatKeping = {
+        id_time_detail: id,
+        id_user: userId.id,
+        selected_seats: `${getRowName(row)}${column + 1}`,
+      };
+      await keptSeat(seatKeping);
+    }
     setSeats(updatedSeats);
   };
+  // useEffect(() => {
+  //   // ... (existing code)
+  //   const parseSeatName = (seatNamesString: any) => {
+  //     return seatNamesString.split(",").map((name: any) => name.trim());
+  //   };
+  //   // Fetch and display seats kepted by user A
+  //   const keptedSeats = dataSeatKeping?.map((keptSeat: any) => {
+  //     const [row, column] = parseSeatName(keptSeat.seatName);
+  //     return {
+  //       row,
+  //       column,
+  //       status: SeatStatus.Kepted,
+  //       type: keptSeat.type,
+  //       price: keptSeat.price,
+  //     };
+  //   });
+
+  //   if (keptedSeats) {
+  //     const updatedSeats = [...seats];
+  //     keptedSeats.forEach((keptSeat: any) => {
+  //       updatedSeats[keptSeat.row][keptSeat.column] = keptSeat;
+  //     });
+  //     setSeats(updatedSeats);
+  //   }
+  // }, [dataSeatKeping, seats]);
 
   const updateFoodQuantitiesUI = (
     foodId: string,
@@ -492,12 +356,6 @@ const BookingSeat = () => {
   dispatch(setSelectSeats(seatNames));
   dispatch(setShowtimeId(id));
 
-  const parseSeatName = (seatName: string) => {
-    const row = seatName.charCodeAt(0) - "A".charCodeAt(0);
-    const column = parseInt(seatName.slice(1)) - 1;
-    return [row, column];
-  };
-
   if (isLoading) {
     return <Loading />; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
   }
@@ -523,28 +381,6 @@ const BookingSeat = () => {
   const selectedVoucherInfo = (dataVouchers as any)?.data.find(
     (vc: any) => vc.id === selectedVoucher
   );
-  console.log(selectedVoucherInfo);
-  // const applyDiscount = () => {
-  //   if (selectedVoucherInfo) {
-  //     if (selectedVoucherInfo.limit === 1) {
-  //       // Giảm giá theo giá trị cố định
-  //       return selectedVoucherInfo.price_vocher;
-  //     } else if (selectedVoucherInfo.limit === 2) {
-  //       // Giảm giá theo phần trăm
-  //       const discountPercentage = selectedVoucherInfo.price_vocher;
-  //       if (
-  //         (totalMoney + totalComboAmount) * (discountPercentage / 100) >
-  //         discountPercentage
-  //       ) {
-  //         return discountPercentage;
-  //       } else {
-  //         return (totalMoney + totalComboAmount) * (discountPercentage / 100);
-  //       }
-  //     }
-  //   }
-  //   return 0; // Nếu không có voucher hoặc không phù hợp với các điều kiện trên
-  // };
-  // const discountAmount = applyDiscount();
 
   return (
     <>
@@ -641,7 +477,7 @@ const BookingSeat = () => {
                                 />
                               </span>
                             )}
-                          {infoSeat.status === SeatStatus.kepted &&
+                          {infoSeat.status === SeatStatus.Kepted &&
                             infoSeat.type === SeatType.normal && (
                               <span>
                                 <img
@@ -651,7 +487,7 @@ const BookingSeat = () => {
                                 />
                               </span>
                             )}
-                          {infoSeat.status === SeatStatus.kepted &&
+                          {infoSeat.status === SeatStatus.Kepted &&
                             infoSeat.type === SeatType.VIP && (
                               <span>
                                 <img
@@ -689,412 +525,6 @@ const BookingSeat = () => {
               </table>
             </div>
           </section>
-        </section>
-        <section className={`${showPopCorn ? "col-span-3" : " hidden"}`}>
-          <section className="bg-white rounded-lg p-8 space-y-4">
-            <main className="max-w-5xl mx-auto shadow-lg  shadow-cyan-500/50 px-4 py-8 sm:px-6 lg:px-8">
-              <div className="mb-8">
-                <span className="block font-medium text-lg text-red-600 border-b-2 border-red-600">
-                  Khách hàng
-                </span>
-                <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3 mt-4">
-                  <div className="flex items-center">
-                    <div className="flex items-center mt-3">
-                      <p className="font-medium text-base">{userId?.name}</p>
-                      <p className="text-gray-500 text-sm ml-1">
-                        {userId?.phone}
-                      </p>
-                      <p className="text-gray-500 text-sm ml-3">
-                        {userId?.email}
-                      </p>
-                    </div>
-                    <NavLink
-                      to="#"
-                      className="text-red-500 border p-1 text-[10px] border-red-500 ml-3"
-                    >
-                      mặc định
-                    </NavLink>
-                  </div>
-                  <button className="md:text-blue-500 md:text-sm md:hover:text-green-700 md:mt-2 pl-3 text-blue-500 hover:text-green-700 text-[10px]">
-                    Thay đổi
-                  </button>
-                </div>
-              </div>
-              <div className="info-seat space-y-4 my-4">
-                <div className="info-seat space-y-4 my-4">
-                  {Object.entries(seatInfo).map(([seatType, info]) => (
-                    <div key={seatType} className="flex justify-between">
-                      <div className="block font-medium text-lg text-red-600 border-b-2 border-red-600">
-                        Ghế {seatType}
-                      </div>
-                      <div className="flex w-[40%] justify-between">
-                        <div className="">Số lượng x{info?.quantity}</div>
-                        <div className="">
-                          Thành tiền {formatter(info.totalPrice)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <span className="block mb-4 text-lg font-semibold text-red-600">
-                COMBO ƯU ĐÃI
-              </span>
-              <div className="mb-8 border rounded-[10px]">
-                <table className="min-w-full divide-y divide-gray-200 shadow-lg">
-                  <thead>
-                    <tr>
-                      <th
-                        scope="col"
-                        className="py-2 font-medium text-center text-sm text-red-600 border-b-2 border-red-600"
-                      ></th>
-                      <th
-                        scope="col"
-                        className="py-2 font-medium text-center text-sm text-red-600 border-b-2 border-red-600"
-                      >
-                        Sản phẩm
-                      </th>
-                      <th
-                        scope="col"
-                        className="py-2 font-medium text-center text-sm text-red-600 border-b-2 border-red-600"
-                      >
-                        Giá
-                      </th>
-                      <th
-                        scope="col"
-                        className="py-2 font-medium text-center text-sm text-red-600 border-b-2 border-red-600"
-                      >
-                        Số lượng
-                      </th>
-                      <th
-                        scope="col"
-                        className="py-2 font-medium text-center text-sm text-red-600 border-b-2 border-red-600"
-                      >
-                        Thành tiền
-                      </th>
-                    </tr>
-                    {(foods as any)?.data.map((food: any, index: any) => {
-                      return (
-                        <>
-                          <tr key={index}>
-                            <td className="whitespace-nowrap text-center px-4 py-2 font-medium text-gray-900">
-                              <img
-                                src={food.image}
-                                alt=""
-                                className="w-[50px] bg-[#F3F3F3] h-[50px]"
-                              />
-                            </td>
-                            <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
-                              {food.name}
-                            </td>
-                            <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
-                              {formatter(food.price)}
-                            </td>
-                            <td className="whitespace-nowrap text-center mx-auto px-4 py-2 text-gray-700">
-                              <div className="text-center mx-auto">
-                                <label
-                                  htmlFor={`Quantity-${food.id}`}
-                                  className="sr-only"
-                                >
-                                  Quantity
-                                </label>
-                                <div className="flex items-center justify-center gap-1">
-                                  <button
-                                    type="button"
-                                    className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
-                                    onClick={() =>
-                                      handleQuantityChange(
-                                        food.id,
-                                        -1,
-                                        food.price
-                                      )
-                                    }
-                                    disabled={
-                                      foodQuantitiesUI[food.id]?.quantity ===
-                                        0 || !foodQuantitiesUI[food.id]
-                                    }
-                                  >
-                                    &minus;
-                                  </button>
-                                  <input
-                                    id={`Quantity-${food.id}`}
-                                    value={
-                                      foodQuantitiesUI[food.id]?.quantity || 0
-                                    }
-                                    onChange={(e) =>
-                                      handleQuantityChange(
-                                        food.id,
-                                        parseInt(e.target.value) || 0,
-                                        food.price
-                                      )
-                                    }
-                                    className="h-10 w-16 rounded border-gray-200 text-center sm:text-sm"
-                                  />
-                                  <button
-                                    type="button"
-                                    className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
-                                    onClick={() =>
-                                      handleQuantityChange(
-                                        food.id,
-                                        1,
-                                        food.price
-                                      )
-                                    }
-                                  >
-                                    +
-                                  </button>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="whitespace-nowrap text-center px-4 py-2 text-gray-700">
-                              {foodQuantitiesUI[food.id]?.quantity > 0
-                                ? formatter(
-                                    foodQuantitiesUI[food.id]?.quantity *
-                                      food.price
-                                  )
-                                : formatter(0)}
-                            </td>
-                          </tr>
-                        </>
-                      );
-                    })}
-                  </thead>
-                </table>
-              </div>
-              <div className="mb-8">
-                <span className="block mb-4 font-medium text-lg text-red-600 border-b-2 border-red-600">
-                  MÃ KHUYẾN MÃI
-                </span>
-                <div className="grid grid-cols-1 h-32 overflow-y-auto gap-4 lg:grid-cols-2 lg:gap-6">
-                  {(dataVouchers as any)?.data.map((vc: any) => {
-                    const formattedEndDate = dayjs(vc.end_time).format(
-                      "DD/MM/YYYY"
-                    );
-                    const isSelected = selectedVoucher === vc.id;
-                    const borderClass = isSelected
-                      ? "border-2 border-red-600"
-                      : "border border-gray-200";
-                    const buttonText = isSelected ? "Hủy áp dụng" : "Áp dụng";
-                    const textClass = isSelected ? "text-red-600" : "black";
-                    return (
-                      <>
-                        <button
-                          key={vc.limit}
-                          onClick={() => onHandleChooseVC(vc.id, vc.code)}
-                          className={`h-30 m-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${borderClass}`}
-                        >
-                          <div className="space-y-1">
-                            {vc.limit === 2 ? (
-                              <h3 className="font-semibold text-base text-left">
-                                Mã {vc.code} Giảm {vc.percent}% tối đa{" "}
-                                {vc.price_voucher / 1000}k
-                              </h3>
-                            ) : (
-                              <h3 className="font-semibold text-base text-left">
-                                Mã {vc.code} Giảm {vc.price_voucher / 1000}k
-                              </h3>
-                            )}
-
-                            <p className="text-left">
-                              Áp dụng cho đơn hàng từ{" "}
-                              <span className="font-semibold">
-                                {vc.minimum_amount / 1000}k
-                              </span>
-                            </p>
-                            <div className="text-left">
-                              <span>HSD: </span>
-                              <span className="font-semibold">
-                                {formattedEndDate}
-                              </span>
-                            </div>
-                            <h3
-                              onClick={() => onHandleChooseVC(vc.id, vc.code)}
-                              className={`${textClass} text-right font-semibold`}
-                            >
-                              {buttonText}
-                            </h3>
-                          </div>
-                        </button>
-                      </>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="mb-8">
-                <span className="block font-medium text-lg text-red-600 border-b-2 border-red-600">
-                  Phương thức thanh toán
-                </span>
-                <div className="mt-4 space-x-2">
-                  <button
-                    className={`border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-600 ${
-                      selectedPaymentMethod === 1 ? "bg-gray-200" : ""
-                    }`}
-                    onClick={() => handlePaymentMethodClick(1)}
-                  >
-                    Ngân hàng
-                  </button>
-                  <button
-                    className={`border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-600 ${
-                      selectedPaymentMethod === 2 ? "bg-gray-200" : ""
-                    }`}
-                    onClick={() => handlePaymentMethodClick(2)}
-                  >
-                    Momo
-                  </button>
-                </div>
-              </div>
-              <div className="mb-8 flex justify-between items-center">
-                <span className="text-sm">
-                  Nhấn "Đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo Điều
-                  khoản!
-                </span>
-              </div>
-            </main>
-          </section>
-        </section>
-        <section className="col-span-1">
-          <div className="bg-[#F3F3F3] space-y-2 rounded-lg px-4 py-10 shadow-lg shadow-cyan-500/50">
-            <img
-              src={dataAllByTime_Byid?.image_film}
-              alt=""
-              className="block mx-auto w-[201px] shadow-lg shadow-cyan-500/50 rounded-2xl h-[295px]"
-            />
-            <div className="w-full text-center space-y-2">
-              <h1 className=" text-[#03599d] font-semibold font-mono">
-                {dataAllByTime_Byid?.name_film}
-              </h1>
-              <span className="block text-center">2D Phụ đề</span>
-            </div>
-            <hr className="border-dashed border-2 border-sky-500" />
-            <div className="space-y-4">
-              <span className="   mx-5 flex  space-x-2 items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  className="bi bi-alarm"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z" />
-                  <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z" />
-                </svg>
-                <h4 className="">
-                  Giờ chiếu:{" "}
-                  <span className="font-semibold">
-                    {dataAllByTime_Byid?.time}
-                  </span>
-                </h4>
-              </span>
-              <span className="   mx-5 flex  space-x-2 items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  className="bi bi-cast"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="m7.646 9.354-3.792 3.792a.5.5 0 0 0 .353.854h7.586a.5.5 0 0 0 .354-.854L8.354 9.354a.5.5 0 0 0-.708 0z" />
-                  <path d="M11.414 11H14.5a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5h-13a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .5.5h3.086l-1 1H1.5A1.5 1.5 0 0 1 0 10.5v-7A1.5 1.5 0 0 1 1.5 2h13A1.5 1.5 0 0 1 16 3.5v7a1.5 1.5 0 0 1-1.5 1.5h-2.086l-1-1z" />
-                </svg>
-                <h4 className="">
-                  Phòng chiếu:{" "}
-                  <span className="font-semibold">
-                    {dataAllByTime_Byid?.room_name}
-                  </span>
-                </h4>
-              </span>
-
-              <span className="   mx-5 flex  space-x-2 items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  className="bi bi-inboxes-fill"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M4.98 1a.5.5 0 0 0-.39.188L1.54 5H6a.5.5 0 0 1 .5.5 1.5 1.5 0 0 0 3 0A.5.5 0 0 1 10 5h4.46l-3.05-3.812A.5.5 0 0 0 11.02 1H4.98zM3.81.563A1.5 1.5 0 0 1 4.98 0h6.04a1.5 1.5 0 0 1 1.17.563l3.7 4.625a.5.5 0 0 1 .106.374l-.39 3.124A1.5 1.5 0 0 1 14.117 10H1.883A1.5 1.5 0 0 1 .394 8.686l-.39-3.124a.5.5 0 0 1 .106-.374L3.81.563zM.125 11.17A.5.5 0 0 1 .5 11H6a.5.5 0 0 1 .5.5 1.5 1.5 0 0 0 3 0 .5.5 0 0 1 .5-.5h5.5a.5.5 0 0 1 .496.562l-.39 3.124A1.5 1.5 0 0 1 14.117 16H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .121-.393z" />
-                </svg>
-                <h4 className=" space-x-1">
-                  <span>Ghế ngồi</span>:{" "}
-                  {selectedSeats.map((seat) => (
-                    <span className="font-semibold">
-                      {getRowName(seat.row)}
-                      {seat.column + 1}
-                    </span>
-                  ))}
-                </h4>
-              </span>
-              <span className="   mx-5 flex  space-x-2 items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  className="bi bi-cash"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-                  <path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2H3z" />
-                </svg>
-                <h4 className="flex space-x-1">
-                  <span>Tổng tiền </span>:{" "}
-                  <span className="font-semibold">
-                    {selectedVoucherInfo && console.log(selectedVoucherInfo)}
-                    {selectedVoucherInfo
-                      ? formatter(
-                          selectedSeats.reduce(
-                            (total, seat) => total + seat.price,
-                            0
-                          ) +
-                            totalComboAmount -
-                            selectedVoucherInfo.price_voucher
-                        )
-                      : formatter(
-                          selectedSeats.reduce(
-                            (total, seat) => total + seat.price,
-                            0
-                          ) + totalComboAmount
-                        )}
-                  </span>
-                </h4>
-              </span>
-            </div>
-            <div className="mx-auto">
-              <button
-                onClick={onHandleNextStep}
-                className={` ${
-                  showPopCorn
-                    ? "hidden"
-                    : "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
-                }`}
-              >
-                Tiếp tục
-              </button>
-              <button
-                onClick={handlePaymentVnpay}
-                className={` ${
-                  showPopCorn && choosePayment === 1
-                    ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
-                    : "hidden"
-                }`}
-              >
-                Thanh toán
-              </button>
-              <button
-                onClick={handlePaymentMomo}
-                className={` ${
-                  showPopCorn && choosePayment === 2
-                    ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
-                    : "hidden"
-                }`}
-              >
-                Thanh toán
-              </button>
-            </div>
-          </div>
         </section>
       </section>
       <hr className="mt-10 w-full border-2 border-[#F3F3F3]" />

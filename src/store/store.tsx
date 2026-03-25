@@ -39,7 +39,7 @@ const persistConfig = {
   key: "root",
   storage,
   version: 1,
-  whitelist: ["selectedCinema", "pays", "TKinformation"],
+  whitelist: ["selectedCinema", "pays", "bkseats", "TKinformation"],
 };
 
 const rootReducer = combineReducers({
