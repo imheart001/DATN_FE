@@ -21,8 +21,8 @@ import {
   useGetAllSeatKepingsQuery,
   useKeptSeatMutation,
 } from "../../../service/seatkeping.service";
-import { useGetPaybyTranferQuery } from "../../../service/payVnpay.service";
-import { usePaymentMomoQuery } from "../../../service/payMoMo.service";
+import { useGetPaybyTranferMutation } from "../../../service/payVnpay.service";
+import { usePaymentMomoMutation } from "../../../service/payMoMo.service";
 
 enum SeatStatus {
   Available = "available",
@@ -346,6 +346,11 @@ const BookingSeat = () => {
 
     setFoodQuantities(updatedFoodQuantities);
   }, [foodQuantitiesUI]);
+
+  //!           ----------------------------call redux toolkit---------------------------
+  const paymentLink = useGetPaybyTranferMutation(totalMoney + totalComboAmount);
+  const paymentLinkMoMo = usePaymentMomoMutation(totalMoney + totalComboAmount);
+
   const selectedSeatsInSelectedState = selectedSeats.filter(
     (seat) => seat.status === SeatStatus.Selected
   );

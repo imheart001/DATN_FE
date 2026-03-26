@@ -15,12 +15,16 @@ const payAPI = createApi({
   }),
   tagTypes: ["pay"],
   endpoints: (builder) => ({
-    getPaybyTranfer: builder.query({
-      query: (money) => `/Payment?&amount=${money}`,
-      providesTags: ["pay"],
-    }),
+    getPaybyTranfer: builder.mutation({
+      query: (amount: any) => ({
+        url: "/Payment/",
+        method: "POST",
+        body: amount,
+      }),
+      invalidatesTags: ["pay"],
+      }),
   }),
 });
 
-export const { useGetPaybyTranferQuery } = payAPI;
+export const { useGetPaybyTranferMutation } = payAPI;
 export default payAPI;
