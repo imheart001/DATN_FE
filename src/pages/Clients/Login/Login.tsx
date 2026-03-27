@@ -1,35 +1,20 @@
 import { useEffect, useState } from "react";
-import { IUser } from "../../../interface/model";
-
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input } from "antd";
-import {
-  useAddUserMutation,
-  useLoginUserMutation,
-} from "../../../service/signup_login.service";
-import { useNavigate } from "react-router-dom";
+
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   updateToken,
   setUserId,
   setRoleAuth,
 } from "../../../components/CinemaSlice/authSlice";
-import { persistor } from "../../../store/store";
 import { message } from "antd";
+import { useAddUserMutation, useLoginUserMutation } from "../../../service/signup_login.service";
 
 const Login = () => {
-  const onFinish = (values: any) => {
-    console.log("Success:", values);
-  };
-
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
-  };
-
-  type FieldType = {
-    loginEmail?: string;
-    loginPassword?: string;
-    remember?: string;
   };
   const [changeisForm, setChangeisForm] = useState(false);
   const [loginUser] = useLoginUserMutation();
@@ -42,26 +27,97 @@ const Login = () => {
 
   const navigate = useNavigate();
   const [name, setName] = useState(""); // Registration form state
+  const [phone, setPhone] = useState(""); // Registration form state
+  const [date_of_birth, setDdate_of_birth] = useState(""); // Registration form state
   const [registerEmail, setRegisterEmail] = useState(""); // Registration form state
   const [registerPassword, setRegisterPassword] = useState(""); // Registration form state
   const [loginEmail, setLoginEmail] = useState(""); // Login form state
   const [loginPassword, setLoginPassword] = useState("");
   const [onAdd] = useAddUserMutation();
+
+  const [errors, setErrors] = useState({
+    name: '',
+    registerEmail: '',
+    phone: '',
+    date_of_birth: '',
+    registerPassword: '',
+  });
+
+  const validateForm = () => {
+    let isValid = true;
+
+    // Name validation
+    if (!name.trim()) {
+      setErrors((prevErrors) => ({ ...prevErrors, name: 'Họ tên không được bỏ trống' }));
+      isValid = false;
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, name: '' }));
+    }
+
+    // Email validation
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+    if (!registerEmail.trim() || !emailRegex.test(registerEmail)) {
+      setErrors((prevErrors) => ({ ...prevErrors, registerEmail: 'Email không hợp lệ' }));
+      isValid = false;
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, registerEmail: '' }));
+    }
+
+    // Phone validation
+    const phoneRegex = /^\d{10}$/;
+    if (!phone.trim() || !phoneRegex.test(phone)) {
+      setErrors((prevErrors) => ({ ...prevErrors, phone: 'Số điện thoại không hợp lệ' }));
+      isValid = false;
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, phone: '' }));
+    }
+
+    // Date of Birth validation (add your own validation logic)
+    // For example, you can check if the user is older than a certain age.
+
+    // Password validation
+
+    if (!date_of_birth.trim()) {
+      setErrors((prevErrors) => ({ ...prevErrors, date_of_birth: 'Ngày sinh không được bỏ trống' }));
+      isValid = false;
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, date_of_birth: '' }));
+    }
+
+    if (registerPassword.length < 6) {
+      setErrors((prevErrors) => ({ ...prevErrors, registerPassword: 'Mật khẩu phải có ít nhất 6 ký tự' }));
+      isValid = false;
+    } else {
+      setErrors((prevErrors) => ({ ...prevErrors, registerPassword: '' }));
+    }
+
+    return isValid;
+  };
+
   const addUser = () => {
-    const userNew = {
+    const userNew: any = {
       name,
       email: registerEmail,
+      phone,
+      date_of_birth,
       password: registerPassword,
     };
-    onAdd(userNew);
-
-    message.success("Đăng kí thành công");
-    setName(""); // Reset the name field
-    setRegisterEmail(""); // Reset the email field
-    setRegisterPassword(""); // Reset the password field
-    setTimeout(() => {
-      setChangeisForm(false);
-    }, 2000);
+    if (validateForm()) {
+      onAdd(userNew);
+      console.log(userNew);
+      
+      message.success("Đăng kí thành công");
+      setName(""); // Reset the name field
+      setPhone(""); // Reset the name field
+      setDdate_of_birth(""); // Reset the name field
+      setRegisterEmail(""); // Reset the email field
+      setRegisterPassword(""); // Reset the password field
+      setTimeout(() => {
+        setChangeisForm(false);
+      }, 2000);
+    } else {
+      message.error("Đăng kí không thành công");
+    }
   };
   const handleLogin = async () => {
     try {
@@ -82,7 +138,7 @@ const Login = () => {
         dispatch(setRoleAuth((response as any).data.user.role));
         localStorage.setItem("authToken", (response as any).data.token);
         localStorage.setItem("user_id", (response as any).data.user.id);
-
+        localStorage.setItem("role", (response as any).data.user.role);
         localStorage.setItem("user", JSON.stringify(response?.data.user));
         console.log(localStorage.getItem("user_id"));
         message.success("Đăng nhập thành công!");
@@ -107,15 +163,16 @@ const Login = () => {
             action="#"
           >
             <h1 className="text-3xl font-bold m-0 mb-4 tracking-tighter">
-              Register hire.
+              Đăng Ký Tài Khoản.
             </h1>
             <input
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="text"
-              placeholder="Name"
+              placeholder="Họ Tên"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+            {errors.name && <p className="text-red-500">{errors.name}</p>}
             <input
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="email"
@@ -123,13 +180,31 @@ const Login = () => {
               value={registerEmail}
               onChange={(e) => setRegisterEmail(e.target.value)}
             />
+            {errors.registerEmail && <p className="text-red-500">{errors.registerEmail}</p>}
+            <input
+              className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
+              type="text"
+              placeholder="Số Điện Thoại"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+            {errors.phone && <p className="text-red-500">{errors.phone}</p>}
+            <input
+              className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
+              type="date"
+              placeholder="Ngày Sinh"
+              value={date_of_birth}
+              onChange={(e) => setDdate_of_birth(e.target.value)}
+            />
+            {errors.date_of_birth && <p className="text-red-500">{errors.date_of_birth}</p>}
             <input
               className="bg-[#e4e3e3] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="password"
-              placeholder="Password"
+              placeholder="Mật Khẩu"
               value={registerPassword}
               onChange={(e) => setRegisterPassword(e.target.value)}
             />
+            {errors.registerPassword && <p className="text-red-500">{errors.registerPassword}</p>}
             <button
               type="button"
               onClick={addUser}
@@ -231,12 +306,12 @@ const Login = () => {
                 <Checkbox>Remember me</Checkbox>
               </Form.Item>
 
-              <a
+              <Link
                 className="login-form-forgot text-[#1677ff]"
-                href="/forgot-password"
+                to={`/forgot-password`}
               >
                 Forgot password
-              </a>
+              </Link>
             </Form.Item>
 
             <Form.Item className="w-full">

@@ -37,25 +37,25 @@ const Header: React.FC = () => {
     {
       key: "2",
       label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.aliyun.com"
-        >
-          Thông tin cá nhân
-        </a>
+        <Link
+        target="_blank"
+        rel="noopener noreferrer"
+        to={`/info_account/profile`}
+      >
+        Thông tin cá nhân
+      </Link>
       ),
     },
     {
       key: "3",
       label: (
-        <a
+        <Link
           target="_blank"
           rel="noopener noreferrer"
-          href="https://www.aliyun.com"
+          to={`/info_account/BookTicketUser`}
         >
           Lịch sử đặt vé
-        </a>
+        </Link>
       ),
     },
 

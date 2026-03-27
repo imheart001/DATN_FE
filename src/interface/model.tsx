@@ -77,8 +77,26 @@ export interface IChairs {
   id_time_detail: string;
 }
 export interface IUser {
+  id: number,
   name: string;
   phone: number;
+  image: string | null;
   email: string;
+  date_of_birth: string;
   password: string;
+  old_password: string | null;
+  new_password: string | null;
+}
+export interface IBookTicketUser {
+  time: string;
+  total_price: string;
+  film_name: string;
+  film_image: string;
+  id_code: string;
+  date: string;
+  time_td: string;
+  food_names: string | undefined;
+  chair_name: string;
+  chair_price: string;
+  cinema_name: string;
 }

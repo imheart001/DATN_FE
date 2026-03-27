@@ -9,7 +9,7 @@ const usersAPI = createApi({
   tagTypes: ["user"],
   endpoints: (builder) => ({
     fetchUsers: builder.query<IUser[], void>({
-      query: () => "/users/",
+      query: () => "/user/",
       providesTags: ["user"],
     }),
     addUser: builder.mutation({
@@ -28,7 +28,14 @@ const usersAPI = createApi({
       }),
       invalidatesTags: ["user"],
     }),
-
+    updateUser: builder.mutation({
+      query: (users: IUser) => ({
+          url: `/user/${users.id}`,
+          method: "PUT",
+          body: users,
+      }),
+      invalidatesTags: ["user"],
+  }),
     /* forgot passửod */
     forgorPassword: builder.mutation<{ message: string }, FormData>({
       query: (email) => ({
@@ -48,6 +55,7 @@ const usersAPI = createApi({
   }),
 });
 export const {
+  useUpdateUserMutation,
   useAddUserMutation,
   useLoginUserMutation,
   useFetchUsersQuery,

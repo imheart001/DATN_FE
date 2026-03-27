@@ -35,6 +35,9 @@ import { ErrorPage } from "./pages/Clients/ErrorPages/ErrorPages";
 import ListVouchers from "./pages/Admin/Vouchers/ListVouchers";
 import ForgotPassword from "./pages/Clients/Forgot-password";
 import ResetPassword from "./pages/Clients/Reset-password/reset-password";
+import LayoutProfile from "./Layout/LayoutUser/LayoutProfile";
+import Profile from "./pages/Clients/Profile/Profile";
+import BookTicketUser from "./pages/Clients/BookTicketUser/BookTicketUser";
 
 function App() {
   const router = createBrowserRouter([
@@ -81,6 +84,24 @@ function App() {
         {
           path: "/Tiketbookingdetail",
           element: <TicketBookingDetails />,
+        },
+        {
+          path: "/info_account",
+          element: <LayoutProfile />,
+          children: [
+            {
+              path: "", // Đường dẫn mặc định khi truy cập /info_account
+              element: <Profile />,
+            },
+            {
+              path: "profile", // Đường dẫn mặc định khi truy cập /info_account
+              element: <Profile />,
+            },
+            {
+              path: "BookTicketUser",
+              element: <BookTicketUser />,
+            },
+          ]
         },
       ],
     },
