@@ -15,12 +15,16 @@ const payMoMoAPI = createApi({
   }),
   tagTypes: ["paymomo"],
   endpoints: (builder) => ({
-    PaymentMomo: builder.query({
-      query: (money) => `/momo_payment?&amount=${money}`,
-      providesTags: ["paymomo"],
+    PaymentMomo: builder.mutation({
+      query: (amount: any) => ({
+        url: "/momo_payment/",
+        method: "POST",
+        body: amount,
+      }),
+      invalidatesTags: ["paymomo"],
     }),
   }),
 });
 
-export const { usePaymentMomoQuery } = payMoMoAPI;
+export const { usePaymentMomoMutation } = payMoMoAPI;
 export default payMoMoAPI;

@@ -22,7 +22,7 @@ import {
   useKeptSeatMutation,
 } from "../../../service/seatkeping.service";
 import type { CountdownProps } from "antd";
-import { usePaymentMomoQuery } from "../../../service/payMoMo.service";
+
 import { checkSeat } from "../../../guards/api";
 import { useSendPaymentVnPayMutation } from "../../../service/payVnpay.service";
 
@@ -333,6 +333,9 @@ const BookingSeat = () => {
 
     setFoodQuantities(updatedFoodQuantities);
   }, [foodQuantitiesUI]);
+
+ 
+
   const selectedSeatsInSelectedState = selectedSeats.filter(
     (seat) => seat.status === SeatStatus.Selected
   );
