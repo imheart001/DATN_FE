@@ -5,6 +5,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { IBookTicket, IUser } from "../../../interface/model";
 import {
   useFetchBookTicketQuery,
+  useGetQRcodeByIdQuery,
   useRemoveBookTicketMutation,
 } from "../../../service/book_ticket.service";
 import AddBookTicket from "./AddBookTicket";
@@ -18,6 +19,8 @@ import {
 } from "../../../service/chairs.service";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
+import { id } from "date-fns/locale";
+import { useState } from "react";
 
 interface DataType {
   id: string;
@@ -44,6 +47,17 @@ const ListBookTicket: React.FC = () => {
   const formatter = (value: number) =>
     `${value} Vn₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const { data: chairs } = useFetchChairsQuery();
+
+  const [selectedIdCode, setSelectedIdCode] = useState<string | null>(null);
+  const handlePrintTicket = (idCode: string) => {
+    console.log(`In vé với id_code: ${idCode}`);
+
+    // const { data: qrCodeData } = useGetQRcodeByIdQuery(idCode);
+
+      // console.log("Dữ liệu từ useGetQRcodeByIdQuery:", qrCodeData);
+      window.location.href =`http://127.0.0.1:8000/api/QR_book/${idCode}`
+  };
+
   const columns: ColumnsType<DataType> = [
     {
       title: "Id",
@@ -153,28 +167,9 @@ const ListBookTicket: React.FC = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <EditBookTicket dataCinema={record as any} />
-
-          <Popconfirm
-            placement="topLeft"
-            title="Bạn muốn xóa sản phẩm?"
-            description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeBookTicket(record.id)}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-            cancelButtonProps={{
-              style: { backgroundColor: "#dc3545", color: "white" },
-            }}
-          >
-            <Button>
-              <div className="flex ">
-                <DeleteOutlined />
-              </div>
-            </Button>
-          </Popconfirm>
+          <Button onClick={() => handlePrintTicket(record.id_code)}>
+            In vé
+          </Button>
         </Space>
       ),
     },

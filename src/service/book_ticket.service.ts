@@ -16,6 +16,11 @@ const bookTicketsAPI = createApi({
       query: (id) => `/Book_ticket/${id}`,
       providesTags: ["bookTicket"],
     }),
+    getQRcodeById: builder.query<IBookTicket, number | string>({
+      query: (id) => `/QR_book/${id}`,
+      providesTags: ["bookTicket"],
+    }),
+
     getUserById: builder.query<IUser, number | string>({
       query: (id) => `/users/${id}`,
       providesTags: ["bookTicket"],
@@ -52,5 +57,6 @@ export const {
   useUpdateShowTimeMutation,
   useGetUserByIdQuery,
   useRemoveBookTicketMutation,
+  useGetQRcodeByIdQuery
 } = bookTicketsAPI;
 export default bookTicketsAPI;
