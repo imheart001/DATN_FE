@@ -41,21 +41,21 @@ const items: MenuItem[] = [
   getItem("Đặt vé", "2", <AppstoreOutlined />, [
     getItem(
       "Đặt vé",
-      "3",
+      "2",
       <NavLink to="/admin/Tiketbookingdetail">
         <CopyOutlined />
       </NavLink>
     ),
     getItem(
       "Vé đã đặt",
-      "4",
+      "3",
       <NavLink to="/admin/book_ticket">
         <FormOutlined />
       </NavLink>
     ),
     getItem(
       "Hóa đơn trả",
-      "5",
+      "4",
       <NavLink to="/admin/product/create">
         <FormOutlined />
       </NavLink>
@@ -66,14 +66,14 @@ const items: MenuItem[] = [
    
     getItem(
       "Quản lí suất chiếu",
-      "4",
+      "5",
       <NavLink to="/admin/show">
         <FormOutlined />
       </NavLink>
     ),
     getItem(
       "MovieRoom",
-      "5",
+      "6",
       <NavLink to="/admin/movieroom">
         <FormOutlined />
       </NavLink>
@@ -101,7 +101,7 @@ const items: MenuItem[] = [
    
     getItem(
       "CateDetail",
-      "12",
+      "11",
       <NavLink to="/admin/category_detail">
         <FormOutlined />
       </NavLink>
