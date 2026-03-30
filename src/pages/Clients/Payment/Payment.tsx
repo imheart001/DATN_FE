@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { QRCode, Space } from "antd";
+import "../../../index.css"
 import {
   useAddChairsMutation,
   useFetchChairsQuery,
@@ -154,11 +155,13 @@ const Payment = () => {
               Các ghế đang chọn: {selectingSeat}, suất chiếu{" "}
               {id_selectingTime_detail}
             </p>
-            <p>Thông tin mã vé</p>
+            <div className="centered-container">
+            <p className="">Thông tin mã vé</p>
             <QRCode
               type="svg"
               value={`http://127.0.0.1:8000/api/QR_book/${idCode}`}
             />
+            </div>
             <Link to={`/`}>
               <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Quay lại trang chủ
