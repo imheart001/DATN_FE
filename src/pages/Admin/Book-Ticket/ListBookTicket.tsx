@@ -55,7 +55,7 @@ const ListBookTicket: React.FC = () => {
     // const { data: qrCodeData } = useGetQRcodeByIdQuery(idCode);
 
       // console.log("Dữ liệu từ useGetQRcodeByIdQuery:", qrCodeData);
-      window.location.href =`http://127.0.0.1:8000/api/QR_book/${idCode}`
+      window.location.href =`http://127.0.0.1:8000/api/print-ticket/${idCode}`
   };
 
   const columns: ColumnsType<DataType> = [
