@@ -127,7 +127,17 @@ const items: MenuItem[] = [
     ),
   ]),
   getItem("Quản lí khuyến mãi", "13", <ThunderboltOutlined />),
-  getItem("Quản lí khách hàng", "14", <TeamOutlined />),
+  getItem("Quản lí khách hàng", "14", <TeamOutlined />,
+  [
+    getItem(
+      "User",
+      "14",
+      <NavLink to="/admin/user">
+        <CopyOutlined />
+      </NavLink>
+    ),
+  ]
+  ),
   getItem("Sản phẩm", "15", <ShopOutlined />, [
     getItem(
       "Sản phẩm",

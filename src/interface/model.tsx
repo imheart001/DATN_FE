@@ -64,6 +64,7 @@ export interface IChairs {
   id_time_detail: string;
 }
 export interface IUser {
+  id: string;
   name: string;
   phone: number;
   email: string;

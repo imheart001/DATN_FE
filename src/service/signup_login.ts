@@ -9,7 +9,7 @@ const usersAPI = createApi({
   tagTypes: ["user"],
   endpoints: (builder) => ({
     fetchUsers: builder.query<IUser[], void>({
-      query: () => "/users/",
+      query: () => "/user/",
       providesTags: ["user"],
     }),
     addUser: builder.mutation({
@@ -17,6 +17,21 @@ const usersAPI = createApi({
         url: "/signup/",
         method: "POST",
         body: users,
+      }),
+      invalidatesTags: ["user"],
+    }),
+    removeUser: builder.mutation({
+      query: (id) => ({
+        url: "/user/" + id,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["user"],
+    }),
+    updateUser: builder.mutation({
+      query: (user: IUser) => ({
+        url: `/user/${user.id}`,
+        method: "PATCH",
+        body: user,
       }),
       invalidatesTags: ["user"],
     }),
@@ -30,5 +45,5 @@ const usersAPI = createApi({
     }),
   }),
 });
-export const { useAddUserMutation, useLoginUserMutation, useFetchUsersQuery } = usersAPI;
+export const { useAddUserMutation, useUpdateUserMutation, useRemoveUserMutation,useLoginUserMutation, useFetchUsersQuery } = usersAPI;
 export default usersAPI;

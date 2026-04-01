@@ -47,7 +47,7 @@ const ListFilm: React.FC = () => {
   if (isLoading) {
     return <Loading />;
   }
-  const [movies, setMovise] = useState<any>(null)
+  const [movies,  setMovise] = useState<any>(null)
   const [removeProduct] = useRemoveProductMutation();
 
   const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({

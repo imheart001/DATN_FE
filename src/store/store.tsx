@@ -49,6 +49,7 @@ const persistConfig = {
     "bkseats",
     "users",
     "pays",
+
     "TKinformation",
   ],
 };
@@ -69,6 +70,7 @@ const rootReducer = combineReducers({
   TKinformation: TKinformationReducer,
   users: usersAPI.reducer,
   auth: authReducer,
+  // user: userAPI.reducer,
   cinemasMovie: CinemasAPICinemas.reducer,
   [analyticApi.reducerPath]: analyticApi.reducer,
 });
@@ -96,7 +98,7 @@ const store = configureStore({
       movieRoomAPI.middleware,
       cateDetailAPI.middleware,
       usersAPI.middleware,
-      analyticApi.middleware
+      analyticApi.middleware,
     ),
 });
 
