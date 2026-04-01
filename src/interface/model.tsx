@@ -39,6 +39,7 @@ export interface IBookTicket {
   id_chair: string;
   time: string;
   id_code: string;
+  status: number
 }
 export interface IFood {
   id: string;
