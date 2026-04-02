@@ -39,6 +39,8 @@ import NotFound from "./pages/Clients/NotFoundPages/NotFound";
 import LayoutProfile from "./Layout/LayoutUser/LayoutProfile";
 import Profile from "./pages/Clients/Profile/Profile";
 import BookTicketUser from "./pages/Clients/BookTicketUser/BookTicketUser";
+import ListUser from "./pages/Admin/User/ListUser";
+
 
 function App() {
   const router = createBrowserRouter([
@@ -162,6 +164,10 @@ function App() {
         {
           path: "/admin/category_detail",
           element: <ListCateDetail />,
+        },
+        {
+          path: "/admin/user",
+          element: <ListUser />,
         },
       ],
     },

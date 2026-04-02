@@ -1,4 +1,4 @@
-import { Space, Table, Input, Button, Popconfirm, Image } from "antd";
+import { Space, Table, Input, Button, Popconfirm, Image, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
@@ -20,7 +20,10 @@ import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import { id } from "date-fns/locale";
 import { useState } from "react";
+
+import { useNavigate } from "react-router-dom";
 import { useFetchUsersQuery } from "../../../service/signup_login.service";
+// import { useFetchUsersQuery } from "../../../service/signup_login.service";
 
 interface DataType {
   id: string;
@@ -32,6 +35,7 @@ interface DataType {
   id_chair: string;
   time: string;
   id_code: string;
+  status : number
 }
 
 const { Search } = Input;
@@ -50,13 +54,16 @@ const ListBookTicket: React.FC = () => {
   const { data: chairs } = useFetchChairsQuery();
 
   const [selectedIdCode, setSelectedIdCode] = useState<string | null>(null);
+  const navigate = useNavigate();
   const handlePrintTicket = (idCode: string) => {
     // console.log(`In vé với id_code: ${idCode}`);
 
     // const { data: qrCodeData } = useGetQRcodeByIdQuery(idCode);
 
     // console.log("Dữ liệu từ useGetQRcodeByIdQuery:", qrCodeData);
-    window.location.href = `http://127.0.0.1:8000/api/print-ticket/${idCode}`;
+    // window.location.href = `http://127.0.0.1:8000/api/print-ticket/${idCode}`;
+    window.open(`http://127.0.0.1:8000/api/print-ticket/${idCode}`, '_blank');
+    window.location.reload();
   };
 
   const columns: ColumnsType<DataType> = [
@@ -164,17 +171,46 @@ const ListBookTicket: React.FC = () => {
       width: "5%",
     },
     {
+      title: "Check in",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      width: "10%",
+      render: (status) => {
+        let statusTag = null;
+    
+        if (status === 0) {
+          statusTag = (
+            <Tag color="warning">
+              Chưa in vé
+            </Tag>
+          );
+        } else if (status === 1) {
+          statusTag = (
+            <Tag color="success">
+              Đã in vé
+            </Tag>
+          );
+        }
+    
+        return statusTag;
+      },
+    },
+    {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button onClick={() => handlePrintTicket(record.id_code)}>
+          <Button className="group relative inline-block text-sm font-medium text-red-600 focus:outline-none focus:ring active:text-red-500"
+           onClick={() => handlePrintTicket(record.id_code)}>
             In vé
+            
           </Button>
         </Space>
       ),
     },
   ];
+// console.log(bookticket);
 
   const dataBookTicket = (bookticket as any)?.data?.map(
     (bookticket: any, index: number) => {
@@ -197,6 +233,7 @@ const ListBookTicket: React.FC = () => {
         )?.name,
 
         payment: bookticket.payment,
+        status : bookticket.status,
         amount: (chairs as any)?.data?.find(
           (chair: any) => chair.id === bookticket.id_chair
         )?.price,
@@ -259,6 +296,8 @@ const ListBookTicket: React.FC = () => {
         )?.date,
         // namefilm: filmName ? filmName.name : "", // Lấy tên phim từ films
       };
+      // console.log(amount);
+
     }
   );
   console.log(dataBookTicket);

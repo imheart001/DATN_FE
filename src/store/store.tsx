@@ -62,7 +62,6 @@ const rootReducer = combineReducers({
   TKinformation: TKinformationReducer,
   users: usersAPI.reducer,
   auth: authReducer,
-
   [analyticApi.reducerPath]: analyticApi.reducer,
 });
 

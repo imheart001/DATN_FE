@@ -20,6 +20,14 @@ const usersAPI = createApi({
       }),
       invalidatesTags: ["user"],
     }),
+    removeUser: builder.mutation({
+      query: (id) => ({
+        url: "/user/" + id,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["user"],
+    }),
+   
     loginUser: builder.mutation({
       query: (credentials: { email: string; password: string }) => ({
         url: "/login/",
@@ -61,5 +69,8 @@ export const {
   useFetchUsersQuery,
   useForgorPasswordMutation,
   useResetPasswordMutation,
+  useRemoveUserMutation,
+  
 } = usersAPI;
+
 export default usersAPI;
