@@ -13,7 +13,7 @@ const schema = yup.object().shape({
   cpassword: yup
     .string()
     .required("Confirm Password is required")
-    .min(4, "Password length should be at least 4 characters")
+    .min(6, "Password length should be at least 6 characters")
     .oneOf([yup.ref("password")], "Passwords do not match"),
 });
 
@@ -106,7 +106,7 @@ const ResetPassword = () => {
 
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  mat khau cu
+                 Token
                 </label>
                 <input
                   type="text"
@@ -181,7 +181,7 @@ const ResetPassword = () => {
                 type="submit"
                 className="w-full text-white bg-blue-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                Reset passwod
+                Reset password
               </button>
             </form>
           </div>

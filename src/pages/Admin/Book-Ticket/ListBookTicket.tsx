@@ -16,6 +16,7 @@ import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import { useAppSelector } from "../../../store/hooks";
 import { RootState } from "../../../store/store";
+import { useState } from "react";
 
 interface DataType {
   id: string;
@@ -39,6 +40,7 @@ const ListBookTicket: React.FC = () => {
   const { data: roomBrand } = useFetchMovieRoomQuery();
   const { data: times } = useFetchTimeQuery();
   const { data: films } = useFetchProductQuery();
+  console.log("🚀 ~ file: ListBookTicket.tsx:43 ~ films:", films);
   const formatter = (value: number) =>
     `${value} Vn₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const { data: chairs } = useFetchChairsQuery();
@@ -270,7 +272,18 @@ const ListBookTicket: React.FC = () => {
       };
     }
   );
-  console.log(dataBookTicket);
+  const [movies, setMovise] = useState<any>(null);
+  const onSearch = (value: any, _e: any) => {
+    const results = dataBookTicket.filter((item: any) => {
+      console.log("🚀 ~ file: ListBookTicket.tsx:277 ~ results ~ item:", item);
+      return item?.namefilm?.toLowerCase().includes(value.toLowerCase());
+    });
+    console.log(
+      "🚀 ~ file: ListBookTicket.tsx:279 ~ results ~ results:",
+      results
+    );
+    setMovise(results);
+  };
   return (
     <>
       <div className="">
@@ -279,12 +292,15 @@ const ListBookTicket: React.FC = () => {
           <Search
             placeholder="Nhập thông tin tìm kiếm"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
           {role === 1 && <AddBookTicket />}
         </div>
       </div>
-      <Table columns={columns} dataSource={dataBookTicket} />
+      {/* <Table columns={columns} dataSource={dataBookTicket} /> */}
+      {!movies && <Table columns={columns} dataSource={dataBookTicket} />}
+      {movies && <Table columns={columns} dataSource={movies} />}
     </>
   );
 };
