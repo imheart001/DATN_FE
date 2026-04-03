@@ -1,19 +1,21 @@
-
-
 import React, { useState } from "react";
 
 import { Space, Table, Input, Button, Image, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
-import { useFetchUsersQuery, useRemoveUserMutation } from "../../../service/signup_login";
+
 import { IUser } from "../../../interface/model";
 import EditUser from "./EditUser";
+import {
+  useFetchUsersQuery,
+  useRemoveUserMutation,
+} from "../../../service/signup_login.service";
 
 interface DataType {
-    id: string;
-    name: string;
-    phone: number;
-    email: string;
+  id: string;
+  name: string;
+  phone: number;
+  email: string;
 }
 
 const { Search } = Input;
@@ -43,12 +45,11 @@ const ListUser: React.FC = () => {
     },
 
     {
-        title: "Email",
-        dataIndex: "email",
-        key: "email",
-      },
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
 
-    
     {
       render: (_, record) => (
         <Space size="middle">
@@ -85,15 +86,16 @@ const ListUser: React.FC = () => {
     name: user?.name,
     phone: user?.phone,
     email: user?.email,
-
   }));
-  console.log("🚀 ~ file: ListUser.tsx:92 ~ dataUser ~ dataUser:", dataUser)
-  const [dataList, setDataList] = useState<any>(null)
+  console.log("🚀 ~ file: ListUser.tsx:92 ~ dataUser ~ dataUser:", dataUser);
+  const [dataList, setDataList] = useState<any>(null);
 
   const onSearch = (value: any, _e: any) => {
-    const results =dataUser.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()))
-    setDataList(results)
-  }
+    const results = dataUser.filter((item: any) =>
+      item.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setDataList(results);
+  };
 
   return (
     <>
@@ -105,14 +107,11 @@ const ListUser: React.FC = () => {
             style={{ width: 600 }}
             onSearch={onSearch}
           />
-
         </div>
       </div>
       {dataList ? (
         <Table columns={columns} dataSource={dataList} />
-
       ) : (
-
         <Table columns={columns} dataSource={dataUser} />
       )}
     </>

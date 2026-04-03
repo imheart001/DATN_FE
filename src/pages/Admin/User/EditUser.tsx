@@ -12,8 +12,9 @@ import {
   Space,
   message,
 } from "antd";
+import { useUpdateUserMutation } from "../../../service/signup_login.service";
 
-import { useUpdateUserMutation } from "../../../service/signup_login";
+
 
 interface DataType {
     id: string;
