@@ -54,7 +54,6 @@ const EditCinema: React.FC<EditCinemaProps> = ({ dataCinema }) => {
     }
   };
   const [open, setOpen] = useState(false);
-  console.log(dataCinema);
 
   const showDrawer = () => {
     setOpen(true);
