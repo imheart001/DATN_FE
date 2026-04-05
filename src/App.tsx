@@ -41,6 +41,8 @@ import Profile from "./pages/Clients/Profile/Profile";
 import BookTicketUser from "./pages/Clients/BookTicketUser/BookTicketUser";
 import ListUser from "./pages/Admin/User/ListUser";
 
+import MemberInfo from "./pages/Clients/member-info/member-info";
+import MemberInfoAdmin from "./pages/Admin/Members/Members";
 
 function App() {
   const router = createBrowserRouter([
@@ -51,6 +53,10 @@ function App() {
         {
           path: "/",
           element: <HomePages />,
+        },
+        {
+          path: "/member-info",
+          element: <MemberInfo />,
         },
         {
           path: "/book-ticket/:id",
@@ -124,6 +130,10 @@ function App() {
         {
           path: "/admin/listfilm",
           element: <ListFilm />,
+        },
+        {
+          path: "members",
+          element: <MemberInfoAdmin />,
         },
         {
           path: "/admin/vouchers",

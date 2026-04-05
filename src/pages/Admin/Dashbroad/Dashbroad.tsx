@@ -23,21 +23,17 @@ import {
 
 import { PieChart, Pie } from "recharts";
 import { useEffect, useState } from "react";
-import { formatCurrency, formatter } from "../../../utils/formatCurrency";
 import { useGetAnalyticsMutation } from "../../../service/analytic.service";
-import { dataAhihih } from "./data-test";
 import { useAppSelector } from "../../../store/hooks";
 import { RootState } from "../../../store/store";
 import { Select } from "antd";
+import { formatter } from "../../../utils/formatCurrency";
 
 const Dashbroad = (props: any) => {
   const { difference, positive = false, sx, value } = props;
   const [dataReal, setDataReal] = useState<any[]>([]);
-  console.log(dataReal);
 
-  let user = JSON.parse(localStorage.getItem("user")!);
-
-  const role = user.role;
+  const { role } = useAppSelector((state: RootState) => state.auth);
 
   const data1 = [
     { name: "Online", value: 60 },
@@ -66,7 +62,6 @@ const Dashbroad = (props: any) => {
     name: item.Month,
     value: item.TotalAmount,
   }));
-  console.log(dataReal[0]?.revenue_month?.revenue_month_y);
 
   const [money, setMoney] = useState<number>(0);
 
@@ -588,8 +583,7 @@ const Dashbroad = (props: any) => {
                               {
                                 (dataReal[0] as any)?.revenue_month
                                   ?.book_total_mon[0]?.TotalTickets
-                              }{" "}
-                              vé
+                              } vé
                             </Typography>
                           </Stack>
                         </div>

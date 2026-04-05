@@ -1,24 +1,18 @@
 import { Space, Table, Input, Button, Popconfirm, Image, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { DeleteOutlined } from "@ant-design/icons";
 
-import { IBookTicket, IUser } from "../../../interface/model";
 import {
   useFetchBookTicketQuery,
-  useRemoveBookTicketMutation,
 } from "../../../service/book_ticket.service";
 import AddBookTicket from "./AddBookTicket";
-import EditBookTicket from "./EditBookTicket";
 
 import { useFetchShowTimeQuery } from "../../../service/show.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 import {
   useFetchChairsQuery,
-  useGetChairbyIdQuery,
 } from "../../../service/chairs.service";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
-import { id } from "date-fns/locale";
 import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
@@ -41,10 +35,8 @@ interface DataType {
 const { Search } = Input;
 
 const ListBookTicket: React.FC = () => {
-  const [booked, setBooked] = useState<any>(null);
   const { data: bookticket } = useFetchBookTicketQuery();
   const { data: shows } = useFetchShowTimeQuery();
-  const [removeBookTicket] = useRemoveBookTicketMutation();
   const { data: users } = useFetchUsersQuery();
   const { data: roomBrand } = useFetchMovieRoomQuery();
   const { data: times } = useFetchTimeQuery();
@@ -300,13 +292,14 @@ const ListBookTicket: React.FC = () => {
 
     }
   );
-  console.log(dataBookTicket);
+  const [movies, setMovise] = useState<any>(null);
   const onSearch = (value: any, _e: any) => {
-    const results = (bookticket as any)?.filter((item: any) =>
-      item.id_code.toLowerCase().includes(value.toLowerCase())
-    );
-    setBooked(results);
+    const results = dataBookTicket.filter((item: any) => {
+      return item?.id_code?.toLowerCase().includes(value.toLowerCase()) || item?.namefilm?.toLowerCase().includes(value.toLowerCase());
+    });
+    setMovise(results);
   };
+  console.log("🚀 ~ file: ListBookTicket.tsx:260 ~ results ~ dataBookTicket:", dataBookTicket)
   return (
     <>
       <div className="">
@@ -321,7 +314,9 @@ const ListBookTicket: React.FC = () => {
           <AddBookTicket />
         </div>
       </div>
-      <Table columns={columns} dataSource={dataBookTicket} />
+      {/* <Table columns={columns} dataSource={dataBookTicket} /> */}
+      {!movies && <Table columns={columns} dataSource={dataBookTicket} />}
+      {movies && <Table columns={columns} dataSource={movies} />}
     </>
   );
 };

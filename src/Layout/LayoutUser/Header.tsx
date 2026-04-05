@@ -11,6 +11,8 @@ import { Dropdown, Space, Divider, Button, theme } from "antd";
 import { useFetchProductQuery } from "../../service/films.service";
 import { setUserId, updateToken } from "../../components/CinemaSlice/authSlice";
 import FindBookQuickly from "../../components/Find&BookQuickly/Find&BookQuickly";
+import { useAppSelector } from "../../store/hooks";
+import { RootState } from "../../store/store";
 interface Option {
   value: string;
   label: string;
@@ -21,6 +23,9 @@ const displayRender = (labels: string[]) => labels[labels.length - 1];
 const Header: React.FC = () => {
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
+
+  const { role } = useAppSelector((state: RootState) => state.auth);
+
   const items: MenuProps["items"] = [
     {
       key: "1",
@@ -58,7 +63,10 @@ const Header: React.FC = () => {
         </Link>
       ),
     },
-
+    {
+      key: "member",
+      label: <Link to="/member-info">Thôn tin hội viên</Link>,
+    },
     {
       key: "4",
       danger: true,

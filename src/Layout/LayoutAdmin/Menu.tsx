@@ -18,7 +18,7 @@ import { Layout, Menu, theme } from "antd";
 import { itemStaffs, itemsAdmin } from "./staff";
 import { useAppSelector } from "../../store/hooks";
 import { RootState } from "../../store/store";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const { Content, Sider } = Layout;
 
@@ -173,6 +173,11 @@ const items: MenuItem[] = [
     <NavLink to="/admin/user">
       <PieChartOutlined />
     </NavLink>
+  ),
+  getItem(
+    <Link to="/admin/members">Quản lí khách hàng vip</Link>,
+    "14",
+    <TeamOutlined />
   ),
 ];
 
