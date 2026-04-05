@@ -33,6 +33,7 @@ import vouchersAPI from "../service/voucher.service";
 import seatkepingAPI from "../service/seatkeping.service";
 import sendEmailAPI from "../service/sendEmail.service";
 import payMoMoAPI from "../service/payMoMo.service";
+import memberAPI from "../service/member.service";
 
 // Import redux-persist
 const persistConfig = {
@@ -64,6 +65,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
 
   [analyticApi.reducerPath]: analyticApi.reducer,
+  [memberAPI.reducerPath]: memberAPI.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -93,7 +95,8 @@ const store = configureStore({
       movieRoomAPI.middleware as any,
       cateDetailAPI.middleware as any,
       usersAPI.middleware as any,
-      analyticApi.middleware as any
+      analyticApi.middleware as any,
+      memberAPI.middleware as any
     );
 
     return middlewareArray;

@@ -255,10 +255,11 @@ const ListBookTicket: React.FC = () => {
   const [movies, setMovise] = useState<any>(null);
   const onSearch = (value: any, _e: any) => {
     const results = dataBookTicket.filter((item: any) => {
-      return item?.namefilm?.toLowerCase().includes(value.toLowerCase());
+      return item?.id_code?.toLowerCase().includes(value.toLowerCase()) || item?.namefilm?.toLowerCase().includes(value.toLowerCase());
     });
     setMovise(results);
   };
+  console.log("🚀 ~ file: ListBookTicket.tsx:260 ~ results ~ dataBookTicket:", dataBookTicket)
   return (
     <>
       <div className="">

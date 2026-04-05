@@ -1,0 +1,4 @@
+.horizontal-line {
+  border-bottom: 1px solid #ddd; /* Màu và kiểu đường gạch ngang */
+  margin-bottom: 10px; /* Khoảng cách giữa đường gạch ngang và các phần tử khác */
+}

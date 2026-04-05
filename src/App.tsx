@@ -35,6 +35,8 @@ import { ErrorPage } from "./pages/Clients/ErrorPages/ErrorPages";
 import ListVouchers from "./pages/Admin/Vouchers/ListVouchers";
 import ForgotPassword from "./pages/Clients/Forgot-password";
 import ResetPassword from "./pages/Clients/Reset-password/reset-password";
+import MemberInfo from "./pages/Clients/member-info/member-info";
+import MemberInfoAdmin from "./pages/Admin/Members/Members";
 
 function App() {
   const router = createBrowserRouter([
@@ -45,6 +47,10 @@ function App() {
         {
           path: "/",
           element: <HomePages />,
+        },
+        {
+          path: "/member-info",
+          element: <MemberInfo />,
         },
         {
           path: "/book-ticket/:id",
@@ -100,6 +106,10 @@ function App() {
         {
           path: "/admin/listfilm",
           element: <ListFilm />,
+        },
+        {
+          path: "members",
+          element: <MemberInfoAdmin />,
         },
         {
           path: "/admin/vouchers",
