@@ -86,8 +86,7 @@ const ForgotPassword = () => {
                     </div>
                     {errors?.email && (
                       <p className="text-xs text-red-600 mt-2" id="email-error">
-                        Please include a valid email address so we can get back
-                        to you
+                        Email không hợp lệ!!
                       </p>
                     )}
                   </div>

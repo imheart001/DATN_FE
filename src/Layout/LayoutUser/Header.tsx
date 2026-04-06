@@ -24,7 +24,7 @@ const Header: React.FC = () => {
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
 
-  const { role } = useAppSelector((state: RootState) => state.auth);
+
 
   const items: MenuProps["items"] = [
     {

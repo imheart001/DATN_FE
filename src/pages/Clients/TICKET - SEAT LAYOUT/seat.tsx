@@ -170,7 +170,7 @@ const BookingSeat = () => {
       .map((item: any) => parseSeatNames(item.name))
       .flat()
       .flat() || [];
-  console.log(bookedSeatNames);
+  // console.log(bookedSeatNames);
   const findData = ["A1", "A2"];
 
   const [seats, setSeats] = useState<SeatInfo[][]>(
@@ -271,13 +271,13 @@ const BookingSeat = () => {
       message.error("Vui lòng chọn phương thức thanh toán.");
       return;
     }
-    console.log(totalMoney + totalComboAmount + discountedAmount);
+    // console.log(totalMoney + totalComboAmount + discountedAmount);
 
     const money = {
       amount: totalMoney + totalComboAmount - discountedAmount,
     };
     const reponse = await sendPaymentVnpay(money);
-    console.log((reponse as any).data.data);
+    // console.log((reponse as any).data.data);
     window.location.href = `${(reponse as any).data.data}`;
     // if (reponse) {
     //   window.location.href = `${reponse?.data}`;
@@ -386,7 +386,7 @@ const BookingSeat = () => {
           seat.row === NearSeatOutermost &&
           seat.column === seatNearOutermost?.column + 1
       );
-      console.log(test3);
+      // console.log(test3);
       if (seatNearOutermost && test3?.status === "available") {
         message.error(
           "Bạn không được bỏ trống ghế " +
@@ -430,7 +430,7 @@ const BookingSeat = () => {
           seat.row === rowCheck &&
           seat.column === (result[0]?.column + result[1]?.column) / 2
       );
-      console.log(seatBetween);
+      // console.log(seatBetween);
       if (result && seatBetween?.status === "available") {
         message.error(
           "Bạn không được bỏ trống ghế " +
@@ -451,7 +451,7 @@ const BookingSeat = () => {
         (item, index, self) =>
           index === self.findIndex((t) => t.row === item.row)
       );
-      console.log(seatChoosing);
+      // console.log(seatChoosing);
 
       const seat2 = selectedSeats
         .filter(
@@ -459,7 +459,7 @@ const BookingSeat = () => {
             index === self.findIndex((t) => t.row === item.row)
         )
         .map((item) => item.column)[0];
-      console.log(seat2);
+      // console.log(seat2);
 
       const seatFinded = seats[rowseatCheck].map((s) => s.column);
 
@@ -476,7 +476,7 @@ const BookingSeat = () => {
       };
 
       const testtt = findSeats();
-      console.log(testtt);
+      // console.log(testtt);
       if (testtt && seatChoosing) {
         if (seats[rowseatCheck][testtt[1]]?.status === "booked") {
           const seatBetween = seats[rowseatCheck].find(
@@ -487,7 +487,7 @@ const BookingSeat = () => {
                   seatChoosing[0]?.column) /
                   2
           );
-          console.log(seatBetween);
+          // console.log(seatBetween);
 
           if (
             (seats[rowseatCheck][testtt[0]]?.status === "booked" ||
@@ -510,7 +510,7 @@ const BookingSeat = () => {
                   seatChoosing[0]?.column) /
                   2
           );
-          console.log(seatBetween);
+          // console.log(seatBetween);
 
           if (
             (seats[rowseatCheck][testtt[0]]?.status === "booked" ||
@@ -541,7 +541,7 @@ const BookingSeat = () => {
     const bookedSeatNames = filteredSeats
       .map((item: any) => parseSeatNames(item.name))
       .flat();
-    console.log(bookedSeatNames);
+    // console.log(bookedSeatNames);
 
     // Tạo một bản sao mới của mảng ghế
     const updatedSeats = [...seats];

@@ -5,14 +5,11 @@ import { RootState } from "../../../store/store";
 const MemberInfo = () => {
   const { data } = useFetchMembersQuery();
 
-  const { user_id } = useAppSelector((state: RootState) => state.auth);
-
+  const getIfUser = localStorage.getItem("user");
+  const IfUser = JSON.parse(`${getIfUser}`);
+  const user_id = IfUser.id;
   const dataUser = data?.data?.filter(
     (item) => item.id_user === Number(user_id)
-  );
-  console.log(
-    "🚀 ~ file: member-info.tsx:11 ~ MemberInfo ~ dataUser:",
-    dataUser
   );
 
   return (
@@ -63,7 +60,7 @@ const MemberInfo = () => {
                     {item.activation_date}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                    {(item.total_spending).toLocaleString()}vnd
+                    {item.total_spending.toLocaleString()}vnd
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                     {item.accumulated_points}
@@ -73,7 +70,7 @@ const MemberInfo = () => {
                     {item.points_used}
                   </td>
                   <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                  {item.usable_points}
+                    {item.usable_points}
                   </td>
                 </tr>
               ))}

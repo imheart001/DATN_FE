@@ -1,305 +1,193 @@
-import { Space, Table, Input, Button, Popconfirm, Image, Tag } from "antd";
+import React from "react";
+import { Badge, Button, Image, Space, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
-
-import {
-  useFetchBookTicketQuery,
-} from "../../../service/book_ticket.service";
+import { useGetBookTicketByAdminQuery } from "../../../service/book_ticket.service";
+import Search from "antd/es/input/Search";
 import AddBookTicket from "./AddBookTicket";
-
-import { useFetchShowTimeQuery } from "../../../service/show.service";
-import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
-import {
-  useFetchChairsQuery,
-} from "../../../service/chairs.service";
-import { useFetchProductQuery } from "../../../service/films.service";
-import { useFetchTimeQuery } from "../../../service/time.service";
-import { useState } from "react";
-
-import { useNavigate } from "react-router-dom";
-import { useFetchUsersQuery } from "../../../service/signup_login.service";
-// import { useFetchUsersQuery } from "../../../service/signup_login.service";
-
-interface DataType {
-  id: string;
-  user_id: string;
-  id_time_detail_date: string;
-  id_time_detail_room: string;
-  payment: string;
-  amount: string;
-  id_chair: string;
-  time: string;
-  id_code: string;
-  status : number
-}
-
-const { Search } = Input;
+import { formatter } from "../../../utils/formatCurrency";
 
 const ListBookTicket: React.FC = () => {
-  const { data: bookticket } = useFetchBookTicketQuery();
-  const { data: shows } = useFetchShowTimeQuery();
-  const { data: users } = useFetchUsersQuery();
-  const { data: roomBrand } = useFetchMovieRoomQuery();
-  const { data: times } = useFetchTimeQuery();
-  const { data: films } = useFetchProductQuery();
-  const formatter = (value: number) =>
-    `${value} Vn₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  const { data: chairs } = useFetchChairsQuery();
-
-  const [selectedIdCode, setSelectedIdCode] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const { data: dataBook_tickets } = useGetBookTicketByAdminQuery();
   const handlePrintTicket = (idCode: string) => {
-    // console.log(`In vé với id_code: ${idCode}`);
-
-    // const { data: qrCodeData } = useGetQRcodeByIdQuery(idCode);
-
-    // console.log("Dữ liệu từ useGetQRcodeByIdQuery:", qrCodeData);
-    // window.location.href = `http://127.0.0.1:8000/api/print-ticket/${idCode}`;
-    window.open(`http://127.0.0.1:8000/api/print-ticket/${idCode}`, '_blank');
+    window.open(`http://127.0.0.1:8000/api/print-ticket/${idCode}`, "_blank");
     window.location.reload();
   };
 
+  interface DataType {
+    key: React.Key;
+
+    time: string;
+    name: string;
+    id_code: string;
+    status: number;
+    movie_room_name: string;
+    name_cinema: string;
+    address: string;
+    date: string;
+    time_suatchieu: string;
+    image: string;
+    total_price: number;
+    food_names: string;
+    chair_name: string;
+    chair_price: string;
+    users_name: string;
+    users_email: string;
+  }
+
   const columns: ColumnsType<DataType> = [
     {
-      title: "Id",
-      dataIndex: "id",
-      key: "id",
-      render: (text) => <a className="text-blue-700">{text}</a>,
+      title: "Tên KH",
+      width: 100,
+      dataIndex: "users_name",
+      key: "users_name",
+      fixed: "left",
+      align: "center",
+    },
+
+    {
+      title: "Check in",
+      width: 150,
+      align: "center",
+      dataIndex: "status",
+      key: "status",
+      fixed: "left",
+      render: (status) => {
+        let statusTag = null;
+
+        if (status === 0) {
+          statusTag = <Badge status="success" text=" CHECK-IN" />;
+        } else if (status === 1) {
+          statusTag = (
+            <Badge status="error" className="text-red-600" text="ĐÃ CHECK-IN" />
+          );
+        }
+
+        return statusTag;
+      },
     },
     {
-      title: "Tên Khách Hàng",
-      dataIndex: "user_id",
-      key: "user_id",
+      title: "Mã vé",
+      dataIndex: "id_code",
       align: "center",
-      width: "10%",
-    },
-    {
-      title: "Tên Phim",
-      dataIndex: "namefilm",
-      key: "namefilm",
-      width: "10%",
-      align: "center",
+      width: 160,
+      key: "id_code",
       render: (text) => (
-        <span>
-          {text && text.length > 20 ? `${text.slice(0, 15)}...` : text}
-        </span>
+        <span>{text?.length > 15 ? `${text.slice(0, 15)}...` : text}</span>
       ),
     },
-
     {
-      key: "imgfilm",
-      title: "Hình ảnh",
-      dataIndex: "imgfilm",
+      title: "Ghế",
+      dataIndex: "chair_name",
       align: "center",
-      width: "5%",
-      render: (text: string) => <Image width={50} src={text} />,
-    },
-    {
-      title: "Phòng Chiếu",
-      dataIndex: "room",
-      key: "room",
-    },
-    {
-      title: "Ngày chiếu",
-      dataIndex: "dateSee",
-      key: "dateSee",
-    },
-    {
-      title: "Giờ chiếu",
-      dataIndex: "timeSee",
-      key: "timeSee",
-    },
-
-    {
-      title: "Ghế đặt",
-      dataIndex: "ifseat",
-      key: "ifseat",
-      width: "10%",
-      align: "center",
+      key: "chair_name",
+      width: 100,
       render: (text) => (
         <span>{text?.length > 20 ? `${text.slice(0, 10)}...` : text}</span>
       ),
     },
     {
-      title: "Tổng Tiền",
-      dataIndex: "amount",
-      key: "amount",
+      title: "Combo",
+      dataIndex: "food_names",
       align: "center",
-      width: "15%",
-      render: (text) => <span>{formatter(Number(text))}</span>,
-    },
-    {
-      title: "Mã vé",
-      dataIndex: "id_code",
-      key: "id_code",
-      align: "center",
-      width: "5%",
+      key: "food_names",
+      width: 120,
       render: (text) => (
         <span>{text?.length > 20 ? `${text.slice(0, 20)}...` : text}</span>
       ),
     },
+
     {
-      title: "Phương Thức Thanh Toán",
-      dataIndex: "payment",
-      key: "payment",
+      title: "Tên Phim",
+      dataIndex: "name",
       align: "center",
-      width: "10%",
-      render: (payment) => {
-        let paymentName = "";
-        if (payment == "1") {
-          paymentName = "Vnpay";
-        } else if (payment == "2") {
-          paymentName = "Momo";
-        } else {
-          paymentName = "Khác";
-        }
-        return paymentName;
-      },
+      key: "name",
+      width: 160,
     },
     {
-      title: "Thời gian mua",
-      dataIndex: "time",
-      key: "time",
+      key: "image",
+      title: "Hình ảnh",
+      dataIndex: "image",
       align: "center",
-      width: "5%",
+
+      width: 160,
+      render: (text: string) => <Image width={100} src={text} />,
     },
     {
-      title: "Check in",
-      dataIndex: "status",
-      key: "status",
+      title: "Giờ chiếu",
+      dataIndex: "time_suatchieu",
+      key: "2",
       align: "center",
-      width: "10%",
-      render: (status) => {
-        let statusTag = null;
-    
-        if (status === 0) {
-          statusTag = (
-            <Tag color="warning">
-              Chưa in vé
-            </Tag>
-          );
-        } else if (status === 1) {
-          statusTag = (
-            <Tag color="success">
-              Đã in vé
-            </Tag>
-          );
-        }
-    
-        return statusTag;
-      },
+      width: 150,
     },
+    {
+      title: "Phòng Chiếu",
+      dataIndex: "movie_room_name",
+      key: "3",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Ngày Chiếu",
+      dataIndex: "date",
+      key: "4",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Chi nhánh",
+      dataIndex: "name_cinema",
+      key: "5",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      key: "address",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "total_price",
+      key: "total_price",
+      align: "center",
+      width: 100,
+      render: (text) => <span>{formatter(Number(text))}</span>,
+    },
+    {
+      title: "Email",
+      dataIndex: "users_email",
+      key: "users_email",
+      align: "center",
+      width: 150,
+      render: (text) => (
+        <span>{text?.length > 10 ? `${text.slice(0, 12)}...` : text}</span>
+      ),
+    },
+    { title: "Ngày đặt", dataIndex: "time", key: "time" },
+
     {
       title: "Action",
       key: "action",
+      fixed: "right",
+      align: "center",
+      width: 100,
       render: (_, record) => (
         <Space size="middle">
-          <Button className="group relative inline-block text-sm font-medium text-red-600 focus:outline-none focus:ring active:text-red-500"
-           onClick={() => handlePrintTicket(record.id_code)}>
+          <Button
+            className="group relative inline-block text-sm font-medium  focus:outline-none focus:ring active:text-red-500"
+            onClick={() => handlePrintTicket(record.id_code)}
+          >
             In vé
-            
           </Button>
         </Space>
       ),
     },
   ];
-// console.log(bookticket);
 
-  const dataBookTicket = (bookticket as any)?.data?.map(
-    (bookticket: any, index: number) => {
-      // const findChairbyBook_ticket = (chairs as any)?.data?.find(
-      //   (chair: any) => chair.id === bookticket.id_chair
-      // );
-      // const findShowbyChair = (shows as any)?.data?.find(
-      //   (show: any) => show.id === findChairbyBook_ticket?.id
-      // );
-      // console.log(findShowbyChair);
-      // const filmName = films?.data?.find(
-      //   (film: any) => film.id === id_time_detail?.id
-      // );
+  const data: DataType[] = dataBook_tickets;
 
-      return {
-        key: index.toString(),
-        id: bookticket.id,
-        user_id: (users as any)?.data?.find(
-          (users: any) => users.id === bookticket.user_id
-        )?.name,
-
-        payment: bookticket.payment,
-        status : bookticket.status,
-        amount: (chairs as any)?.data?.find(
-          (chair: any) => chair.id === bookticket.id_chair
-        )?.price,
-        ifseat: (chairs as any)?.data?.find(
-          (chair: any) => chair.id === bookticket.id_chair
-        )?.name,
-        id_chair: bookticket.id_chair,
-        time: bookticket.time,
-        id_code: bookticket.id_code,
-        namefilm: (films as any)?.data.find(
-          (film: any) =>
-            film.id ===
-            (shows as any)?.data?.find(
-              (show: any) =>
-                show.id ===
-                (chairs as any)?.data?.find(
-                  (chair: any) => chair.id === bookticket.id_chair
-                )?.id_time_detail
-            )?.film_id
-        )?.name,
-        imgfilm: (films as any)?.data.find(
-          (film: any) =>
-            film.id ===
-            (shows as any)?.data?.find(
-              (show: any) =>
-                show.id ===
-                (chairs as any)?.data?.find(
-                  (chair: any) => chair.id === bookticket.id_chair
-                )?.id_time_detail
-            )?.film_id
-        )?.image,
-        room: (roomBrand as any)?.data.find(
-          (room: any) =>
-            room.id ===
-            (shows as any)?.data?.find(
-              (show: any) =>
-                show.id ===
-                (chairs as any)?.data?.find(
-                  (chair: any) => chair.id === bookticket.id_chair
-                )?.id_time_detail
-            )?.room_id
-        )?.name,
-        timeSee: (times as any)?.data.find(
-          (time: any) =>
-            time.id ===
-            (shows as any)?.data?.find(
-              (show: any) =>
-                show.id ===
-                (chairs as any)?.data?.find(
-                  (chair: any) => chair.id === bookticket.id_chair
-                )?.id_time_detail
-            )?.time_id
-        )?.time,
-        dateSee: (shows as any)?.data?.find(
-          (show: any) =>
-            show.id ===
-            (chairs as any)?.data?.find(
-              (chair: any) => chair.id === bookticket.id_chair
-            )?.id_time_detail
-        )?.date,
-        // namefilm: filmName ? filmName.name : "", // Lấy tên phim từ films
-      };
-      // console.log(amount);
-
-    }
-  );
-  const [movies, setMovise] = useState<any>(null);
-  const onSearch = (value: any, _e: any) => {
-    const results = dataBookTicket.filter((item: any) => {
-      return item?.id_code?.toLowerCase().includes(value.toLowerCase()) || item?.namefilm?.toLowerCase().includes(value.toLowerCase());
-    });
-    setMovise(results);
-  };
-  console.log("🚀 ~ file: ListBookTicket.tsx:260 ~ results ~ dataBookTicket:", dataBookTicket)
   return (
     <>
       <div className="">
@@ -308,15 +196,12 @@ const ListBookTicket: React.FC = () => {
           <Search
             placeholder="Nhập thông tin tìm kiếm"
             style={{ width: 600 }}
-            onSearch={onSearch}
           />
 
           <AddBookTicket />
         </div>
       </div>
-      {/* <Table columns={columns} dataSource={dataBookTicket} /> */}
-      {!movies && <Table columns={columns} dataSource={dataBookTicket} />}
-      {movies && <Table columns={columns} dataSource={movies} />}
+      <Table columns={columns} dataSource={data} scroll={{ x: 2200, y: 600 }} />
     </>
   );
 };
