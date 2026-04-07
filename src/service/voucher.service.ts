@@ -24,6 +24,10 @@ const vouchersAPI = createApi({
       query: (id) => `/voucher/${id}`,
       providesTags: ["voucher"],
     }),
+    getVoucherbyIdUser: builder.query<any, number | string>({
+      query: (id) => `/get_used_vouchers_by_id_user/${id}`,
+      providesTags: ["voucher"],
+    }),
     removeVoucher: builder.mutation({
       query: (id) => ({
         url: "/voucher/" + id,
@@ -47,6 +51,8 @@ const vouchersAPI = createApi({
       }),
       invalidatesTags: ["voucher"],
     }),
+    // get_used_vouchers_by_id_user
+
     Used_VC_ByUserId: builder.mutation({
       query: (voucher_code: any) => ({
         url: "/usevoucher/",
@@ -64,5 +70,6 @@ export const {
   useRemoveVoucherMutation,
   useUpdateVoucherMutation,
   useUsed_VC_ByUserIdMutation,
+  useGetVoucherbyIdUserQuery,
 } = vouchersAPI;
 export default vouchersAPI;

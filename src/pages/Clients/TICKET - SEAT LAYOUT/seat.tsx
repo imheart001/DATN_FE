@@ -15,7 +15,10 @@ import {
 } from "../../../components/CinemaSlice/selectSeat";
 
 import { useFetchFoodQuery } from "../../../service/food.service";
-import { useFetchVoucherQuery } from "../../../service/voucher.service";
+import {
+  useFetchVoucherQuery,
+  useGetVoucherbyIdUserQuery,
+} from "../../../service/voucher.service";
 import * as dayjs from "dayjs";
 import {
   useGetAllSeatKepingsQuery,
@@ -61,6 +64,7 @@ const BookingSeat = () => {
     return String.fromCharCode(65 + row);
   };
   const [isVoucherApplicable, setIsVoucherApplicable] = useState(true);
+
   const [keepSeat, setkeepSeat] = useState<[]>([]);
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
   const { data: foods } = useFetchFoodQuery();
@@ -147,6 +151,7 @@ const BookingSeat = () => {
 
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
+  const { data: VoucherUsedbyUser } = useGetVoucherbyIdUserQuery(userId.id);
 
   const [selectedSeatsCount, setSelectedSeatsCount] = useState(0);
 
@@ -333,8 +338,6 @@ const BookingSeat = () => {
 
     setFoodQuantities(updatedFoodQuantities);
   }, [foodQuantitiesUI]);
-
- 
 
   const selectedSeatsInSelectedState = selectedSeats.filter(
     (seat) => seat.status === SeatStatus.Selected
@@ -972,7 +975,9 @@ const BookingSeat = () => {
                       : "border border-gray-200";
                     const buttonText = isSelected ? "Hủy áp dụng" : "Áp dụng";
                     const textClass = isSelected ? "text-red-600" : "black";
-
+                    const isVoucherUsed = VoucherUsedbyUser?.some(
+                      (usedVoucher: any) => usedVoucher.voucher_code === vc.code
+                    );
                     return (
                       <>
                         <button
