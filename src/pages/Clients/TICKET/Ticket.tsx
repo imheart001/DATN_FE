@@ -193,7 +193,9 @@ const Ticket: React.FC = () => {
                       <Button onClick={() => handleTimeSelection(time.id)}>
                         {showTime}
                       </Button>
-                      <div className="">{chairEmpty?.empty_chair} ghế trống</div>
+                      <div className="">
+                        {chairEmpty?.empty_chair} ghế trống
+                      </div>
                     </div>
                   );
                 }

@@ -1,12 +1,13 @@
-import React from "react";
-import { Badge, Button, Image, Space, Table } from "antd";
+import React, { useState } from "react";
+import { Badge, Button, Image, Input, Space, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useGetBookTicketByAdminQuery } from "../../../service/book_ticket.service";
-import Search from "antd/es/input/Search";
+
 import AddBookTicket from "./AddBookTicket";
 import { formatter } from "../../../utils/formatCurrency";
 
 const ListBookTicket: React.FC = () => {
+  const { Search } = Input;
   const { data: dataBook_tickets } = useGetBookTicketByAdminQuery();
   const handlePrintTicket = (idCode: string) => {
     window.open(`http://127.0.0.1:8000/api/print-ticket/${idCode}`, "_blank");
@@ -15,7 +16,6 @@ const ListBookTicket: React.FC = () => {
 
   interface DataType {
     key: React.Key;
-
     time: string;
     name: string;
     id_code: string;
@@ -187,7 +187,15 @@ const ListBookTicket: React.FC = () => {
   ];
 
   const data: DataType[] = dataBook_tickets;
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const onSearch = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  const filteredData = dataBook_tickets?.filter((item: any) =>
+    item?.id_code?.toLowerCase()?.includes(searchTerm?.toLowerCase())
+  );
   return (
     <>
       <div className="">
@@ -196,12 +204,17 @@ const ListBookTicket: React.FC = () => {
           <Search
             placeholder="Nhập thông tin tìm kiếm"
             style={{ width: 600 }}
+            onSearch={onSearch}
           />
 
           <AddBookTicket />
         </div>
       </div>
-      <Table columns={columns} dataSource={data} scroll={{ x: 2200, y: 600 }} />
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        scroll={{ x: 2200, y: 600 }}
+      />
     </>
   );
 };

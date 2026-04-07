@@ -16,6 +16,7 @@ import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
 
 import * as moment from "moment-timezone";
 import { useSendEmailMutation } from "../../../service/sendEmail.service";
+import { useUsed_VC_ByUserIdMutation } from "../../../service/voucher.service";
 
 const PaymentMomo: React.FC = () => {
   const location = useLocation();
@@ -24,7 +25,7 @@ const PaymentMomo: React.FC = () => {
   const [addIfSeatByUser] = useAddBookTicketMutation();
   const [addFood] = useAddFoodTicketDetailMutation();
   const [sendEmail] = useSendEmailMutation();
-
+  const [useVCbyUserID] = useUsed_VC_ByUserIdMutation();
   const currentDateTime = moment().utcOffset(420).toDate();
   const dateBk = format(currentDateTime, "dd/MM/yyyy HH:mm:ss");
 
@@ -44,6 +45,12 @@ const PaymentMomo: React.FC = () => {
   const id_time_details = useSelector(
     (state: any) => state.TKinformation?.showtimeId
   );
+  const VoucherCode = useSelector(
+    (state: any) => state.TKinformation?.chooseVoucher
+  );
+  const MyVoucher = {
+    voucher_code: VoucherCode,
+  };
   const user_id = parseInt(localStorage.getItem("user_id") as any, 10);
   const payment = localStorage.getItem("payment");
   const totalPrice = useSelector(
@@ -92,6 +99,8 @@ const PaymentMomo: React.FC = () => {
           try {
             const response = await addChair(selectedSeatsData as any);
             console.log(response);
+            const UsedVoucher = await useVCbyUserID(MyVoucher);
+            console.log(UsedVoucher);
             const responseData = (response as any)?.data;
             const IddataAfterFood_Detail: any[] = [];
 

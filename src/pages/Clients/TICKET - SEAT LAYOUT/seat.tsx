@@ -3,7 +3,7 @@ import Header from "../../../Layout/LayoutUser/Header";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useFetchChairsQuery } from "../../../service/chairs.service";
 import { useGetAllDataShowTimeByIdQuery } from "../../../service/show.service";
-import { Col, Row, Statistic, message } from "antd";
+import { Button, Col, InputNumber, Row, Space, Statistic, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../../components/isLoading/Loading";
 import {
@@ -28,6 +28,8 @@ import type { CountdownProps } from "antd";
 
 import { checkSeat } from "../../../guards/api";
 import { useSendPaymentVnPayMutation } from "../../../service/payVnpay.service";
+import { useGetPointByIdUserQuery } from "../../../service/member.service";
+import { usePaymentMomoMutation } from "../../../service/payMoMo.service";
 
 enum SeatStatus {
   Available = "available",
@@ -63,12 +65,11 @@ const BookingSeat = () => {
   const getRowName = (row: number): string => {
     return String.fromCharCode(65 + row);
   };
-  const [isVoucherApplicable, setIsVoucherApplicable] = useState(true);
-
   const [keepSeat, setkeepSeat] = useState<[]>([]);
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
   const { data: foods } = useFetchFoodQuery();
   const { data: dataVouchers } = useFetchVoucherQuery();
+  const [payMomo] = usePaymentMomoMutation();
   const [selectedVoucher, setSelectedVoucher] = useState<string | null>(null);
   const {
     data: dataSeatKeping,
@@ -78,18 +79,18 @@ const BookingSeat = () => {
 
   const [keptSeat] = useKeptSeatMutation();
   const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
-  const fetchData = async () => {
-    try {
-      const data = await checkSeat(id);
-      setkeepSeat(data);
-    } catch (error) {
-      console.error("Lỗi khi kiểm tra ghế đã đặt:", error);
-    }
-  };
+  // const fetchData = async () => {
+  //   try {
+  //     const data = await checkSeat(id);
+  //     setkeepSeat(data);
+  //   } catch (error) {
+  //     console.error("Lỗi khi kiểm tra ghế đã đặt:", error);
+  //   }
+  // };
 
   useEffect(() => {
     refetch();
-    fetchData();
+    // fetchData();
   }, [refetch, selectedSeats, id]);
 
   const [totalComboAmount, setTotalComboAmount] = useState(0);
@@ -109,7 +110,7 @@ const BookingSeat = () => {
 
   const onHandleChooseVC = (voucherId: string, voucherCode: string) => {
     const selectedVoucherInfo = (dataVouchers as any)?.data.find(
-      (vc: any) => vc.id === voucherId
+      (vc: any) => vc?.id === voucherId
     );
 
     if (selectedVoucherInfo) {
@@ -151,7 +152,9 @@ const BookingSeat = () => {
 
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
-  const { data: VoucherUsedbyUser } = useGetVoucherbyIdUserQuery(userId.id);
+  const { data: VoucherUsedbyUser } = useGetVoucherbyIdUserQuery(userId?.id);
+  const { data: PointUser } = useGetPointByIdUserQuery(userId?.id);
+  // console.log(PointUser);
 
   const [selectedSeatsCount, setSelectedSeatsCount] = useState(0);
 
@@ -168,7 +171,7 @@ const BookingSeat = () => {
   };
   const seatBooked = (DataSeatBooked as any)?.data || [];
   const filteredSeats = seatBooked.filter(
-    (item: any) => `${item.id_time_detail}` === id
+    (item: any) => `${item?.id_time_detail}` === id
   );
   const bookedSeatNames =
     filteredSeats
@@ -176,7 +179,7 @@ const BookingSeat = () => {
       .flat()
       .flat() || [];
   // console.log(bookedSeatNames);
-  const findData = ["A1", "A2"];
+  const findData = dataSeatKeping?.map((s: any) => s.seat) || [];
 
   const [seats, setSeats] = useState<SeatInfo[][]>(
     // Initialize seats array based on the keptSeat data
@@ -214,6 +217,42 @@ const BookingSeat = () => {
       })
     )
   );
+  useEffect(() => {
+    const seatBooked = (DataSeatBooked as any)?.data || [];
+
+    // Lọc ra các phần tử có id_time_detail trùng với id từ URL params
+    const filteredSeats = seatBooked.filter(
+      (item: any) => `${item.id_time_detail}` === id
+    );
+
+    // Tạo một danh sách tên ghế từ filteredSeats
+    const bookedSeatNames = filteredSeats
+      .map((item: any) => parseSeatNames(item.name))
+      .flat();
+
+    // Tạo một bản sao mới của mảng ghế
+    const updatedSeats = [...seats];
+    const parseSeatName = (seatNamesString: any) => {
+      return seatNamesString.split(",").map((name: any) => name.trim());
+    };
+
+    // Duyệt qua các ghế đã đặt và cập nhật trạng thái của chúng
+    bookedSeatNames.forEach((seatName: any) => {
+      const [rowIndex, columnIndex] = parseSeatName(seatName);
+      if (
+        rowIndex >= 0 &&
+        rowIndex < numRows &&
+        columnIndex >= 0 &&
+        columnIndex < numColumns
+      ) {
+        updatedSeats[rowIndex][columnIndex].status = SeatStatus.Booked;
+      }
+    });
+
+    // Cập nhật mảng ghế trong trạng thái
+    setSeats(updatedSeats);
+  }, [(DataSeatBooked as any)?.data]);
+
   const handleSeatClick = async (row: number, column: number) => {
     const updatedSeats = [...seats];
     const seat = updatedSeats[row][column];
@@ -226,6 +265,7 @@ const BookingSeat = () => {
           status: SeatStatus.Selected,
           price: selectedPrice,
         };
+
         setSeatInfo((prevSeatInfo) => {
           const seatType = seat.type;
           const prevQuantity = prevSeatInfo[seatType]?.quantity || 0;
@@ -241,6 +281,12 @@ const BookingSeat = () => {
         });
         setSelectedSeats([...selectedSeats, updatedSeats[row][column]]);
         setSelectedSeatsCount(selectedSeatsCount + 1);
+        const seatKeping = {
+          id_time_detail: id,
+          id_user: userId.id,
+          selected_seats: `${getRowName(row)}${column + 1}`,
+        };
+        await keptSeat(seatKeping);
       } else {
         message.warning("Bạn chỉ có thể chọn tối đa 8 ghế trong một lần mua.");
       }
@@ -265,11 +311,60 @@ const BookingSeat = () => {
       });
       setSelectedSeats(selectedSeats.filter((selected) => selected !== seat));
       setSelectedSeatsCount(selectedSeatsCount - 1);
+      const seatKeping = {
+        id_time_detail: id,
+        id_user: userId.id,
+        selected_seats: `${getRowName(row)}${column + 1}`,
+      };
+      await keptSeat(seatKeping);
     }
 
     setSeats(updatedSeats);
   };
   useEffect(() => {}, [foodQuantitiesUI, dispatch]);
+  useEffect(() => {
+    // Calculate the total amount before discount
+    const totalAmount = totalMoney + totalComboAmount;
+
+    // Check if a voucher is selected
+    if (selectedVoucher) {
+      const selectedVoucherInfo = (dataVouchers as any)?.data.find(
+        (vc: any) => vc.id === selectedVoucher
+      );
+
+      if (selectedVoucherInfo) {
+        // Check if the total amount is greater than or equal to the minimum amount required by the voucher
+        if (totalAmount >= selectedVoucherInfo.minimum_amount) {
+          // Calculate the discounted amount based on the voucher type
+          let discount = 0;
+          if (selectedVoucherInfo.limit === 1) {
+            discount = selectedVoucherInfo.price_voucher;
+          } else if (selectedVoucherInfo.limit === 2) {
+            discount =
+              (totalAmount * selectedVoucherInfo.percent) / 100 <=
+              selectedVoucherInfo.price_voucher
+                ? (totalAmount * selectedVoucherInfo.percent) / 100
+                : selectedVoucherInfo.price_voucher;
+          }
+
+          // Set the discounted amount
+          setDiscountedAmount(discount);
+        } else {
+          // Show a warning message if the total amount is not enough for the voucher
+          message.warning(
+            `Số tiền không đủ để áp dụng voucher "${selectedVoucherInfo.code}".`
+          );
+
+          // Reset the selected voucher
+          setSelectedVoucher(null);
+          setDiscountedAmount(0);
+        }
+      }
+    } else {
+      // Reset the discounted amount if no voucher is selected
+      setDiscountedAmount(0);
+    }
+  }, [selectedVoucher, totalMoney, totalComboAmount, dataVouchers]);
 
   const handlePaymentVnpay = async () => {
     if (!selectedPaymentMethod) {
@@ -289,11 +384,17 @@ const BookingSeat = () => {
     // }
   };
 
-  const handlePaymentMomo = () => {
+  const handlePaymentMomo = async () => {
     if (!selectedPaymentMethod) {
       message.error("Vui lòng chọn phương thức thanh toán.");
       return;
     }
+    const money = {
+      amount: totalMoney + totalComboAmount - discountedAmount,
+    };
+    const reponse = await payMomo(money);
+
+    window.location.href = `${(reponse as any)?.data?.payUrl}`;
   };
 
   const updateFoodQuantitiesUI = (
@@ -350,7 +451,7 @@ const BookingSeat = () => {
   dispatch(setShowtimeId(id));
   const moneyTotal = totalMoney + totalComboAmount - discountedAmount;
   dispatch(setTotalPrice(moneyTotal));
-  if (isLoading && dataSeatKeping !== undefined && LoadingSeat) {
+  if (isLoading) {
     return <Loading />; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
   }
   const date = dataAllByTime_Byid?.date;
@@ -532,116 +633,7 @@ const BookingSeat = () => {
     }
     setShowPopCorn(!showPopCorn);
   };
-  useEffect(() => {
-    const seatBooked = (DataSeatBooked as any)?.data || [];
 
-    // Lọc ra các phần tử có id_time_detail trùng với id từ URL params
-    const filteredSeats = seatBooked.filter(
-      (item: any) => `${item.id_time_detail}` === id
-    );
-
-    // Tạo một danh sách tên ghế từ filteredSeats
-    const bookedSeatNames = filteredSeats
-      .map((item: any) => parseSeatNames(item.name))
-      .flat();
-    // console.log(bookedSeatNames);
-
-    // Tạo một bản sao mới của mảng ghế
-    const updatedSeats = [...seats];
-    const parseSeatName = (seatNamesString: any) => {
-      return seatNamesString.split(",").map((name: any) => name.trim());
-    };
-
-    // Duyệt qua các ghế đã đặt và cập nhật trạng thái của chúng
-    bookedSeatNames.forEach((seatName: any) => {
-      const [rowIndex, columnIndex] = parseSeatName(seatName);
-      if (
-        rowIndex >= 0 &&
-        rowIndex < numRows &&
-        columnIndex >= 0 &&
-        columnIndex < numColumns
-      ) {
-        updatedSeats[rowIndex][columnIndex].status = SeatStatus.Booked;
-      }
-    });
-
-    // Cập nhật mảng ghế trong trạng thái
-    setSeats(updatedSeats);
-  }, [(DataSeatBooked as any)?.data]);
-  useEffect(() => {
-    const data = dataSeatKeping || [];
-
-    const findData = data.map((s) => s.seat) || [];
-
-    const updatedSeats = [...seats];
-    const parseSeatName = (seatName: any) => {
-      const row = seatName.charAt(0).charCodeAt(0) - "A".charCodeAt(0);
-      const column = parseInt(seatName.slice(1)) - 1;
-      return [row, column];
-    };
-
-    // Duyệt qua các ghế đã đặt và cập nhật trạng thái của chúng
-    findData?.forEach((seatName: any) => {
-      const [rowIndex, columnIndex] = parseSeatName(seatName);
-      // console.log(
-      //   `Seat Name: ${seatName}, Row Index: ${rowIndex}, Column Index: ${columnIndex}`
-      // );
-      if (
-        rowIndex >= 0 &&
-        rowIndex < numRows &&
-        columnIndex >= 0 &&
-        columnIndex < numColumns
-      ) {
-        updatedSeats[rowIndex][columnIndex].status = SeatStatus.Kepted;
-      }
-    });
-
-    // Cập nhật mảng ghế trong trạng thái
-    setSeats(updatedSeats);
-  }, [dataSeatKeping]);
-  useEffect(() => {
-    // Calculate the total amount before discount
-    const totalAmount = totalMoney + totalComboAmount;
-
-    // Check if a voucher is selected
-    if (selectedVoucher) {
-      const selectedVoucherInfo = (dataVouchers as any)?.data.find(
-        (vc: any) => vc.id === selectedVoucher
-      );
-
-      if (selectedVoucherInfo) {
-        // Check if the total amount is greater than or equal to the minimum amount required by the voucher
-        if (totalAmount >= selectedVoucherInfo.minimum_amount) {
-          // Calculate the discounted amount based on the voucher type
-          let discount = 0;
-          if (selectedVoucherInfo.limit === 1) {
-            discount = selectedVoucherInfo.price_voucher;
-          } else if (selectedVoucherInfo.limit === 2) {
-            discount =
-              (totalAmount * selectedVoucherInfo.percent) / 100 <=
-              selectedVoucherInfo.price_voucher
-                ? (totalAmount * selectedVoucherInfo.percent) / 100
-                : selectedVoucherInfo.price_voucher;
-          }
-
-          // Set the discounted amount
-          setDiscountedAmount(discount);
-        } else {
-          // Show a warning message if the total amount is not enough for the voucher
-          message.warning(
-            `Số tiền không đủ để áp dụng voucher "${selectedVoucherInfo.code}".`
-          );
-
-          // Reset the selected voucher
-          setSelectedVoucher(null);
-          setDiscountedAmount(0);
-        }
-      }
-    } else {
-      // Reset the discounted amount if no voucher is selected
-      setDiscountedAmount(0);
-    }
-  }, [selectedVoucher, totalMoney, totalComboAmount, dataVouchers]);
   return (
     <>
       <Header />
@@ -978,6 +970,11 @@ const BookingSeat = () => {
                     const isVoucherUsed = VoucherUsedbyUser?.some(
                       (usedVoucher: any) => usedVoucher.voucher_code === vc.code
                     );
+
+                    // Nếu là voucher đã sử dụng, không hiển thị nút áp dụng
+                    if (isVoucherUsed) {
+                      return null;
+                    }
                     return (
                       <>
                         <button
@@ -1021,6 +1018,27 @@ const BookingSeat = () => {
                     );
                   })}
                 </div>
+              </div>
+              <div className="mb-8">
+                <span className="block font-medium text-lg text-red-600 border-b-2 border-red-600">
+                  ĐIỂM KHẢ DỤNG ({(PointUser as any)?.data.usable_points})
+                </span>
+                {/* <Space>
+                  <InputNumber
+                    min={1}
+                    max={10}
+                    value={value}
+                    onChange={handleChange}
+                  />
+                  {formatter(value)}
+                  <Button
+                    type="primary"
+                    onClick={handleButtonClick}
+                    className="bg-blue-600"
+                  >
+                    Đổi điểm
+                  </Button>
+                </Space> */}
               </div>
               <div className="mb-8">
                 <span className="block font-medium text-lg text-red-600 border-b-2 border-red-600">

@@ -8,13 +8,17 @@ const memberAPI = createApi({
   }),
   tagTypes: ["member"],
   endpoints: (builder) => ({
-    fetchMembers: builder.query<{data: IMember[]}, void>({
-      query: () => "/member",
+    fetchMembers: builder.query<{ data: IMember[] }, void>({
+      query: () => "/member/",
+      providesTags: ["member"],
+    }),
+    getPointByIdUser: builder.query<IMember, number | string>({
+      query: (id) => `/member/${id}`,
       providesTags: ["member"],
     }),
   }),
 });
 
-export const {useFetchMembersQuery} = memberAPI
+export const { useFetchMembersQuery, useGetPointByIdUserQuery } = memberAPI;
 
 export default memberAPI;

@@ -10,7 +10,10 @@ import {
   setRoleAuth,
 } from "../../../components/CinemaSlice/authSlice";
 import { message } from "antd";
-import { useAddUserMutation, useLoginUserMutation } from "../../../service/signup_login.service";
+import {
+  useAddUserMutation,
+  useLoginUserMutation,
+} from "../../../service/signup_login.service";
 
 const Login = () => {
   const onFinishFailed = (errorInfo: any) => {
@@ -36,11 +39,11 @@ const Login = () => {
   const [onAdd] = useAddUserMutation();
 
   const [errors, setErrors] = useState({
-    name: '',
-    registerEmail: '',
-    phone: '',
-    date_of_birth: '',
-    registerPassword: '',
+    name: "",
+    registerEmail: "",
+    phone: "",
+    date_of_birth: "",
+    registerPassword: "",
   });
 
   const validateForm = () => {
@@ -48,28 +51,37 @@ const Login = () => {
 
     // Name validation
     if (!name.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, name: 'Họ tên không được bỏ trống' }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        name: "Họ tên không được bỏ trống",
+      }));
       isValid = false;
     } else {
-      setErrors((prevErrors) => ({ ...prevErrors, name: '' }));
+      setErrors((prevErrors) => ({ ...prevErrors, name: "" }));
     }
 
     // Email validation
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
     if (!registerEmail.trim() || !emailRegex.test(registerEmail)) {
-      setErrors((prevErrors) => ({ ...prevErrors, registerEmail: 'Email không hợp lệ' }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        registerEmail: "Email không hợp lệ",
+      }));
       isValid = false;
     } else {
-      setErrors((prevErrors) => ({ ...prevErrors, registerEmail: '' }));
+      setErrors((prevErrors) => ({ ...prevErrors, registerEmail: "" }));
     }
 
     // Phone validation
     const phoneRegex = /^\d{10}$/;
     if (!phone.trim() || !phoneRegex.test(phone)) {
-      setErrors((prevErrors) => ({ ...prevErrors, phone: 'Số điện thoại không hợp lệ' }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        phone: "Số điện thoại không hợp lệ",
+      }));
       isValid = false;
     } else {
-      setErrors((prevErrors) => ({ ...prevErrors, phone: '' }));
+      setErrors((prevErrors) => ({ ...prevErrors, phone: "" }));
     }
 
     // Date of Birth validation (add your own validation logic)
@@ -78,17 +90,23 @@ const Login = () => {
     // Password validation
 
     if (!date_of_birth.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, date_of_birth: 'Ngày sinh không được bỏ trống' }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        date_of_birth: "Ngày sinh không được bỏ trống",
+      }));
       isValid = false;
     } else {
-      setErrors((prevErrors) => ({ ...prevErrors, date_of_birth: '' }));
+      setErrors((prevErrors) => ({ ...prevErrors, date_of_birth: "" }));
     }
 
     if (registerPassword.length < 6) {
-      setErrors((prevErrors) => ({ ...prevErrors, registerPassword: 'Mật khẩu phải có ít nhất 6 ký tự' }));
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        registerPassword: "Mật khẩu phải có ít nhất 6 ký tự",
+      }));
       isValid = false;
     } else {
-      setErrors((prevErrors) => ({ ...prevErrors, registerPassword: '' }));
+      setErrors((prevErrors) => ({ ...prevErrors, registerPassword: "" }));
     }
 
     return isValid;
@@ -105,7 +123,7 @@ const Login = () => {
     if (validateForm()) {
       onAdd(userNew);
       console.log(userNew);
-      
+
       message.success("Đăng kí thành công");
       setName(""); // Reset the name field
       setPhone(""); // Reset the name field
@@ -125,22 +143,15 @@ const Login = () => {
         email: loginEmail,
         password: loginPassword,
       });
-      console.log(response);
-      if ((response as any)?.data && (response as any).data.token) {
-        console.log(
-          "🚀 ~ file: Login.tsx:73 ~ handleLogin ~ response:",
-          response
-        );
 
+      if ((response as any)?.data && (response as any).data.token) {
         dispatch(updateToken((response as any).data.token));
         // Update the token in localStorage
         dispatch(setUserId((response as any).data.user.id));
         dispatch(setRoleAuth((response as any).data.user.role));
         localStorage.setItem("authToken", (response as any).data.token);
-        localStorage.setItem("user_id", (response as any).data.user.id);
-        localStorage.setItem("role", (response as any).data.user.role);
         localStorage.setItem("user", JSON.stringify(response?.data.user));
-        console.log(localStorage.getItem("user_id"));
+
         message.success("Đăng nhập thành công!");
         navigate("/");
       } else {
@@ -180,7 +191,9 @@ const Login = () => {
               value={registerEmail}
               onChange={(e) => setRegisterEmail(e.target.value)}
             />
-            {errors.registerEmail && <p className="text-red-500">{errors.registerEmail}</p>}
+            {errors.registerEmail && (
+              <p className="text-red-500">{errors.registerEmail}</p>
+            )}
             <input
               className="bg-[#eee] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="text"
@@ -196,7 +209,9 @@ const Login = () => {
               value={date_of_birth}
               onChange={(e) => setDdate_of_birth(e.target.value)}
             />
-            {errors.date_of_birth && <p className="text-red-500">{errors.date_of_birth}</p>}
+            {errors.date_of_birth && (
+              <p className="text-red-500">{errors.date_of_birth}</p>
+            )}
             <input
               className="bg-[#e4e3e3] rounded-lg accent-[#333] border-none py-2 px-4 my-2 w-full"
               type="password"
@@ -204,7 +219,9 @@ const Login = () => {
               value={registerPassword}
               onChange={(e) => setRegisterPassword(e.target.value)}
             />
-            {errors.registerPassword && <p className="text-red-500">{errors.registerPassword}</p>}
+            {errors.registerPassword && (
+              <p className="text-red-500">{errors.registerPassword}</p>
+            )}
             <button
               type="button"
               onClick={addUser}

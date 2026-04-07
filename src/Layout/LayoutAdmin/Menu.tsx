@@ -196,8 +196,7 @@ export const SideBarAdmin: React.FC<SideBarAdminProps> = ({
   } = theme.useToken();
   let user = JSON.parse(localStorage.getItem("user")!);
 
-  const role = user.role;
-  console.log(1);
+  const role = user?.role;
 
   return (
     <Layout style={{ minHeight: "100vh" }}>

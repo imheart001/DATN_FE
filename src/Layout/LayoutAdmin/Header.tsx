@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 
 export const HeaderAdmin = () => {
   const { Header } = Layout;
-  const dispatch = useDispatch();
+
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user")!);
 
@@ -40,13 +40,12 @@ export const HeaderAdmin = () => {
         <button
           onClick={() => {
             message.success("Đăng xuất thành công!");
+
+            localStorage.removeItem("user");
             localStorage.removeItem("authToken");
-            localStorage.clear();
-            dispatch(updateToken(null)),
-              dispatch(setUserId(null)),
-              setTimeout(() => {
-                navigate("/");
-              }, 1000);
+            setTimeout(() => {
+              navigate("/");
+            }, 1000);
           }}
         >
           {" "}
