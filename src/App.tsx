@@ -43,8 +43,11 @@ import ListUser from "./pages/Admin/User/ListUser";
 
 import MemberInfo from "./pages/Clients/member-info/member-info";
 import MemberInfoAdmin from "./pages/Admin/Members/Members";
+import ResultSuccess from "./pages/Clients/Result/ResultSuccess";
 
 function App() {
+  const getuserId = localStorage.getItem("user");
+  const userId = JSON.parse(`${getuserId}`);
   const router = createBrowserRouter([
     {
       path: "/",
@@ -194,6 +197,10 @@ function App() {
       element: <PaymentMomo />,
     },
     {
+      path: "/ResultNapTien/:id",
+      element: <ResultSuccess />,
+    },
+    {
       path: "/*",
       element: <NotFound />,
     },
@@ -201,7 +208,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const timeoutDuration = 1000 * 60 * 60; // 10 seconds
+    const timeoutDuration = 1000 * 60 * 150; // 10 seconds
 
     const timeoutCallback = async () => {
       try {

@@ -2,18 +2,9 @@ import React, { useEffect, useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
 
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  Col,
-  Drawer,
-  Form,
-  Row,
-  Select,
-  Space,
-  message,
-} from "antd";
+import { Button, Col, Drawer, Form, Row, Select, Space, message } from "antd";
 
-import {  useUpdateCateDetailMutation } from "../../../service/catedetail.service";
+import { useUpdateCateDetailMutation } from "../../../service/catedetail.service";
 import { IFilms } from "../../../interface/model";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchCateQuery } from "../../../service/cate.service";
@@ -22,7 +13,7 @@ const { Option } = Select;
 interface DataType {
   id: string;
   category_id: string;
-  film_id: string
+  film_id: string;
 }
 interface EditCateDetailProps {
   dataCateDetail: DataType;
@@ -77,7 +68,6 @@ const UpdateCategory: React.FC<EditCateDetailProps> = ({ dataCateDetail }) => {
       </Button>
 
       <Drawer
-
         title="Update CateDetail"
         width={720}
         onClose={() => {
@@ -118,17 +108,18 @@ const UpdateCategory: React.FC<EditCateDetailProps> = ({ dataCateDetail }) => {
               <Form.Item
                 name="category_id"
                 label="category_id"
-                rules={[{ required: true, message: "Please enter user category_id" }]}
+                rules={[
+                  { required: true, message: "Please enter user category_id" },
+                ]}
               >
                 <Select placeholder="Please select a status">
-                  {
-                    (cates as any)?.data?.map((cate: IFilms, index: number) => {
-                      return (
-                        <Option key={index} value={cate.id}>{cate.name}</Option>
-                      )
-                    })
-                  }
-
+                  {(cates as any)?.data?.map((cate: IFilms, index: number) => {
+                    return (
+                      <Option key={index} value={cate.id}>
+                        {cate.name}
+                      </Option>
+                    );
+                  })}
                 </Select>
               </Form.Item>
             </Col>
@@ -137,22 +128,21 @@ const UpdateCategory: React.FC<EditCateDetailProps> = ({ dataCateDetail }) => {
               <Form.Item
                 name="film_id"
                 label="film_id"
-                rules={[{ required: true, message: "Please enter user film_id" }]}
+                rules={[
+                  { required: true, message: "Please enter user film_id" },
+                ]}
               >
                 <Select placeholder="Please select a film_id">
-                  {
-                    (films as any)?.data?.map((flim: IFilms, index: number) => {
-                      return (
-                        <Option key={index} value={flim.id}>{flim.name}</Option>
-                      )
-                    })
-                  }
-
+                  {(films as any)?.data?.map((flim: IFilms, index: number) => {
+                    return (
+                      <Option key={index} value={flim.id}>
+                        {flim.name}
+                      </Option>
+                    );
+                  })}
                 </Select>
               </Form.Item>
             </Col>
-
-
           </Row>
         </Form>
       </Drawer>

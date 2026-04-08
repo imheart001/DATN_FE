@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -12,9 +12,7 @@ import {
   Space,
   message,
 } from "antd";
-import {
-  useUpdateProductMutation,
-} from "../../../service/films.service";
+import { useUpdateProductMutation } from "../../../service/films.service";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 
@@ -50,7 +48,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         trailer: dataID.trailer,
         time: dataID.time,
         release_date: moment(dataID.dateSt), // Sử dụng thư viện moment để xử lý ngày
-        end_date:moment(dataID.dateEnd),
+        end_date: moment(dataID.dateEnd),
         description: dataID.description,
       });
     }

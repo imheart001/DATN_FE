@@ -32,15 +32,6 @@ import { formatter } from "../../../utils/formatCurrency";
 const Dashbroad = (props: any) => {
   const { difference, positive = false, sx, value } = props;
   const [dataReal, setDataReal] = useState<any[]>([]);
-
-  const { role } = useAppSelector((state: RootState) => state.auth);
-
-  const data1 = [
-    { name: "Online", value: 60 },
-    { name: "Offline", value: 40 },
-  ];
-  const COLORS = ["#0088FE", "#00C49F"];
-
   const [getDataRevenue] = useGetAnalyticsMutation();
 
   useEffect(() => {
@@ -57,6 +48,15 @@ const Dashbroad = (props: any) => {
     // Call the getData function to fetch data
     getData();
   }, [getDataRevenue]);
+  const getuserId = localStorage.getItem("user");
+  const userId = JSON.parse(`${getuserId}`);
+  const role = userId.role;
+
+  const data1 = [
+    { name: "Online", value: 60 },
+    { name: "Offline", value: 40 },
+  ];
+  const COLORS = ["#0088FE", "#00C49F"];
 
   const data = (dataReal[1] as any)?.revenue_month_y?.map((item: any) => ({
     name: item.Month,
@@ -583,7 +583,8 @@ const Dashbroad = (props: any) => {
                               {
                                 (dataReal[0] as any)?.revenue_month
                                   ?.book_total_mon[0]?.TotalTickets
-                              } vé
+                              }{" "}
+                              vé
                             </Typography>
                           </Stack>
                         </div>

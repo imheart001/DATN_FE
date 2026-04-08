@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Space,
   Table,
@@ -44,12 +44,14 @@ const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
+  const [movies, setMovise] = useState<any>(null);
+  const [removeProduct] = useRemoveProductMutation();
   const { data: films, isLoading } = useFetchProductQuery();
   if (isLoading) {
     return <Loading />;
   }
-  const [movies, setMovise] = useState<any>(null);
-  const [removeProduct] = useRemoveProductMutation();
+ 
+
 
   const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
     key: index.toString(),

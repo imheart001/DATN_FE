@@ -27,7 +27,7 @@ const filmsAPI = createApi({
       invalidatesTags: ["film"],
     }),
     addProduct: builder.mutation({
-      query: (film: IFilms) => ({
+      query: (film: any) => ({
         url: "/film/",
         method: "POST",
         body: film,

@@ -1,26 +1,14 @@
-
 import React, { useEffect, useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  Col,
-  Drawer,
-  Form,
-  Input,
-  Row,
-  Space,
-  message,
-} from "antd";
+import { Button, Col, Drawer, Form, Input, Row, Space, message } from "antd";
 import { useUpdateUserMutation } from "../../../service/signup_login.service";
 
-
-
 interface DataType {
-    id: string;
-    name: string;
-    phone: number;
-    email: string;
+  id: string;
+  name: string;
+  phone: number;
+  email: string;
 }
 interface EditUserProps {
   dataUser: DataType;
@@ -38,7 +26,6 @@ const EditUser: React.FC<EditUserProps> = ({ dataUser }) => {
         name: dataUser.name,
         phone: dataUser.phone,
         email: dataUser.email,
-
       });
     }
   }, [dataUser]);
@@ -143,7 +130,6 @@ const EditUser: React.FC<EditUserProps> = ({ dataUser }) => {
               </Form.Item>
             </Col>
           </Row>
-         
         </Form>
       </Drawer>
     </>
