@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 
 export const HeaderAdmin = () => {
   const { Header } = Layout;
-
+const dispatch = useDispatch()
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user")!);
 
@@ -43,9 +43,12 @@ export const HeaderAdmin = () => {
 
             localStorage.removeItem("user");
             localStorage.removeItem("authToken");
-            setTimeout(() => {
-              navigate("/");
-            }, 1000);
+            // localStorage.clear();
+            dispatch(updateToken(null)),
+              dispatch(setUserId(null)),
+              setTimeout(() => {
+                navigate("/");
+              }, 1000);
           }}
         >
           {" "}

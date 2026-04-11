@@ -47,11 +47,10 @@ const ListFilm: React.FC = () => {
   const [movies, setMovise] = useState<any>(null);
   const [removeProduct] = useRemoveProductMutation();
   const { data: films, isLoading } = useFetchProductQuery();
+
   if (isLoading) {
     return <Loading />;
   }
- 
-
 
   const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
     key: index.toString(),
@@ -149,10 +148,10 @@ const ListFilm: React.FC = () => {
     },
 
     {
-      title: role === 1 && "Action",
+      title: role === 1 || (role === 3 && "Action"),
       key: "action",
       render: (_, record) => {
-        if (role === 1) {
+        if (role === 1 || role === 3) {
           return (
             <Space size="middle">
               <EditFilm dataID={record} />
@@ -207,6 +206,7 @@ const ListFilm: React.FC = () => {
           />
           <RangePicker />
           {role === 1 && <AddFilm />}
+          {role === 3 && <AddFilm />}
         </div>
       </div>
       {!movies && <Table columns={columns} dataSource={dataFilm} />}

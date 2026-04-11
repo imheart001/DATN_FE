@@ -8,6 +8,7 @@ import {
   updateToken,
   setUserId,
   setRoleAuth,
+  setIdCinama,
 } from "../../../components/CinemaSlice/authSlice";
 import { message } from "antd";
 import {
@@ -73,6 +74,7 @@ const Login = () => {
         // Update the token in localStorage
         dispatch(setUserId((response as any).data.user.id));
         dispatch(setRoleAuth((response as any).data.user.role));
+        dispatch(setIdCinama((response as any).data.user.id_cinema))
         localStorage.setItem("authToken", (response as any).data.token);
         localStorage.setItem(
           "user",

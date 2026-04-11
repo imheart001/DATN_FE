@@ -15,7 +15,7 @@ import {
 import type { MenuProps } from "antd";
 
 import { Layout, Menu, theme } from "antd";
-import { itemStaffs, itemsAdmin } from "./staff";
+import { itemStaffs, itemsAdmin, itemsAdmin3 } from "./staff";
 import { useAppSelector } from "../../store/hooks";
 import { RootState } from "../../store/store";
 import { Link, NavLink } from "react-router-dom";
@@ -231,12 +231,31 @@ export const SideBarAdmin: React.FC<SideBarAdminProps> = ({
             fill="url(#patternLogo)"
           ></rect>
         </svg>
-        <Menu
-          theme="dark"
-          defaultSelectedKeys={["1"]}
-          mode="inline"
-          items={role === 1 ? items : itemStaffs}
-        />
+
+        {role === 3 && (
+           <Menu
+           theme="dark"
+           defaultSelectedKeys={["1"]}
+           mode="inline"
+           items={itemsAdmin3}
+         />
+        )}
+        {role === 2 && (
+           <Menu
+           theme="dark"
+           defaultSelectedKeys={["1"]}
+           mode="inline"
+           items={itemStaffs}
+         />
+        )}
+         {role === 1 && (
+           <Menu
+           theme="dark"
+           defaultSelectedKeys={["1"]}
+           mode="inline"
+           items={items}
+         />
+        )}
       </Sider>
 
       <Layout className="site-layout">
