@@ -209,3 +209,90 @@ export const itemsAdmin: MenuItem[] = [
     </NavLink>
   ),
 ];
+
+
+export const itemsAdmin3: MenuItem[] = [
+  getItem(
+    "Dashboard",
+    "1",
+    <NavLink to="/admin">
+      <PieChartOutlined />
+    </NavLink>
+  ),
+  getItem("Đặt vé", "2", <AppstoreOutlined />, [
+    getItem(
+      "Đặt vé",
+      "3",
+      <NavLink to="/admin/Tiketbookingdetail">
+        <CopyOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "Vé đã đặt",
+      "4",
+      <NavLink to="/admin/book_ticket">
+        <FormOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "Hóa đơn trả",
+      "5",
+      <NavLink to="/admin/product/create">
+        <FormOutlined />
+      </NavLink>
+    ),
+  ]),
+
+  getItem("Quản lí phòng chiếu", "5", <AppstoreOutlined />, [
+    getItem(
+      "Quản lí suất chiếu",
+      "4",
+      <NavLink to="/admin/show">
+        <FormOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "MovieRoom",
+      "5",
+      <NavLink to="/admin/movieroom">
+        <FormOutlined />
+      </NavLink>
+    ),
+  ]),
+
+  getItem("Quản lí phim", "6", <AppstoreOutlined />, [
+    getItem(
+      "Danh sách phim",
+      "7",
+      <NavLink to="/admin/listfilm">
+        <CopyOutlined />
+      </NavLink>
+    ),
+    getItem(
+      "Loại phim",
+      "8",
+      <NavLink to="/admin/listcate">
+        <CopyOutlined />
+      </NavLink>
+    ),
+
+    getItem(
+      "CateDetail",
+      "12",
+      <NavLink to="/admin/category_detail">
+        <FormOutlined />
+      </NavLink>
+    ),
+  ]),
+
+  getItem("Quản lí đồ ăn", "12", <HomeOutlined />, [
+    getItem(
+      "Food",
+      "10",
+      <NavLink to="/admin/food">
+        <FormOutlined />
+      </NavLink>
+    ),
+  ]),
+  getItem("Quản lí khách hàng", "14", <TeamOutlined />),
+];

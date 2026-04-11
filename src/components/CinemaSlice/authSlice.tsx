@@ -4,6 +4,7 @@ interface initialState {
   token: string | null
   user_id: string | null
   role: number | null
+  id_cinema: number | null
 }
 
 const initialToken = localStorage.getItem("authToken");
@@ -11,7 +12,8 @@ const initialToken = localStorage.getItem("authToken");
 const initialState: initialState = {
   token: initialToken || null,
   user_id: null,
-  role:  null
+  role:  null,
+  id_cinema: null
 }
 
 const authSlice = createSlice({
@@ -28,9 +30,12 @@ const authSlice = createSlice({
     },
     setRoleAuth: (state, action) => {
       state.role = action.payload
+    },
+    setIdCinama: (state, action) => {
+      state.id_cinema = action.payload
     }
   },
 });
 
-export const { setRoleAuth, updateToken, setUserId } = authSlice.actions;
+export const { setRoleAuth, updateToken, setUserId, setIdCinama } = authSlice.actions;
 export default authSlice.reducer;

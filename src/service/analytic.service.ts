@@ -12,7 +12,15 @@ export const analyticApi = createApi({
       }),
       invalidatesTags: ["Analytic"],
     }),
+    getAnalyticsAdminCinema: builder.mutation<any, FormData>({
+      query: (body) => ({
+        url: "/Revenue_cinema/",
+        method: "POST",
+        body: body
+      }),
+      invalidatesTags: ["Analytic"],
+    }),
   }),
 });
 
-export const { useGetAnalyticsMutation } = analyticApi;
+export const { useGetAnalyticsMutation, useGetAnalyticsAdminCinemaMutation } = analyticApi;

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 
 import { UserAddOutlined } from "@ant-design/icons";
@@ -24,6 +23,7 @@ const AddMovieRoom: React.FC = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const { data: cinemas } = useFetchCinemaQuery();
+  console.log("🚀 ~ file: AddMovieRoom.tsx:27 ~ cinemas:", cinemas);
 
   const showDrawer = () => {
     setOpen(true);
@@ -35,7 +35,6 @@ const AddMovieRoom: React.FC = () => {
 
   const onFinish = async (values: any) => {
     try {
-
       await addMovieRoom(values).unwrap();
       message.success("Thêm sản phẩm thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -43,12 +42,20 @@ const AddMovieRoom: React.FC = () => {
     } catch (error) {
       message.error("Thêm sản phẩm thất bại");
     }
-  console.log(values);
-
+    console.log(values);
   };
-  
 
   const [form] = Form.useForm(); // Tạo một Form instance để sử dụng validate
+
+  let user = JSON.parse(localStorage.getItem("user")!);
+
+  const role = user.role;
+  const id_cinema = user.id_cinema;
+
+  const optionRole3 = (cinemas as any)?.data?.filter(
+    (item: any) => item.id === id_cinema
+  );
+  const optionRole1 = (cinemas as any)?.data?.map((item: any) => item);
 
   return (
     <>
@@ -61,7 +68,6 @@ const AddMovieRoom: React.FC = () => {
         Thêm
       </Button>
       <Drawer
-
         title="Thêm Loại MovieRoom"
         width={720}
         onClose={() => {
@@ -114,25 +120,38 @@ const AddMovieRoom: React.FC = () => {
                 label="Id_cinema"
                 rules={[{ required: true, message: "Please enter id_cinema" }]}
               >
-                  <Select placeholder="Please select a film_id">
-                  {
+                <Select placeholder="Please select a film_id">
+                  {/* {
                     (cinemas as any)?.data?.map((cinema: ICinemas, index: number) => {
                       return (
                         <Option key={index} value={cinema.id}>{cinema.name}</Option>
                       )
                     })
-                  }
-
+                  } */}
+                  {role === 3 &&
+                    optionRole3?.map((cinema: ICinemas, index: number) => {
+                      return (
+                        <Option key={index} value={cinema.id}>
+                          {cinema.name}
+                        </Option>
+                      );
+                    })}
+                  {role === 1 &&
+                    optionRole1?.map((cinema: ICinemas, index: number) => {
+                      return (
+                        <Option key={index} value={cinema.id}>
+                          {cinema.name}
+                        </Option>
+                      );
+                    })}
                 </Select>
               </Form.Item>
             </Col>
-
           </Row>
         </Form>
       </Drawer>
     </>
   );
 };
-
 
 export default AddMovieRoom;

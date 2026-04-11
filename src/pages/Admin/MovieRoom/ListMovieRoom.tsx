@@ -12,8 +12,6 @@ import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { ICinemas, IMovieRoom } from "../../../interface/model";
 import AddMovieRoom from "./AddMovieRoom";
 import EditMovieRoom from "./EditMovieRoom";
-import { RootState } from "../../../store/store";
-import { useAppSelector } from "../../../store/hooks";
 interface DataType {
   id: string;
   name: string;
@@ -29,9 +27,9 @@ const ListMovieRoom: React.FC = () => {
   let user = JSON.parse(localStorage.getItem("user")!);
 
   const role = user.role;
+  const id_cinema = user.id_cinema;
 
   const [removeMovie] = useRemoveMovieRoomMutation();
-  console.log(movies);
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã MovieRoom",
@@ -53,7 +51,7 @@ const ListMovieRoom: React.FC = () => {
 
     {
       render: (_, record) => {
-        if (role === 1) {
+        if (role === 1 || role === 3) {
           return (
             <Space size="middle">
               <EditMovieRoom dataMovieRoom={record} />
@@ -93,12 +91,28 @@ const ListMovieRoom: React.FC = () => {
       id_cinema: (cinemas as any)?.data?.find(
         (cinemas: ICinemas) => cinemas.id === movie.id_cinema
       )?.name,
+      cinema_id: (cinemas as any)?.data?.find(
+        (cinemas: ICinemas) => cinemas.id === movie.id_cinema
+      )?.id,
     })
   );
+
+  const resultCinemas = dataMovie?.filter(
+    (item: any) => item.cinema_id === id_cinema
+  );
+
   const [dataList, setDataList] = useState<any>(null);
+  console.log("🚀 ~ file: ListMovieRoom.tsx:103 ~ dataList:", dataList);
 
   const onSearch = (value: any, _e: any) => {
-    const results = dataMovie.filter((item: any) =>
+    if (role === 1) {
+      const results = dataMovie.filter((item: any) =>
+        item.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setDataList(results);
+      return;
+    }
+    const results = resultCinemas.filter((item: any) =>
       item.name.toLowerCase().includes(value.toLowerCase())
     );
     setDataList(results);
@@ -114,13 +128,16 @@ const ListMovieRoom: React.FC = () => {
             onSearch={onSearch}
           />
 
-          {role == 1 && <AddMovieRoom />}
+          {role === 1 && <AddMovieRoom />}
+          {role === 3 && <AddMovieRoom />}
         </div>
       </div>
-      {dataList ? (
-        <Table columns={columns} dataSource={dataList} />
-      ) : (
+      {dataList && <Table columns={columns} dataSource={dataList} />}
+      {!dataList && role === 1 && (
         <Table columns={columns} dataSource={dataMovie} />
+      )}
+      {!dataList && role === 3 && (
+        <Table columns={columns} dataSource={resultCinemas} />
       )}
     </>
   );

@@ -13,6 +13,7 @@ import {
   updateToken,
   setUserId,
   setRoleAuth,
+  setIdCinama,
 } from "../../../components/CinemaSlice/authSlice";
 import { persistor } from "../../../store/store";
 import { message } from "antd";
@@ -73,18 +74,19 @@ const Login = () => {
       if ((response as any)?.data && (response as any).data.token) {
         console.log(
           "🚀 ~ file: Login.tsx:73 ~ handleLogin ~ response:",
-          response
+          response.data.user.id_cinema
         );
 
         dispatch(updateToken((response as any).data.token));
         // Update the token in localStorage
         dispatch(setUserId((response as any).data.user.id));
         dispatch(setRoleAuth((response as any).data.user.role));
+        dispatch(setIdCinama((response as any).data.user.id_cinema))
         localStorage.setItem("authToken", (response as any).data.token);
         localStorage.setItem("user_id", (response as any).data.user.id);
+        localStorage.setItem("ic_cinema", (response as any).data.user.id_cinema);
 
         localStorage.setItem("user", JSON.stringify(response?.data.user));
-        console.log(localStorage.getItem("user_id"));
         message.success("Đăng nhập thành công!");
         navigate("/");
       } else {

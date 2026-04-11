@@ -63,7 +63,7 @@ const ListShow: React.FC = () => {
       title: role === 1 && "Action",
       key: "action",
       render: (_, record) => {
-        if (role === 1) {
+        if (role === 1 || role === 3) {
           return (
             <Space size="middle">
               <EditShow dataShow={record} />
@@ -137,7 +137,8 @@ const ListShow: React.FC = () => {
             onSearch={onSearch}
           />
 
-          {role === 1 && <AddShow />}
+          {role === 1  && <AddShow />}
+          {role === 3 && <AddShow />}
         </div>
       </div>
       {dataShows ? (
