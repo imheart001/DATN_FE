@@ -179,6 +179,13 @@ const items: MenuItem[] = [
     "14",
     <TeamOutlined />
   ),
+  getItem(
+    "Blogs",
+    "27",
+    <NavLink to="/admin/blogs">
+      <PieChartOutlined />
+    </NavLink>
+  ),
 ];
 
 interface SideBarAdminProps {

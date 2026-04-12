@@ -261,3 +261,29 @@ button.ghost:hover i.login {
   justify-content: center;
   /* height: 100vh; Đảm bảo chiều cao 100% của viewport */
 }
+.blogs{
+  /* Frame 30 */
+
+position: absolute;
+width: 620px;
+height: 240.39px;
+left: 0px;
+top: 0px;
+
+/* Secondary */
+background: #8E8E8E;
+border-radius: 12px;
+
+
+/* image 14 */
+
+position: absolute;
+width: 624px;
+height: 242px;
+left: -2px;
+top: -1px;
+
+background: url(image.png);
+border-radius: 12px;
+
+}

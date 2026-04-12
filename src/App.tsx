@@ -43,6 +43,8 @@ import ListUser from "./pages/Admin/User/ListUser";
 
 import MemberInfo from "./pages/Clients/member-info/member-info";
 import MemberInfoAdmin from "./pages/Admin/Members/Members";
+import ListBlog from "./pages/Admin/Blogs/ListBlog";
+import BlogsDetail from "./pages/Clients/Blogs-Detail/BlogsDetail";
 
 function App() {
   const router = createBrowserRouter([
@@ -93,6 +95,10 @@ function App() {
         {
           path: "/Tiketbookingdetail",
           element: <TicketBookingDetails />,
+        },
+        {
+          path: "/blog/:id",
+          element: <BlogsDetail />,
         },
         {
           path: "/info_account",
@@ -178,6 +184,10 @@ function App() {
         {
           path: "/admin/user",
           element: <ListUser />,
+        },
+        {
+          path: "/admin/blogs",
+          element: <ListBlog />,
         },
       ],
     },

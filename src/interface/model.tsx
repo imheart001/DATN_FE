@@ -106,3 +106,11 @@ export interface IBookTicketUser {
   chair_price: string;
   cinema_name: string;
 }
+export interface IBlogs {
+  id: string;
+  title: string;
+  slug: string;
+  image: string;
+  content: string;
+  status: number;
+}

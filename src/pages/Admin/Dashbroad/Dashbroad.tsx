@@ -154,69 +154,9 @@ const Dashbroad = (props: any) => {
         </div>
       </div>
       <div className={`${role === 2 ? "hidden" : ""}`}>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8 h-[500px]">
-          <div className="mt-10 rounded-lg  lg:col-span-2">
-            <div className="flex justify-between items-center">
-              <h1 className="mb-10">Biểu Đồ</h1>
-            </div>
-            <div className="h-[500px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  width={500}
-                  height={300}
-                  data={dataAnalytics}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar
-                    dataKey="doanh thu"
-                    fill="#82ca9d"
-                    activeBar={<Rectangle fill="gold" stroke="purple" />}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          <div className="rounded-lg ">
-            <PieChart width={400} height={400}>
-              <Pie
-                data={data1}
-                dataKey="value"
-                cx={200}
-                cy={200}
-                outerRadius={80}
-                // fill="#0088FE"
-                label
-              >
-                {data1.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-
-              <Tooltip
-                formatter={(value: any, name) => [formatter(value), name]}
-              />
-
-              <Legend />
-            </PieChart>
-          </div>
-        </div>
-      </div>
       {dataReal[0] && (
         <div className="">
-          <div className="1">
+          <div className="1 ">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-8">
               <div className={`${role === 2 ? "hidden" : "h-32 rounded-lg"}`}>
                 <Card sx={sx}>
@@ -458,7 +398,7 @@ const Dashbroad = (props: any) => {
                 </Card>
               </div>
 
-              <div className="h-32 rounded-lg ">
+              <div className="h-32 rounded-lg mt-24">
                 <Card sx={sx}>
                   <CardContent>
                     <Stack
@@ -509,7 +449,7 @@ const Dashbroad = (props: any) => {
                 </Card>
               </div>
 
-              <div className={`${role === 2 ? "hidden" : "h-32 rounded-lg"}`}>
+              <div className={`${role === 2 ? "hidden" : "h-32 rounded-lg mt-24"}`}>
                 <Card sx={sx}>
                   <CardContent>
                     <Stack
@@ -518,7 +458,7 @@ const Dashbroad = (props: any) => {
                       justifyContent="space-between"
                       // spacing={}
                     >
-                      <div className="grid grid-cols-1 gap-7 lg:grid-cols-[1fr_120px] lg:gap-8">
+                      <div className="grid grid-cols-1 mt- gap-7 lg:grid-cols-[1fr_120px] lg:gap-8">
                         <div className=" rounded-lg ">
                           <Stack spacing={1}>
                             <Typography
@@ -560,7 +500,7 @@ const Dashbroad = (props: any) => {
                 </Card>
               </div>
 
-              <div className="h-32 rounded-lg">
+              <div className="h-32 rounded-lg mt-24">
                 <Card sx={sx}>
                   <CardContent>
                     <Stack
@@ -569,7 +509,7 @@ const Dashbroad = (props: any) => {
                       justifyContent="space-between"
                       // spacing={}
                     >
-                      <div className="grid grid-cols-1 gap-7 lg:grid-cols-[1fr_120px] lg:gap-8">
+                      <div className="grid grid-cols-1  gap-7 lg:grid-cols-[1fr_120px] lg:gap-8">
                         <div className=" rounded-lg ">
                           <Stack spacing={1}>
                             <Typography
@@ -621,7 +561,7 @@ const Dashbroad = (props: any) => {
                   </CardContent>
                 </Card>
               </div>
-              <div className={`${role === 2 ? "hidden" : "h-32 rounded-lg"}`}>
+              <div className={`${role === 2 ? "hidden" : "h-32 rounded-lg mt-24"}`}>
                 <Card sx={sx}>
                   <CardContent>
                     <Stack
@@ -676,14 +616,77 @@ const Dashbroad = (props: any) => {
             </div>
           </div>
 
-          <div className="mt-10">
-            <div className="grid grid-cols-1 mt-24 ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
+         
+        </div>
+      )}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8 h-[500px]">
+          <div className="mt-10 rounded-lg  lg:col-span-2">
+            <div className="flex justify-between items-center">
+            <h1 className="mb-10 mt-16" style={{ fontWeight: 'bold' }}>Biểu Đồ</h1>
+
+            </div>
+            <div className="h-[500px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  width={500}
+                  height={300}
+                  data={dataAnalytics}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar
+                    dataKey="doanh thu"
+                    fill="#82ca9d"
+                    activeBar={<Rectangle fill="gold" stroke="purple" />}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          <div className="rounded-lg mt-48 ">
+            <PieChart width={400} height={400}>
+              <Pie
+                data={data1}
+                dataKey="value"
+                cx={200}
+                cy={200}
+                outerRadius={80}
+                // fill="#0088FE"
+                label
+              >
+                {data1.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+
+              <Tooltip
+                formatter={(value: any, name) => [formatter(value), name]}
+              />
+
+              <Legend />
+            </PieChart>
+          </div>
+        </div>
+        <div className="mt-52">
+            <div className="grid grid-cols-1  ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
               <div className=" rounded-lg ">
                 Tốp 5 bộ phim có doanh thu cao nhất theo ngày
               </div>
               <div className=" rounded-lg ">Tốp 5 bộ phim bán vé chạy</div>
             </div>
-            <div className="grid grid-cols-1 mt-10 ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
+            <div className="grid grid-cols-1 mt-1 ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
               <div className=" rounded-lg ">
                 <div className="overflow-x-auto rounded-lg border border-gray-200">
                   <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
@@ -769,7 +772,7 @@ const Dashbroad = (props: any) => {
                 Tốp 5 khách hàng thân thiết
               </div>
             </div>
-            <div className="grid grid-cols-1 mt-10 ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
+            <div className="grid grid-cols-1 mt-1 ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
               <div className={`${role === 2 ? "hidden" : "rounded-lg"}`}>
                 <div className="overflow-x-auto rounded-lg border border-gray-200">
                   <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
@@ -849,8 +852,8 @@ const Dashbroad = (props: any) => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+      </div>
+     
     </div>
   );
 };

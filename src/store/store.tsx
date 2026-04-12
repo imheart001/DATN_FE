@@ -34,6 +34,7 @@ import seatkepingAPI from "../service/seatkeping.service";
 import sendEmailAPI from "../service/sendEmail.service";
 import payMoMoAPI from "../service/payMoMo.service";
 import memberAPI from "../service/member.service";
+import blogsAPI from "../service/blog.service";
 
 // Import redux-persist
 const persistConfig = {
@@ -62,6 +63,7 @@ const rootReducer = combineReducers({
   selectedCinema: selectedCinemaReducer,
   TKinformation: TKinformationReducer,
   users: usersAPI.reducer,
+  blogs: blogsAPI.reducer,
   auth: authReducer,
   [analyticApi.reducerPath]: analyticApi.reducer,
   [memberAPI.reducerPath]: memberAPI.reducer,
@@ -96,7 +98,8 @@ const store = configureStore({
       cateDetailAPI.middleware as any,
       usersAPI.middleware as any,
       analyticApi.middleware as any,
-      memberAPI.middleware as any
+      memberAPI.middleware as any,
+      blogsAPI.middleware as any
     );
 
     return middlewareArray;
