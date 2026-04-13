@@ -1,8 +1,24 @@
 import Header from "../../../Layout/LayoutUser/Header";
 import { Link } from "react-router-dom";
 import FindBookQuickly from "../../../components/Find&BookQuickly/Find&BookQuickly";
+import { useFetchBlogQuery } from "../../../service/blog.service";
+import { compareDates, compareReleaseDate } from "../../../utils";
+import { useAppSelector } from "../../../store/hooks";
+import { IBlogs } from "../../../interface/model";
+import FilmShowing from "../../../components/FilmShowing";
+import { useState } from "react";
+import '../../../index.css'
 
-const HomePages = () => {
+type Props = {
+  data: any;
+};
+const HomePages = ({ data }: Props) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { data: blogs, error } = useFetchBlogQuery() as any;
+  console.log(blogs);
+
+
   return (
     <>
       <section className="relative bg-[url(/banner-home.png/)] bg-cover w-full bg-center bg-no-repeat">
@@ -34,19 +50,17 @@ const HomePages = () => {
         <span className="block text-[#8E8E8E] text-[17px] text-center">
           Khám phá một bộ sưu tập các ưu đãi độc đáo và đặc biệt!
         </span>
+
         <div className="What’s On img grid grid-cols-2 gap-8 my-10">
-          <Link to={"#"}>
-            <img src="/w-on-1.png/" className="rounded-xl" alt="" />
-          </Link>
-          <Link to={"#"}>
-            <img src="/w-on-2.png/" className="rounded-xl" alt="" />
-          </Link>
-          <Link to={"#"}>
-            <img src="/w-on-3.png/" className="rounded-xl" alt="" />
-          </Link>
-          <Link to={"#"}>
-            <img src="/w-on-4.png/" className="rounded-xl" alt="" />
-          </Link>
+
+          {blogs &&
+            blogs?.data?.map((blog: IBlogs) => (
+              <Link to={`/blog/${blog.id}`} key={blog.id}>
+                <img  src={blog.image} className="rounded-xl" 
+                alt={blog.title} 
+                style={{ width: '624px', height: '242px' }} />
+              </Link>
+            ))}
         </div>
         <span className="block text-center">
           <u className="text-[#8E8E8E] text-center text-[17px]">
