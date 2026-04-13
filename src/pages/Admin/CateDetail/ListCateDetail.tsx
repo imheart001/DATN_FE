@@ -2,7 +2,7 @@
 import  { useState } from "react";
 
 import { Space, Table, Input, Button, Popconfirm } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
 
@@ -15,6 +15,7 @@ import { useFetchCateQuery } from "../../../service/cate.service";
 import { useFetchProductQuery } from "../../../service/films.service";
 import AddCateDetail from "./AddCateDetail";
 import EditCateDetail from "./EditCateDetail";
+import { FilterValue } from "antd/es/table/interface";
 interface DataType {
 
   id: string;
@@ -28,27 +29,32 @@ const ListCateDetail: React.FC = () => {
   const { data: catedetails } = useFetchCateDetailQuery();
   const { data: cates } = useFetchCateQuery();
   const { data: films } = useFetchProductQuery();
-
-
+  const [filteredInfo, setFilteredInfo] = useState<Record<string, FilterValue | null>>({});
   const [removeCateDetail] = useRemoveCateDetailMutation();
   console.log(catedetails);
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã MovieRoom",
+      title: "Mã Chi Tiết Danh Mục",
       dataIndex: "id",
       key: "key",
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Tên Category theo id",
+      title: "Tên Danh Mục",
       dataIndex: "category_id",
       key: "category_id",
+      filters: cates?.data?.map((item) => ({ text: item.name, value: item.name})),
+      filteredValue: filteredInfo.category_id || null,
+      onFilter: (value, record) => record.category_id === value,
     },
 
     {
-      title: " Film id",
+      title: "Phim",
       dataIndex: "film_id",
       key: "film_id",
+      filters: films?.data?.map((item) => ({ text: item.name, value: item.name})),
+      filteredValue: filteredInfo.film_id || null,
+      onFilter: (value, record) => record.film_id === value,
     },
 
     {
@@ -99,12 +105,13 @@ const ListCateDetail: React.FC = () => {
     const results =dataCateDetail.filter((item: any) => item.category_id.toLowerCase().includes(value.toLowerCase()))
     setDataList(results)
   }
-
-
+  const handleChange: TableProps<DataType>['onChange'] = (pagination, filters) => {
+    setFilteredInfo(filters);
+  };
   return (
     <>
       <div className="">
-        <h2 className="font-bold text-2xl my-4">Quản lí đồ ăn</h2>
+        <h2 className="font-bold text-2xl my-4">Quản Lý Chi Tiết Danh Mục</h2>
         <div className="space-x-4 justify-center my-4">
           <Search
             placeholder="Nhập tên đồ ăn hoặc mã đồ ăn"
@@ -118,11 +125,11 @@ const ListCateDetail: React.FC = () => {
       </div>
       {
         dataList ? (
-          <Table columns={columns} dataSource={dataList} />
+          <Table columns={columns} dataSource={dataList} onChange={handleChange} />
 
         ) : (
 
-          <Table columns={columns} dataSource={dataCateDetail} />
+          <Table columns={columns} dataSource={dataCateDetail} onChange={handleChange} />
         )
       }
     </>
