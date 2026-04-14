@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { Space, Table, Input, Button, Popconfirm } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
 import {
@@ -12,6 +12,8 @@ import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { ICinemas, IMovieRoom } from "../../../interface/model";
 import AddMovieRoom from "./AddMovieRoom";
 import EditMovieRoom from "./EditMovieRoom";
+import { FilterValue } from "antd/es/table/interface";
+
 interface DataType {
   id: string;
   name: string;
@@ -23,7 +25,9 @@ const { Search } = Input;
 const ListMovieRoom: React.FC = () => {
   const { data: movies } = useFetchMovieRoomQuery();
   const { data: cinemas } = useFetchCinemaQuery();
-
+  const [filteredInfo, setFilteredInfo] = useState<
+    Record<string, FilterValue | null>
+  >({});
   let user = JSON.parse(localStorage.getItem("user")!);
 
   const role = user.role;
@@ -32,21 +36,33 @@ const ListMovieRoom: React.FC = () => {
   const [removeMovie] = useRemoveMovieRoomMutation();
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã MovieRoom",
+      title: "Mã Phòng Chiếu",
       dataIndex: "id",
       key: "key",
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Tên MovieRoom",
+      title: "Tên Phòng Chiếu",
       dataIndex: "name",
       key: "name",
+      filters: (movies as any)?.data?.map((item: any) => ({
+        text: item.name,
+        value: item.name,
+      })),
+      filteredValue: filteredInfo.name || null,
+      onFilter: (value: any, record) => record.name === value,
     },
 
     {
-      title: "id_cinema",
+      title: "Rạp Chiếu",
       dataIndex: "id_cinema",
       key: "id_cinema",
+      filters: (cinemas as any)?.data?.map((item: any) => ({
+        text: item.name,
+        value: item.name,
+      })),
+      filteredValue: filteredInfo.id_cinema || null,
+      onFilter: (value: any, record) => record.id_cinema === value,
     },
 
     {
@@ -102,8 +118,12 @@ const ListMovieRoom: React.FC = () => {
   );
 
   const [dataList, setDataList] = useState<any>(null);
-  console.log("🚀 ~ file: ListMovieRoom.tsx:103 ~ dataList:", dataList);
-
+  const handleChange: TableProps<DataType>["onChange"] = (
+    pagination,
+    filters
+  ) => {
+    setFilteredInfo(filters);
+  };
   const onSearch = (value: any, _e: any) => {
     if (role === 1) {
       const results = dataMovie.filter((item: any) =>
@@ -120,7 +140,7 @@ const ListMovieRoom: React.FC = () => {
   return (
     <>
       <div className="">
-        <h2 className="font-bold text-2xl my-4">Quản lí đồ ăn</h2>
+        <h2 className="font-bold text-2xl my-4">Quản Lý Phòng Chiếu</h2>
         <div className="space-x-4 justify-center my-4">
           <Search
             placeholder="Nhập tên đồ ăn hoặc mã đồ ăn"
@@ -132,9 +152,18 @@ const ListMovieRoom: React.FC = () => {
           {role === 3 && <AddMovieRoom />}
         </div>
       </div>
-      {dataList && <Table columns={columns} dataSource={dataList} />}
-      {!dataList && role === 1 && (
-        <Table columns={columns} dataSource={dataMovie} />
+      {dataList ? (
+        <Table
+          columns={columns}
+          dataSource={dataList}
+          onChange={handleChange}
+        />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={dataMovie}
+          onChange={handleChange}
+        />
       )}
       {!dataList && role === 3 && (
         <Table columns={columns} dataSource={resultCinemas} />

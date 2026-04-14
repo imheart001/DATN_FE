@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Space, Table, Input, Button, Popconfirm } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 import {
   useFetchCinemaQuery,
@@ -9,6 +9,7 @@ import {
 import EditCinema from "./EditCinema";
 import { ICinemas } from "../../../interface/model";
 import AddCinema from "./AddCinema";
+import { FilterValue } from "antd/es/table/interface";
 
 interface DataType {
   id: string;
@@ -22,7 +23,11 @@ const { Search } = Input;
 const ListCinema: React.FC = () => {
   const { data: cinemas } = useFetchCinemaQuery();
   const [removeCinema] = useRemoveCinemaMutation();
-  console.log(cinemas);
+  const [filteredInfo, setFilteredInfo] = useState<Record<string, FilterValue | null>>({});
+
+  // Lọc ra các giá trị duy nhất từ danh sách rạp chiếu
+  // const uniqueCinemaValues = Array.from(new Set(cinemas?.data?.map(item => item.name)));
+
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã Rạp",
@@ -34,11 +39,17 @@ const ListCinema: React.FC = () => {
       title: "Tên Rạp",
       dataIndex: "name",
       key: "name",
+      filters: cinemas?.data?.map((item) => ({ text: item.name, value: item.name })),
+      filteredValue: filteredInfo.name || null,
+      onFilter: (value, record) => record.name === value,
     },
     {
       title: "Địa chỉ",
       dataIndex: "address",
       key: "address",
+      filters: cinemas?.data?.map((item) => ({ text: item.address, value: item.address })),
+      filteredValue: filteredInfo.address || null,
+      onFilter: (value, record) => record.address === value,
     },
 
     {
@@ -73,7 +84,7 @@ const ListCinema: React.FC = () => {
     },
   ];
 
-  const dataCate = (cinemas as any )?.data?.map((cinema: ICinemas, index: number) => ({
+  const dataCate = (cinemas as any)?.data?.map((cinema: ICinemas, index: number) => ({
     key: index.toString(),
     id: cinema.id,
     name: cinema?.name,
@@ -83,9 +94,12 @@ const ListCinema: React.FC = () => {
   const [dataList, setDataList] = useState<any>(null)
 
   const onSearch = (value: any, _e: any) => {
-    const results =dataCate.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()))
+    const results = dataCate.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()))
     setDataList(results)
   }
+  const handleChange: TableProps<DataType>['onChange'] = (pagination, filters) => {
+    setFilteredInfo(filters);
+  };
   return (
     <>
       <div className="">
@@ -101,11 +115,11 @@ const ListCinema: React.FC = () => {
         </div>
       </div>
       {dataList ? (
-      <Table columns={columns} dataSource={dataList} />
+        <Table columns={columns} dataSource={dataList} onChange={handleChange} />
 
       ) : (
 
-      <Table columns={columns} dataSource={dataCate} />
+        <Table columns={columns} dataSource={dataCate} onChange={handleChange} />
       )}
     </>
   );

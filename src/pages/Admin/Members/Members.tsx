@@ -1,86 +1,135 @@
-import "../../../App.css";
+import { useState } from "react";
+import { Space, Table, Button, Popconfirm, Tag } from "antd";
+import type { ColumnsType, TableProps } from "antd/es/table";
+import { DeleteOutlined } from "@ant-design/icons";
 import { useFetchMembersQuery } from "../../../service/member.service";
+import { IUser } from "../../../interface/model";
+import { FilterValue } from "antd/es/table/interface";
+import Search from "antd/es/input/Search";
+import { useFetchUsersQuery } from "../../../service/signup_login.service";
+interface DataType {
+  id_card: string;
+  card_class: string;
+  activation_date: string;
+  total_spending: number;
+  accumulated_points: number;
+  points_used: number;
+  usable_points: number;
+  id_user: number;
+}
 const MemberInfoAdmin = () => {
-  const { data } = useFetchMembersQuery();
+  const { data: member } = useFetchMembersQuery();
+  const { data: user } = useFetchUsersQuery();
+  const [filteredInfo, setFilteredInfo] = useState<Record<string, FilterValue | null>>({});
+  const formatter = (value: number) =>
+    `${value} ₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  // Lọc ra các giá trị duy nhất từ danh sách rạp chiếu
+  const getUniqueValues = (dataList, key) => {
+    return Array.from(new Set(dataList?.data?.map(item => item[key])));
+  };
+  
+  const columns: ColumnsType<DataType> = [
+    {
+      title: "Người Dùng",
+      dataIndex: "id_user",
+      key: "id_user",
+      filters: getUniqueValues(user, "name")?.map(item => ({ text: item, value: item })),
+      filteredValue: filteredInfo.id_user || null,
+      onFilter: (value: any, record) => record.id_user === value,
+    },
+    {
+      title: "Số Thẻ",
+      dataIndex: "id_card",
+      key: "id_card",
+    },
+    {
+      title: "Hạng Thẻ",
+      dataIndex: "card_class",
+      key: "card_class",
+      filters: [
+        { text: "Bình Thường", value: "Bình Thường" },
+        { text: "V.I.P", value: "V.I.P" }
+      ],
+      filteredValue: filteredInfo.card_class || null,
+      onFilter: (value: any, record) => record.card_class.includes(value),
+      render: (text, record) => {
+        return <Tag color={record.card_class.includes("Bình Thường") ? "blue" : record.card_class.includes("V.I.P") ? "gold" : "default"}>
+        {text}
+      </Tag>
+      },
+    },
 
-  const dataUser = data?.data
+    {
+      title: "Ngày Kích Hoạt",
+      dataIndex: "activation_date",
+      key: "activation_date",
+    },
 
+    {
+      title: "Tổng Chi Tiêu",
+      dataIndex: "total_spending",
+      key: "total_spending",
+      render: (text) => <span>{formatter(Number(text))}</span>,
+    },
+    {
+      title: "Điểm Tích Lũy",
+      dataIndex: "accumulated_points",
+      key: "accumulated_points",
+    },
+    {
+      title: "Điểm Đã Tiêu",
+      dataIndex: "points_used",
+      key: "points_used",
+    },
+    {
+      title: "Điểm Khả Dụng",
+      dataIndex: "usable_points",
+      key: "usable_points",
+    },
+  ];
+  
+  const dataUser = (member as any)?.data?.map((member: DataType, index: number) => ({
+    key: index.toString(),
+    id_card: member.id_card,
+    card_class: [member.card_class === 1 ? "Bình Thường" : member.card_class === 2 ? "V.I.P" : "Không xác định"],
+    activation_date: member.activation_date,
+    total_spending: member.total_spending,
+    accumulated_points: member.accumulated_points,
+    points_used: member.points_used,
+    usable_points: member.usable_points,
+    id_user: (user as any)?.data?.find(
+      (user: any) => user.id === member.id_user
+    )?.name,
+  }));
+  const [dataList, setDataList] = useState<any>(null);
+  const handleChange: TableProps<DataType>['onChange'] = (pagination, filters) => {
+    setFilteredInfo(filters);
+  };
+  const onSearch = (value: any, _e: any) => {
+    const results = dataUser.filter((item: any) =>
+      item.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setDataList(results);
+  };
+  
   return (
-    <div className="h-screen bg-white">
-      <h1 className="mb-10" style={{ textAlign: "center", fontWeight: "bold" }}>
-        Thẻ thành viên
-      </h1>
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
-        <table className="min-w-full divide-y-5 divide-gray-200 bg-white text-sm">
-          <thead className="ltr:text-left rtl:text-right">
-            <tr>
-              <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                SÔ THẺ
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                HẠNG THẺ
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                NGÀY KÍCH HOẠT
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                TỔNG CHI TIÊU
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                ĐIỂM TÍCH LŨY
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                ĐIỂM ĐÃ TIÊU
-              </th>
-              <th className="whitespace-nowrap px-4 py-2 text-left font-medium text-gray-900">
-                ĐIỂM KHẢ DỤNG
-              </th>
-            </tr>
-          </thead>
-          {/* <hr /> */}
-          <tbody className="divide-y divide-gray-200">
-            {dataUser &&
-              dataUser.length > 0 &&
-              dataUser.map((item) => (
-                <tr key={item.id}>
-                  <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                    {item.id_card}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                    {item.card_class === 1 ? "Bình Thường" : "Vip"}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                    {item.activation_date}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                    {(item.total_spending).toLocaleString()}vnd
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                    {item.accumulated_points}
-                  </td>
-
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                    {item.points_used}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                  {item.usable_points}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+    <>
+      <div className="">
+        <h2 className="font-bold text-2xl my-4">Quản lí hội viên</h2>
+        <div className="space-x-4 justify-center my-4">
+          <Search
+            placeholder="Tìm kiếm"
+            style={{ width: 600 }}
+            onSearch={onSearch}
+          />
+        </div>
       </div>
-      <h1 className="mt-10" style={{ textAlign: "center", fontWeight: "bold" }}>
-        Bạn cần tích lũy 3.000.000đ để nâng hạng khách hàng VIP
-      </h1>
-      <hr className="mt-5" />
-
-      <div className="grid grid-cols-1 gap-4 mt-3 lg:grid-cols-4 lg:gap-8">
-        <div className="h-32 rounded-lg ">0</div>
-        <div className="h-32 rounded-lg  lg:col-span-2"></div>
-        <div className="h-32 rounded-lg ">3.000.000</div>
-      </div>
-    </div>
+      {dataList ? (
+        <Table columns={columns} dataSource={dataList} onChange={handleChange} />
+      ) : (
+        <Table columns={columns} dataSource={dataUser} onChange={handleChange} />
+      )}
+    </>
   );
 };
 

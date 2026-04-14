@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Space, Table, Input, Button, Popconfirm, message } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 import { IFilms, IMovieRoom, IShowTime, ITime } from "../../../interface/model";
 import { useFetchProductQuery } from "../../../service/films.service";
@@ -12,8 +12,7 @@ import {
 } from "../../../service/show.service";
 import AddShow from "./AddShow";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
-import { RootState } from "../../../store/store";
-import { useAppSelector } from "../../../store/hooks";
+import { FilterValue } from "antd/es/table/interface";
 
 interface DataType {
   id: string;
@@ -26,12 +25,13 @@ interface DataType {
 const { Search } = Input;
 
 const ListShow: React.FC = () => {
+  const [filteredInfo, setFilteredInfo] = useState<Record<string, FilterValue | null>>({});
   const { data: roomBrand } = useFetchMovieRoomQuery();
   const { data: shows } = useFetchShowTimeQuery();
   const { data: films } = useFetchProductQuery();
   const { data: times } = useFetchTimeQuery();
+  const { data: room } = useFetchMovieRoomQuery();
   const [removeShowTimes] = useRemoveShowTimeMutation();
-
   let user = JSON.parse(localStorage.getItem("user")!);
 
   const role = user.role;
@@ -41,23 +41,31 @@ const ListShow: React.FC = () => {
     {
       title: "Mã Suất Chiếu",
       dataIndex: "id",
-      key: "key",
-      render: (text) => <a className="text-blue-700">{text}</a>,
+      key: "1",
     },
     {
       title: "Tên Phim",
       dataIndex: "film_id",
       key: "film_id",
+      filters: films?.data?.map((item) => ({ text: item.name, value: item.name})),
+      filteredValue: filteredInfo.film_id || null,
+      onFilter: (value: string, record) => record.film_id.includes(value),
     },
     {
       title: "Thời gian",
       dataIndex: "time_id",
       key: "time_id",
+      filters: times?.data?.map((item) => ({ text: item.time, value: item.time})),
+      filteredValue: filteredInfo.time_id || null,
+      onFilter: (value: string, record) => record.time_id.includes(value),
     },
     {
       title: "Phòng Chiếu",
       dataIndex: "room_id",
       key: "room_id",
+      filters: room?.data?.map((item) => ({ text: item.name, value: item.name})),
+      filteredValue: filteredInfo.room_id || null,
+      onFilter: (value: string, record) => record.room_id.includes(value),
     },
     {
       title: role === 1 && "Action",
@@ -117,7 +125,12 @@ const ListShow: React.FC = () => {
       )?.name,
     })
   );
-
+    
+  const handleChange: TableProps<DataType>['onChange'] = (pagination, filters) => {
+    console.log(filters);
+    
+    setFilteredInfo(filters);
+  };
   const [dataShows, setDateShows] = useState<any>(null);
 
   const onSearch = (value: any, _e: any) => {
@@ -129,7 +142,7 @@ const ListShow: React.FC = () => {
   return (
     <>
       <div className="">
-        <h2 className="font-bold text-2xl my-4">Quản lí Rạp Chiếu</h2>
+        <h2 className="font-bold text-2xl my-4">Quản lí Suất Chiếu</h2>
         <div className="space-x-4 justify-center my-4">
           <Search
             placeholder="Nhập tên phim hoặc mã phim"
@@ -142,9 +155,9 @@ const ListShow: React.FC = () => {
         </div>
       </div>
       {dataShows ? (
-        <Table columns={columns} dataSource={dataShows} />
+        <Table columns={columns} dataSource={dataShows} onChange={handleChange} />
       ) : (
-        <Table columns={columns} dataSource={dataShow} />
+        <Table columns={columns} dataSource={dataShow} onChange={handleChange} />
       )}
     </>
   );
