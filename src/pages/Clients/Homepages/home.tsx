@@ -7,17 +7,16 @@ import { useAppSelector } from "../../../store/hooks";
 import { IBlogs } from "../../../interface/model";
 import FilmShowing from "../../../components/FilmShowing";
 import { useState } from "react";
-import '../../../index.css'
+import "../../../index.css";
 
 type Props = {
   data: any;
 };
-const HomePages = ({ data }: Props) => {
+const HomePages = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: blogs, error } = useFetchBlogQuery() as any;
   console.log(blogs);
-
 
   return (
     <>
@@ -52,13 +51,15 @@ const HomePages = ({ data }: Props) => {
         </span>
 
         <div className="What’s On img grid grid-cols-2 gap-8 my-10">
-
           {blogs &&
             blogs?.data?.map((blog: IBlogs) => (
               <Link to={`/blog/${blog.id}`} key={blog.id}>
-                <img  src={blog.image} className="rounded-xl" 
-                alt={blog.title} 
-                style={{ width: '624px', height: '242px' }} />
+                <img
+                  src={blog.image}
+                  className="rounded-xl"
+                  alt={blog.title}
+                  style={{ width: "624px", height: "242px" }}
+                />
               </Link>
             ))}
         </div>

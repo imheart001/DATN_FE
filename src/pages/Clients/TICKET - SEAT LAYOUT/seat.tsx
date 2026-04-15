@@ -6,6 +6,8 @@ import { useGetAllDataShowTimeByIdQuery } from "../../../service/show.service";
 import { Button, Col, InputNumber, Row, Space, Statistic, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../../components/isLoading/Loading";
+import Pusher from "pusher-js";
+import { setKepted } from "../../../components/CinemaSlice/seatkeep";
 import {
   setShowtimeId,
   setSelectSeats,
@@ -96,6 +98,7 @@ const BookingSeat = () => {
   const [totalComboAmount, setTotalComboAmount] = useState(0);
   const [discountedAmount, setDiscountedAmount] = useState(0);
   const [foodQuantities, setFoodQuantities] = useState<any[]>([]);
+  const [pusher, setPusher] = useState(null);
   const [foodQuantitiesUI, setFoodQuantitiesUI] = useState<{
     [key: string]: { quantity: number; price: number };
   }>({});
@@ -321,6 +324,123 @@ const BookingSeat = () => {
 
     setSeats(updatedSeats);
   };
+  Pusher.logToConsole = true;
+
+  const pusherr = new Pusher("d76cdda00e63582c39f9", {
+    cluster: "ap1",
+  });
+  const channell = pusherr.subscribe("Cinema");
+  channell.bind("check-Seat", function (data: any) {
+    // Update the seat status based on the received data
+    console.log(data);
+  });
+
+  useEffect(() => {
+    Pusher.logToConsole = true;
+
+    const pusher = new Pusher("d76cdda00e63582c39f9", {
+      cluster: "ap1",
+    });
+    const parseSeatName = (seatName: any) => {
+      const row = seatName.charAt(0).charCodeAt(0) - "A".charCodeAt(0);
+      const column = parseInt(seatName.slice(1)) - 1;
+      return [row, column];
+    };
+    const channel = pusher.subscribe("Cinema");
+
+    channel.bind("check-Seat", function (data: any) {
+      // Update the seat status based on the received data
+      console.log(data);
+
+      const seatData = data;
+      const updatedSeats = [...seats];
+
+      Object.keys(seatData).forEach((userId) => {
+        Object.keys(seatData[userId]).forEach((seatName) => {
+          const [rowIndex, columnIndex] = parseSeatName(seatName);
+
+          if (
+            rowIndex >= 0 &&
+            rowIndex < numRows &&
+            columnIndex >= 0 &&
+            columnIndex < numColumns
+          ) {
+            const seatToUpdate = updatedSeats[rowIndex][columnIndex];
+
+            if (seatData[userId][seatName].status === "booked") {
+              // Update the seat status to Booked
+              seatToUpdate.status = SeatStatus.Booked;
+            } else if (seatData[userId][seatName].status === "kepted") {
+              // Update the seat status to Kepted
+              seatToUpdate.status = SeatStatus.Kepted;
+            }
+          }
+        });
+      });
+
+      setSeats(updatedSeats);
+    });
+
+    channel.bind("SeatKepted", function (data: any) {
+      // Update the seat status based on the received data
+      console.log(data);
+      setKepted(data);
+      const updatedSeats = [...seats];
+
+      data?.forEach((s: any) => {
+        const seatName = s.seat;
+        const [rowIndex, columnIndex] = parseSeatName(seatName);
+
+        if (
+          rowIndex >= 0 &&
+          rowIndex < numRows &&
+          columnIndex >= 0 &&
+          columnIndex < numColumns
+        ) {
+          const seat = updatedSeats[rowIndex][columnIndex];
+
+          if (s.id_user === userId?.id && s.id_time_detail === id) {
+            // If id_user matches, update status to Selected
+            seat.status = SeatStatus.Selected;
+          }
+          if (s.id_user !== userId?.id && s.id_time_detail === id) {
+            // If id_user doesn't match, update status to Kepted
+            seat.status = SeatStatus.Kepted;
+          }
+          // } else {
+          //   // If id_user doesn't match, update status to Kepted
+          //   seat.status = SeatStatus.Kepted;
+          // }
+        }
+      });
+      updatedSeats.forEach((row, rowIndex) => {
+        row.forEach((seat, columnIndex) => {
+          const seatName = `${getRowName(rowIndex)}${columnIndex + 1}`;
+          const isSeatInData = data.some((s: any) => s.seat === seatName);
+
+          if (seat.status === SeatStatus.Kepted && !isSeatInData) {
+            seat.status = SeatStatus.Available;
+          }
+        });
+      });
+
+      setSeats(updatedSeats);
+    });
+    return () => {
+      // Unsubscribe from the Pusher channel when the component unmounts or when dataSeatKeping changes
+      pusher.unsubscribe("Cinema");
+    };
+  }, [pusher, dataSeatKeping]);
+
+  useEffect(() => {
+    const pusher = new Pusher("d76cdda00e63582c39f9", {
+      cluster: "ap1",
+    });
+    return () => {
+      pusher.unsubscribe("Cinema");
+      pusher.disconnect();
+    };
+  }, []);
   useEffect(() => {}, [foodQuantitiesUI, dispatch]);
   useEffect(() => {
     // Calculate the total amount before discount

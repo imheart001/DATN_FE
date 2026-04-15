@@ -15,6 +15,7 @@ import { useAppSelector } from "../../store/hooks";
 import { RootState } from "../../store/store";
 import { formatter } from "../../utils/formatCurrency";
 import Recharge from "../../components/Clients/NapTien/naptien";
+import { useGetUserByIdQuery } from "../../service/book_ticket.service";
 interface Option {
   value: string;
   label: string;
@@ -25,7 +26,10 @@ const displayRender = (labels: string[]) => labels[labels.length - 1];
 const Header: React.FC = () => {
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
-
+  const { data: dataUserbyId } = useGetUserByIdQuery(`${IfUser?.id}`);
+  console.log("====================================");
+  console.log(dataUserbyId);
+  console.log("====================================");
   const items: MenuProps["items"] = [
     {
       key: "1",
@@ -71,7 +75,7 @@ const Header: React.FC = () => {
           rel="noopener noreferrer"
           to={`/info_account/BookTicketUser`}
         >
-          Số dư: {formatter(IfUser?.coin)}
+          Số dư: {formatter(dataUserbyId?.coin)}
         </Link>
       ),
     },
