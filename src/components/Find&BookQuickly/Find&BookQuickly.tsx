@@ -28,7 +28,7 @@ const FindBookQuickly: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const navigate = useNavigate();
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  console.log(selectedFilm, selectedCinema, selectedDate, selectedTime);
+  // console.log(selectedFilm, selectedCinema, selectedDate, selectedTime);
 
   const [findDate, setFindDate] = useState([]);
   const handleFilmSelect = (filmId: string) => {
@@ -39,7 +39,7 @@ const FindBookQuickly: React.FC = () => {
     setFindDate([]);
   };
   const handleTimeSelect = (timeId: string) => {
-    console.log(timeId);
+    // console.log(timeId);
 
     setSelectedTime(timeId);
   };
@@ -53,7 +53,7 @@ const FindBookQuickly: React.FC = () => {
 
   const handleDateSelect = (dateId: string) => {
     const originalFormat = convertToOriginalFormat(dateId);
-    console.log(originalFormat);
+    // console.log(originalFormat);
     setSelectedDate(originalFormat);
   };
   const filmOptions: Film[] = (DataFilm as any)?.data?.map((film: any) => ({
@@ -93,7 +93,7 @@ const FindBookQuickly: React.FC = () => {
     })
   );
   const currentDateTime = moment().utcOffset(420).format("YYYY-MM-DD");
-  console.log(currentDateTime);
+  // console.log(currentDateTime);
 
   useEffect(() => {
     if (selectedFilm && selectedCinema) {
@@ -164,7 +164,7 @@ const FindBookQuickly: React.FC = () => {
         filteredShows?.map((show: any) => show.time_id).includes(time.id))
     );
   });
-  console.log(filteredTimesData);
+  // console.log(filteredTimesData);
 
   const findFinalShow = (shows as any)?.data.filter((show: any) => {
     return (

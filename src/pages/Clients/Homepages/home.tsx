@@ -16,7 +16,6 @@ const HomePages = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: blogs, error } = useFetchBlogQuery() as any;
-  console.log(blogs);
 
   return (
     <>

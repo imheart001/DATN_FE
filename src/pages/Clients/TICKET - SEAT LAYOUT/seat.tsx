@@ -32,6 +32,7 @@ import { checkSeat } from "../../../guards/api";
 import { useSendPaymentVnPayMutation } from "../../../service/payVnpay.service";
 import { useGetPointByIdUserQuery } from "../../../service/member.service";
 import { usePaymentMomoMutation } from "../../../service/payMoMo.service";
+import Changepoint from "../../../components/Clients/PointChange/changpoint";
 
 enum SeatStatus {
   Available = "available",
@@ -97,6 +98,8 @@ const BookingSeat = () => {
 
   const [totalComboAmount, setTotalComboAmount] = useState(0);
   const [discountedAmount, setDiscountedAmount] = useState(0);
+  const [point, setPoint] = useState(null);
+  const [discountedPoint, setDiscountedPoint] = useState(0);
   const [foodQuantities, setFoodQuantities] = useState<any[]>([]);
   const [pusher, setPusher] = useState(null);
   const [foodQuantitiesUI, setFoodQuantitiesUI] = useState<{
@@ -155,10 +158,10 @@ const BookingSeat = () => {
 
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
-  const { data: VoucherUsedbyUser } = useGetVoucherbyIdUserQuery(userId?.id);
+
   const { data: PointUser } = useGetPointByIdUserQuery(userId?.id);
   // console.log(PointUser);
-
+  const { data: VoucherUsedbyUser } = useGetVoucherbyIdUserQuery(userId?.id);
   const [selectedSeatsCount, setSelectedSeatsCount] = useState(0);
 
   const [showPopCorn, setShowPopCorn] = useState(false);
@@ -332,7 +335,7 @@ const BookingSeat = () => {
   const channell = pusherr.subscribe("Cinema");
   channell.bind("check-Seat", function (data: any) {
     // Update the seat status based on the received data
-    console.log(data);
+    // console.log(data);
   });
 
   useEffect(() => {
@@ -497,24 +500,41 @@ const BookingSeat = () => {
       amount: totalMoney + totalComboAmount - discountedAmount,
     };
     const reponse = await sendPaymentVnpay(money);
+    console.log(reponse);
+
     // console.log((reponse as any).data.data);
-    window.location.href = `${(reponse as any).data.data}`;
+    // window.location.href = `${(reponse as any).data.data}`;
     // if (reponse) {
     //   window.location.href = `${reponse?.data}`;
     // }
   };
+  const moneyByPoint = useSelector((state: any) => state.TKinformation?.point);
+  console.log(moneyByPoint);
+  // if (moneyByPoint) {
+  //   setDiscountedPoint(moneyByPoint);
+  // }
+  console.log(point);
 
   const handlePaymentMomo = async () => {
     if (!selectedPaymentMethod) {
       message.error("Vui lòng chọn phương thức thanh toán.");
       return;
     }
-    const money = {
-      amount: totalMoney + totalComboAmount - discountedAmount,
-    };
-    const reponse = await payMomo(money);
+    if (point) {
+      const money = {
+        amount: totalMoney + totalComboAmount - discountedAmount - point,
+      };
+      const reponse = await payMomo(money);
 
-    window.location.href = `${(reponse as any)?.data?.payUrl}`;
+      window.location.href = `${(reponse as any)?.data?.payUrl}`;
+    } else {
+      const money = {
+        amount: totalMoney + totalComboAmount - discountedAmount,
+      };
+      const reponse = await payMomo(money);
+
+      window.location.href = `${(reponse as any)?.data?.payUrl}`;
+    }
   };
 
   const updateFoodQuantitiesUI = (
@@ -569,8 +589,15 @@ const BookingSeat = () => {
     .join(",");
   dispatch(setSelectSeats(seatNames));
   dispatch(setShowtimeId(id));
-  const moneyTotal = totalMoney + totalComboAmount - discountedAmount;
-  dispatch(setTotalPrice(moneyTotal));
+  if (point) {
+    const moneyTotal1 =
+      totalMoney + totalComboAmount - discountedAmount - point;
+    dispatch(setTotalPrice(moneyTotal1));
+  } else {
+    const moneyTotal2 = totalMoney + totalComboAmount - discountedAmount;
+    dispatch(setTotalPrice(moneyTotal2));
+  }
+
   if (isLoading) {
     return <Loading />; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
   }
@@ -901,7 +928,7 @@ const BookingSeat = () => {
             )}
           </section>
         </section>
-        <section className={`${showPopCorn ? "col-span-3" : " hidden"}`}>
+        <section className={` ${showPopCorn ? "col-span-3" : " hidden"}`}>
           <section className="bg-white rounded-lg p-8 space-y-4">
             <main className="max-w-5xl mx-auto shadow-lg  shadow-cyan-500/50 px-4 py-8 sm:px-6 lg:px-8">
               <div className="mb-8">
@@ -1140,9 +1167,7 @@ const BookingSeat = () => {
                 </div>
               </div>
               <div className="mb-8">
-                <span className="block font-medium text-lg text-red-600 border-b-2 border-red-600">
-                  ĐIỂM KHẢ DỤNG ({(PointUser as any)?.data.usable_points})
-                </span>
+                <Changepoint point={point} setPoint={setPoint} />
                 {/* <Space>
                   <InputNumber
                     min={1}
@@ -1280,52 +1305,105 @@ const BookingSeat = () => {
                   <path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2H3z" />
                 </svg>
                 <h4 className="flex space-x-1">
-                  <span>Tổng tiền </span>:{" "}
+                  <span>Tổng tiền </span>: {/* moneyByPoint */}
                   <span className="font-semibold">
-                    {selectedVoucherInfo?.limit === 1 &&
-                      formatter(
-                        selectedSeats.reduce(
-                          (total, seat) => total + seat.price,
-                          0
-                        ) +
-                          totalComboAmount -
-                          selectedVoucherInfo.price_voucher
-                      )}
-                    {!selectedVoucherInfo &&
-                      formatter(
-                        selectedSeats.reduce(
-                          (total, seat) => total + seat.price,
-                          0
-                        ) + totalComboAmount
-                      )}
-                    {selectedVoucherInfo?.limit === 2 &&
-                      ((totalMoney + totalComboAmount) *
-                        selectedVoucherInfo?.percent) /
-                        100 >=
-                        selectedVoucherInfo.price_voucher &&
-                      formatter(
-                        selectedSeats.reduce(
-                          (total, seat) => total + seat.price,
-                          0
-                        ) +
-                          totalComboAmount -
-                          selectedVoucherInfo.price_voucher
-                      )}
-                    {selectedVoucherInfo?.limit === 2 &&
-                      ((totalMoney + totalComboAmount) *
-                        selectedVoucherInfo?.percent) /
-                        100 <
-                        selectedVoucherInfo.price_voucher &&
-                      formatter(
-                        selectedSeats.reduce(
-                          (total, seat) => total + seat.price,
-                          0
-                        ) +
-                          totalComboAmount -
-                          ((totalMoney + totalComboAmount) *
-                            selectedVoucherInfo?.percent) /
-                            100
-                      )}
+                    {point
+                      ? selectedVoucherInfo?.limit === 1 &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            selectedVoucherInfo.price_voucher -
+                            point
+                        )
+                      : selectedVoucherInfo?.limit === 1 &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            selectedVoucherInfo.price_voucher
+                        )}
+                    {point
+                      ? !selectedVoucherInfo &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            point
+                        )
+                      : !selectedVoucherInfo &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) + totalComboAmount
+                        )}
+                    {point
+                      ? selectedVoucherInfo?.limit === 2 &&
+                        ((totalMoney + totalComboAmount) *
+                          selectedVoucherInfo?.percent) /
+                          100 >=
+                          selectedVoucherInfo.price_voucher &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            selectedVoucherInfo.price_voucher -
+                            point
+                        )
+                      : selectedVoucherInfo?.limit === 2 &&
+                        ((totalMoney + totalComboAmount) *
+                          selectedVoucherInfo?.percent) /
+                          100 >=
+                          selectedVoucherInfo.price_voucher &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            selectedVoucherInfo.price_voucher
+                        )}
+                    {point
+                      ? selectedVoucherInfo?.limit === 2 &&
+                        ((totalMoney + totalComboAmount) *
+                          selectedVoucherInfo?.percent) /
+                          100 <
+                          selectedVoucherInfo.price_voucher &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            point -
+                            ((totalMoney + totalComboAmount) *
+                              selectedVoucherInfo?.percent) /
+                              100
+                        )
+                      : selectedVoucherInfo?.limit === 2 &&
+                        ((totalMoney + totalComboAmount) *
+                          selectedVoucherInfo?.percent) /
+                          100 <
+                          selectedVoucherInfo.price_voucher &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            ((totalMoney + totalComboAmount) *
+                              selectedVoucherInfo?.percent) /
+                              100
+                        )}
                   </span>
                 </h4>
               </span>

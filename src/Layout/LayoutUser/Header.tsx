@@ -27,9 +27,7 @@ const Header: React.FC = () => {
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
   const { data: dataUserbyId } = useGetUserByIdQuery(`${IfUser?.id}`);
-  console.log("====================================");
-  console.log(dataUserbyId);
-  console.log("====================================");
+
   const items: MenuProps["items"] = [
     {
       key: "1",
@@ -75,7 +73,7 @@ const Header: React.FC = () => {
           rel="noopener noreferrer"
           to={`/info_account/BookTicketUser`}
         >
-          Số dư: {formatter(dataUserbyId?.coin)}
+          Số dư: {formatter((dataUserbyId as any)?.coin)}
         </Link>
       ),
     },

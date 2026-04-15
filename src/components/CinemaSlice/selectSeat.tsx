@@ -10,6 +10,7 @@ const TKinformationSlice = createSlice({
     totalPrice: 0,
     comboFoods: [],
     chooseVoucher: "",
+    point: 0,
   },
   reducers: {
     setSelectSeats: (state, action) => {
@@ -27,6 +28,9 @@ const TKinformationSlice = createSlice({
     setChooseVoucher: (state, action) => {
       state.chooseVoucher = action.payload;
     },
+    setChangePoint: (state, action) => {
+      state.point = action.payload;
+    },
   },
 });
 
@@ -36,6 +40,7 @@ export const {
   setTotalPrice,
   setComboFoods,
   setChooseVoucher,
+  setChangePoint,
 } = TKinformationSlice.actions;
 
 export default TKinformationSlice.reducer;
