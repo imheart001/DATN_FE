@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useGetUserByIdQuery } from "../../../service/book_ticket.service";
 import { useUpdateUserMutation } from "../../../service/signup_login.service";
+import { message } from "antd";
 
 const Profile = () => {
     const [name, setName] = useState("");
-    const [image, setImage] = useState(null);
+    const [image, setImage] = useState("");
     const [phone, setPhone] = useState(0);
     const [date_of_birth, setDdate_of_birth] = useState("");
     const [email, setEmail] = useState("");
@@ -38,7 +39,7 @@ const Profile = () => {
             }
             const res = await upadteUser(newUser);
             console.log(res);
-            alert("Cập nhật thành công");
+            // message.success("Cập nhật thành công");
         } catch (e) {
             console.log("Cập nhật thất bại:");
         }
@@ -57,7 +58,7 @@ const Profile = () => {
         loadUser();
     }, [user])
     return (
-        <section className=" p-4 bg-white rounded-lg mt-[10px]">
+        <section className=" p-4 bg-white rounded-lg">
             <main
                 className=" flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6"
             >
@@ -132,7 +133,7 @@ const Profile = () => {
 
                             <input
                                 type="text"
-                                value={phone}
+                                value={phone || ''}
                                 onChange={(e) => setPhone(+e.target.value)}
                                 className="mt-1 w-full h-[30px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                             />
@@ -146,7 +147,7 @@ const Profile = () => {
 
                             <input
                                 type="date"
-                                value={date_of_birth}
+                                value={date_of_birth || ''}
                                 onChange={(e) => setDdate_of_birth(e.target.value)}
                                 className="mt-1 w-full h-[30px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                             />
@@ -162,7 +163,7 @@ const Profile = () => {
                             <input
                                 type="email"
                                 disabled
-                                value={email}
+                                value={email || ''}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="mt-1 w-full h-[30px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                             />
@@ -230,7 +231,7 @@ const Profile = () => {
                         <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
                             <button
                                 onClick={handleClick}
-                                className="ml-[210px] inline-block shrink-0 rounded-md border border-blue-600 bg-blue-600 px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-blue-600 focus:outline-none focus:ring active:text-blue-500 dark:hover:bg-blue-700 dark:hover:text-white"
+                                className="ml-[210px] inline-block shrink-0 rounded-md border border-red-600 bg-red-600 px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-red-600 focus:outline-none focus:ring active:text-red-500 dark:hover:bg-red-700 dark:hover:text-white"
                             >
                                 Cập Nhật
                             </button>

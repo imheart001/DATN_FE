@@ -34,6 +34,7 @@ import seatkepingAPI from "../service/seatkeping.service";
 import sendEmailAPI from "../service/sendEmail.service";
 import payMoMoAPI from "../service/payMoMo.service";
 import memberAPI from "../service/member.service";
+import refundAPI from "../service/refund.services";
 
 // Import redux-persist
 const persistConfig = {
@@ -65,6 +66,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   [analyticApi.reducerPath]: analyticApi.reducer,
   [memberAPI.reducerPath]: memberAPI.reducer,
+  refund: refundAPI.reducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -96,7 +98,8 @@ const store = configureStore({
       cateDetailAPI.middleware as any,
       usersAPI.middleware as any,
       analyticApi.middleware as any,
-      memberAPI.middleware as any
+      memberAPI.middleware as any,
+      refundAPI.middleware as any
     );
 
     return middlewareArray;
