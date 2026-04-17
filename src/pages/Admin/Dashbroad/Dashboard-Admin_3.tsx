@@ -19,7 +19,9 @@ import CurrencyDollarIcon from "@heroicons/react/24/solid/CurrencyDollarIcon";
 
 export const DashboardAdmin3 = () => {
   const [getDataRevenue] = useGetAnalyticsMutation();
-  const { role } = useAppSelector((state: RootState) => state.auth);
+  let user = JSON.parse(localStorage.getItem("user")!);
+
+  const role = user?.role;
 
   const day = moment().get("date");
   const months = moment().get("month");

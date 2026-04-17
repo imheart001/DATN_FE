@@ -17,7 +17,7 @@ import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
 import * as moment from "moment-timezone";
 import { useSendEmailMutation } from "../../../service/sendEmail.service";
 import { useUsed_VC_ByUserIdMutation } from "../../../service/voucher.service";
-import { useDisCountPointMutation } from "../../../service/member.service";
+import { useDiscountPointMutation } from "../../../service/member.service";
 
 const PaymentMomo: React.FC = () => {
   const location = useLocation();
@@ -53,13 +53,13 @@ const PaymentMomo: React.FC = () => {
   );
   console.log(!VoucherCode);
   const moneyByPoint = useSelector((state: any) => state.TKinformation?.point);
+  console.log(moneyByPoint);
+
   const MyVoucher = {
     voucher_code: VoucherCode,
   };
   const user_id = parseInt(localStorage.getItem("user_id") as any, 10);
-  console.log("====================================");
-  console.log(user_id);
-  console.log("====================================");
+
   const payment = localStorage.getItem("payment");
   const totalPrice = useSelector(
     (state: any) => state.TKinformation?.totalPrice
@@ -83,7 +83,7 @@ const PaymentMomo: React.FC = () => {
   const idCodePart = pathParts.find((part) => part.startsWith("id_code="));
   const idCode = idCodePart ? idCodePart.split("=")[1] : null;
   console.log(idCode);
-  const [discountPoint] = useDisCountPointMutation(user_id);
+  const [discountPoint] = useDiscountPointMutation();
   useEffect(() => {
     const fetchData = async () => {
       const params = new URLSearchParams(location.search);
@@ -151,11 +151,12 @@ const PaymentMomo: React.FC = () => {
             }
             const myPoint = {
               discount: moneyByPoint,
+              id_user: user_id,
             };
-            if (moneyByPoint) {
-              const reponsePoint = await discountPoint(myPoint);
-              console.log(reponsePoint);
-            }
+
+            const reponsePoint = await discountPoint(myPoint);
+            console.log(reponsePoint);
+
             setAddChairCalled(true);
             localStorage.removeItem("foodQuantities");
           } catch (error) {

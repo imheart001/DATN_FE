@@ -23,6 +23,7 @@ const Ticket: React.FC = () => {
   const { data: films, isLoading: filmsLoading } = useFetchProductQuery();
   const { data: shows, isLoading: showsLoading } = useFetchShowTimeQuery();
   const { data: cinemas, isLoading: cinemasLoading } = useFetchCinemaQuery();
+  console.log(films);
 
   const { data: times } = useFetchTimeQuery();
 
@@ -37,6 +38,7 @@ const Ticket: React.FC = () => {
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const { data: dataShowbyIdCinema } =
     useGetShowbyIdCinemaQuery(selectedCinema);
+  console.log(filmShows2);
 
   const currentDateTime = moment()
     .utcOffset(420)

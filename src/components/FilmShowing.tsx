@@ -9,14 +9,12 @@ type Props = {
 };
 
 const FilmShowing = ({ data }: Props) => {
- 
-
   const { data: getCateAll, isLoading } = useGetAllCateDetailByFilmQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
     setIsModalOpen(true);
   };
-
+  const currentDate = new Date();
   const handleOk = () => {
     setIsModalOpen(false);
   };
@@ -70,6 +68,13 @@ const FilmShowing = ({ data }: Props) => {
             {/* <span>IMDB 8.6</span> */}
             <span>{data?.limit_age}+</span>
           </div>
+          {getCateAll && new Date(data?.release_date) > currentDate && (
+            <p className=" text-[#c8c8c8] text-[14px] ">
+              <span className="font-semibold text-[12px]">Ngày khởi chiếu</span>{" "}
+              : {new Date(data?.release_date).toLocaleDateString("en-GB")}
+            </p>
+          )}
+
           <Modal
             className=""
             title="Trailer"

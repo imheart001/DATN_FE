@@ -10,7 +10,7 @@ const LayoutAdmin = () => {
   if (!auth) {
     return <Navigate to={"/login"} />;
   }
-  if (auth.role !== 1 && auth.role !== 2) {
+  if (auth.role !== 1 && auth.role !== 2 && auth.role !== 3) {
     return <Navigate to={"/"} />;
   }
 

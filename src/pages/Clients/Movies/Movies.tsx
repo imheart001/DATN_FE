@@ -4,10 +4,9 @@ import FilmShowing from "../../../components/FilmShowing";
 import { IFilms } from "../../../interface/model";
 import { compareDates, compareReleaseDate, formatDate } from "../../../utils";
 
-import { useFetchCinemaQuery } from "../../../service/brand.service";
-import { useFetchShowTimeQuery } from "../../../service/show.service";
+
 import { useAppSelector } from "../../../store/hooks";
-import { useNavigate } from "react-router-dom";
+
 const Movies = () => {
   const { data } = useFetchProductQuery() as any;
 
@@ -16,7 +15,7 @@ const Movies = () => {
     return result;
   });
 
-  const user = useAppSelector((state: any) => state.auth?.token);
+  
 
   const futureMovies = data?.data
     .filter((item: any) => {

@@ -16,11 +16,11 @@ const memberAPI = createApi({
       query: (id) => `/member/${id}`,
       providesTags: ["member"],
     }),
-    disCountPoint: builder.mutation({
-      query: (member: any) => ({
-        url: `/member/${member.id}`,
-        method: "PATCH",
-        body: member,
+    discountPoint: builder.mutation({
+      query: (point: any) => ({
+        url: "/member/",
+        method: "POST",
+        body: point,
       }),
       invalidatesTags: ["member"],
     }),
@@ -30,7 +30,7 @@ const memberAPI = createApi({
 export const {
   useFetchMembersQuery,
   useGetPointByIdUserQuery,
-  useDisCountPointMutation,
+  useDiscountPointMutation,
 } = memberAPI;
 
 export default memberAPI;

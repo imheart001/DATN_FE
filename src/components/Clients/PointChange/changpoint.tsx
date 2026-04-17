@@ -24,7 +24,6 @@ const Changepoint: React.FC<ChangepointProps> = ({ point, setPoint }) => {
     }
     setPoint(value as any);
   };
-  console.log(point);
 
   return (
     <div>

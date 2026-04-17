@@ -47,10 +47,6 @@ const Dashbroad = (props: any) => {
     }
   }, [auth]);
 
-  const data1 = [
-    { name: "Online", value: 60 },
-    { name: "Offline", value: 40 },
-  ];
   const COLORS = ["#0088FE", "#00C49F"];
 
   const [getDataRevenue] = useGetAnalyticsMutation();
@@ -220,23 +216,6 @@ const Dashbroad = (props: any) => {
               </div>
               <div className="rounded-lg ">
                 <PieChart width={400} height={400}>
-                  <Pie
-                    data={data1}
-                    dataKey="value"
-                    cx={200}
-                    cy={200}
-                    outerRadius={80}
-                    // fill="#0088FE"
-                    label
-                  >
-                    {data1.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-
                   <Tooltip
                     formatter={(value: any, name) => [formatter(value), name]}
                   />

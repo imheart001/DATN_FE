@@ -14,6 +14,7 @@ import {
   setTotalPrice,
   setComboFoods,
   setChooseVoucher,
+  setChangePoint,
 } from "../../../components/CinemaSlice/selectSeat";
 
 import { useFetchFoodQuery } from "../../../service/food.service";
@@ -95,6 +96,7 @@ const BookingSeat = () => {
     refetch();
     // fetchData();
   }, [refetch, selectedSeats, id]);
+  const [showWarningModal, setShowWarningModal] = useState(false);
 
   const [totalComboAmount, setTotalComboAmount] = useState(0);
   const [discountedAmount, setDiscountedAmount] = useState(0);
@@ -508,12 +510,13 @@ const BookingSeat = () => {
     //   window.location.href = `${reponse?.data}`;
     // }
   };
-  const moneyByPoint = useSelector((state: any) => state.TKinformation?.point);
-  console.log(moneyByPoint);
+
   // if (moneyByPoint) {
   //   setDiscountedPoint(moneyByPoint);
   // }
-  console.log(point);
+  dispatch(setChangePoint(point));
+
+  const moneyByPoint = useSelector((state: any) => state.TKinformation?.point);
 
   const handlePaymentMomo = async () => {
     if (!selectedPaymentMethod) {
@@ -1059,6 +1062,7 @@ const BookingSeat = () => {
                                     value={
                                       foodQuantitiesUI[food.id]?.quantity || 0
                                     }
+                                    readOnly
                                     onChange={(e) =>
                                       handleQuantityChange(
                                         food.id,
@@ -1071,12 +1075,23 @@ const BookingSeat = () => {
                                   <button
                                     type="button"
                                     className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
-                                    onClick={() =>
-                                      handleQuantityChange(
-                                        food.id,
-                                        1,
-                                        food.price
-                                      )
+                                    onClick={() => {
+                                      if (
+                                        foodQuantitiesUI[food.id]?.quantity > 9
+                                      ) {
+                                        message.warning(
+                                          "Bạn chỉ được mua tối đa 10 sản phẩm/đặt vé"
+                                        );
+                                      } else {
+                                        handleQuantityChange(
+                                          food.id,
+                                          1,
+                                          food.price
+                                        );
+                                      }
+                                    }}
+                                    disabled={
+                                      foodQuantitiesUI[food.id]?.quantity > 10
                                     }
                                   >
                                     +
