@@ -74,7 +74,7 @@ const Login = () => {
         // Update the token in localStorage
         dispatch(setUserId((response as any).data.user.id));
         dispatch(setRoleAuth((response as any).data.user.role));
-        dispatch(setIdCinama((response as any).data.user.id_cinema))
+        dispatch(setIdCinama((response as any).data.user.id_cinema));
         localStorage.setItem("authToken", (response as any).data.token);
         localStorage.setItem(
           "user",
@@ -183,7 +183,11 @@ const Login = () => {
                 { required: true, message: "Please input your password!" },
               ]}
             >
-              <Input.Password placeholder="Mật khẩu" className="w-full" />
+              <Input.Password
+                min={6}
+                placeholder="Mật khẩu"
+                className="w-full"
+              />
             </Form.Item>
             <Button
               // onClick={addUser}
