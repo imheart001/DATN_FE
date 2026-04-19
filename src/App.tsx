@@ -50,18 +50,23 @@ import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
 import ResultPaymentCoin from "./components/Clients/ResultPaymentCoin/ResultPaymentCoin";
 import Dashbroad_Admin_Cinema from "./pages/Admin/Dashbroad/Dashboard-Admin_Cinema";
 import Dashboard_Staff from "./pages/Admin/Dashbroad/Dashboard-Staff";
+import { useGetUserByIdQuery } from "./service/book_ticket.service";
 
 function App() {
-  const getuserId = localStorage.getItem("Role");
-  const Role = JSON.parse(`${getuserId}`);
+  const getuserId = localStorage.getItem("user");
+  const userId = JSON.parse(`${getuserId}`);
+  const { data } = useGetUserByIdQuery(`${userId.id}`);
+  const roleuser = (data as any)?.role;
+  console.log(roleuser);
+
   // console.log(userId?.role);
   // const userId = useSelector(
   //   (state: any) => state.auth?.role
   // );
   const dashbroadElement =
-    Role == 1 ? (
+    roleuser == 1 ? (
       <Dashbroad />
-    ) : Role == 2 ? (
+    ) : roleuser == 2 ? (
       <Dashbroad_Admin_Cinema />
     ) : (
       <Dashboard_Staff />
