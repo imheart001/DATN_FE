@@ -24,7 +24,7 @@ import ListTime from "./pages/Admin/time/listTime";
 
 import { setSelectedCinema } from "./components/CinemaSlice/selectedCinemaSlice";
 import { updateToken, setUserId } from "./components/CinemaSlice/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Payment from "./pages/Clients/Payment/Payment";
 
 import ChoosePop from "./pages/Clients/ChoosePop/ChoosePop";
@@ -48,10 +48,24 @@ import ListBlog from "./pages/Admin/Blogs/ListBlog";
 import BlogsDetail from "./pages/Clients/Blogs-Detail/BlogsDetail";
 import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
 import ResultPaymentCoin from "./components/Clients/ResultPaymentCoin/ResultPaymentCoin";
+import Dashbroad_Admin_Cinema from "./pages/Admin/Dashbroad/Dashboard-Admin_Cinema";
+import Dashboard_Staff from "./pages/Admin/Dashbroad/Dashboard-Staff";
 
 function App() {
-  const getuserId = localStorage.getItem("user");
-  const userId = JSON.parse(`${getuserId}`);
+  const getuserId = localStorage.getItem("Role");
+  const Role = JSON.parse(`${getuserId}`);
+  // console.log(userId?.role);
+  // const userId = useSelector(
+  //   (state: any) => state.auth?.role
+  // );
+  const dashbroadElement =
+    Role == 1 ? (
+      <Dashbroad />
+    ) : Role == 2 ? (
+      <Dashbroad_Admin_Cinema />
+    ) : (
+      <Dashboard_Staff />
+    );
   const router = createBrowserRouter([
     {
       path: "/",
@@ -83,7 +97,7 @@ function App() {
         },
         {
           path: "/resultpaymentcoins",
-          element: <ResultPaymentCoin  />,
+          element: <ResultPaymentCoin />,
         },
         {
           path: "/F&B",
@@ -156,7 +170,15 @@ function App() {
         },
         {
           index: true,
-          element: <Dashbroad />,
+          element: dashbroadElement,
+        },
+        {
+          path: "/admin/dashboards",
+          element: <Dashbroad_Admin_Cinema />,
+        },
+        {
+          path: "/admin/staff",
+          element: <Dashboard_Staff />,
         },
         {
           path: "/admin/book_ticket",

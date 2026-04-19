@@ -1,40 +1,58 @@
 import { useEffect, useState } from "react";
+
 import {
-  useGetAnalyticsAdminCinemaMutation,
-  useGetAnalyticsMutation,
-} from "../../../service/analytic.service";
-import { formatter } from "../../../utils/formatCurrency";
-import {
-  Avatar,
-  Card,
-  CardContent,
-  Stack,
-  SvgIcon,
-  Typography,
-} from "@mui/material";
-import { RootState } from "../../../store/store";
-import CurrencyDollarIcon from "@heroicons/react/24/solid/CurrencyDollarIcon";
-import moment from "moment";
-import { useAppSelector } from "../../../store/hooks";
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Pie,
+  PieChart,
+} from "recharts";
 
-export const DashboardAdminCinema = (props: any) => {
-  const [getDataRevenue] = useGetAnalyticsMutation();
-  let user = JSON.parse(localStorage.getItem("user")!);
+import { format } from "date-fns";
+import { useGetAnalyticsAdminCinemaMutation } from "../../../service/analytic.service";
 
-  const role = user?.role;
+import ChoosePop from "../../Clients/ChoosePop/ChoosePop";
+import RevenueFilmInMon from "../../../components/Clients/Analytics/revenueFilmInMon";
 
-  const day = moment().get("date");
+import RevenueFilmInDay from "../../../components/Clients/Analytics/RevenueFilmInDay";
+import ChooseTime from "../../../components/Clients/Analytics/ChooseTime";
 
-  const [dataReal, setDataReal] = useState<any[]>([]);
-  const [getCinemas] = useGetAnalyticsAdminCinemaMutation();
-  const [data, setData] = useState<any>();
+import TicketDayByUser from "../../../components/Clients/Analytics/TicketDayByUser";
+import TicketMonByUser from "../../../components/Clients/Analytics/TicketMonByUser";
+import RevenueDayMonYearByAdminCinema from "../../../components/Clients/Analytics/RevenueDayMonYearByAdminCinema";
+export default function Dashbroad_Admin_Cinema() {
+  const formatCurrency = (value: number): string => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
+  };
 
+  const [dataAlastic, setDataAlastic] = useState([]);
+  const [getDataRevenue] = useGetAnalyticsAdminCinemaMutation();
+  const [day, setDay] = useState<number | undefined>(undefined);
+  const [month, setMonth] = useState<number | undefined>(undefined);
+  const [year, setYear] = useState<number | undefined>(undefined);
+
+  const getIfUser = localStorage.getItem("user");
+  const IfUser = JSON.parse(`${getIfUser}`);
   useEffect(() => {
+    const dataAdd = {
+      day: day,
+      month: month,
+      year: year,
+      id_cinema: IfUser?.id_cinema,
+    };
     const getData = async () => {
       try {
-        const response = await getDataRevenue({});
+        const response = await getDataRevenue(dataAdd);
         // Update state with new data
-        setDataReal((prevData) => [...prevData, (response as any)?.data]);
+
+        setDataAlastic((response as any)?.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -42,259 +60,250 @@ export const DashboardAdminCinema = (props: any) => {
 
     // Call the getData function to fetch data
     getData();
-  }, [getDataRevenue]);
+  }, [getDataRevenue, day, month, year]);
 
-  useEffect(() => {
-    const getchData = async () => {
-      try {
-        const id_cinema = localStorage.getItem("ic_cinema");
-        if (id_cinema) {
-          const formData = new FormData();
-          formData.append("id_cinema", id_cinema);
-          formData.append("day", day);
-          const reponse = await getCinemas(formData);
-          setData((reponse as any).data);
+  // Ensure that revenueData is a valid object
+  const revenueData = (dataAlastic as any)?.statistical_cinema
+    ?.Revenue_in_months_of_the_year;
+  const revenueDatabyDay = (dataAlastic as any)?.statistical_cinema
+    ?.Revenue_on_days_in_the_month;
+
+  const revenueDatabyYear = (dataAlastic as any)?.statistical_cinema
+    ?.Revenue_by_year;
+  const dataTop5Friendly = (dataAlastic as any)?.revenue_month?.user_friendly;
+  const dataTopRevenaFilmInMon = (dataAlastic as any)?.revenue_admin_cinema
+    ?.revenue_and_refund_month_cinema;
+
+  const dataTicketBookByFilmInMon = (dataAlastic as any)?.revenue_month
+    ?.book_total_mon;
+  const dataDayTicketCheckByStaff = (dataAlastic as any)?.revenue_admin_cinema
+    ?.ticket_staff_fill_day;
+  const dataMonTicketCheckByStaff = (dataAlastic as any)?.revenue_admin_cinema
+    ?.ticket_staff_fill_mon;
+  const dataRevenueFilmInDay = (dataAlastic as any)?.revenue_admin_cinema
+    ?.revenue_and_refund_day_cinema;
+
+  // Check if revenueData is undefined or null before further processing
+  if (
+    !revenueData &&
+    !dataDayTicketCheckByStaff &&
+    revenueDatabyDay !== null &&
+    !dataMonTicketCheckByStaff &&
+    !revenueDatabyYear &&
+    !dataTop5Friendly &&
+    !dataTopRevenaFilmInMon &&
+    !dataTicketBookByFilmInMon
+  ) {
+    return (
+      <>
+        <ChoosePop />
+      </>
+    );
+  }
+
+  // Extract unique cinemas from the data
+  const cinemas = Object.values(revenueData).reduce(
+    (allCinemas: string[], monthlyData: any) => {
+      Object.keys(monthlyData).forEach((cinema) => {
+        if (!allCinemas.includes(cinema)) {
+          allCinemas.push(cinema);
         }
-      } catch (error) {
-        console.log(error);
-      }
+      });
+      return allCinemas;
+    },
+    []
+  );
+
+  // Convert the revenue data object into an array of objects for recharts
+  const chartData = Object.keys(revenueData).map((month) => {
+    const monthlyData = revenueData[month];
+    const newData: Record<string, any> = {
+      name: new Date(month + "-01").toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+      }),
     };
-    getchData();
-  }, []);
+
+    cinemas.forEach((cinema) => {
+      newData[cinema] = monthlyData[cinema] || 0;
+    });
+
+    return newData;
+  });
+
+  const dataByDay = Object.keys(revenueDatabyDay).map((day) => ({
+    name: format(new Date(day), "dd/MM/yyyy"),
+    ...revenueDatabyDay[day],
+  }));
+  const transformedDataByDay = dataByDay.map((item) => {
+    const transformedItem: Record<string, any> = {
+      name: item.name,
+    };
+
+    // Iterate over cinemas and set values or default to 0 if not present
+    cinemas.forEach((cinema) => {
+      transformedItem[cinema] = item[cinema] || 0;
+    });
+
+    return transformedItem;
+  });
+
+  const dataForPieChart = cinemas.map((cinema, index) => {
+    const totalRevenue = Object.values(revenueDatabyYear).reduce(
+      (total, yearlyData: any) => total + (yearlyData[cinema] || 0),
+      0
+    );
+
+    // Mảng màu sẽ được sử dụng để đảm bảo mỗi phần của biểu đồ tròn có một màu khác nhau
+    const colors = ["#8884d8", "#82ca9d", "#ffc658"];
+    const color = colors[index % colors.length];
+
+    return {
+      name: cinema,
+      value: totalRevenue,
+      fill: color,
+    };
+  });
 
   return (
-    <div>
-      {dataReal[0] && (
-        <div className="">
-          <div className="1">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-8">
-              <div className={`${role === 2 ? "hidden" : "h-32 rounded-lg"}`}>
-                <Card>
-                  <CardContent>
-                    <Stack
-                      alignItems="flex-start"
-                      // direction="row"
-                      justifyContent="space-between"
-                      // spacing={}
-                    >
-                      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
-                        <div className=" rounded-lg ">
-                          <Stack spacing={1}>
-                            <Typography
-                              color="text.secondary"
-                              variant="overline"
-                            >
-                              Doanh thu theo ngayf
-                            </Typography>
-                            <Typography
-                              color="text.secondary"
-                              variant="overline"
-                            >
-                              {
-                                data?.revenue_staff?.revenue_staff_day[0]
-                                  ?.cinema_name
-                              }
-                            </Typography>
-                            <Typography variant="h6" className="w-full">
-                              {formatter(
-                                data?.revenue_staff?.revenue_staff_day[0]
-                                  ?.total_amount || 0
-                              )}
-                            </Typography>
-                          </Stack>
-                        </div>
-                        <div className=" rounded-lg ">
-                          {" "}
-                          <Avatar
-                            sx={{
-                              backgroundColor: "error.main",
-                              height: 56,
-                              width: 56,
-                            }}
-                          >
-                            <SvgIcon>
-                              <CurrencyDollarIcon />
-                            </SvgIcon>
-                          </Avatar>
-                        </div>
-                      </div>{" "}
-                      <br />
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </div>
+    <>
+      <ChooseTime
+        day={day}
+        setDay={setDay}
+        setMonth={setMonth}
+        month={month}
+        setYear={setYear}
+        year={year}
+      />
+      <h1 className="text-center text-xl pb-10 mb-10 block font-bold uppercase text-red-600 border-b-2 border-red-600">
+        -- Dashbroad_Admin_Cinema --
+      </h1>
 
-              {data?.revenue_staff?.tickets_total?.map(
-                (item: any, index: number) => (
-                  <div key={index} className="h-32 rounded-lg ">
-                    <Card>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Doanh thu vé
-                                </Typography>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  {item?.name}
-                                </Typography>
-                                <Typography variant="h6" className="w-full">
-                                  {item?.total_tickets}
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "error.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              >
-                                <SvgIcon>
-                                  <CurrencyDollarIcon />
-                                </SvgIcon>
-                              </Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )
-              )}
+      <RevenueDayMonYearByAdminCinema data={dataAlastic as any} />
+      <div className="grid-cols-3 grid mt-10 max-w-full">
+        <div className="overflow-y-auto h-[450px] col-span-2 space-y-20 w-[750px]">
+          <div className="">
+            <h3 className="mx-auto text-center uppercase font-semibold">
+              Doanh thu theo tháng năm 2023{" "}
+            </h3>
+            <LineChart
+              width={700}
+              className="p-4"
+              height={400}
+              data={chartData}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
+              <YAxis
+                tickFormatter={(value) => formatCurrency(value as number)}
+              />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Legend />
+              {(cinemas as any).map((cinema: any, index: any) => (
+                <Line
+                  key={index}
+                  type="monotone"
+                  dataKey={cinema}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                    16
+                  )}`}
+                  activeDot={{ r: 8 }}
+                />
+              ))}
+            </LineChart>
+          </div>
 
-              {data?.revenue_staff?.revenue_staff_day_filter &&
-                data?.revenue_staff?.revenue_staff_day_filter.length > 0 &&
-                data?.revenue_staff?.revenue_staff_day_filter?.map(
-                  (item: any, index: number) => (
-                    <div key={index} className="h-32 rounded-lg ">
-                      <Card>
-                        <CardContent>
-                          <Stack
-                            alignItems="flex-start"
-                            // direction="row"
-                            justifyContent="space-between"
-                            // spacing={}
-                          >
-                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
-                              <div className=" rounded-lg ">
-                                <Stack spacing={1}>
-                                  <Typography
-                                    color="text.secondary"
-                                    variant="overline"
-                                  >
-                                    Doanh thu lọc
-                                  </Typography>
-                                  <Typography
-                                    color="text.secondary"
-                                    variant="overline"
-                                  >
-                                    {item?.cinema_name}
-                                  </Typography>
-                                  <Typography variant="h6" className="w-full">
-                                    {formatter(item?.total_amount)}
-                                  </Typography>
-                                </Stack>
-                              </div>
-                              <div className=" rounded-lg ">
-                                {" "}
-                                <Avatar
-                                  sx={{
-                                    backgroundColor: "error.main",
-                                    height: 56,
-                                    width: 56,
-                                  }}
-                                >
-                                  <SvgIcon>
-                                    <CurrencyDollarIcon />
-                                  </SvgIcon>
-                                </Avatar>
-                              </div>
-                            </div>{" "}
-                            <br />
-                          </Stack>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )
-                )}
-
-              <div className={`${role === 2 ? "hidden" : "h-32 rounded-lg"}`}>
-                <Card>
-                  <CardContent>
-                    <Stack
-                      alignItems="flex-start"
-                      // direction="row"
-                      justifyContent="space-between"
-                      // spacing={}
-                    >
-                      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
-                        <div className=" rounded-lg ">
-                          <Stack spacing={1}>
-                            <Typography
-                              color="text.secondary"
-                              variant="overline"
-                            >
-                              Doanh thu theo đồ ăn theo tháng
-                            </Typography>
-                            <Typography variant="h6" className="w-full">
-                              {formatter(data?.revenue_staff?.revenue_food)}
-                            </Typography>
-                          </Stack>
-                        </div>
-                        <div className=" rounded-lg ">
-                          {" "}
-                          <Avatar
-                            sx={{
-                              backgroundColor: "error.main",
-                              height: 56,
-                              width: 56,
-                            }}
-                          >
-                            <SvgIcon>
-                              <CurrencyDollarIcon />
-                            </SvgIcon>
-                          </Avatar>
-                        </div>
-                      </div>{" "}
-                      <br />
-                      <Stack spacing={2}>
-                        <Typography>
-                          Tăng thêm{" "}
-                          <span
-                            style={{ color: "#007BFF", fontWeight: "bold" }}
-                          >
-                            {formatter(
-                              ((dataReal[0] as any)?.revenue_month)
-                                .totalPricefoodmon
-                            )}
-                          </span>{" "}
-                          trong tháng này
-                        </Typography>
-                      </Stack>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+          <div>
+            <h3 className="mx-auto mb-4 text-center uppercase font-semibold">
+              Doanh thu theo ngày{" "}
+            </h3>
+            <LineChart
+              width={700}
+              height={400}
+              data={transformedDataByDay}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis
+                tickFormatter={(value) => formatCurrency(value as number)}
+              />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Legend />
+              {(cinemas as any).map((cinema: any, index: any) => (
+                <Line
+                  key={index}
+                  type="monotone"
+                  dataKey={cinema}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                    16
+                  )}`}
+                  activeDot={{ r: 8 }}
+                />
+              ))}
+            </LineChart>
           </div>
         </div>
-      )}
-    </div>
+        <div className="col-span-1 my-10">
+          <h3 className="mx-auto text-center uppercase font-semibold">
+            Tổng Doanh thu theo năm của Các rạp trong năm 2023
+          </h3>
+          <PieChart width={1000} height={400}>
+            <Pie
+              dataKey="value"
+              isAnimationActive={false}
+              data={dataForPieChart}
+              cx={200}
+              cy={200}
+              outerRadius={80}
+              label={(props) => {
+                const percentage = (props.percent * 100).toFixed(2);
+                return (
+                  <text
+                    x={props.x}
+                    y={props.y}
+                    fill={props.fill}
+                    textAnchor={props.textAnchor}
+                  >
+                    <tspan x={props.x} dx="0px" dy="0px">
+                      {props.name}
+                    </tspan>
+                    <tspan x={props.x} dx="0px" dy="1.2em">
+                      {formatCurrency(props.value)}
+                    </tspan>
+                    <tspan x={props.x} dy="-40px" fontSize="14" fill="red">
+                      {percentage}%
+                    </tspan>
+                  </text>
+                );
+              }}
+            />
+            <Tooltip formatter={(value) => formatCurrency(value as number)} />
+          </PieChart>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-10">
+        <div className="">
+          <RevenueFilmInMon data={dataTopRevenaFilmInMon} />
+        </div>
+        {/* <div className="">
+          <TotalBookTicketInMonth data={dataTicketBookByFilmInMon} />
+        </div> */}
+        <div className="">
+          <RevenueFilmInDay data={dataRevenueFilmInDay} />
+        </div>
+        <div className="space-y-10">
+          <TicketDayByUser data={dataDayTicketCheckByStaff} />
+        </div>
+        <div className="">
+          <TicketMonByUser data={dataMonTicketCheckByStaff} />
+        </div>
+      </div>
+    </>
   );
-};
+}

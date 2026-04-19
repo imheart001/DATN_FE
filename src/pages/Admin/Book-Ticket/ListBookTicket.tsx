@@ -25,8 +25,13 @@ const ListBookTicket: React.FC = () => {
   const { data: time } = useFetchTimeQuery();
   const { data: room } = useFetchMovieRoomQuery();
   const { data: cinema } = useFetchCinemaQuery();
-  const handlePrintTicket = (idCode: string) => {
-    window.open(`http://127.0.0.1:8000/api/print-ticket/${idCode}`, "_blank");
+  const getIfUser = localStorage.getItem("user");
+  const IfUser = JSON.parse(`${getIfUser}`);
+  const handlePrintTicket = (idCode: string, id_user: any) => {
+    window.open(
+      `http://127.0.0.1:8000/api/print-ticket/${idCode}/${id_user}`,
+      "_blank"
+    );
     window.location.reload();
   };
   interface DataType {
@@ -35,6 +40,7 @@ const ListBookTicket: React.FC = () => {
     name: string;
     id_code: string;
     status: number;
+    staff_name: string;
     movie_room_name: string;
     name_cinema: string;
     address: string;
@@ -95,6 +101,23 @@ const ListBookTicket: React.FC = () => {
 
         return statusTag;
       },
+    },
+    {
+      title: "Người Check in",
+      width: 100,
+      dataIndex: "staff_name",
+      key: "staff_name",
+      fixed: "left",
+      align: "center",
+      render: (text) => (
+        <span>
+          {text ? (
+            <span className="text-green-500">{text}</span>
+          ) : (
+            <span style={{ color: "red" }}>Chưa check</span>
+          )}
+        </span>
+      ),
     },
     {
       title: "Mã vé",
@@ -236,7 +259,7 @@ const ListBookTicket: React.FC = () => {
         <Space size="middle">
           <Button
             className="group relative inline-block text-sm font-medium  focus:outline-none focus:ring active:text-red-500"
-            onClick={() => handlePrintTicket(record.id_code)}
+            onClick={() => handlePrintTicket(record.id_code, IfUser?.id)}
           >
             In vé
           </Button>
@@ -279,7 +302,7 @@ const ListBookTicket: React.FC = () => {
         columns={columns}
         dataSource={filteredData}
         onChange={handleChange}
-        scroll={{ x: 2200, y: 600 }}
+        scroll={{ x: 2300, y: 600 }}
       />
     </>
   );

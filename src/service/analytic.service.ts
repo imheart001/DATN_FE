@@ -20,22 +20,34 @@ export const analyticApi = createApi({
     //   providesTags: ["Analytic"],
     // }),
     getAnalytics: builder.mutation({
-      query: () => ({
+      query: (data: any) => ({
         url: "/Revenue/",
         method: "POST",
+        body: data,
       }),
       invalidatesTags: ["Analytic"],
     }),
-    getAnalyticsAdminCinema: builder.mutation<any, FormData>({
-      query: (body) => ({
+    getAnalyticsAdminCinema: builder.mutation({
+      query: (data: any) => ({
         url: "/Revenue_cinema/",
         method: "POST",
-        body: body,
+        body: data,
+      }),
+      invalidatesTags: ["Analytic"],
+    }),
+    getAnalyticsStaffByCinema: builder.mutation({
+      query: (data: any) => ({
+        url: "/Revenue_cinema_staff/",
+        method: "POST",
+        body: data,
       }),
       invalidatesTags: ["Analytic"],
     }),
   }),
 });
 
-export const { useGetAnalyticsMutation, useGetAnalyticsAdminCinemaMutation } =
-  analyticApi;
+export const {
+  useGetAnalyticsMutation,
+  useGetAnalyticsAdminCinemaMutation,
+  useGetAnalyticsStaffByCinemaMutation,
+} = analyticApi;

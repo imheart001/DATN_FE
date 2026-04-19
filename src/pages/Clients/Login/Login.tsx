@@ -68,14 +68,17 @@ const Login = () => {
         email: loginEmail,
         password: loginPassword,
       });
+      console.log((response as any).data);
 
       if ((response as any)?.data && (response as any).data.token) {
         dispatch(updateToken((response as any).data.token));
         // Update the token in localStorage
         dispatch(setUserId((response as any).data.user.id));
         dispatch(setRoleAuth((response as any).data.user.role));
+
         dispatch(setIdCinama((response as any).data.user.id_cinema));
         localStorage.setItem("authToken", (response as any).data.token);
+        localStorage.setItem("Role", (response as any).data.user.role);
         localStorage.setItem(
           "user",
           JSON.stringify((response as any)?.data.user)

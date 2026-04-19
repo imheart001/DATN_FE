@@ -787,6 +787,12 @@ const BookingSeat = () => {
                   Ghế đang chọn
                 </span>
               </div>
+              <div className="items-center flex">
+                <div className=" text-[#FFFFFF] px-6 py-5  bg-yellow-300 shadow-lg shadow-yellow-300/50 rounded-lg inline-block"></div>{" "}
+                <span className="text-[17px] text-[#8E8E8E] mx-2">
+                  Ghế đang giữ
+                </span>
+              </div>
             </div>
             {seats.length > 0 && (
               <div className="Seat space-x-2 space-y-2 text-center mx-auto my-10">

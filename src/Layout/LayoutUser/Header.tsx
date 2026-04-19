@@ -80,6 +80,18 @@ const Header: React.FC = () => {
       label: <Link to="/member-info">Thông tin hội viên</Link>,
     },
     {
+      key: "8",
+      label: (
+        <div className="">
+          {(IfUser as any)?.role === 1 ? (
+            <Link to="/admin">Admin</Link>
+          ) : (
+            "User"
+          )}
+        </div>
+      ),
+    },
+    {
       key: "7",
       danger: true,
       label: (
@@ -203,11 +215,38 @@ const Header: React.FC = () => {
           <Link to={"/orther"} className="hover:text-[#EE2E24]">
             Other
           </Link>
-
+          {(IfUser as any)?.role === 2 && (
+            <Dropdown
+              menu={{ items }}
+              placement="bottomLeft"
+              arrow={{ pointAtCenter: true }}
+            >
+              <Link to={linkTo}>
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </Link>
+            </Dropdown>
+          )}
+          {(IfUser as any)?.role === 3 && (
+            <Dropdown
+              menu={{ items }}
+              placement="bottomLeft"
+              arrow={{ pointAtCenter: true }}
+            >
+              <Link to={linkTo}>
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </Link>
+            </Dropdown>
+          )}
           {(IfUser as any)?.role === 1 && (
-            <Link to={linkTo}>
-              <img srcSet="/person-circle.png/ 1.2x" alt="" />
-            </Link>
+            <Dropdown
+              menu={{ items }}
+              placement="bottomLeft"
+              arrow={{ pointAtCenter: true }}
+            >
+              <Link to={linkTo}>
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </Link>
+            </Dropdown>
           )}
           {(IfUser as any)?.role === 0 && (
             <Dropdown
@@ -220,11 +259,14 @@ const Header: React.FC = () => {
               </button>
             </Dropdown>
           )}
-          {(IfUser as any)?.role !== 1 && (IfUser as any)?.role !== 0 && (
-            <Link to={linkTo}>
-              <img srcSet="/person-circle.png/ 1.2x" alt="" />
-            </Link>
-          )}
+          {(IfUser as any)?.role !== 1 &&
+            (IfUser as any)?.role !== 2 &&
+            (IfUser as any)?.role !== 3 &&
+            (IfUser as any)?.role !== 0 && (
+              <Link to={linkTo}>
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </Link>
+            )}
         </div>
         <div className="flex items-center my-2">
           <div className="relative w-full">
