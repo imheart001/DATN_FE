@@ -21,7 +21,6 @@ import {
   Cell,
 } from "recharts";
 
-import { PieChart, Pie } from "recharts";
 import { useEffect, useState } from "react";
 import { useGetAnalyticsMutation } from "../../../service/analytic.service";
 import { useAppSelector } from "../../../store/hooks";
@@ -84,7 +83,7 @@ const Dashbroad = (props: any) => {
         break;
       }
       case "Month": {
-        setMoney((dataReal[0] as any)?.revenue_month?.comparison);
+        setMoney((dataReal[0] as any)?.revenue_month?.revenue_mon?.[0].TotalAmount);
         break;
       }
       case "Yaer": {
@@ -131,7 +130,7 @@ const Dashbroad = (props: any) => {
             <div>
               <div className="h-32 rounded-lg ">
                 <Card sx={sx}>
-                  <CardContent>
+                  <CardContent>   
                     <Stack
                       alignItems="flex-start"
                       // direction="row"
@@ -218,32 +217,6 @@ const Dashbroad = (props: any) => {
                   </ResponsiveContainer>
                 </div>
               </div>
-              <div className="rounded-lg ">
-                <PieChart width={400} height={400}>
-                  <Pie
-                    data={data1}
-                    dataKey="value"
-                    cx={200}
-                    cy={200}
-                    outerRadius={80}
-                    // fill="#0088FE"
-                    label
-                  >
-                    {data1.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-
-                  <Tooltip
-                    formatter={(value: any, name) => [formatter(value), name]}
-                  />
-
-                  <Legend />
-                </PieChart>
-              </div>
             </div>
           </div>
           {dataReal[0] && (
@@ -293,9 +266,9 @@ const Dashbroad = (props: any) => {
                             </div>
                           </div>{" "}
                           <br />
-                          <Stack spacing={2}>
+                          <Stack spacing={2}> 
                             <Typography>
-                              Tăng thêm{" "}
+                              Âm thêm{" "}
                               <span
                                 style={{ color: "#007BFF", fontWeight: "bold" }}
                               >
