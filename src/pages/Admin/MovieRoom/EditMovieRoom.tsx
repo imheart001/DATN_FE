@@ -54,6 +54,7 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
     }
   }, [dataMovieRoom]);
   const onFinish = async (values: any) => {
+    console.log("🚀 ~ file: EditMovieRoom.tsx:57 ~ onFinish ~ values:", values)
     try {
       await updateMovieRoom({ ...values, id: dataMovieRoom.id });
 

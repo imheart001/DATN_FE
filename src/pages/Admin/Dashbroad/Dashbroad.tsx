@@ -75,15 +75,19 @@ const Dashbroad = (props: any) => {
   }));
 
   const [money, setMoney] = useState<number>(0);
+  const [analytic, setAnalytic] = useState<string>("Doanh thu theo ngày");
 
   const handleChange = (value: string) => {
+    setAnalytic(value);
     switch (value) {
       case "Day": {
         setMoney((dataReal[0] as any)?.revenue_day?.revenueToday);
         break;
       }
       case "Month": {
-        setMoney((dataReal[0] as any)?.revenue_month?.revenue_mon?.[0].TotalAmount);
+        setMoney(
+          (dataReal[0] as any)?.revenue_month?.revenue_mon?.[0].TotalAmount
+        );
         break;
       }
       case "Yaer": {
@@ -108,6 +112,8 @@ const Dashbroad = (props: any) => {
     return <DashboardAdmin3 />;
   }
 
+  console.log((dataReal[0] as any)?.revenue_month.comparison)
+
   switch (id_cinema) {
     case "1":
     case "2":
@@ -130,7 +136,7 @@ const Dashbroad = (props: any) => {
             <div>
               <div className="h-32 rounded-lg ">
                 <Card sx={sx}>
-                  <CardContent>   
+                  <CardContent>
                     <Stack
                       alignItems="flex-start"
                       // direction="row"
@@ -144,7 +150,9 @@ const Dashbroad = (props: any) => {
                               color="text.secondary"
                               variant="overline"
                             >
-                              Doanh thu theo ngày
+                              {analytic === "Day" && "Doanh thu theo ngày"}
+                              {analytic === "Month" && "Doanh thu theo tháng"}
+                              {analytic === "Year" && "Doanh thu theo năm"}
                             </Typography>
                             <Typography variant="h6" className="w-full">
                               {formatter(money)}
@@ -266,18 +274,23 @@ const Dashbroad = (props: any) => {
                             </div>
                           </div>{" "}
                           <br />
-                          <Stack spacing={2}> 
+                          <Stack spacing={2}>
                             <Typography>
-                              Âm thêm{" "}
-                              <span
-                                style={{ color: "#007BFF", fontWeight: "bold" }}
-                              >
-                                {formatter(
-                                  ((dataReal[0] as any)?.revenue_month)
-                                    .comparison
-                                )}
-                              </span>{" "}
-                              trong tháng này
+                              <>
+                               {(dataReal[0] as any)?.revenue_month.comparison > 0 ? "tăng lên" : "giảm đi"}
+                                <span
+                                  style={{
+                                    color: "#007BFF",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  {formatter(
+                                    ((dataReal[0] as any)?.revenue_month)
+                                      .comparison
+                                  )}
+                                </span>{" "}
+                                trong tháng này
+                              </>
                             </Typography>
                           </Stack>
                         </Stack>

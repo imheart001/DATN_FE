@@ -13,13 +13,11 @@ const movieRoomAPI = createApi({
       providesTags: ["movieroom"],
     }),
     getMovieRoomById: builder.query<IMovieRoom, number | string>({
-
       query: (id) => `/movieRoom/${id}`,
       providesTags: ["movieroom"],
     }),
     removeMovieRoom: builder.mutation({
       query: (id) => ({
-
         url: "/movieRoom/" + id,
         method: "DELETE",
       }),
@@ -27,7 +25,6 @@ const movieRoomAPI = createApi({
     }),
     addMovieRoom: builder.mutation({
       query: (movieRoom: IMovieRoom) => ({
-
         url: "/movieRoom/",
         method: "POST",
         body: movieRoom,
@@ -36,9 +33,8 @@ const movieRoomAPI = createApi({
     }),
     updateMovieRoom: builder.mutation({
       query: (movieRoom: IMovieRoom) => ({
-
         url: `/movieRoom/${movieRoom.id}`,
-        method: "PATCH",
+        method: "PUT",
         body: movieRoom,
       }),
       invalidatesTags: ["movieroom"],
@@ -46,7 +42,10 @@ const movieRoomAPI = createApi({
   }),
 });
 export const {
-
-  useFetchMovieRoomQuery,useGetMovieRoomByIdQuery, useAddMovieRoomMutation, useRemoveMovieRoomMutation, useUpdateMovieRoomMutation
+  useFetchMovieRoomQuery,
+  useGetMovieRoomByIdQuery,
+  useAddMovieRoomMutation,
+  useRemoveMovieRoomMutation,
+  useUpdateMovieRoomMutation,
 } = movieRoomAPI;
 export default movieRoomAPI;

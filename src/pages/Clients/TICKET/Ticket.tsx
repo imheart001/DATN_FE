@@ -17,7 +17,10 @@ import * as moment from "moment-timezone";
 import { useGetAllCateDetailByFilmQuery } from "../../../service/catedetail.service";
 import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
 import Loading from "../../../components/isLoading/Loading";
-import FilmShowing from "../../../components/FilmShowing";
+interface FilmShow {
+  date: string;
+  times: any[];
+}
 
 const Ticket: React.FC = () => {
   const { data: films, isLoading: filmsLoading } = useFetchProductQuery();
@@ -44,10 +47,10 @@ const Ticket: React.FC = () => {
   const isToday2 = new Date(currentDateTime);
   const currentDateTime2 = moment().utcOffset(420);
   const navigate = useNavigate();
-  interface FilmShow {
-    date: string;
-    times: any[];
-  }
+  const { data: timeDetails } = useFetchShowTimeQuery();
+  const { data: rooms } = useFetchMovieRoomQuery();
+
+  const hiddenRoom = rooms?.data?.find((item) => item.status === 1)
 
   const handleTimeSelection = (timeId: any) => {
     if (user) {
@@ -122,7 +125,9 @@ const Ticket: React.FC = () => {
 
   const items: TabsProps["items"] = daysToDisplay?.map((date, index) => {
     const formattedDate = date.toISOString().slice(0, 10);
-    const show = filmShows2.find((show) => show.date === formattedDate);
+    const show = filmShows2.find((show) => {
+      return show.date === formattedDate;
+    });
     const isToday = formattedDate === isToday2.toISOString().slice(0, 10);
 
     const dayOfWeek = (today.getDay() + index) % 7;
@@ -180,25 +185,66 @@ const Ticket: React.FC = () => {
       children: (
         <div>
           {show && show?.times?.length > 0 ? (
-            <div className="grid grid-cols-5 ">
+            <div
+              className={`grid grid-cols-5 ${
+                show?.times?.length === 1 && "!grid-cols-1"
+              }`}
+            >
               {show?.times?.map((time: any, timeIndex: number) => {
-                // Lấy thông tin thời gian
-                const showTime = getRealTime(time.time_id);
-
-                if (dataChairEmpTy) {
-                  const chairEmpty = dataChairEmpTy?.find(
-                    (item: any) => item.id === time.id
+                if (time.status === 1) {
+                  const filmExit = timeDetails?.data?.filter((item) => {
+                    return (
+                      item.film_id === selectedFilmId &&
+                      time.room_id === item.room_id &&
+                      item.status === 1  && hiddenRoom
+                    );
+                  });
+                  console.log("🚀 ~ file: Ticket.tsx:202 ~ filmExit ~ filmExit:", filmExit)
+                  // Lấy thông tin thời gian
+                  // const showTime = getRealTime(time.time_id);
+                  const showTimeFilm = filmExit.filter(
+                    (item) =>
+                      new Date(item.date).getDate() === new Date().getDate()
                   );
-                  return (
-                    <div key={timeIndex} className="my-1 text-center">
-                      <Button onClick={() => handleTimeSelection(time.id)}>
-                        {showTime}
-                      </Button>
-                      <div className="">
-                        {chairEmpty?.empty_chair} ghế trống
+                  if (dataChairEmpTy) {
+                    const resultChair = showTimeFilm?.filter((item) => {
+                      return item.time_id === time.time_id;
+                    });
+                    const abc = resultChair.forEach((item) => {
+                      dataChairEmpTy.forEach((itemChair) => {
+                        return item.time_id === itemChair.id;
+                      });
+                    });
+                    const chairEmpty = dataChairEmpTy?.find((item: any) => {
+                      return item.id === time.id;
+                    });
+                    // return (
+                    //   <div key={timeIndex} className="my-1 text-center">
+                    //     <Button onClick={() => handleTimeSelection(time.id)}>
+                    //       {showTime}
+                    //     </Button>
+                    //     <div className="">
+                    //       {chairEmpty?.empty_chair} ghế trống
+                    //     </div>
+                    //   </div>
+                    // );
+                    if (filmExit.length === 0) {
+                      return "Chưa cập nhật suất chiếu của ngày này"; 
+                    }
+                    return (
+                      <div key={timeIndex} className="my-1 text-center">
+                        <Button onClick={() => handleTimeSelection(time.id)}>
+                          {getRealTime(filmExit[0].time_id)}
+                        </Button>
+                        <div className="">
+                          {/* {resultChair[0]?.empty_chair} ghế trống */}
+                        </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  }
+                }
+                if (time.status === 0) {
+                  return "Chưa cập nhật suất chiếu của ngày này";
                 }
               })}
             </div>

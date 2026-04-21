@@ -34,7 +34,6 @@ const AddShow: React.FC = () => {
   const [selectedCinema, setSelectedCinema] = useState(null);
   const [roomByCinema, setRoomByCinema] = useState([]);
   // const roomByCinema = (cinemas as any).data.filter((cinema: any) =>cinema.)
-  console.log(times);
   const sortedTimes = (times as any)?.data
     .slice()
     .sort((a: any, b: any) => a.time.localeCompare(b.time));

@@ -24,7 +24,6 @@ const AddMovieRoom: React.FC = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const { data: cinemas } = useFetchCinemaQuery();
-  console.log("🚀 ~ file: AddMovieRoom.tsx:27 ~ cinemas:", cinemas);
 
   const showDrawer = () => {
     setOpen(true);

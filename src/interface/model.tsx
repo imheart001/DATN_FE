@@ -47,6 +47,7 @@ export interface IShowTime {
   time_id: string;
   film_id: string;
   room_id: string;
+  status: number
 }
 export interface ITime {
   id: string;
@@ -71,6 +72,7 @@ export interface IMovieRoom {
   id: string;
   name: string;
   id_cinema: string;
+  status: number
   // name_cinema : string
 }
 export interface ICateDetail {
