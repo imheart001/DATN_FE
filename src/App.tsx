@@ -55,18 +55,15 @@ import { useGetUserByIdQuery } from "./service/book_ticket.service";
 function App() {
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
-  const { data } = useGetUserByIdQuery(`${userId.id}`);
-  const roleuser = (data as any)?.role;
-  console.log(roleuser);
 
   // console.log(userId?.role);
   // const userId = useSelector(
   //   (state: any) => state.auth?.role
   // );
   const dashbroadElement =
-    roleuser == 1 ? (
+    userId?.role == 1 ? (
       <Dashbroad />
-    ) : roleuser == 2 ? (
+    ) : userId?.role == 2 ? (
       <Dashbroad_Admin_Cinema />
     ) : (
       <Dashboard_Staff />
