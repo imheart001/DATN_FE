@@ -1,18 +1,20 @@
 import { useState } from "react";
 
-import { Space, Table, Input, Button, Popconfirm } from "antd";
+import { Space, Table, Input, Button, Popconfirm, Switch, message } from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
 import {
   useFetchMovieRoomQuery,
   useRemoveMovieRoomMutation,
+  useUpdateMovieRoomMutation,
 } from "../../../service/movieroom.service";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { ICinemas, IMovieRoom } from "../../../interface/model";
 import AddMovieRoom from "./AddMovieRoom";
 import EditMovieRoom from "./EditMovieRoom";
 import { FilterValue } from "antd/es/table/interface";
+import { useNavigate } from "react-router-dom";
 
 interface DataType {
   id: string;
@@ -24,6 +26,7 @@ const { Search } = Input;
 
 const ListMovieRoom: React.FC = () => {
   const { data: movies } = useFetchMovieRoomQuery();
+  console.log("🚀 ~ file: ListMovieRoom.tsx:27 ~ movies:", movies);
   const { data: cinemas } = useFetchCinemaQuery();
   const [filteredInfo, setFilteredInfo] = useState<
     Record<string, FilterValue | null>
@@ -32,6 +35,33 @@ const ListMovieRoom: React.FC = () => {
 
   const role = user.role;
   const id_cinema = user.id_cinema;
+  const [updateMovieRoom] = useUpdateMovieRoomMutation();
+  const navigate = useNavigate();
+
+  const onChange = async (checked: boolean, item: any) => {
+    const status = checked ? 1 : 0;
+    const data = {
+  
+      id: item.id,
+      status,
+    };
+    console.log("🚀 ~ file: ListMovieRoom.tsx:49 ~ onChange ~ data:", data)
+    try {
+      const result = await updateMovieRoom({ ...data as any });
+      console.log(
+        "🚀 ~ file: ListMovieRoom.tsx:51 ~ onChange ~ result:",
+        result
+      );
+
+      message.success("Cập nhật sản phẩm thành công");
+
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      // navigate("/admin/movieroom");
+    } catch (error) {
+      message.error("Cập nhật sản phẩm thất bại");
+    }
+  };
 
   const [removeMovie] = useRemoveMovieRoomMutation();
   const columns: ColumnsType<DataType> = [
@@ -97,6 +127,21 @@ const ListMovieRoom: React.FC = () => {
         }
       },
     },
+
+    {
+      title: role !== 2 && "Hành động",
+      key: "action",
+      render: (_: any, record: any) => {
+        if (role !== 2) {
+          return (
+            <Switch
+              checked={record.status === 1 ? true : false}
+              onChange={(value: boolean) => onChange(value, record)}
+            />
+          );
+        }
+      },
+    },
   ];
 
   const dataMovie = (movies as any)?.data?.map(
@@ -110,6 +155,7 @@ const ListMovieRoom: React.FC = () => {
       cinema_id: (cinemas as any)?.data?.find(
         (cinemas: ICinemas) => cinemas.id === movie.id_cinema
       )?.id,
+      status: movie.status,
     })
   );
 

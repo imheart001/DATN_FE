@@ -52,6 +52,7 @@ const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
   }, [dataShow]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinish = async (values: any) => {
+    console.log("🚀 ~ file: EditShow.tsx:55 ~ onFinish ~ values:", values)
     try {
       values.date = values.date.format("YYYY-MM-DD");
       await updateShowTime({ ...values, id: dataShow.id });

@@ -41,6 +41,7 @@ const EditCinema: React.FC<EditCinemaProps> = ({ dataCinema }) => {
     }
   }, [dataCinema]);
   const onFinish = async (values: any) => {
+    console.log("🚀 ~ file: EditCinema.tsx:44 ~ onFinish ~ values:", values)
     try {
       await updateCinema({ ...values, id: dataCinema.id });
 

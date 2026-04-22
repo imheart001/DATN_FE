@@ -152,10 +152,19 @@ const Header: React.FC = () => {
   }, [films]);
   useEffect(() => {
     if (cinemas) {
-      const cinemaData = (cinemas as any)?.data?.map((cinema: ICinemas) => ({
-        value: cinema.id.toString(),
-        label: cinema.name,
-      }));
+      const cinemaData = (cinemas as any)?.data?.filter((cinema: ICinemas) => {
+        if (cinema?.status === 1) {
+          return {
+            value: cinema?.id.toString(),
+            label: cinema?.name,
+            status: cinema?.status,
+          };
+        }
+      }).map((item) => ({
+        value: item?.id.toString(),
+        label: item?.name,
+        status: item?.status,
+      }))
       setCinemaOptions(cinemaData);
     }
   }, [cinemas]);
@@ -180,7 +189,7 @@ const Header: React.FC = () => {
             expandTrigger="hover"
             displayRender={displayRender}
             onChange={onChange}
-            value={selectedCinema}
+            value={'Không có'}
           />
         </Modal>
       )}

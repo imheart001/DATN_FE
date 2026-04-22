@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Space, Table, Input, Button, Popconfirm, message } from "antd";
+import React, { useState } from "react";
+import { Space, Table, Input, Button, Popconfirm, message, Switch } from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 import { IFilms, IMovieRoom, IShowTime, ITime } from "../../../interface/model";
@@ -9,6 +9,7 @@ import EditShow from "./EditShow";
 import {
   useFetchShowTimeQuery,
   useRemoveShowTimeMutation,
+  useUpdateShowTimeMutation,
 } from "../../../service/show.service";
 import AddShow from "./AddShow";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
@@ -25,7 +26,9 @@ interface DataType {
 const { Search } = Input;
 
 const ListShow: React.FC = () => {
-  const [filteredInfo, setFilteredInfo] = useState<Record<string, FilterValue | null>>({});
+  const [filteredInfo, setFilteredInfo] = useState<
+    Record<string, FilterValue | null>
+  >({});
   const { data: roomBrand } = useFetchMovieRoomQuery();
   const { data: shows } = useFetchShowTimeQuery();
   const { data: films } = useFetchProductQuery();
@@ -35,6 +38,37 @@ const ListShow: React.FC = () => {
   let user = JSON.parse(localStorage.getItem("user")!);
 
   const role = user.role;
+  console.log("🚀 ~ file: ListShow.tsx:41 ~ role:", typeof role)
+  const [checked, setChecked] = React.useState(
+    (shows as any)?.data?.map((item: any) => false)
+  );
+  const [updateShowTime] = useUpdateShowTimeMutation();
+
+  const onChange = async (checked: boolean, item: any) => {
+    try {
+      const status = checked ? 1 : 0;
+
+      const data = {
+        date: item.date,
+        film_id: item.id_film,
+        room_id: item.id_room,
+        time_id: item.id_time,
+        status,
+      };
+      const result = await updateShowTime({ ...data, id: item.id });
+      if ((result as any).error) {
+        message.error(
+          "The date field must be a date after or equal to 2023-12-10."
+        );
+        return;
+      }
+      message.success("cập nhật thành công!");
+    } catch (error) {
+      message.error(
+        "The date field must be a date after or equal to 2023-12-10."
+      );
+    }
+  };
 
   // console.log(shows);
   const columns: ColumnsType<DataType> = [
@@ -47,7 +81,10 @@ const ListShow: React.FC = () => {
       title: "Tên Phim",
       dataIndex: "film_id",
       key: "film_id",
-      filters: films?.data?.map((item) => ({ text: item.name, value: item.name})),
+      filters: films?.data?.map((item) => ({
+        text: item.name,
+        value: item.name,
+      })),
       filteredValue: filteredInfo.film_id || null,
       onFilter: (value: string, record) => record.film_id.includes(value),
     },
@@ -55,7 +92,10 @@ const ListShow: React.FC = () => {
       title: "Thời gian",
       dataIndex: "time_id",
       key: "time_id",
-      filters: times?.data?.map((item) => ({ text: item.time, value: item.time})),
+      filters: times?.data?.map((item) => ({
+        text: item.time,
+        value: item.time,
+      })),
       filteredValue: filteredInfo.time_id || null,
       onFilter: (value: string, record) => record.time_id.includes(value),
     },
@@ -63,7 +103,10 @@ const ListShow: React.FC = () => {
       title: "Phòng Chiếu",
       dataIndex: "room_id",
       key: "room_id",
-      filters: room?.data?.map((item) => ({ text: item.name, value: item.name})),
+      filters: room?.data?.map((item) => ({
+        text: item.name,
+        value: item.name,
+      })),
       filteredValue: filteredInfo.room_id || null,
       onFilter: (value: string, record) => record.room_id.includes(value),
     },
@@ -104,31 +147,60 @@ const ListShow: React.FC = () => {
         }
       },
     },
+    {
+      title: role !== 2 && "Hành động",
+      key: "action",
+      render: (_: any, record) => {
+        if (role !== 2) {
+          return (
+            <Switch
+              checked={record.status === 1 ? true : false}
+              onChange={(value: boolean) => onChange(value, record)}
+            />
+          );
+        }
+      },
+    },
   ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataShow = (shows as any)?.data?.map(
-    (show: IShowTime, index: number) => ({
-      key: index.toString(),
-      id: show.id,
-      date: show.date,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      film_id: (films as any)?.data?.find(
-        (films: IFilms) => films.id === show.film_id
-      )?.name,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      time_id: (times as any)?.data?.find(
-        (times: ITime) => times.id === show.time_id
-      )?.time,
-      room_id: (roomBrand as any)?.data?.find(
-        (room: IMovieRoom) => room.id === show.room_id
-      )?.name,
-    })
+    (show: IShowTime, index: number) => {
+      return {
+        key: index.toString(),
+        id: show.id,
+        date: show.date,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        film_id: (films as any)?.data?.find(
+          (films: IFilms) => films.id === show.film_id
+        )?.name,
+        id_film: (films as any)?.data?.find(
+          (films: IFilms) => films.id === show.film_id
+        )?.id,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        time_id: (times as any)?.data?.find(
+          (times: ITime) => times.id === show.time_id
+        )?.time,
+        id_time: (times as any)?.data?.find(
+          (times: ITime) => times.id === show.time_id
+        )?.id,
+        id_room: (roomBrand as any)?.data?.find(
+          (room: IMovieRoom) => room.id === show.room_id
+        )?.id,
+        room_id: (roomBrand as any)?.data?.find(
+          (room: IMovieRoom) => room.id === show.room_id
+        )?.name,
+        status: show.status,
+      };
+    }
   );
-    
-  const handleChange: TableProps<DataType>['onChange'] = (pagination, filters) => {
+
+  const handleChange: TableProps<DataType>["onChange"] = (
+    pagination,
+    filters
+  ) => {
     console.log(filters);
-    
+
     setFilteredInfo(filters);
   };
   const [dataShows, setDateShows] = useState<any>(null);
@@ -150,14 +222,22 @@ const ListShow: React.FC = () => {
             onSearch={onSearch}
           />
 
-          {role === 1  && <AddShow />}
+          {role === 1 && <AddShow />}
           {role === 3 && <AddShow />}
         </div>
       </div>
       {dataShows ? (
-        <Table columns={columns} dataSource={dataShows} onChange={handleChange} />
+        <Table
+          columns={columns}
+          dataSource={dataShows}
+          onChange={handleChange}
+        />
       ) : (
-        <Table columns={columns} dataSource={dataShow} onChange={handleChange} />
+        <Table
+          columns={columns}
+          dataSource={dataShow}
+          onChange={handleChange}
+        />
       )}
     </>
   );
