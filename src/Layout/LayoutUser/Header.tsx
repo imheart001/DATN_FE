@@ -32,20 +32,18 @@ const Header: React.FC = () => {
     {
       key: "1",
       label: (
-        <a
-          target="_blank"
+        <Link
           rel="noopener noreferrer"
-          href="https://www.antgroup.com"
+          to={``}
         >
           Chào {IfUser?.name}
-        </a>
+        </Link>
       ),
     },
     {
       key: "2",
       label: (
         <Link
-          target="_blank"
           rel="noopener noreferrer"
           to={`/info_account/profile`}
         >
@@ -57,7 +55,6 @@ const Header: React.FC = () => {
       key: "3",
       label: (
         <Link
-          target="_blank"
           rel="noopener noreferrer"
           to={`/info_account/BookTicketUser`}
         >
@@ -69,7 +66,6 @@ const Header: React.FC = () => {
       key: "4",
       label: (
         <Link
-          target="_blank"
           rel="noopener noreferrer"
           to={`/info_account/BookTicketUser`}
         >

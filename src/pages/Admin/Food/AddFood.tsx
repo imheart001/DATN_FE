@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 
 import { UserAddOutlined } from "@ant-design/icons";
 import {
@@ -65,7 +65,7 @@ const AddFood: React.FC = () => {
         }}
         extra={
           <Space>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose}>Trở Về</Button>
 
             <Button
               danger
@@ -77,7 +77,7 @@ const AddFood: React.FC = () => {
                 });
               }}
             >
-              Submit
+              Cập Nhật
             </Button>
           </Space>
         }
@@ -93,7 +93,7 @@ const AddFood: React.FC = () => {
               <Form.Item
                 name="name"
                 label="Name"
-                rules={[{ required: true, message: "Please enter user name" }]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <Input placeholder="Please enter user name" />
               </Form.Item>
@@ -103,7 +103,7 @@ const AddFood: React.FC = () => {
               <Form.Item
                 name="image"
                 label="Image"
-                rules={[{ required: true, message: "Please enter Image" }]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <Input placeholder="Please enter user Image" />
               </Form.Item>
@@ -115,7 +115,25 @@ const AddFood: React.FC = () => {
               <Form.Item
                 name="price"
                 label="Price"
-                rules={[{ required: true, message: "Please select a Price" }]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  {
+                    validator: (_, value) => {
+                      if (isNaN(value)) {
+                        return Promise.reject('Vui lòng nhập một số hợp lệ');
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                  {
+                    validator: (_, value) => {
+                      if (value < 0) {
+                        return Promise.reject("Giá không thể là số âm");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
                 <Input placeholder="Please enter user Price" />
               </Form.Item>

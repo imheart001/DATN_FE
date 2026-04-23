@@ -76,7 +76,7 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
       </Button>
 
       <Drawer
-        title="Thêm Loại Đồ Ăn"
+        title="Cập Nhật Loại Đồ Ăn"
         width={720}
         onClose={() => {
           onClose();
@@ -88,7 +88,7 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
         }}
         extra={
           <Space>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose}>Trở Về</Button>
 
             <Button
               danger
@@ -100,7 +100,7 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
                 });
               }}
             >
-              Submit
+              Cập Nhật
             </Button>
           </Space>
         }
@@ -116,7 +116,7 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
               <Form.Item
                 name="name"
                 label="Name"
-                rules={[{ required: true, message: "Please enter user name" }]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <Input placeholder="Please enter user name" />
               </Form.Item>
@@ -126,7 +126,7 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
               <Form.Item
                 name="image"
                 label="Image"
-                rules={[{ required: true, message: "Please enter Image" }]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <Input placeholder="Please enter user Image" />
               </Form.Item>
@@ -138,7 +138,25 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
               <Form.Item
                 name="price"
                 label="Price"
-                rules={[{ required: true, message: "Please select a Price" }]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  {
+                    validator: (_, value) => {
+                      if (isNaN(value)) {
+                        return Promise.reject('Vui lòng nhập một số hợp lệ');
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                  {
+                    validator: (_, value) => {
+                      if (value < 0) {
+                        return Promise.reject("Giá không thể là số âm");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
                 <Input placeholder="Please enter user Price" />
               </Form.Item>

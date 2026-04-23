@@ -87,12 +87,12 @@ export interface IUser {
   id: number;
   name: string;
   phone: number;
-  image: string | null;
+  image: string;
   email: string;
   date_of_birth: string;
   password: string;
-  old_password: string | null;
-  new_password: string | null;
+  old_password: string;
+  new_password: string;
 }
 export interface IBookTicketUser {
   time: string;

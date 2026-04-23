@@ -52,7 +52,8 @@ const AddFilm: React.FC = () => {
       description: values.description,
       status: 1,
     };
-
+    console.log(values);
+    
     try {
       // values.release_date = values.release_date.format("YYYY-MM-DD");
       // values.end_date = values.end_date.format("YYYY-MM-DD");
