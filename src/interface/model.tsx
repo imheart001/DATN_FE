@@ -93,6 +93,8 @@ export interface IUser {
   password: string;
   old_password: string;
   new_password: string;
+  role: number;
+  id_cinema: number;
 }
 export interface IBookTicketUser {
   time: string;
