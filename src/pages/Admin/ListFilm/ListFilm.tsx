@@ -62,14 +62,17 @@ const ListFilm: React.FC = () => {
     release_date: film.release_date,
     end_date: film.end_date,
     nameFilm: film?.name,
+    limit_age: film?.limit_age,
+    poster: film?.poster,
     time: film?.time,
     images: film?.image,
     dateSt: new Date(film.release_date),
     dateEnd: new Date(film.end_date),
     tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
+  console.log(films);
 
-  let user = JSON.parse(localStorage.getItem("user")!);
+  const user = JSON.parse(localStorage.getItem("user")!);
 
   const role = user.role;
 
@@ -134,8 +137,8 @@ const ListFilm: React.FC = () => {
                 ? "success"
                 : !compareReleaseDate(release_date) &&
                   !compareDates(release_date, end_date)
-                ? "error"
-                : "warning"
+                  ? "error"
+                  : "warning"
             }
           >
             {compareDates(release_date, end_date) && "Đang Hoạt Động"}
@@ -200,7 +203,6 @@ const ListFilm: React.FC = () => {
     pagination,
     filters
   ) => {
-    console.log(filters);
     setFilteredInfo(filters);
   };
   return (

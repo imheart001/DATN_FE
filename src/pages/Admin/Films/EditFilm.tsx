@@ -2,21 +2,22 @@ import { useEffect, useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
 import {
   Button,
+  Checkbox,
   Col,
   DatePicker,
   Drawer,
   Form,
   Input,
+  InputNumber,
   Row,
-  Select,
   Space,
   message,
 } from "antd";
 import { useUpdateProductMutation } from "../../../service/films.service";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import { useFetchCateQuery } from "../../../service/cate.service";
 
-const { Option } = Select;
 interface DataType {
   key: string;
   name: string;
@@ -28,6 +29,8 @@ interface DataType {
   description: string;
   dateSt: Date;
   dateEnd: Date;
+  limit_age: number;
+  poster: string;
   tags: string[];
 }
 interface EditFilmProps {
@@ -38,7 +41,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
   const [updateProduct] = useUpdateProductMutation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
-
+  
   useEffect(() => {
     if (dataID) {
       form.setFieldsValue({
@@ -50,6 +53,8 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         release_date: moment(dataID.dateSt), // Sử dụng thư viện moment để xử lý ngày
         end_date: moment(dataID.dateEnd),
         description: dataID.description,
+        limit_age: dataID.limit_age,
+        poster: dataID.poster,
       });
     }
   }, [dataID]);
@@ -69,7 +74,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
     }
   };
   const [open, setOpen] = useState(false);
+  
+  const validateEndDate = async (_: any, value: any) => {
+    const releaseDate = form.getFieldValue("release_date");
 
+    if (value && releaseDate && value.isBefore(releaseDate)) {
+      throw new Error("Ngày kết thúc không hợp lệ");
+    }
+  };
   const showDrawer = () => {
     setOpen(true);
   };
@@ -112,29 +124,24 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
           </Space>
         }
       >
-        <Form
-          form={form}
-          layout="vertical"
-          hideRequiredMark
-          onFinish={onFinish}
-        >
+        <Form form={form} layout="vertical" onFinish={onFinish}>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please enter nameFilm" }]}
+                label="Tên Phim"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter nameFilm" />
+                <Input placeholder="Tên Phim" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="image"
-                label="Image"
-                rules={[{ required: true, message: "Please select an image" }]}
+                label="Hình Ảnh"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user image" />
+                <Input placeholder="Hình Ảnh" />
               </Form.Item>
             </Col>
           </Row>
@@ -142,10 +149,10 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
             <Col span={12}>
               <Form.Item
                 name="slug"
-                label="Slug"
-                rules={[{ required: true, message: "Please enter slug" }]}
+                label="TenPhim"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="TenPhim" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -153,10 +160,10 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                 name="trailer"
                 label="Trailer"
                 rules={[
-                  { required: true, message: "Please choose the trailer" },
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
                 ]}
               >
-                <Input placeholder="Please enter user trailer" />
+                <Input placeholder="Trailer" />
               </Form.Item>
             </Col>
           </Row>
@@ -164,29 +171,30 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
             <Col span={12}>
               <Form.Item
                 name="time"
-                label="Time"
-                rules={[{ required: true, message: "Please choose the time" }]}
+                label="Thời Lượng"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user time" />
+                <Input placeholder="Thời Lượng" />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={6}>
               <Form.Item
                 name="release_date"
-                label="Release Date"
+                label="Ngày Phát Hành"
                 rules={[
-                  { required: true, message: "Please choose the release date" },
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
                 ]}
               >
                 <DatePicker />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={6}>
               <Form.Item
                 name="end_date"
-                label="End date"
+                label="Ngày Kết Thúc"
                 rules={[
-                  { required: true, message: "Please choose the End date" },
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { validator: validateEndDate },
                 ]}
               >
                 <DatePicker />
@@ -194,20 +202,45 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
             </Col>
           </Row>
           <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                className="w-full"
+                name="limit_age"
+                label="Giới hạn tuổi"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
+              >
+                <InputNumber
+                  className="w-full"
+                  placeholder="Giới hạn tuổi"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="poster"
+                label="Poster"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
+              >
+                <Input placeholder="Poster" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={24}>
               <Form.Item
                 name="description"
-                label="Description"
+                label="Mô tả"
                 rules={[
                   {
                     required: true,
-                    message: "please enter url description",
+                    message: "Trường dữ liệu bắt buộc",
                   },
                 ]}
               >
                 <Input.TextArea
                   rows={4}
-                  placeholder="please enter url description"
+                  placeholder="Mô tả"
                 />
               </Form.Item>
             </Col>

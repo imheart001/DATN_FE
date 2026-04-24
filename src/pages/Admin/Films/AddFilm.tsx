@@ -21,7 +21,6 @@ import { ICategorys } from "../../../interface/model";
 import { useAddCateDetailMutation } from "../../../service/catedetail.service";
 
 const AddFilm: React.FC = () => {
-  const { Option } = Select;
   const showDrawer = () => {
     setOpen(true);
   };
@@ -35,7 +34,6 @@ const AddFilm: React.FC = () => {
   const navigate = useNavigate();
   const [addCateDetail] = useAddCateDetailMutation();
   const { data: dataCate } = useFetchCateQuery();
-  console.log(dataCate);
   const [form] = Form.useForm();
 
   const onFinish = async (values: any) => {
@@ -52,13 +50,8 @@ const AddFilm: React.FC = () => {
       description: values.description,
       status: 1,
     };
-    console.log(values);
-    
     try {
-      // values.release_date = values.release_date.format("YYYY-MM-DD");
-      // values.end_date = values.end_date.format("YYYY-MM-DD");
       const reponse = await addProduct(dataAddFilm).unwrap();
-      console.log(reponse);
       values?.cate_id?.map(async (cate_idbyUser: any) => {
         const dataAddCateDetail = {
           film_id: reponse.data.id,
@@ -74,8 +67,14 @@ const AddFilm: React.FC = () => {
       message.error("Thêm sản phẩm thất bại");
     }
   };
+  // validate datetime
+  const validateEndDate = async (_: any, value: any) => {
+    const releaseDate = form.getFieldValue("release_date");
 
-  // Tạo một Form instance để sử dụng validate
+    if (value && releaseDate && value.isBefore(releaseDate)) {
+      throw new Error("Ngày kết thúc không hợp lệ");
+    }
+  };
 
   return (
     <>
@@ -100,7 +99,7 @@ const AddFilm: React.FC = () => {
         }}
         extra={
           <Space>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose}>Trở Về</Button>
 
             <Button
               danger
@@ -112,7 +111,7 @@ const AddFilm: React.FC = () => {
                 });
               }}
             >
-              Submit
+              Thêm Mới
             </Button>
           </Space>
         }
@@ -122,19 +121,19 @@ const AddFilm: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please enter user name" }]}
+                label="Tên Phim"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Tên Phim" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="image"
-                label="Image"
-                rules={[{ required: true, message: "Please select an image" }]}
+                label="Hình Ảnh"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user image" />
+                <Input placeholder="Hình Ảnh" />
               </Form.Item>
             </Col>
           </Row>
@@ -142,10 +141,10 @@ const AddFilm: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="slug"
-                label="Slug"
-                rules={[{ required: true, message: "Please enter slug" }]}
+                label="TenPhim"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="TenPhim" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -153,10 +152,10 @@ const AddFilm: React.FC = () => {
                 name="trailer"
                 label="Trailer"
                 rules={[
-                  { required: true, message: "Please choose the trailer" },
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
                 ]}
               >
-                <Input placeholder="Please enter user trailer" />
+                <Input placeholder="Trailer" />
               </Form.Item>
             </Col>
           </Row>
@@ -164,18 +163,18 @@ const AddFilm: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="time"
-                label="Time"
-                rules={[{ required: true, message: "Please choose the time" }]}
+                label="Thời Lượng"
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user time" />
+                <Input placeholder="Thời Lượng" />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item
                 name="release_date"
-                label="Release Date"
+                label="Ngày Phát Hành"
                 rules={[
-                  { required: true, message: "Please choose the release date" },
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
                 ]}
               >
                 <DatePicker />
@@ -184,9 +183,10 @@ const AddFilm: React.FC = () => {
             <Col span={6}>
               <Form.Item
                 name="end_date"
-                label="End Date"
+                label="Ngày Kết Thúc"
                 rules={[
-                  { required: true, message: "Please choose the End date" },
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { validator: validateEndDate },
                 ]}
               >
                 <DatePicker />
@@ -212,11 +212,11 @@ const AddFilm: React.FC = () => {
                 className="w-full"
                 name="limit_age"
                 label="Giới hạn tuổi"
-                rules={[{ required: true, message: "Please select a tuổi" }]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <InputNumber
                   className="w-full"
-                  placeholder="Please enter user tuổi"
+                  placeholder="Giới hạn tuổi"
                 />
               </Form.Item>
             </Col>
@@ -224,9 +224,9 @@ const AddFilm: React.FC = () => {
               <Form.Item
                 name="poster"
                 label="Poster"
-                rules={[{ required: true, message: "Please select a poster" }]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user poster" />
+                <Input placeholder="Poster" />
               </Form.Item>
             </Col>
           </Row>
@@ -235,17 +235,17 @@ const AddFilm: React.FC = () => {
             <Col span={24}>
               <Form.Item
                 name="description"
-                label="Description"
+                label="Mô tả"
                 rules={[
                   {
                     required: true,
-                    message: "please enter url description",
+                    message: "Trường dữ liệu bắt buộc",
                   },
                 ]}
               >
                 <Input.TextArea
                   rows={4}
-                  placeholder="please enter url description"
+                  placeholder="Mô tả"
                 />
               </Form.Item>
             </Col>
