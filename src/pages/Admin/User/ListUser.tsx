@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { Space, Table, Input, Button, Image, Popconfirm } from "antd";
+import { Space, Table, Input, Button, Popconfirm } from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
@@ -11,23 +11,28 @@ import {
   useRemoveUserMutation,
 } from "../../../service/signup_login.service";
 import { FilterValue } from "antd/es/table/interface";
+import { useFetchCinemaQuery } from "../../../service/brand.service";
 
 interface DataType {
   id: string;
   name: string;
   phone: number;
   email: string;
+  role: number;
+  id_cinema: number;
 }
 
 const { Search } = Input;
 
 const ListUser: React.FC = () => {
   const { data: users } = useFetchUsersQuery();
+  const { data: cinema } = useFetchCinemaQuery();
   const [removeFood] = useRemoveUserMutation();
   const [filteredInfo, setFilteredInfo] = useState<Record<string, FilterValue | null>>({});
   // Lọc ra các giá trị duy nhất từ danh sách rạp chiếu
   const unique = Array.from(new Set(users?.data?.map((item) => item.name)));
-  console.log(users);
+  console.log(cinema?.data[0].id);
+  
   const columns: ColumnsType<DataType> = [
     {
       title: "Mã User",
@@ -43,7 +48,6 @@ const ListUser: React.FC = () => {
       filteredValue: filteredInfo.name || null,
       onFilter: (value: any, record) => record.name === value,
     },
-
     {
       title: "Phone",
       dataIndex: "phone",
@@ -55,7 +59,43 @@ const ListUser: React.FC = () => {
       dataIndex: "email",
       key: "email",
     },
-
+    {
+      title: "Quyền Hạn",
+      dataIndex: "role",
+      key: "role",
+      filters: [
+        { text: "Người Dùng", value: 0 },
+        { text: "Admin Tổng", value: 1 },
+        { text: "Nhân Viên", value: 2 },
+        { text: "Admin Theo Rạp", value: 3 },
+      ],
+      filteredValue: filteredInfo.role || null,
+      onFilter: (value: any, record) => record.role === value,
+      render: (value) => {
+        if (value === 0) {
+          return <span color="blue">Người Dùng</span>
+        }
+        if (value === 1) {
+          return <span color="green">Admin Tổng</span>
+        }
+        if (value === 2) {
+          return <span color="warning">Nhân Viên</span>
+        }
+        if (value === 3) {
+          return <span color="error">Admin Theo Rạp</span>
+        }
+      },
+    },
+    {
+      title: "Rạp Chiếu",
+      dataIndex: "id_cinema",
+      key: "id_cinema",
+      render: (value) => {
+        const cinemabyID = cinema?.data.find(x => x.id === value);
+        // Nếu có sự khớp, trả về tên rạp chiếu, ngược lại trả về rỗng
+        return cinemabyID ? <span>{cinemabyID.name}</span> : null;
+      }
+    },
     {
       render: (_, record) => (
         <Space size="middle">
@@ -92,6 +132,8 @@ const ListUser: React.FC = () => {
     name: user?.name,
     phone: user?.phone,
     email: user?.email,
+    role: user?.role,
+    id_cinema: user?.id_cinema,
   }));
   const [dataList, setDataList] = useState<any>(null);
   const handleChange: TableProps<DataType>['onChange'] = (pagination, filters) => {
@@ -107,7 +149,7 @@ const ListUser: React.FC = () => {
   return (
     <>
       <div className="">
-        <h2 className="font-bold text-2xl my-4">Quản lí users</h2>
+        <h2 className="font-bold text-2xl my-4">Quản Lý Người Dùng</h2>
         <div className="space-x-4 justify-center my-4">
           <Search
             placeholder="Nhập tên user"

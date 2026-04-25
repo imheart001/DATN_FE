@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Badge, Button, Image, Input, Space, Table } from "antd";
+import { Badge, Button, Image, Input, Space, Table, Tag } from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { useGetBookTicketByAdminQuery } from "../../../service/book_ticket.service";
 
@@ -76,30 +76,34 @@ const ListBookTicket: React.FC = () => {
       onFilter: (value: string, record) => record.users_name === value,
     },
     {
-      title: "Check in",
+      title: "Trạng Thái",
       width: 150,
       align: "center",
       dataIndex: "status",
       key: "status",
       fixed: "left",
       filters: [
-        { text: "CHECK-IN", value: 0 },
-        { text: "ĐÃ CHECK-IN", value: 1 },
+        { text: "Chưa Lấy Vé", value: 0 },
+        { text: "Đã Nhận Vé", value: 1 },
+        { text: "Đã Hủy", value: 2 },
+        { text: "Quá Hạn", value: 3 },
       ],
       filteredValue: filteredInfo.status || null,
       onFilter: (value, record) => record.status === value,
       render: (status) => {
-        let statusTag = null;
 
         if (status === 0) {
-          statusTag = <Badge status="success" text="CHECK-IN" />;
-        } else if (status === 1) {
-          statusTag = (
-            <Badge status="error" className="text-red-600" text="ĐÃ CHECK-IN" />
-          );
+          return <Tag color="blue">Chưa Lấy Vé</Tag>
         }
-
-        return statusTag;
+        if (status === 1) {
+          return <Tag color="green">Đã Nhận Vé</Tag>
+        }
+        if (status === 2) {
+          return <Tag color="warning">Đã Hủy</Tag>
+        }
+        if (status === 3) {
+          return <Tag color="error">Quá Hạn</Tag>
+        }
       },
     },
     {

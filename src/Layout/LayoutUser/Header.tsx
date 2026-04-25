@@ -38,11 +38,7 @@ const Header: React.FC = () => {
     {
       key: "2",
       label: (
-        <Link
-          target="_blank"
-          rel="noopener noreferrer"
-          to={`/info_account/profile`}
-        >
+        <Link rel="noopener noreferrer" to={`/info_account/profile`}>
           Thông tin cá nhân
         </Link>
       ),
@@ -50,11 +46,7 @@ const Header: React.FC = () => {
     {
       key: "3",
       label: (
-        <Link
-          target="_blank"
-          rel="noopener noreferrer"
-          to={`/info_account/BookTicketUser`}
-        >
+        <Link rel="noopener noreferrer" to={`/info_account/BookTicketUser`}>
           Lịch sử đặt vé
         </Link>
       ),
@@ -62,11 +54,7 @@ const Header: React.FC = () => {
     {
       key: "4",
       label: (
-        <Link
-          target="_blank"
-          rel="noopener noreferrer"
-          to={`/info_account/BookTicketUser`}
-        >
+        <Link rel="noopener noreferrer" to={`/info_account/BookTicketUser`}>
           Số dư: {formatter((dataUserbyId as any)?.coin)}
         </Link>
       ),
