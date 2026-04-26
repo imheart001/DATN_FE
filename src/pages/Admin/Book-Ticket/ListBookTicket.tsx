@@ -73,7 +73,8 @@ const ListBookTicket: React.FC = () => {
         value: item,
       })),
       filteredValue: filteredInfo.users_name || null,
-      onFilter: (value: string, record) => record.users_name === value,
+      onFilter: (value: string, record) =>
+        (record as any)?.users_name === value,
     },
     {
       title: "Trạng Thái",
@@ -91,18 +92,17 @@ const ListBookTicket: React.FC = () => {
       filteredValue: filteredInfo.status || null,
       onFilter: (value, record) => record.status === value,
       render: (status) => {
-
         if (status === 0) {
-          return <Tag color="blue">Chưa Lấy Vé</Tag>
+          return <Tag color="blue">Chưa Lấy Vé</Tag>;
         }
         if (status === 1) {
-          return <Tag color="green">Đã Nhận Vé</Tag>
+          return <Tag color="green">Đã Nhận Vé</Tag>;
         }
         if (status === 2) {
-          return <Tag color="warning">Đã Hủy</Tag>
+          return <Tag color="warning">Đã Hủy</Tag>;
         }
         if (status === 3) {
-          return <Tag color="error">Quá Hạn</Tag>
+          return <Tag color="error">Quá Hạn</Tag>;
         }
       },
     },
