@@ -73,7 +73,7 @@ const ListBookTicket: React.FC = () => {
         value: item,
       })),
       filteredValue: filteredInfo.users_name || null,
-      onFilter: (value: string, record) =>
+      onFilter: (value: string, record: DataType) =>
         (record as any)?.users_name === value,
     },
     {
