@@ -35,6 +35,7 @@ import sendEmailAPI from "../service/sendEmail.service";
 import payMoMoAPI from "../service/payMoMo.service";
 import memberAPI from "../service/member.service";
 import blogsAPI from "../service/blog.service";
+import commentsAPI from "../service/commentBlog.service";
 
 // Import redux-persist
 const persistConfig = {
@@ -64,6 +65,7 @@ const rootReducer = combineReducers({
   TKinformation: TKinformationReducer,
   users: usersAPI.reducer,
   blogs: blogsAPI.reducer,
+  comments: commentsAPI.reducer,
   auth: authReducer,
   [analyticApi.reducerPath]: analyticApi.reducer,
   [memberAPI.reducerPath]: memberAPI.reducer,
@@ -99,7 +101,8 @@ const store = configureStore({
       usersAPI.middleware as any,
       analyticApi.middleware as any,
       memberAPI.middleware as any,
-      blogsAPI.middleware as any
+      blogsAPI.middleware as any,
+      commentsAPI.middleware as any
     );
 
     return middlewareArray;

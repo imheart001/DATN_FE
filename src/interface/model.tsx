@@ -114,3 +114,8 @@ export interface IBlogs {
   content: string;
   status: number;
 }
+
+export interface IComments {
+  id: string,
+  content: string;
+}
