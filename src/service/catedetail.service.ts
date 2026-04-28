@@ -30,7 +30,7 @@ const cateDetailAPI = createApi({
       invalidatesTags: ["catedetail"],
     }),
     addCateDetail: builder.mutation({
-      query: (catedetail: ICateDetail) => ({
+      query: (catedetail: any) => ({
         url: "/category_detail/",
         method: "POST",
         body: catedetail,

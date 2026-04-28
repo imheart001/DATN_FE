@@ -10,9 +10,10 @@ import type { MenuProps } from "antd";
 import { Dropdown, Space, Divider, Button, theme } from "antd";
 import { useFetchProductQuery } from "../../service/films.service";
 import { setUserId, updateToken } from "../../components/CinemaSlice/authSlice";
-import FindBookQuickly from "../../components/Find&BookQuickly/Find&BookQuickly";
-import { useAppSelector } from "../../store/hooks";
-import { RootState } from "../../store/store";
+
+import { formatter } from "../../utils/formatCurrency";
+import Recharge from "../../components/Clients/NapTien/naptien";
+import { useGetUserByIdQuery } from "../../service/book_ticket.service";
 interface Option {
   value: string;
   label: string;
@@ -23,18 +24,13 @@ const displayRender = (labels: string[]) => labels[labels.length - 1];
 const Header: React.FC = () => {
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
-
-
+  const { data: dataUserbyId } = useGetUserByIdQuery(`${IfUser?.id}`);
 
   const items: MenuProps["items"] = [
     {
       key: "1",
       label: (
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://www.antgroup.com"
-        >
+        <a target="_blank" rel="noopener noreferrer">
           Chào {IfUser?.name}
         </a>
       ),
@@ -43,12 +39,12 @@ const Header: React.FC = () => {
       key: "2",
       label: (
         <Link
-        target="_blank"
-        rel="noopener noreferrer"
-        to={`/info_account/profile`}
-      >
-        Thông tin cá nhân
-      </Link>
+          target="_blank"
+          rel="noopener noreferrer"
+          to={`/info_account/profile`}
+        >
+          Thông tin cá nhân
+        </Link>
       ),
     },
     {
@@ -64,11 +60,27 @@ const Header: React.FC = () => {
       ),
     },
     {
-      key: "member",
-      label: <Link to="/member-info">Thôn tin hội viên</Link>,
+      key: "4",
+      label: (
+        <Link
+          target="_blank"
+          rel="noopener noreferrer"
+          to={`/info_account/BookTicketUser`}
+        >
+          Số dư: {formatter((dataUserbyId as any)?.coin)}
+        </Link>
+      ),
     },
     {
-      key: "4",
+      key: "5",
+      label: <Recharge />,
+    },
+    {
+      key: "6",
+      label: <Link to="/member-info">Thông tin hội viên</Link>,
+    },
+    {
+      key: "7",
       danger: true,
       label: (
         <button
@@ -163,7 +175,7 @@ const Header: React.FC = () => {
       <header className="max-w-5xl mx-auto px-10 ">
         <div className="flex justify-between text-[18px]  items-center py-8 text-[#8E8E8E]">
           <Link to={"/"}>
-            <img srcSet="/logo.png/" alt="" />
+            <img srcSet="/lg.png/ 8x" alt="" />
           </Link>
           <Cascader
             options={cinemaOptions}

@@ -7,12 +7,13 @@ import {
   useFetchShowTimeQuery,
   useGetShowbyIdCinemaQuery,
 } from "../../../service/show.service";
-import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+
 import { useSelector } from "react-redux";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import type { TabsProps } from "antd";
-
+import Marquee from "react-fast-marquee";
+import { Alert } from "antd";
 import * as moment from "moment-timezone";
 import { useGetAllCateDetailByFilmQuery } from "../../../service/catedetail.service";
 import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
@@ -32,6 +33,17 @@ const Ticket: React.FC = () => {
   const [selectedFilmId, setSelectedFilmId] = useState(null);
   const [filmShows2, setFilmShows2] = useState<FilmShow[]>([]);
   const user = useSelector((state: any) => state.auth?.token);
+  const getIfUser = localStorage.getItem("user");
+  const IfUser = JSON.parse(`${getIfUser}`);
+  const calculateAge = (birthDate: string) => {
+    const today = moment();
+    const birthMoment = moment(birthDate);
+    const age = today.diff(birthMoment, "years");
+    return age;
+  };
+
+  // Tính tuổi từ ngày sinh của người dùng
+  const userAge = calculateAge(IfUser?.date_of_birth);
 
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const { data: dataShowbyIdCinema } =
@@ -244,31 +256,19 @@ const Ticket: React.FC = () => {
           </div>
         </section>
         <div className="boby mx-auto max-w-5xl mb-20 ">
-          <div className=" my-[100px] flex justify-center items-center ">
-            <span className="text-[#8E8E8E] mr-[20px] ">
-              Tôi muốn xem một bộ phim ở
-            </span>
-            <select
-              title="..."
-              className="rounded-[40px] px-6 py-2  text-white hover: bg-red-600 "
-              name=""
-              id=""
-            >
-              <option className=" " value="">
-                Hà Nội
-              </option>
-              <option className="" value="">
-                Đà Nẵng
-              </option>
-              <option className="" value="">
-                Thành Phố Hồ Chí Minh
-              </option>
-            </select>
-          </div>
           <div className="book-ticket">
             <h2 className="font-bold mb-[34px] text-center text-[40px] text-[#FFFFFF]">
               Đặt phim
             </h2>
+            <Alert
+              banner
+              message={
+                <Marquee pauseOnHover gradient={false}>
+                  Nút mua vé sẽ chỉ hiển thị nếu bạn đủ tuổi xem phim đó !!
+                </Marquee>
+              }
+              className="my-10 rounded-md"
+            />
             <div className="grid grid-cols-4 gap-10">
               {(films as any)?.data?.map((film: any) => {
                 if (cateAllDetail && dataShowbyIdCinema) {
@@ -279,88 +279,61 @@ const Ticket: React.FC = () => {
                     (show: any) => show.film_id === film.id
                   );
 
+                  console.log("====================================");
                   return (
-                    <div className="w-[245px] h-[560px]" key={film.id}>
-                      <img
-                        srcSet={film.image}
-                        alt=""
-                        className="rounded-2xl w-[228px] h-[340px]"
-                      />
-                      <div className="h-[100px]">
-                        <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
-                          {film?.name?.length > 18
-                            ? `${film?.name.slice(0, 17)}...`
-                            : film?.name}
-                        </h3>
-                        <div className="space-x-5 text-[#8E8E8E] text-[11px]">
-                          <span>{cate?.category_names}</span>
-                          <span>IMDB 8.6</span>
-                          <span>13+</span>
+                    <div className="relative">
+                      <div
+                        className="w-[245px] relative h-[560px]"
+                        key={film.id}
+                      >
+                        <img
+                          srcSet={film.image}
+                          alt=""
+                          className="rounded-2xl w-[228px] h-[340px]"
+                        />
+                        <div className="absolute bg-black m-2 text-white rounded-xl p-1 px-2 left-0 font-bold  top-0">
+                          {film?.limit_age}+
                         </div>
-                      </div>
+                        <div className="h-[100px]">
+                          <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
+                            {film?.name?.length > 18
+                              ? `${film?.name.slice(0, 15)}...`
+                              : film?.name}
+                          </h3>
+                          <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                            <span>{cate?.category_names}</span>
+                            <span>IMDB 8.6</span>
+                            <span>{film?.limit_age}+</span>
+                          </div>
+                        </div>
 
-                      {showbyCinema && (
-                        <button
-                          className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]"
-                          onClick={() => {
-                            showModal(film.id);
-                          }}
-                        >
-                          Mua vé
-                        </button>
-                      )}
+                        {showbyCinema &&
+                          IfUser &&
+                          userAge >= parseInt(film.limit_age, 10) && (
+                            <button
+                              className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]"
+                              onClick={() => {
+                                showModal(film.id);
+                              }}
+                            >
+                              Mua vé
+                            </button>
+                          )}
+                        {showbyCinema && !IfUser && (
+                          <button
+                            className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]"
+                            onClick={() => {
+                              showModal(film.id);
+                            }}
+                          >
+                            Mua vé
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 }
               })}
-            </div>
-            <button className="mx-auto block mt-[150px]">
-              <span>
-                <u className="text-[17px] text-[#8E8E8E] ">Xem thêm</u>
-              </span>
-            </button>
-          </div>
-          <div className="book-cinema ">
-            <h2 className="font-bold mb-[34px]  text-center mt-[66px] text-[40px] text-[#FFFFFF]">
-              Chọn Rạp Chiếu
-            </h2>
-            <div className="cinemas md:grid md:grid-cols-2 md:gap-14">
-              <div className="cinema w-[517px] h-[469px]">
-                <img src="/book-cinema1.png/" alt="" />
-                <div className="justify-between items-center mt-[10px] mb-5 flex">
-                  <span className="text-[26px] font-bold text-[#FFFFFF]">
-                    Poins Mall
-                  </span>
-                  <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
-                </div>
-              </div>
-              <div className="cinema w-[517px] h-[469px]">
-                <img src="/book-cinem2.png/" alt="" />
-                <div className="justify-between items-center mt-[10px] mb-5 flex">
-                  <span className="text-[26px] font-bold text-[#FFFFFF]">
-                    Poins Mall
-                  </span>
-                  <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
-                </div>
-              </div>
-              <div className="cinema w-[517px] h-[469px]">
-                <img src="/book-cinema3.png/" alt="" />
-                <div className="justify-between items-center mt-[10px] mb-5 flex">
-                  <span className="text-[26px] font-bold text-[#FFFFFF]">
-                    Poins Mall
-                  </span>
-                  <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
-                </div>
-              </div>
-              <div className="cinema w-[517px] h-[469px]">
-                <img src="/book-cinema4.png/" alt="" />
-                <div className="justify-between items-center mt-[10px] mb-5 flex">
-                  <span className="text-[26px] font-bold text-[#FFFFFF]">
-                    Poins Mall
-                  </span>
-                  <span className="text-[17px] text-[#8E8E8E]">3 km away</span>
-                </div>
-              </div>
             </div>
             <button className="mx-auto block mt-[150px]">
               <span>

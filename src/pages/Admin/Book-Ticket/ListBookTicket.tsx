@@ -1,19 +1,34 @@
 import React, { useState } from "react";
 import { Badge, Button, Image, Input, Space, Table } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import { useGetBookTicketByAdminQuery } from "../../../service/book_ticket.service";
 
 import AddBookTicket from "./AddBookTicket";
 import { formatter } from "../../../utils/formatCurrency";
+import { FilterValue } from "antd/es/table/interface";
+import { useFetchUsersQuery } from "../../../service/signup_login.service";
+import { useFetchFoodQuery } from "../../../service/food.service";
+import { useFetchProductQuery } from "../../../service/films.service";
+import { useFetchTimeQuery } from "../../../service/time.service";
+import { useFetchCinemaQuery } from "../../../service/brand.service";
+import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 
 const ListBookTicket: React.FC = () => {
+  const [filteredInfo, setFilteredInfo] = useState<
+    Record<string, FilterValue | null>
+  >({});
   const { Search } = Input;
   const { data: dataBook_tickets } = useGetBookTicketByAdminQuery();
+  const { data: user } = useFetchUsersQuery();
+  const { data: food } = useFetchFoodQuery();
+  const { data: film } = useFetchProductQuery();
+  const { data: time } = useFetchTimeQuery();
+  const { data: room } = useFetchMovieRoomQuery();
+  const { data: cinema } = useFetchCinemaQuery();
   const handlePrintTicket = (idCode: string) => {
     window.open(`http://127.0.0.1:8000/api/print-ticket/${idCode}`, "_blank");
     window.location.reload();
   };
-
   interface DataType {
     key: React.Key;
     time: string;
@@ -30,10 +45,15 @@ const ListBookTicket: React.FC = () => {
     food_names: string;
     chair_name: string;
     chair_price: string;
-    users_name: string;
+    users_name: number;
     users_email: string;
   }
-
+  // hàm xử lí map dữ liệu khi lọc không bị trùng
+  const getUniqueValues = (dataList: any, key: any) => {
+    return Array.from(
+      new Set((dataList as any)?.data?.map((item: any) => item[key]))
+    );
+  };
   const columns: ColumnsType<DataType> = [
     {
       title: "Tên KH",
@@ -42,8 +62,13 @@ const ListBookTicket: React.FC = () => {
       key: "users_name",
       fixed: "left",
       align: "center",
+      filters: getUniqueValues(user, "name")?.map((item) => ({
+        text: item,
+        value: item,
+      })),
+      filteredValue: filteredInfo.users_name || null,
+      onFilter: (value: string, record) => record.users_name === value,
     },
-
     {
       title: "Check in",
       width: 150,
@@ -51,11 +76,17 @@ const ListBookTicket: React.FC = () => {
       dataIndex: "status",
       key: "status",
       fixed: "left",
+      filters: [
+        { text: "CHECK-IN", value: 0 },
+        { text: "ĐÃ CHECK-IN", value: 1 },
+      ],
+      filteredValue: filteredInfo.status || null,
+      onFilter: (value, record) => record.status === value,
       render: (status) => {
         let statusTag = null;
 
         if (status === 0) {
-          statusTag = <Badge status="success" text=" CHECK-IN" />;
+          statusTag = <Badge status="success" text="CHECK-IN" />;
         } else if (status === 1) {
           statusTag = (
             <Badge status="error" className="text-red-600" text="ĐÃ CHECK-IN" />
@@ -87,13 +118,17 @@ const ListBookTicket: React.FC = () => {
     },
     {
       title: "Combo",
-      dataIndex: "food_names",
+      dataIndex: "food_items",
       align: "center",
-      key: "food_names",
+      key: "food_items",
       width: 120,
-      render: (text) => (
-        <span>{text?.length > 20 ? `${text.slice(0, 20)}...` : text}</span>
-      ),
+      filters: (food as any)?.data?.map((item: any) => ({
+        text: item.name,
+        value: item.name,
+      })),
+      filteredValue: filteredInfo.food_items || null,
+      onFilter: (value: string, record: any) =>
+        record.food_names && record.food_names.includes(value),
     },
 
     {
@@ -102,6 +137,12 @@ const ListBookTicket: React.FC = () => {
       align: "center",
       key: "name",
       width: 160,
+      filters: (film as any)?.data?.map((item: any) => ({
+        text: item.name,
+        value: item.name,
+      })),
+      filteredValue: filteredInfo.name || null,
+      onFilter: (value, record) => record.name === value,
     },
     {
       key: "image",
@@ -115,16 +156,28 @@ const ListBookTicket: React.FC = () => {
     {
       title: "Giờ chiếu",
       dataIndex: "time_suatchieu",
-      key: "2",
+      key: "time_suatchieu",
       align: "center",
       width: 150,
+      filters: (time as any)?.data?.map((item: any) => ({
+        text: item.time,
+        value: item.time,
+      })),
+      filteredValue: filteredInfo.time_suatchieu || null,
+      onFilter: (value, record) => record.time_suatchieu === value,
     },
     {
       title: "Phòng Chiếu",
       dataIndex: "movie_room_name",
-      key: "3",
+      key: "movie_room_name",
       align: "center",
       width: 150,
+      filters: (room as any)?.data?.map((item: any) => ({
+        text: item.name,
+        value: item.name,
+      })),
+      filteredValue: filteredInfo.movie_room_name || null,
+      onFilter: (value, record) => record.movie_room_name === value,
     },
     {
       title: "Ngày Chiếu",
@@ -136,9 +189,15 @@ const ListBookTicket: React.FC = () => {
     {
       title: "Chi nhánh",
       dataIndex: "name_cinema",
-      key: "5",
+      key: "name_cinema",
       align: "center",
       width: 150,
+      filters: (cinema as any)?.data?.map((item: any) => ({
+        text: item.name,
+        value: item.name,
+      })),
+      filteredValue: filteredInfo.name_cinema || null,
+      onFilter: (value, record) => record.name_cinema === value,
     },
     {
       title: "Địa chỉ",
@@ -186,16 +245,22 @@ const ListBookTicket: React.FC = () => {
     },
   ];
 
-  const data: DataType[] = dataBook_tickets;
   const [searchTerm, setSearchTerm] = useState("");
-
+  const handleChange: TableProps<DataType>["onChange"] = (
+    pagination,
+    filters
+  ) => {
+    setFilteredInfo(filters);
+  };
   const onSearch = (value: string) => {
     setSearchTerm(value);
   };
 
-  const filteredData = dataBook_tickets?.filter((item: any) =>
+  const filteredData = dataBook_tickets?.filter((item: DataType) =>
     item?.id_code?.toLowerCase()?.includes(searchTerm?.toLowerCase())
   );
+  // console.log(filteredData);
+
   return (
     <>
       <div className="">
@@ -213,6 +278,7 @@ const ListBookTicket: React.FC = () => {
       <Table
         columns={columns}
         dataSource={filteredData}
+        onChange={handleChange}
         scroll={{ x: 2200, y: 600 }}
       />
     </>

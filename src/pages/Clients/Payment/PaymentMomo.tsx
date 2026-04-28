@@ -17,6 +17,7 @@ import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
 import * as moment from "moment-timezone";
 import { useSendEmailMutation } from "../../../service/sendEmail.service";
 import { useUsed_VC_ByUserIdMutation } from "../../../service/voucher.service";
+import { useDiscountPointMutation } from "../../../service/member.service";
 
 const PaymentMomo: React.FC = () => {
   const location = useLocation();
@@ -35,6 +36,8 @@ const PaymentMomo: React.FC = () => {
   const parsedPopCorn = useSelector(
     (state: any) => state.TKinformation?.comboFoods
   );
+  const getuserId = localStorage.getItem("user");
+  const userId = JSON.parse(`${getuserId}`);
 
   const dispatch = useDispatch();
   const formatter = (value: number) =>
@@ -48,10 +51,15 @@ const PaymentMomo: React.FC = () => {
   const VoucherCode = useSelector(
     (state: any) => state.TKinformation?.chooseVoucher
   );
+  console.log(!VoucherCode);
+  const moneyByPoint = useSelector((state: any) => state.TKinformation?.point);
+  console.log(moneyByPoint);
+
   const MyVoucher = {
     voucher_code: VoucherCode,
   };
   const user_id = parseInt(localStorage.getItem("user_id") as any, 10);
+
   const payment = localStorage.getItem("payment");
   const totalPrice = useSelector(
     (state: any) => state.TKinformation?.totalPrice
@@ -68,12 +76,14 @@ const PaymentMomo: React.FC = () => {
     id_time_detail: id_selectingTime_detail,
   };
   const currentPath = location.pathname;
+  console.log(selectedSeatsData);
 
   // Tách đoạn đường dẫn thành các phần bằng dấu "/"
   const pathParts = currentPath.split("/");
   const idCodePart = pathParts.find((part) => part.startsWith("id_code="));
   const idCode = idCodePart ? idCodePart.split("=")[1] : null;
   console.log(idCode);
+  const [discountPoint] = useDiscountPointMutation();
   useEffect(() => {
     const fetchData = async () => {
       const params = new URLSearchParams(location.search);
@@ -83,8 +93,8 @@ const PaymentMomo: React.FC = () => {
       setVnpAmount(amount);
       setVnp_TransactionStatus(TransactionStatus);
 
-      if (!addChairCalled && vnp_TransactionStatus === "0") {
-        const matchingSeats = (allchairbked as any)?.data.filter(
+      if (!addChairCalled && vnp_TransactionStatus == "0") {
+        const matchingSeats = (allchairbked as any)?.data?.filter(
           (chair: any) => {
             return (
               chair.id_time_detail == id_selectingTime_detail &&
@@ -92,19 +102,18 @@ const PaymentMomo: React.FC = () => {
             );
           }
         );
-
         if (matchingSeats && matchingSeats.length > 0) {
           console.log("Có ghế trùng");
         } else {
           try {
             const response = await addChair(selectedSeatsData as any);
             console.log(response);
-            const UsedVoucher = await useVCbyUserID(MyVoucher);
-            console.log(UsedVoucher);
+
             const responseData = (response as any)?.data;
             const IddataAfterFood_Detail: any[] = [];
+            console.log(responseData);
 
-            const newId = responseData.data.id;
+            const newId = responseData.id;
             console.log(newId);
             console.log(IddataAfterFood_Detail);
 
@@ -118,6 +127,7 @@ const PaymentMomo: React.FC = () => {
               id_time_detail: id_time_details,
               id_code: idCode,
             });
+            console.log(addIfSeatResponse);
 
             await Promise.all(
               parsedPopCorn.map(async (popCorn: any) => {
@@ -135,6 +145,18 @@ const PaymentMomo: React.FC = () => {
 
             console.log((addIfSeatResponse as any)?.data);
             await sendEmail({});
+            if (VoucherCode) {
+              const UsedVoucher = await useVCbyUserID(MyVoucher);
+              console.log(UsedVoucher);
+            }
+            const myPoint = {
+              discount: moneyByPoint,
+              id_user: user_id,
+            };
+
+            const reponsePoint = await discountPoint(myPoint);
+            console.log(reponsePoint);
+
             setAddChairCalled(true);
             localStorage.removeItem("foodQuantities");
           } catch (error) {
@@ -152,7 +174,7 @@ const PaymentMomo: React.FC = () => {
         <Result
           status="success"
           title="Thanh Toán Thành Công"
-          subTitle="Order number: 2017182818828182881 Cloud server configuration takes 1-5 minutes, please wait."
+          subTitle={`Mã vé: ${idCode}! Bạn có thể kiểm tra lại vé của mình ở phần Lịch sử đơn hàng!!. Thanks you`}
           extra={[
             <>
               <p className="text-gray-700 mb-4">

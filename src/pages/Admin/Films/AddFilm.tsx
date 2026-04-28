@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { UserAddOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -8,6 +8,7 @@ import {
   Drawer,
   Form,
   Input,
+  InputNumber,
   Row,
   Select,
   Space,
@@ -15,14 +16,12 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAddProductMutation } from "../../../service/films.service";
-
-const { Option } = Select;
+import { useFetchCateQuery } from "../../../service/cate.service";
+import { ICategorys } from "../../../interface/model";
+import { useAddCateDetailMutation } from "../../../service/catedetail.service";
 
 const AddFilm: React.FC = () => {
-  const [addProduct] = useAddProductMutation();
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-
+  const { Option } = Select;
   const showDrawer = () => {
     setOpen(true);
   };
@@ -31,11 +30,42 @@ const AddFilm: React.FC = () => {
     setOpen(false);
   };
 
+  const [open, setOpen] = useState(false);
+  const [addProduct] = useAddProductMutation();
+  const navigate = useNavigate();
+  const [addCateDetail] = useAddCateDetailMutation();
+  const { data: dataCate } = useFetchCateQuery();
+  console.log(dataCate);
+  const [form] = Form.useForm();
+
   const onFinish = async (values: any) => {
+    const dataAddFilm = {
+      name: values.name,
+      slug: values.slug,
+      image: values.image,
+      poster: values.poster,
+      trailer: values.trailer,
+      time: values.time,
+      release_date: values.release_date.format("YYYY-MM-DD"),
+      end_date: values.end_date.format("YYYY-MM-DD"),
+      limit_age: values.limit_age,
+      description: values.description,
+      status: 1,
+    };
+
     try {
-      values.release_date = values.release_date.format("YYYY-MM-DD");
-      values.end_date = values.end_date.format("YYYY-MM-DD");
-      await addProduct(values).unwrap();
+      // values.release_date = values.release_date.format("YYYY-MM-DD");
+      // values.end_date = values.end_date.format("YYYY-MM-DD");
+      const reponse = await addProduct(dataAddFilm).unwrap();
+      console.log(reponse);
+      values?.cate_id?.map(async (cate_idbyUser: any) => {
+        const dataAddCateDetail = {
+          film_id: reponse.data.id,
+          category_id: cate_idbyUser,
+        };
+        await addCateDetail(dataAddCateDetail).unwrap();
+      });
+
       message.success("Thêm sản phẩm thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/listfilm");
@@ -44,7 +74,7 @@ const AddFilm: React.FC = () => {
     }
   };
 
-  const [form] = Form.useForm(); // Tạo một Form instance để sử dụng validate
+  // Tạo một Form instance để sử dụng validate
 
   return (
     <>
@@ -86,12 +116,7 @@ const AddFilm: React.FC = () => {
           </Space>
         }
       >
-        <Form
-          form={form}
-          layout="vertical"
-          hideRequiredMark
-          onFinish={onFinish}
-        >
+        <Form form={form} layout="vertical" onFinish={onFinish}>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
@@ -144,7 +169,7 @@ const AddFilm: React.FC = () => {
                 <Input placeholder="Please enter user time" />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={6}>
               <Form.Item
                 name="release_date"
                 label="Release Date"
@@ -155,7 +180,7 @@ const AddFilm: React.FC = () => {
                 <DatePicker />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={6}>
               <Form.Item
                 name="end_date"
                 label="End Date"
@@ -167,17 +192,40 @@ const AddFilm: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+          <Form.Item name="cate_id" label="Danh mục">
+            <Checkbox.Group>
+              <Row gutter={100} key={"danhmuc"}>
+                {(dataCate as any)?.data.map((cate: any) => (
+                  <Col key={cate.id} span={8}>
+                    <Checkbox value={cate.id} style={{ lineHeight: "32px" }}>
+                      {cate.name}
+                    </Checkbox>
+                  </Col>
+                ))}
+              </Row>
+            </Checkbox.Group>
+          </Form.Item>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
+                className="w-full"
+                name="limit_age"
+                label="Giới hạn tuổi"
+                rules={[{ required: true, message: "Please select a tuổi" }]}
               >
-                <Select placeholder="Please select a status">
-                  <Option value="1">1</Option>
-                  <Option value="0">0</Option>
-                </Select>
+                <InputNumber
+                  className="w-full"
+                  placeholder="Please enter user tuổi"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="poster"
+                label="Poster"
+                rules={[{ required: true, message: "Please select a poster" }]}
+              >
+                <Input placeholder="Please enter user poster" />
               </Form.Item>
             </Col>
           </Row>

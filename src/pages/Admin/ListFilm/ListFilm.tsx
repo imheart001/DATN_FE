@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Space,
   Table,
@@ -10,7 +10,7 @@ import {
   message,
   Image,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 import AddFilm from "../Films/AddFilm";
 
@@ -22,8 +22,7 @@ import {
 import { IFilms } from "../../../interface/model";
 import Loading from "../../../components/isLoading/Loading";
 import { compareDates, compareReleaseDate } from "../../../utils";
-import { RootState } from "../../../store/store";
-import { useAppSelector } from "../../../store/hooks";
+import { FilterValue } from "antd/es/table/interface";
 interface DataType {
   key: string;
   name: string;
@@ -44,13 +43,15 @@ const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
+  const [filteredInfo, setFilteredInfo] = useState<
+    Record<string, FilterValue | null>
+  >({});
   const { data: films, isLoading } = useFetchProductQuery();
+  const [movies, setMovise] = useState<any>(null);
+  const [removeProduct] = useRemoveProductMutation();
   if (isLoading) {
     return <Loading />;
   }
-  const [movies, setMovise] = useState<any>(null);
-  const [removeProduct] = useRemoveProductMutation();
-
   const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
     key: index.toString(),
     name: film?.id,
@@ -83,14 +84,12 @@ const ListFilm: React.FC = () => {
       title: "Tên phim",
       dataIndex: "nameFilm",
       key: "nameFilm",
-      onFilter: (value: any, record: any) => {
-        return record.name === value;
-      },
-      filters: dataFilm.map((fileItem: any) => ({
-        text: fileItem.nameFilm,
-        value: fileItem.name,
+      filters: (films as any)?.data?.map((item: any) => ({
+        text: item.name,
+        value: item.name,
       })),
-      filterSearch: true,
+      filteredValue: filteredInfo.nameFilm || null,
+      onFilter: (value, record) => record.nameFilm === value,
     },
     {
       title: "Thời lượng",
@@ -119,10 +118,15 @@ const ListFilm: React.FC = () => {
     },
     {
       title: "Trạng thái",
-
       key: "tags",
       dataIndex: "tags",
-      render: (_, { tags, release_date, end_date }) => {
+      filters: [
+        { text: "Ngưng Hoạt Động", value: "Ngừng hoạt động" },
+        { text: "Đang Hoạt Động", value: "Hoạt động" },
+      ],
+      filteredValue: filteredInfo.tags || null,
+      onFilter: (value: any, record) => record.tags.includes(value),
+      render: (_, { release_date, end_date }) => {
         return (
           <Tag
             color={
@@ -147,10 +151,10 @@ const ListFilm: React.FC = () => {
     },
 
     {
-      title: role === 1 && "Action",
+      title: role === 1 || (role === 3 && "Action"),
       key: "action",
       render: (_, record) => {
-        if (role === 1) {
+        if (role === 1 || role === 3) {
           return (
             <Space size="middle">
               <EditFilm dataID={record} />
@@ -192,7 +196,13 @@ const ListFilm: React.FC = () => {
     );
     setMovise(results);
   };
-
+  const handleChange: TableProps<DataType>["onChange"] = (
+    pagination,
+    filters
+  ) => {
+    console.log(filters);
+    setFilteredInfo(filters);
+  };
   return (
     <>
       <div className="">
@@ -205,10 +215,19 @@ const ListFilm: React.FC = () => {
           />
           <RangePicker />
           {role === 1 && <AddFilm />}
+          {role === 3 && <AddFilm />}
         </div>
       </div>
-      {!movies && <Table columns={columns} dataSource={dataFilm} />}
-      {movies && <Table columns={columns} dataSource={movies} />}
+      {!movies && (
+        <Table
+          columns={columns}
+          dataSource={dataFilm}
+          onChange={handleChange}
+        />
+      )}
+      {movies && (
+        <Table columns={columns} dataSource={movies} onChange={handleChange} />
+      )}
     </>
   );
 };

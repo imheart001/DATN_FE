@@ -18,7 +18,7 @@ import { useUsed_VC_ByUserIdMutation } from "../../../service/voucher.service";
 
 const Payment = () => {
   const location = useLocation();
-  const [vnpAmount, setVnpAmount] = useState("");
+  const [vnpAmount, setVnpAmount] = useState(""); 
   const { data: allchairbked } = useFetchChairsQuery();
   const [addIfSeatByUser] = useAddBookTicketMutation();
   const [addFood] = useAddFoodTicketDetailMutation();

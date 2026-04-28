@@ -12,6 +12,10 @@ const usersAPI = createApi({
       query: () => "/user/",
       providesTags: ["user"],
     }),
+    getUserById: builder.query<IUser, number | string>({
+      query: (id) => `/user/${id}`,
+      providesTags: ["user"],
+    }),
     addUser: builder.mutation({
       query: (users: IUser) => ({
         url: "/signup/",
@@ -27,7 +31,7 @@ const usersAPI = createApi({
       }),
       invalidatesTags: ["user"],
     }),
-   
+
     loginUser: builder.mutation({
       query: (credentials: { email: string; password: string }) => ({
         url: "/login/",
@@ -38,12 +42,12 @@ const usersAPI = createApi({
     }),
     updateUser: builder.mutation({
       query: (users: IUser) => ({
-          url: `/user/${users.id}`,
-          method: "PUT",
-          body: users,
+        url: `/user/${users.id}`,
+        method: "PUT",
+        body: users,
       }),
       invalidatesTags: ["user"],
-  }),
+    }),
     /* forgot passửod */
     forgorPassword: builder.mutation<{ message: string }, FormData>({
       query: (email) => ({
@@ -70,7 +74,7 @@ export const {
   useForgorPasswordMutation,
   useResetPasswordMutation,
   useRemoveUserMutation,
-  
+  useGetUserByIdQuery,
 } = usersAPI;
 
 export default usersAPI;

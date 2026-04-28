@@ -16,9 +16,21 @@ const memberAPI = createApi({
       query: (id) => `/member/${id}`,
       providesTags: ["member"],
     }),
+    discountPoint: builder.mutation({
+      query: (point: any) => ({
+        url: "/member/",
+        method: "POST",
+        body: point,
+      }),
+      invalidatesTags: ["member"],
+    }),
   }),
 });
 
-export const { useFetchMembersQuery, useGetPointByIdUserQuery } = memberAPI;
+export const {
+  useFetchMembersQuery,
+  useGetPointByIdUserQuery,
+  useDiscountPointMutation,
+} = memberAPI;
 
 export default memberAPI;

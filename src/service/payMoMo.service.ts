@@ -23,8 +23,16 @@ const payMoMoAPI = createApi({
       }),
       invalidatesTags: ["paymomo"],
     }),
+    RechargeByMomo: builder.mutation({
+      query: (data: any) => ({
+        url: "/post_money/",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["paymomo"],
+    }),
   }),
 });
 
-export const { usePaymentMomoMutation } = payMoMoAPI;
+export const { usePaymentMomoMutation, useRechargeByMomoMutation } = payMoMoAPI;
 export default payMoMoAPI;

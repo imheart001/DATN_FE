@@ -6,12 +6,15 @@ import { useGetAllDataShowTimeByIdQuery } from "../../../service/show.service";
 import { Button, Col, InputNumber, Row, Space, Statistic, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../../components/isLoading/Loading";
+import Pusher from "pusher-js";
+import { setKepted } from "../../../components/CinemaSlice/seatkeep";
 import {
   setShowtimeId,
   setSelectSeats,
   setTotalPrice,
   setComboFoods,
   setChooseVoucher,
+  setChangePoint,
 } from "../../../components/CinemaSlice/selectSeat";
 
 import { useFetchFoodQuery } from "../../../service/food.service";
@@ -30,6 +33,9 @@ import { checkSeat } from "../../../guards/api";
 import { useSendPaymentVnPayMutation } from "../../../service/payVnpay.service";
 import { useGetPointByIdUserQuery } from "../../../service/member.service";
 import { usePaymentMomoMutation } from "../../../service/payMoMo.service";
+import Changepoint from "../../../components/Clients/PointChange/changpoint";
+import { usePaymentCoinsMutation } from "../../../service/usecoin.service";
+import PaymentCoin from "../Payment/PaymentCoin";
 
 enum SeatStatus {
   Available = "available",
@@ -62,11 +68,14 @@ const BookingSeat = () => {
   };
   const { Countdown } = Statistic;
   const [sendPaymentVnpay] = useSendPaymentVnPayMutation();
+
   const getRowName = (row: number): string => {
     return String.fromCharCode(65 + row);
   };
-  const [keepSeat, setkeepSeat] = useState<[]>([]);
+  // const [keepSeat, setkeepSeat] = useState<[]>([]);
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
+  console.log(DataSeatBooked);
+
   const { data: foods } = useFetchFoodQuery();
   const { data: dataVouchers } = useFetchVoucherQuery();
   const [payMomo] = usePaymentMomoMutation();
@@ -88,14 +97,18 @@ const BookingSeat = () => {
   //   }
   // };
 
-  useEffect(() => {
-    refetch();
-    // fetchData();
-  }, [refetch, selectedSeats, id]);
+  // useEffect(() => {
+  //   refetch();
+  //   // fetchData();
+  // }, [refetch, selectedSeats, id]);
 
   const [totalComboAmount, setTotalComboAmount] = useState(0);
   const [discountedAmount, setDiscountedAmount] = useState(0);
+
+  const [point, setPoint] = useState(null);
+  const [discountedPoint, setDiscountedPoint] = useState(0);
   const [foodQuantities, setFoodQuantities] = useState<any[]>([]);
+  const [pusher, setPusher] = useState(null);
   const [foodQuantitiesUI, setFoodQuantitiesUI] = useState<{
     [key: string]: { quantity: number; price: number };
   }>({});
@@ -152,10 +165,10 @@ const BookingSeat = () => {
 
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
-  const { data: VoucherUsedbyUser } = useGetVoucherbyIdUserQuery(userId?.id);
+
   const { data: PointUser } = useGetPointByIdUserQuery(userId?.id);
   // console.log(PointUser);
-
+  const { data: VoucherUsedbyUser } = useGetVoucherbyIdUserQuery(userId?.id);
   const [selectedSeatsCount, setSelectedSeatsCount] = useState(0);
 
   const [showPopCorn, setShowPopCorn] = useState(false);
@@ -217,28 +230,26 @@ const BookingSeat = () => {
       })
     )
   );
+
+  const seatBookedByIdTimeDetail = DataSeatBooked?.filter(
+    (data: any) => data.id_time_detail == id
+  );
+  const seatNameBooked = seatBookedByIdTimeDetail?.map(
+    (seat: any) => seat.seat
+  );
   useEffect(() => {
-    const seatBooked = (DataSeatBooked as any)?.data || [];
-
-    // Lọc ra các phần tử có id_time_detail trùng với id từ URL params
-    const filteredSeats = seatBooked.filter(
-      (item: any) => `${item.id_time_detail}` === id
-    );
-
-    // Tạo một danh sách tên ghế từ filteredSeats
-    const bookedSeatNames = filteredSeats
-      .map((item: any) => parseSeatNames(item.name))
-      .flat();
-
-    // Tạo một bản sao mới của mảng ghế
     const updatedSeats = [...seats];
-    const parseSeatName = (seatNamesString: any) => {
-      return seatNamesString.split(",").map((name: any) => name.trim());
+    const parseSeatName = (seatName: any) => {
+      const row = seatName.charAt(0).charCodeAt(0) - "A".charCodeAt(0);
+      const column = parseInt(seatName.slice(1)) - 1;
+      return [row, column];
     };
 
-    // Duyệt qua các ghế đã đặt và cập nhật trạng thái của chúng
-    bookedSeatNames.forEach((seatName: any) => {
+    // Loop through the booked seats and set their status to "Booked"
+    seatNameBooked?.forEach((seatName: any) => {
       const [rowIndex, columnIndex] = parseSeatName(seatName);
+      console.log(rowIndex, columnIndex);
+
       if (
         rowIndex >= 0 &&
         rowIndex < numRows &&
@@ -249,9 +260,9 @@ const BookingSeat = () => {
       }
     });
 
-    // Cập nhật mảng ghế trong trạng thái
+    // Update the seats state with the modified seat statuses
     setSeats(updatedSeats);
-  }, [(DataSeatBooked as any)?.data]);
+  }, [DataSeatBooked]);
 
   const handleSeatClick = async (row: number, column: number) => {
     const updatedSeats = [...seats];
@@ -321,6 +332,85 @@ const BookingSeat = () => {
 
     setSeats(updatedSeats);
   };
+
+  useEffect(() => {
+    const pusher = new Pusher("d76cdda00e63582c39f9", {
+      cluster: "ap1",
+    });
+    const channel = pusher.subscribe("Cinema");
+
+    channel.bind("SeatKepted", function (data: any) {
+      // Update the seat status based on the received data
+      console.log(data);
+      const parseSeatName = (seatName: any) => {
+        const row = seatName.charAt(0).charCodeAt(0) - "A".charCodeAt(0);
+        const column = parseInt(seatName.slice(1)) - 1;
+        return [row, column];
+      };
+      const updatedSeats = [...seats];
+
+      data?.forEach((s: any) => {
+        const seatName = s.seat;
+        console.log(seatName);
+
+        const [rowIndex, columnIndex] = parseSeatName(seatName);
+        console.log(rowIndex, columnIndex);
+
+        if (
+          rowIndex >= 0 &&
+          rowIndex < numRows &&
+          columnIndex >= 0 &&
+          columnIndex < numColumns
+        ) {
+          const seat = updatedSeats[rowIndex][columnIndex];
+
+          if (data && s.id_user == userId?.id && s.id_time_detail == id) {
+            // If id_user matches, update status to Selected
+            seat.status = SeatStatus.Selected;
+          } else {
+            seat.status = SeatStatus.Available;
+          }
+          if (s.id_user != userId?.id && s.id_time_detail == id) {
+            // If id_user doesn't match, update status to Kepted
+            seat.status = SeatStatus.Kepted;
+          }
+          // Add condition to check if the seat is not in dataSeatKeping
+          if (!data?.some((d: any) => d.seat === seatName)) {
+            // If id_user doesn't match and seat is not in dataSeatKeping, update status to Available
+            seat.status = SeatStatus.Available;
+          }
+        }
+      });
+
+      updatedSeats.forEach((row, rowIndex) => {
+        row.forEach((seat, columnIndex) => {
+          const seatName = `${getRowName(rowIndex)}${columnIndex + 1}`;
+          const isSeatInData = data.some((s: any) => s.seat == seatName);
+
+          if (seat.status == SeatStatus.Kepted && !isSeatInData) {
+            seat.status = SeatStatus.Available;
+          }
+        });
+      });
+
+      setSeats(updatedSeats);
+    });
+
+    return () => {
+      // Unsubscribe from the Pusher channel when the component unmounts or when dataSeatKeping changes
+      pusher.unsubscribe("Cinema");
+    };
+  }, [dataSeatKeping]);
+
+  useEffect(() => {
+    const pusher = new Pusher("d76cdda00e63582c39f9", {
+      cluster: "ap1",
+    });
+    return () => {
+      pusher.unsubscribe("Cinema");
+      pusher.disconnect();
+    };
+  }, []);
   useEffect(() => {}, [foodQuantitiesUI, dispatch]);
   useEffect(() => {
     // Calculate the total amount before discount
@@ -377,24 +467,42 @@ const BookingSeat = () => {
       amount: totalMoney + totalComboAmount - discountedAmount,
     };
     const reponse = await sendPaymentVnpay(money);
+    console.log(reponse);
+
     // console.log((reponse as any).data.data);
-    window.location.href = `${(reponse as any).data.data}`;
+    // window.location.href = `${(reponse as any).data.data}`;
     // if (reponse) {
     //   window.location.href = `${reponse?.data}`;
     // }
   };
+
+  // if (moneyByPoint) {
+  //   setDiscountedPoint(moneyByPoint);
+  // }
+  dispatch(setChangePoint(point));
+
+  const moneyByPoint = useSelector((state: any) => state.TKinformation?.point);
 
   const handlePaymentMomo = async () => {
     if (!selectedPaymentMethod) {
       message.error("Vui lòng chọn phương thức thanh toán.");
       return;
     }
-    const money = {
-      amount: totalMoney + totalComboAmount - discountedAmount,
-    };
-    const reponse = await payMomo(money);
+    if (point) {
+      const money = {
+        amount: totalMoney + totalComboAmount - discountedAmount - point,
+      };
+      const reponse = await payMomo(money);
 
-    window.location.href = `${(reponse as any)?.data?.payUrl}`;
+      window.location.href = `${(reponse as any)?.data?.payUrl}`;
+    } else {
+      const money = {
+        amount: totalMoney + totalComboAmount - discountedAmount,
+      };
+      const reponse = await payMomo(money);
+
+      window.location.href = `${(reponse as any)?.data?.payUrl}`;
+    }
   };
 
   const updateFoodQuantitiesUI = (
@@ -443,14 +551,27 @@ const BookingSeat = () => {
   const selectedSeatsInSelectedState = selectedSeats.filter(
     (seat) => seat.status === SeatStatus.Selected
   );
-
   const seatNames = selectedSeatsInSelectedState
-    .map((seat) => `${getRowName(seat.row)}${seat.column + 1}`)
+    .map((seat: any) => `${getRowName(seat.row)}${seat.column + 1}`)
     .join(",");
+  const formattedSeats = selectedSeatsInSelectedState.map((seat: any) => ({
+    seat: `${getRowName(seat.row)}${seat.column + 1}`,
+    price: seat.price,
+  }));
+  console.log(formattedSeats);
+  console.log(selectedSeatsInSelectedState);
+
   dispatch(setSelectSeats(seatNames));
   dispatch(setShowtimeId(id));
-  const moneyTotal = totalMoney + totalComboAmount - discountedAmount;
-  dispatch(setTotalPrice(moneyTotal));
+  if (point) {
+    const moneyTotal1 =
+      totalMoney + totalComboAmount - discountedAmount - point;
+    dispatch(setTotalPrice(moneyTotal1));
+  } else {
+    const moneyTotal2 = totalMoney + totalComboAmount - discountedAmount;
+    dispatch(setTotalPrice(moneyTotal2));
+  }
+
   if (isLoading) {
     return <Loading />; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner
   }
@@ -781,7 +902,7 @@ const BookingSeat = () => {
             )}
           </section>
         </section>
-        <section className={`${showPopCorn ? "col-span-3" : " hidden"}`}>
+        <section className={` ${showPopCorn ? "col-span-3" : " hidden"}`}>
           <section className="bg-white rounded-lg p-8 space-y-4">
             <main className="max-w-5xl mx-auto shadow-lg  shadow-cyan-500/50 px-4 py-8 sm:px-6 lg:px-8">
               <div className="mb-8">
@@ -912,6 +1033,7 @@ const BookingSeat = () => {
                                     value={
                                       foodQuantitiesUI[food.id]?.quantity || 0
                                     }
+                                    readOnly
                                     onChange={(e) =>
                                       handleQuantityChange(
                                         food.id,
@@ -924,12 +1046,23 @@ const BookingSeat = () => {
                                   <button
                                     type="button"
                                     className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
-                                    onClick={() =>
-                                      handleQuantityChange(
-                                        food.id,
-                                        1,
-                                        food.price
-                                      )
+                                    onClick={() => {
+                                      if (
+                                        foodQuantitiesUI[food.id]?.quantity > 9
+                                      ) {
+                                        message.warning(
+                                          "Bạn chỉ được mua tối đa 10 sản phẩm/đặt vé"
+                                        );
+                                      } else {
+                                        handleQuantityChange(
+                                          food.id,
+                                          1,
+                                          food.price
+                                        );
+                                      }
+                                    }}
+                                    disabled={
+                                      foodQuantitiesUI[food.id]?.quantity > 10
                                     }
                                   >
                                     +
@@ -1020,9 +1153,7 @@ const BookingSeat = () => {
                 </div>
               </div>
               <div className="mb-8">
-                <span className="block font-medium text-lg text-red-600 border-b-2 border-red-600">
-                  ĐIỂM KHẢ DỤNG ({(PointUser as any)?.data.usable_points})
-                </span>
+                <Changepoint point={point} setPoint={setPoint} />
                 {/* <Space>
                   <InputNumber
                     min={1}
@@ -1060,6 +1191,14 @@ const BookingSeat = () => {
                     onClick={() => handlePaymentMethodClick(2)}
                   >
                     Momo
+                  </button>
+                  <button
+                    className={`border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-600 ${
+                      selectedPaymentMethod === 3 ? "bg-gray-200" : ""
+                    }`}
+                    onClick={() => handlePaymentMethodClick(3)}
+                  >
+                    Số dư (Coin)
                   </button>
                 </div>
               </div>
@@ -1160,52 +1299,105 @@ const BookingSeat = () => {
                   <path d="M0 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V6a2 2 0 0 1-2-2H3z" />
                 </svg>
                 <h4 className="flex space-x-1">
-                  <span>Tổng tiền </span>:{" "}
+                  <span>Tổng tiền </span>: {/* moneyByPoint */}
                   <span className="font-semibold">
-                    {selectedVoucherInfo?.limit === 1 &&
-                      formatter(
-                        selectedSeats.reduce(
-                          (total, seat) => total + seat.price,
-                          0
-                        ) +
-                          totalComboAmount -
-                          selectedVoucherInfo.price_voucher
-                      )}
-                    {!selectedVoucherInfo &&
-                      formatter(
-                        selectedSeats.reduce(
-                          (total, seat) => total + seat.price,
-                          0
-                        ) + totalComboAmount
-                      )}
-                    {selectedVoucherInfo?.limit === 2 &&
-                      ((totalMoney + totalComboAmount) *
-                        selectedVoucherInfo?.percent) /
-                        100 >=
-                        selectedVoucherInfo.price_voucher &&
-                      formatter(
-                        selectedSeats.reduce(
-                          (total, seat) => total + seat.price,
-                          0
-                        ) +
-                          totalComboAmount -
-                          selectedVoucherInfo.price_voucher
-                      )}
-                    {selectedVoucherInfo?.limit === 2 &&
-                      ((totalMoney + totalComboAmount) *
-                        selectedVoucherInfo?.percent) /
-                        100 <
-                        selectedVoucherInfo.price_voucher &&
-                      formatter(
-                        selectedSeats.reduce(
-                          (total, seat) => total + seat.price,
-                          0
-                        ) +
-                          totalComboAmount -
-                          ((totalMoney + totalComboAmount) *
-                            selectedVoucherInfo?.percent) /
-                            100
-                      )}
+                    {point
+                      ? selectedVoucherInfo?.limit === 1 &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            selectedVoucherInfo.price_voucher -
+                            point
+                        )
+                      : selectedVoucherInfo?.limit === 1 &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            selectedVoucherInfo.price_voucher
+                        )}
+                    {point
+                      ? !selectedVoucherInfo &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            point
+                        )
+                      : !selectedVoucherInfo &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) + totalComboAmount
+                        )}
+                    {point
+                      ? selectedVoucherInfo?.limit === 2 &&
+                        ((totalMoney + totalComboAmount) *
+                          selectedVoucherInfo?.percent) /
+                          100 >=
+                          selectedVoucherInfo.price_voucher &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            selectedVoucherInfo.price_voucher -
+                            point
+                        )
+                      : selectedVoucherInfo?.limit === 2 &&
+                        ((totalMoney + totalComboAmount) *
+                          selectedVoucherInfo?.percent) /
+                          100 >=
+                          selectedVoucherInfo.price_voucher &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            selectedVoucherInfo.price_voucher
+                        )}
+                    {point
+                      ? selectedVoucherInfo?.limit === 2 &&
+                        ((totalMoney + totalComboAmount) *
+                          selectedVoucherInfo?.percent) /
+                          100 <
+                          selectedVoucherInfo.price_voucher &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            point -
+                            ((totalMoney + totalComboAmount) *
+                              selectedVoucherInfo?.percent) /
+                              100
+                        )
+                      : selectedVoucherInfo?.limit === 2 &&
+                        ((totalMoney + totalComboAmount) *
+                          selectedVoucherInfo?.percent) /
+                          100 <
+                          selectedVoucherInfo.price_voucher &&
+                        formatter(
+                          selectedSeats.reduce(
+                            (total, seat) => total + seat.price,
+                            0
+                          ) +
+                            totalComboAmount -
+                            ((totalMoney + totalComboAmount) *
+                              selectedVoucherInfo?.percent) /
+                              100
+                        )}
                   </span>
                 </h4>
               </span>
@@ -1241,6 +1433,11 @@ const BookingSeat = () => {
               >
                 Thanh toán
               </button>
+
+              <PaymentCoin
+                showPopCorn={showPopCorn}
+                choosePayment={choosePayment}
+              />
             </div>
           </div>
           <div className="bg-[#F3F3F3] text-center space-y-2 rounded-lg px-4 py-2 shadow-lg shadow-cyan-500/50">

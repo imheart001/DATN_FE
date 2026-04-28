@@ -9,6 +9,8 @@ export interface IFilms {
   end_date: Date;
   description: string;
   status: number;
+  limit_age: number;
+  poster: string;
 }
 export interface ICategorys {
   id: string;
@@ -56,7 +58,7 @@ export interface IBookTicket {
   id_chair: string;
   time: string;
   id_code: string;
-  status: number
+  status: number;
 }
 export interface IFood {
   id: string;
@@ -82,8 +84,7 @@ export interface IChairs {
   id_time_detail: string;
 }
 export interface IUser {
-
-  id: number,
+  id: number;
   name: string;
   phone: number;
   image: string | null;
@@ -113,9 +114,4 @@ export interface IBlogs {
   image: string;
   content: string;
   status: number;
-}
-
-export interface IComments {
-  id: string,
-  content: string;
 }

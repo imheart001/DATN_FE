@@ -32,7 +32,7 @@ const showsAPI = createApi({
       invalidatesTags: ["show"],
     }),
     addShowTime: builder.mutation({
-      query: (show: IShowTime) => ({
+      query: (show: any) => ({
         url: "/time_detail/",
         method: "POST",
         body: show,

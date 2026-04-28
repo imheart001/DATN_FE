@@ -7,23 +7,17 @@ import { useAppSelector } from "../../../store/hooks";
 import { IBlogs } from "../../../interface/model";
 import FilmShowing from "../../../components/FilmShowing";
 import { useState } from "react";
-import '../../../index.css'
+import "../../../index.css";
 
 type Props = {
   data: any;
 };
 const HomePages = ({ data }: Props) => {
-  const [displayedBlogs, setDisplayedBlogs] = useState(3);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: blogs, error } = useFetchBlogQuery() as any;
-
   console.log(blogs);
-  const handleShowMore = () => {
-    setDisplayedBlogs(displayedBlogs + 10);
-  };
-  const handleShowLess = () => {
-    setDisplayedBlogs(3);
-  };
+
 
   return (
     <>
@@ -57,54 +51,16 @@ const HomePages = ({ data }: Props) => {
           Khám phá một bộ sưu tập các ưu đãi độc đáo và đặc biệt!
         </span>
 
-        {/* <div className="What’s On img grid grid-cols-2 gap-8 my-10">
-          {blogs &&
-            blogs?.data?.slice(0, displayedBlogs).map((blog: IBlogs) =>
-              blog.status === 1 ? (
-                <article
-                  key={blog.id}
-                  className="overflow-hidden rounded-lg shadow transition hover:shadow-lg"
-                >
-                  <Link to={`/blog/${blog.id}`}>
-                    <img
-                      src={blog.image}
-                      className=""
-                      alt={blog.title}
-                      style={{ width: "624px", height: "242px" }}
-                    />
-                  </Link>
-                  <div className="bg-white p-4 sm:p-6">
-                    <Link to={`/blog/${blog.id}`}>
-                      <h3 className="mt-0.5 text-lg text-gray-900">{blog.title}</h3>
-                    </Link>
-                  </div>
-                  <p className="text-white">{blog.status}</p>
-                </article>
-              ) : null
-            )}
-        </div> */}
+        <div className="What’s On img grid grid-cols-2 gap-8 my-10">
 
-        <div className="What’s On img my-10 grid grid-cols-3 gap-8">
           {blogs &&
-            blogs?.data?.slice(0, displayedBlogs).map((blog: IBlogs) => blog.status === 1 ? (
-              <article
-                key={blog.id}
-                className="relative overflow-hidden rounded-lg border border-gray-200 shadow transition hover:shadow-lg"
-              >
-                <Link to={`/blog/${blog.id}`}>
-                  <img
-                    src={blog.image}
-                    className="w-full h-full object-cover"
-                    alt={blog.title}
-                  />
-                </Link>
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50">
-                  <Link to={`/blog/${blog.id}`}>
-                    <h3 className="text-white text-sm">{blog.title}</h3>
-                  </Link>
-                </div>
-              </article>
-            ) : null)}
+            blogs?.data?.map((blog: IBlogs) => (
+              <Link to={`/blog/${blog.id}`} key={blog.id}>
+                <img  src={blog.image} className="rounded-xl" 
+                alt={blog.title} 
+                style={{ width: '624px', height: '242px' }} />
+              </Link>
+            ))}
         </div>
 
 

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
 
@@ -35,13 +34,22 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { Option } = Select;
-  console.log(dataMovieRoom);
+
+  let user = JSON.parse(localStorage.getItem("user")!);
+
+  const role = user.role;
+  const id_cinema = user.id_cinema;
+
+  const optionRole3 = (cinemas as any)?.data?.filter(
+    (item: any) => item.id === id_cinema
+  );
+  const optionRole1 = (cinemas as any)?.data?.map((item: any) => item);
 
   useEffect(() => {
     if (dataMovieRoom) {
       form.setFieldsValue({
         name: dataMovieRoom.name,
-        id_cinema: dataMovieRoom.id_cinema
+        id_cinema: dataMovieRoom.id_cinema,
       });
     }
   }, [dataMovieRoom]);
@@ -59,7 +67,6 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
     }
   };
   const [open, setOpen] = useState(false);
-  console.log(dataMovieRoom);
 
   const showDrawer = () => {
     setOpen(true);
@@ -78,76 +85,90 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
       </Button>
 
       <Drawer
+        title="Update MovieRoom"
+        width={720}
+        onClose={() => {
+          onClose();
+          form.resetFields(); // Reset trường dữ liệu khi đóng Drawer
+        }}
+        open={open}
+        style={{
+          paddingBottom: 80,
+        }}
+        extra={
+          <Space>
+            <Button onClick={onClose}>Cancel</Button>
 
-title="Update MovieRoom"
-width={720}
-onClose={() => {
-  onClose();
-  form.resetFields(); // Reset trường dữ liệu khi đóng Drawer
-}}
-open={open}
-style={{
-  paddingBottom: 80,
-}}
-extra={
-  <Space>
-    <Button onClick={onClose}>Cancel</Button>
-
-    <Button
-      danger
-      type="primary"
-      htmlType="submit"
-      onClick={() => {
-        form.validateFields().then((values) => {
-          onFinish(values);
-        });
-      }}
-    >
-      Submit
-    </Button>
-  </Space>
-}
->
-<Form
-  form={form}
-  layout="vertical"
-  hideRequiredMark
-  onFinish={onFinish}
->
-  <Row gutter={16}>
-    <Col span={12}>
-      <Form.Item
-        name="name"
-        label="Name"
-        rules={[{ required: true, message: "Please enter user name" }]}
+            <Button
+              danger
+              type="primary"
+              htmlType="submit"
+              onClick={() => {
+                form.validateFields().then((values) => {
+                  onFinish(values);
+                });
+              }}
+            >
+              Submit
+            </Button>
+          </Space>
+        }
       >
-        <Input placeholder="Please enter user name" />
-      </Form.Item>
-    </Col>
+        <Form
+          form={form}
+          layout="vertical"
+          hideRequiredMark
+          onFinish={onFinish}
+        >
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="name"
+                label="Name"
+                rules={[{ required: true, message: "Please enter user name" }]}
+              >
+                <Input placeholder="Please enter user name" />
+              </Form.Item>
+            </Col>
 
-    <Col span={12}>
-      <Form.Item
-        name="id_cinema"
-        label="id_cinema"
-        rules={[{ required: true, message: "Please enter id_cinema" }]}
-      >
-           <Select placeholder="Please select a film_id">
-                  {
-                    (cinemas as any)?.data?.map((cinema: ICinemas, index: number) => {
+            <Col span={12}>
+              <Form.Item
+                name="id_cinema"
+                label="id_cinema"
+                rules={[{ required: true, message: "Please enter id_cinema" }]}
+              >
+                <Select placeholder="Please select a film_id">
+                  {(cinemas as any)?.data?.map(
+                    (cinema: ICinemas, index: number) => {
                       return (
-                        <Option key={index} value={cinema.id}>{cinema.name}</Option>
-                      )
-                    })
-                  }
-
+                        <Option key={index} value={cinema.id}>
+                          {cinema.name}
+                        </Option>
+                      );
+                    }
+                  )} 
+                  {role === 3 &&
+                    optionRole3?.map((cinema: ICinemas, index: number) => {
+                      return (
+                        <Option key={index} value={cinema.id}>
+                          {cinema.name}
+                        </Option>
+                      );
+                    })}
+                  {role === 1 &&
+                    optionRole1?.map((cinema: ICinemas, index: number) => {
+                      return (
+                        <Option key={index} value={cinema.id}>
+                          {cinema.name}
+                        </Option>
+                      );
+                    })}
                 </Select>
-      </Form.Item>
-    </Col>
-
-  </Row>
-
-</Form>
-</Drawer>
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Drawer>
     </>
   );
 };

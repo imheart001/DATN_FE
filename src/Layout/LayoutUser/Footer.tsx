@@ -13,7 +13,7 @@ const Footer = () => {
         </span>
       </div>
       <div className="flex justify-between">
-        <img src="/logo.png/" alt="" />
+        <img srcSet="/lg.png/ 6x" alt="" />
         <div className="flex items-center gap-4">
           <Link to={"#"}>
             <svg

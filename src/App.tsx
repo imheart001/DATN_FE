@@ -29,7 +29,7 @@ import Payment from "./pages/Clients/Payment/Payment";
 
 import ChoosePop from "./pages/Clients/ChoosePop/ChoosePop";
 import TicketBookingDetails from "./pages/Clients/Ticket-booking-details/TicketBookingDetails";
-import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
+
 import PaymentMomo from "./pages/Clients/Payment/PaymentMomo";
 
 import ListVouchers from "./pages/Admin/Vouchers/ListVouchers";
@@ -43,10 +43,15 @@ import ListUser from "./pages/Admin/User/ListUser";
 
 import MemberInfo from "./pages/Clients/member-info/member-info";
 import MemberInfoAdmin from "./pages/Admin/Members/Members";
+import ResultSuccess from "./pages/Clients/Result/ResultSuccess";
 import ListBlog from "./pages/Admin/Blogs/ListBlog";
 import BlogsDetail from "./pages/Clients/Blogs-Detail/BlogsDetail";
+import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
+import ResultPaymentCoin from "./components/Clients/ResultPaymentCoin/ResultPaymentCoin";
 
 function App() {
+  const getuserId = localStorage.getItem("user");
+  const userId = JSON.parse(`${getuserId}`);
   const router = createBrowserRouter([
     {
       path: "/",
@@ -75,6 +80,10 @@ function App() {
         {
           path: "/movies",
           element: <Movies />,
+        },
+        {
+          path: "/resultpaymentcoins",
+          element: <ResultPaymentCoin  />,
         },
         {
           path: "/F&B",
@@ -204,6 +213,10 @@ function App() {
       element: <PaymentMomo />,
     },
     {
+      path: "/ResultNapTien/:id",
+      element: <ResultSuccess />,
+    },
+    {
       path: "/*",
       element: <NotFound />,
     },
@@ -211,7 +224,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const timeoutDuration = 1000 * 60 * 60; // 10 seconds
+    const timeoutDuration = 1000 * 60 * 150; // 10 seconds
 
     const timeoutCallback = async () => {
       try {
