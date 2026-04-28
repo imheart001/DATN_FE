@@ -19,14 +19,12 @@ import foodAPI from "../service/food.service";
 import movieRoomAPI from "../service/movieroom.service";
 import selectedCinemaReducer from "../components/CinemaSlice/selectedCinemaSlice";
 import TKinformationReducer from "../components/CinemaSlice/selectSeat";
-import ChoosePaymentReducer from "../components/ChoosePayment/ChoosePayment";
 import { combineReducers } from "redux";
 import timesAPI from "../service/time.service";
 import bookTicketsAPI from "../service/book_ticket.service";
 import cateDetailAPI from "../service/catedetail.service";
 import bookingSeatAPI from "../service/chairs.service";
 import authReducer from "../components/CinemaSlice/authSlice";
-import SeatKeepigReducer from "../components/CinemaSlice/seatkeep";
 import usersAPI from "../service/signup_login.service";
 import payAPI from "../service/payVnpay.service";
 
@@ -37,13 +35,14 @@ import sendEmailAPI from "../service/sendEmail.service";
 import payMoMoAPI from "../service/payMoMo.service";
 import memberAPI from "../service/member.service";
 import blogsAPI from "../service/blog.service";
+import commentsAPI from "../service/commentBlog.service";
 
 // Import redux-persist
 const persistConfig = {
   key: "root",
   storage,
   version: 1,
-  whitelist: ["selectedCinema", "pays", "TKinformation", "Paymentmethod"],
+  whitelist: ["selectedCinema", "pays", "bkseats", "TKinformation"],
 };
 
 const rootReducer = combineReducers({
@@ -54,10 +53,8 @@ const rootReducer = combineReducers({
   shows: showsAPI.reducer,
   times: timesAPI.reducer,
   pays: payAPI.reducer,
-  SeatKeepig: SeatKeepigReducer,
   bookTickets: bookTicketsAPI.reducer,
   foods: foodAPI.reducer,
-  Paymentmethod: ChoosePaymentReducer,
   seatKeping: seatkepingAPI.reducer,
   movies: movieRoomAPI.reducer,
   paymentmomo: payMoMoAPI.reducer,
@@ -70,10 +67,8 @@ const rootReducer = combineReducers({
   blogs: blogsAPI.reducer,
   comments: commentsAPI.reducer,
   auth: authReducer,
-  useCoin: useCoinAPI.reducer,
   [analyticApi.reducerPath]: analyticApi.reducer,
   [memberAPI.reducerPath]: memberAPI.reducer,
-  refund: refundAPI.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -106,7 +101,8 @@ const store = configureStore({
       usersAPI.middleware as any,
       analyticApi.middleware as any,
       memberAPI.middleware as any,
-      blogsAPI.middleware as any
+      blogsAPI.middleware as any,
+      commentsAPI.middleware as any
     );
 
     return middlewareArray;
