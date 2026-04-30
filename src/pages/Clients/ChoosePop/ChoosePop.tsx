@@ -1,4 +1,5 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { ClimbingBoxLoader, PropagateLoader } from "react-spinners";
 
 const ChoosePop = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -18,10 +19,18 @@ const ChoosePop = () => {
   }, []);
 
   return (
-    <div className="h-screen">
-      <div className="box" style={{ top: `${scrollPosition}px` }}>
-        AAAA
-      </div>
+    <div className="max-w-4xl mx-auto space-y-10">
+      <ClimbingBoxLoader color="#36d7b7" />
+      <h1 className="text-[#36d7b7] leading-loose">
+        Đợi Chúng Mình Chút nhé !!
+      </h1>
+      <PropagateLoader
+        color="#36d7b7"
+        cssOverride={{}}
+        loading
+        size={15}
+        speedMultiplier={1}
+      />
     </div>
   );
 };

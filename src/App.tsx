@@ -29,7 +29,7 @@ import Payment from "./pages/Clients/Payment/Payment";
 
 import ChoosePop from "./pages/Clients/ChoosePop/ChoosePop";
 import TicketBookingDetails from "./pages/Clients/Ticket-booking-details/TicketBookingDetails";
-import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
+
 import PaymentMomo from "./pages/Clients/Payment/PaymentMomo";
 
 import ListVouchers from "./pages/Admin/Vouchers/ListVouchers";
@@ -46,6 +46,8 @@ import MemberInfoAdmin from "./pages/Admin/Members/Members";
 import ResultSuccess from "./pages/Clients/Result/ResultSuccess";
 import ListBlog from "./pages/Admin/Blogs/ListBlog";
 import BlogsDetail from "./pages/Clients/Blogs-Detail/BlogsDetail";
+import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
+import ResultPaymentCoin from "./components/Clients/ResultPaymentCoin/ResultPaymentCoin";
 
 function App() {
   const getuserId = localStorage.getItem("user");
@@ -78,6 +80,10 @@ function App() {
         {
           path: "/movies",
           element: <Movies />,
+        },
+        {
+          path: "/resultpaymentcoins",
+          element: <ResultPaymentCoin  />,
         },
         {
           path: "/F&B",

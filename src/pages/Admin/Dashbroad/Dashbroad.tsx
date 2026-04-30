@@ -1,54 +1,31 @@
+import React, { useEffect, useState } from "react";
 import CurrencyDollarIcon from "@heroicons/react/24/solid/CurrencyDollarIcon";
-import ListBulletIcon from "@heroicons/react/24/solid/ListBulletIcon";
 import {
-  Avatar,
-  Card,
-  CardContent,
-  Stack,
-  SvgIcon,
-  Typography,
-} from "@mui/material";
-import {
-  BarChart,
-  Bar,
-  Rectangle,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  Cell,
+  Pie,
+  PieChart,
 } from "recharts";
-
-import { PieChart, Pie } from "recharts";
-import { useEffect, useState } from "react";
-import { useGetAnalyticsMutation } from "../../../service/analytic.service";
-import { useAppSelector } from "../../../store/hooks";
-import { RootState } from "../../../store/store";
-import { Select, message } from "antd";
 import { formatter } from "../../../utils/formatCurrency";
-import { DashboardAdminCinema } from "./Dashboard-Admin_Cinema";
-import { DashboardAdmin3 } from "./Dashboard-Admin_3";
+import { format } from "date-fns";
+import { useGetAnalyticsMutation } from "../../../service/analytic.service";
+import Top5User from "../../../components/Clients/Analytics/Top5user_friendly";
+import ChoosePop from "../../Clients/ChoosePop/ChoosePop";
 
-const Dashbroad = (props: any) => {
-  const { difference, positive = false, sx, value } = props;
-  const [dataReal, setDataReal] = useState<any[]>([]);
-  const [infoRole, setInfoRole] = useState("");
-  const id_cinema = useAppSelector((state: RootState) => state.selectedCinema);
-  let user = JSON.parse(localStorage.getItem("user")!);
+export default function Dashbroad() {
+  const formatCurrency = (value: number): string => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
+  };
 
-  const role = user?.role;
-  const auth = localStorage.getItem("user");
-  useEffect(() => {
-    if (auth) {
-      const { role: authRole } = JSON.parse(auth as string);
-      setInfoRole(authRole);
-    }
-  }, [auth]);
-
-  const COLORS = ["#0088FE", "#00C49F"];
-
+  const [dataAlastic, setDataAlastic] = useState([]);
   const [getDataRevenue] = useGetAnalyticsMutation();
 
   useEffect(() => {
@@ -56,7 +33,8 @@ const Dashbroad = (props: any) => {
       try {
         const response = await getDataRevenue({});
         // Update state with new data
-        setDataReal((prevData) => [...prevData, (response as any)?.data]);
+        console.log((response as any)?.data);
+        setDataAlastic((response as any)?.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -66,900 +44,194 @@ const Dashbroad = (props: any) => {
     getData();
   }, [getDataRevenue]);
 
-  const data = (dataReal[1] as any)?.revenue_month_y?.map((item: any) => ({
-    name: item.Month,
-    value: item.TotalAmount,
-  }));
+  // Ensure that revenueData is a valid object
+  const revenueData = (dataAlastic as any)?.statistical_cinema
+    ?.Revenue_by_cinema_in_the_month;
+  const revenueDatabyDay = (dataAlastic as any)?.statistical_cinema
+    ?.Revenue_by_cinema_on_the_day;
 
-  const [money, setMoney] = useState<number>(0);
+  const revenueDatabyYear = (dataAlastic as any)?.statistical_cinema
+    ?.Revenue_by_cinema_in_the_year;
+  const dataTop5Friendly = (dataAlastic as any)?.revenue_month?.user_friendly;
+  console.log(dataTop5Friendly);
+  // Check if revenueData is undefined or null before further processing
+  if (
+    !revenueData &&
+    revenueDatabyDay !== null &&
+    !revenueDatabyYear &&
+    !dataTop5Friendly
+  ) {
+    return (
+      <>
+        <ChoosePop />
+      </>
+    );
+  }
 
-  const handleChange = (value: string) => {
-    switch (value) {
-      case "Day": {
-        setMoney((dataReal[0] as any)?.revenue_day?.revenueToday);
-        break;
-      }
-      case "Month": {
-        setMoney((dataReal[0] as any)?.revenue_month?.comparison);
-        break;
-      }
-      case "Yaer": {
-        setMoney((dataReal[0] as any)?.revenue_month?.revenue_month_y);
-        break;
-      }
-    }
-  };
-
-  const dataAnalytics = (dataReal[0] as any)?.revenue_month?.revenue_mon?.map(
-    (item: any) => ({ name: item.Month, "doanh thu": item.TotalAmount })
+  // Extract unique cinemas from the data
+  const cinemas = Object.values(revenueData).reduce(
+    (allCinemas: string[], monthlyData: any) => {
+      Object.keys(monthlyData).forEach((cinema) => {
+        if (!allCinemas.includes(cinema)) {
+          allCinemas.push(cinema);
+        }
+      });
+      return allCinemas;
+    },
+    []
   );
 
-  useEffect(() => {
-    if (!infoRole) return;
-    if (infoRole && Number(infoRole) !== 1) {
-      message.info(`bạn đang ở rạp chiếu phim ${id_cinema}`);
-    }
-  }, [infoRole]);
+  // Convert the revenue data object into an array of objects for recharts
+  const chartData = Object.keys(revenueData).map((month) => ({
+    name: new Date(month + "-01").toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+    }),
+    ...revenueData[month],
+  }));
+  const dataByDay = Object.keys(revenueDatabyDay).map((day) => ({
+    name: format(new Date(day), "dd/MM/yyyy"), // Format as "MM/dd/yyyy"
+    ...revenueDatabyDay[day],
+  }));
+  const dataForPieChart = cinemas.map((cinema, index) => {
+    const totalRevenue = Object.keys(revenueDatabyYear).reduce(
+      (total, year) => total + revenueDatabyYear[year][cinema],
+      0
+    );
 
-  if (Number(infoRole) === 3) {
-    return <DashboardAdmin3 />;
-  }
+    // Mảng màu sẽ được sử dụng để đảm bảo mỗi phần của biểu đồ tròn có một màu khác nhau
+    const colors = ["#8884d8", "#82ca9d", "#ffc658"];
+    const color = colors[index % colors.length];
 
-  switch (id_cinema) {
-    case "1":
-    case "2":
-      return <DashboardAdminCinema />;
+    return {
+      name: cinema,
+      value: totalRevenue,
+      fill: color,
+    };
+  });
 
-    default:
-      return (
-        <div className="flex flex-col gap-32">
-          <div className={`${role === 2 ? "hidden" : ""}`}>
-            <Select
-              defaultValue="Day"
-              style={{ width: 260 }}
-              onChange={handleChange}
-              options={[
-                { value: "Day", label: "Doanh thu theo ngày" },
-                { value: "Month", label: "Doanh thu theo tháng" },
-                { value: "Year", label: "Doanh thu theo năm" },
-              ]}
-            />
-            <div>
-              <div className="h-32 rounded-lg ">
-                <Card sx={sx}>
-                  <CardContent>
-                    <Stack
-                      alignItems="flex-start"
-                      // direction="row"
-                      justifyContent="space-between"
-                      // spacing={}
-                    >
-                      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
-                        <div className=" rounded-lg ">
-                          <Stack spacing={1}>
-                            <Typography
-                              color="text.secondary"
-                              variant="overline"
-                            >
-                              Doanh thu theo ngày
-                            </Typography>
-                            <Typography variant="h6" className="w-full">
-                              {formatter(money)}
-                            </Typography>
-                          </Stack>
-                        </div>
-                        <div className=" rounded-lg ">
-                          {" "}
-                          <Avatar
-                            sx={{
-                              backgroundColor: "error.main",
-                              height: 56,
-                              width: 56,
-                            }}
-                          >
-                            <SvgIcon>
-                              <CurrencyDollarIcon />
-                            </SvgIcon>
-                          </Avatar>
-                        </div>
-                      </div>{" "}
-                      <br />
-                      {/* <Stack spacing={2}>
-                        <Typography>
-                          Tăng thêm{" "}
-                          <span style={{ color: "#007BFF", fontWeight: "bold" }}>
-                            {formatter(
-                              (dataReal[0] as any)?.revenue_day?.revenueToday
-                            )}
-                          </span>{" "}
-                          trong tháng này
-                        </Typography>
-                      </Stack> */}
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+  return (
+    <>
+      <div className="grid-cols-3 grid  max-w-full">
+        <div className="overflow-y-auto h-[450px] col-span-2 space-y-20 w-[750px]">
+          <div className="">
+            <h3 className="mx-auto text-center uppercase font-semibold">
+              Tổng Doanh thu các rạp theo tháng năm 2023{" "}
+            </h3>
+            <LineChart
+              width={700}
+              className="p-4"
+              height={400}
+              data={chartData}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
+              <YAxis
+                tickFormatter={(value) => formatCurrency(value as number)}
+              />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Legend />
+              {(cinemas as any).map((cinema: any, index: any) => (
+                <Line
+                  key={index}
+                  type="monotone"
+                  dataKey={cinema}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                    16
+                  )}`}
+                  activeDot={{ r: 8 }}
+                />
+              ))}
+            </LineChart>
           </div>
-          <div className={`${role === 2 ? "hidden" : ""}`}>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-8 h-[500px]">
-              <div className="mt-10 rounded-lg  lg:col-span-2">
-                <div className="flex justify-between items-center">
-                  <h1 className="mb-10">Biểu Đồ</h1>
-                </div>
-                <div className="h-[500px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      width={500}
-                      height={300}
-                      data={dataAnalytics}
-                      margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                      }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar
-                        dataKey="doanh thu"
-                        fill="#82ca9d"
-                        activeBar={<Rectangle fill="gold" stroke="purple" />}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-              <div className="rounded-lg ">
-                <PieChart width={400} height={400}>
-                  <Tooltip
-                    formatter={(value: any, name) => [formatter(value), name]}
-                  />
-
-                  <Legend />
-                </PieChart>
-              </div>
-            </div>
+          <div>
+            <h3 className="mx-auto text-center uppercase font-semibold">
+              Doanh thu các rạp theo ngày tháng hiện tại{" "}
+            </h3>
+            <LineChart
+              width={700}
+              height={400}
+              data={dataByDay}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis
+                tickFormatter={(value) => formatCurrency(value as number)}
+              />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Legend />
+              {(cinemas as any).map((cinema: any, index: any) => (
+                <Line
+                  key={index}
+                  type="monotone"
+                  dataKey={cinema}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                    16
+                  )}`}
+                  activeDot={{ r: 8 }}
+                />
+              ))}
+            </LineChart>
           </div>
-          {dataReal[0] && (
-            <div className="">
-              <div className="1">
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-4 lg:gap-8">
-                  <div
-                    className={`${role === 2 ? "hidden" : "h-32 rounded-lg"}`}
-                  >
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Doanh thu theo tháng
-                                </Typography>
-                                <Typography variant="h6" className="w-full">
-                                  {formatter(
-                                    dataReal[0]?.revenue_month?.revenue_month_y
-                                  )}
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "error.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              >
-                                <SvgIcon>
-                                  <CurrencyDollarIcon />
-                                </SvgIcon>
-                              </Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                          <Stack spacing={2}>
-                            <Typography>
-                              Tăng thêm{" "}
-                              <span
-                                style={{ color: "#007BFF", fontWeight: "bold" }}
-                              >
-                                {formatter(
-                                  ((dataReal[0] as any)?.revenue_month)
-                                    .comparison
-                                )}
-                              </span>{" "}
-                              trong tháng này
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <div className="h-32 rounded-lg ">
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Doanh thu theo ngày
-                                </Typography>
-                                <Typography variant="h6" className="w-full">
-                                  {formatter(
-                                    ((dataReal[0] as any)?.revenue_day)
-                                      .revenueToday
-                                  )}
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "error.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              >
-                                <SvgIcon>
-                                  <CurrencyDollarIcon />
-                                </SvgIcon>
-                              </Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                          <Stack spacing={2}>
-                            <Typography>
-                              Tăng thêm{" "}
-                              <span
-                                style={{ color: "#007BFF", fontWeight: "bold" }}
-                              >
-                                {formatter(
-                                  ((dataReal[0] as any)?.revenue_day)
-                                    .revenueToday
-                                )}
-                              </span>{" "}
-                              trong tháng này
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <div
-                    className={`${role === 2 ? "hidden" : "h-32 rounded-lg"}`}
-                  >
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Doanh thu theo đồ ăn theo tháng
-                                </Typography>
-                                <Typography variant="h6" className="w-full">
-                                  {formatter(
-                                    ((dataReal[0] as any)?.revenue_month)
-                                      .totalPricefoodmon
-                                  )}
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "error.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              >
-                                <SvgIcon>
-                                  <CurrencyDollarIcon />
-                                </SvgIcon>
-                              </Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                          <Stack spacing={2}>
-                            <Typography>
-                              Tăng thêm{" "}
-                              <span
-                                style={{ color: "#007BFF", fontWeight: "bold" }}
-                              >
-                                {formatter(
-                                  ((dataReal[0] as any)?.revenue_month)
-                                    .totalPricefoodmon
-                                )}
-                              </span>{" "}
-                              trong tháng này
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <div className="h-32 rounded-lg ">
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Doanh thu theo đồ ăn theo ngày
-                                </Typography>
-                                <Typography variant="h6" className="w-full">
-                                  {formatter(
-                                    ((dataReal[0] as any)?.revenue_day)
-                                      .totalPricefoodday
-                                  )}
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "error.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              >
-                                <SvgIcon>
-                                  <CurrencyDollarIcon />
-                                </SvgIcon>
-                              </Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                          <Stack spacing={2}>
-                            <Typography>
-                              Tăng thêm{" "}
-                              <span
-                                style={{ color: "#007BFF", fontWeight: "bold" }}
-                              >
-                                {formatter(
-                                  ((dataReal[0] as any)?.revenue_day)
-                                    .totalPricefoodday
-                                )}
-                              </span>{" "}
-                              trong ngày
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <div className="h-32 rounded-lg ">
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-7 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Khách hàng mới theo ngày
-                                </Typography>
-                                <Typography variant="h6">
-                                  {(dataReal[0] as any)?.revenue_day?.newUsers}{" "}
-                                  KH
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "success.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              ></Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                          <Stack spacing={2}>
-                            <Typography>
-                              Tăng thêm{" "}
-                              <span
-                                style={{ color: "#007BFF", fontWeight: "bold" }}
-                              >
-                                {(dataReal[0] as any)?.revenue_day?.newUsers} KH
-                              </span>{" "}
-                              trong ngày này
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <div
-                    className={`${role === 2 ? "hidden" : "h-32 rounded-lg"}`}
-                  >
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-7 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Khách hàng mới theo tháng
-                                </Typography>
-                                <Typography variant="h6">
-                                  {
-                                    (dataReal[0] as any)?.revenue_month
-                                      ?.newUsers
-                                  }{" "}
-                                  KH
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "success.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              ></Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                          <Stack spacing={2}>
-                            <Typography>
-                              Tăng thêm{" "}
-                              <span
-                                style={{ color: "#007BFF", fontWeight: "bold" }}
-                              >
-                                {(dataReal[0] as any)?.revenue_month?.newUsers}{" "}
-                                KH
-                              </span>{" "}
-                              trong tháng này
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <div className="h-32 rounded-lg">
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-7 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Tổng số vé bán ra
-                                </Typography>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  {
-                                    (dataReal[0] as any)?.revenue_day
-                                      ?.ticket_day[0]?.name
-                                  }{" "}
-                                </Typography>
-                                <Typography variant="h6">
-                                  {" "}
-                                  {
-                                    (dataReal[0] as any)?.revenue_day
-                                      ?.ticket_day[0]?.total_tickets
-                                  }{" "}
-                                  vé
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "warning.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              >
-                                <SvgIcon>
-                                  <ListBulletIcon />
-                                </SvgIcon>
-                              </Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  <div className="h-32 rounded-lg">
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-7 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Tổng số vé bán ra theo tháng
-                                </Typography>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  {
-                                    (dataReal[0] as any)?.revenue_day
-                                      ?.ticket_mon[0]?.name
-                                  }{" "}
-                                </Typography>
-                                <Typography variant="h6">
-                                  {" "}
-                                  {
-                                    (dataReal[0] as any)?.revenue_day
-                                      ?.ticket_mon[0]?.total_tickets
-                                  }{" "}
-                                  vé
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "warning.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              >
-                                <SvgIcon>
-                                  <ListBulletIcon />
-                                </SvgIcon>
-                              </Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  <div className="h-32 rounded-lg">
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        >
-                          <div className="grid grid-cols-1 gap-7 lg:grid-cols-[1fr_120px] lg:gap-8">
-                            <div className=" rounded-lg ">
-                              <Stack spacing={1}>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  Tổng số vé bán ra theo nam
-                                </Typography>
-                                <Typography
-                                  color="text.secondary"
-                                  variant="overline"
-                                >
-                                  {
-                                    (dataReal[0] as any)?.revenue_day
-                                      ?.ticket_year[0]?.name
-                                  }{" "}
-                                </Typography>
-                                <Typography variant="h6">
-                                  {" "}
-                                  {
-                                    (dataReal[0] as any)?.revenue_day
-                                      ?.ticket_year[0]?.total_tickets
-                                  }{" "}
-                                  vé
-                                </Typography>
-                              </Stack>
-                            </div>
-                            <div className=" rounded-lg ">
-                              {" "}
-                              <Avatar
-                                sx={{
-                                  backgroundColor: "warning.main",
-                                  height: 56,
-                                  width: 56,
-                                }}
-                              >
-                                <SvgIcon>
-                                  <ListBulletIcon />
-                                </SvgIcon>
-                              </Avatar>
-                            </div>
-                          </div>{" "}
-                          <br />
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-                  <div
-                    className={`${role === 2 ? "hidden" : "h-32 rounded-lg"}`}
-                  >
-                    <Card sx={sx}>
-                      <CardContent>
-                        <Stack
-                          alignItems="flex-start"
-                          // direction="row"
-                          justifyContent="space-between"
-                          // spacing={}
-                        ></Stack>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-10">
-                <div className="grid grid-cols-1 mt-24 ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
-                  <div className=" rounded-lg ">
-                    Tốp 5 bộ phim có doanh thu cao nhất theo ngày
-                  </div>
-                  <div className=" rounded-lg ">Tốp 5 bộ phim bán vé chạy</div>
-                </div>
-                <div className="grid grid-cols-1 mt-10 ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
-                  <div className=" rounded-lg ">
-                    <div className="overflow-x-auto rounded-lg border border-gray-200">
-                      <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                        <thead className="ltr:text-left rtl:text-right">
-                          <tr>
-                            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Stt
-                            </th>
-                            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Tên phim
-                            </th>
-                            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Doanh thu
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-gray-200">
-                          {(
-                            dataReal[0] as any
-                          )?.revenue_day?.revenue_film_day?.map(
-                            (item: any, index: any) => (
-                              <tr key={index}>
-                                <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                  {index + 1}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                                  {item.name}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                                  {formatter(Number(item.TotalAmount))}
-                                </td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                  <div className=" rounded-lg ">
-                    <div className="overflow-x-auto rounded-lg border border-gray-200">
-                      <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                        <thead className="ltr:text-left rtl:text-right">
-                          <tr>
-                            <th className="text-left whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Stt
-                            </th>
-
-                            <th className="text-left whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Tên phim
-                            </th>
-
-                            <th className="text-left whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              tong so ve duoc ban
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-gray-200">
-                          {(
-                            dataReal[0] as any
-                          )?.revenue_month?.book_total_mon?.map(
-                            (item: any, index: any) => (
-                              <tr>
-                                <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                  {index + 1}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                                  {item.name}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                                  {item.TotalTickets} số vé
-                                </td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 mt-24 ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
-                  <div className={`${role === 2 ? "hidden" : "rounded-lg"}`}>
-                    Tốp 5 bộ phim có doanh thu cao nhất theo tháng
-                  </div>
-                  <div className={`${role === 2 ? "hidden" : "rounded-lg"}`}>
-                    Tốp 5 khách hàng thân thiết
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 mt-10 ml-14 gap-4 lg:grid-cols-2 lg:gap-8">
-                  <div className={`${role === 2 ? "hidden" : "rounded-lg"}`}>
-                    <div className="overflow-x-auto rounded-lg border border-gray-200">
-                      <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                        <thead className="ltr:text-left rtl:text-right">
-                          <tr>
-                            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Stt
-                            </th>
-                            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Tên phim
-                            </th>
-                            <th className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Doanh thu
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-gray-200">
-                          {(
-                            dataReal[0] as any
-                          )?.revenue_month?.revenue_film?.map(
-                            (item: any, index: any) => (
-                              <tr key={index}>
-                                <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                  {index + 1}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                                  {item.name}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                                  {formatter(Number(item.TotalAmount))}
-                                </td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div className={`${role === 2 ? "hidden" : "rounded-lg"}`}>
-                    <div className="overflow-x-auto rounded-lg border border-gray-200">
-                      <table className="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                        <thead className="ltr:text-left rtl:text-right">
-                          <tr>
-                            <th className="text-left whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Stt
-                            </th>
-
-                            <th className="text-left whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Tên Khách Hàng
-                            </th>
-
-                            <th className="text-left whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                              Tổng tiền
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-gray-200">
-                          {(
-                            dataReal[0] as any
-                          )?.revenue_month?.user_friendly?.map(
-                            (item: any, index: any) => (
-                              <tr key={index}>
-                                <td className="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
-                                  {index + 1}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                                  {item.name}
-                                </td>
-                                <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                                  {formatter(Number(item.TotalAmount))}
-                                </td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
-      );
-  }
-};
-
-export default Dashbroad;
+        <div className="col-span-1 my-10">
+          <h3 className="mx-auto text-center uppercase font-semibold">
+            Tổng Doanh thu theo năm của Các rạp trong năm 2023
+          </h3>
+          <PieChart width={1000} height={400}>
+            <Pie
+              dataKey="value"
+              isAnimationActive={false}
+              data={dataForPieChart}
+              cx={200}
+              cy={200}
+              outerRadius={80}
+              label={(props) => {
+                const percentage = (props.percent * 100).toFixed(2);
+                return (
+                  <text
+                    x={props.x}
+                    y={props.y}
+                    fill={props.fill}
+                    textAnchor={props.textAnchor}
+                  >
+                    <tspan x={props.x} dx="0px" dy="0px">
+                      {props.name}
+                    </tspan>
+                    <tspan x={props.x} dx="0px" dy="1.2em">
+                      {formatCurrency(props.value)}
+                    </tspan>
+                    <tspan x={props.x} dy="-40px" fontSize="14" fill="red">
+                      {percentage}%
+                    </tspan>
+                  </text>
+                );
+              }}
+            />
+            <Tooltip formatter={(value) => formatCurrency(value as number)} />
+          </PieChart>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="">
+          <Top5User data={dataTop5Friendly} />
+        </div>
+        <div className="">
+          <Top5User data={dataTop5Friendly} />
+        </div>
+        <div className="">
+          <Top5User data={dataTop5Friendly} />
+        </div>
+        <div className="">
+          <Top5User data={dataTop5Friendly} />
+        </div>
+      </div>
+    </>
+  );
+}

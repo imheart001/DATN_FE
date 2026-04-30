@@ -7,23 +7,22 @@ import {
   useFetchShowTimeQuery,
   useGetShowbyIdCinemaQuery,
 } from "../../../service/show.service";
-import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+
 import { useSelector } from "react-redux";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import type { TabsProps } from "antd";
-
+import Marquee from "react-fast-marquee";
+import { Alert } from "antd";
 import * as moment from "moment-timezone";
 import { useGetAllCateDetailByFilmQuery } from "../../../service/catedetail.service";
 import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
 import Loading from "../../../components/isLoading/Loading";
-import FilmShowing from "../../../components/FilmShowing";
 
 const Ticket: React.FC = () => {
   const { data: films, isLoading: filmsLoading } = useFetchProductQuery();
   const { data: shows, isLoading: showsLoading } = useFetchShowTimeQuery();
   const { data: cinemas, isLoading: cinemasLoading } = useFetchCinemaQuery();
-  console.log(films);
 
   const { data: times } = useFetchTimeQuery();
 
@@ -34,11 +33,21 @@ const Ticket: React.FC = () => {
   const [selectedFilmId, setSelectedFilmId] = useState(null);
   const [filmShows2, setFilmShows2] = useState<FilmShow[]>([]);
   const user = useSelector((state: any) => state.auth?.token);
+  const getIfUser = localStorage.getItem("user");
+  const IfUser = JSON.parse(`${getIfUser}`);
+  const calculateAge = (birthDate: string) => {
+    const today = moment();
+    const birthMoment = moment(birthDate);
+    const age = today.diff(birthMoment, "years");
+    return age;
+  };
+
+  // Tính tuổi từ ngày sinh của người dùng
+  const userAge = calculateAge(IfUser?.date_of_birth);
 
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const { data: dataShowbyIdCinema } =
     useGetShowbyIdCinemaQuery(selectedCinema);
-  console.log(filmShows2);
 
   const currentDateTime = moment()
     .utcOffset(420)
@@ -251,6 +260,15 @@ const Ticket: React.FC = () => {
             <h2 className="font-bold mb-[34px] text-center text-[40px] text-[#FFFFFF]">
               Đặt phim
             </h2>
+            <Alert
+              banner
+              message={
+                <Marquee pauseOnHover gradient={false}>
+                  Nút mua vé sẽ chỉ hiển thị nếu bạn đủ tuổi xem phim đó !!
+                </Marquee>
+              }
+              className="my-10 rounded-md"
+            />
             <div className="grid grid-cols-4 gap-10">
               {(films as any)?.data?.map((film: any) => {
                 if (cateAllDetail && dataShowbyIdCinema) {
@@ -261,6 +279,7 @@ const Ticket: React.FC = () => {
                     (show: any) => show.film_id === film.id
                   );
 
+                  console.log("====================================");
                   return (
                     <div className="relative">
                       <div
@@ -288,7 +307,19 @@ const Ticket: React.FC = () => {
                           </div>
                         </div>
 
-                        {showbyCinema && (
+                        {showbyCinema &&
+                          IfUser &&
+                          userAge >= parseInt(film.limit_age, 10) && (
+                            <button
+                              className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]"
+                              onClick={() => {
+                                showModal(film.id);
+                              }}
+                            >
+                              Mua vé
+                            </button>
+                          )}
+                        {showbyCinema && !IfUser && (
                           <button
                             className="text-[#FFFFFF]  hover:opacity-75  rounded-lg py-3 w-full bg-[#EE2E24]"
                             onClick={() => {

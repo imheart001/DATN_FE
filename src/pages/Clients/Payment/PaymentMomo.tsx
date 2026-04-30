@@ -174,7 +174,7 @@ const PaymentMomo: React.FC = () => {
         <Result
           status="success"
           title="Thanh Toán Thành Công"
-          subTitle="Order number: 2017182818828182881 Cloud server configuration takes 1-5 minutes, please wait."
+          subTitle={`Mã vé: ${idCode}! Bạn có thể kiểm tra lại vé của mình ở phần Lịch sử đơn hàng!!. Thanks you`}
           extra={[
             <>
               <p className="text-gray-700 mb-4">

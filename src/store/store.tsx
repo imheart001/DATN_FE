@@ -38,20 +38,14 @@ import payMoMoAPI from "../service/payMoMo.service";
 import memberAPI from "../service/member.service";
 import blogsAPI from "../service/blog.service";
 import refundAPI from "../service/refund.services";
+import useCoinAPI from "../service/usecoin.service";
 
 // Import redux-persist
 const persistConfig = {
   key: "root",
   storage,
   version: 1,
-  whitelist: [
-    "selectedCinema",
-    "pays",
-    "bkseats",
-    "TKinformation",
-    "Paymentmethod",
-    "SeatKeepig",
-  ],
+  whitelist: ["selectedCinema", "pays", "TKinformation", "Paymentmethod"],
 };
 
 const rootReducer = combineReducers({
@@ -77,9 +71,10 @@ const rootReducer = combineReducers({
   users: usersAPI.reducer,
   blogs: blogsAPI.reducer,
   auth: authReducer,
+  useCoin: useCoinAPI.reducer,
   [analyticApi.reducerPath]: analyticApi.reducer,
   [memberAPI.reducerPath]: memberAPI.reducer,
-  refund: refundAPI.reducer
+  refund: refundAPI.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -113,7 +108,8 @@ const store = configureStore({
       analyticApi.middleware as any,
       memberAPI.middleware as any,
       blogsAPI.middleware as any,
-      refundAPI.middleware as any
+      refundAPI.middleware as any,
+      useCoinAPI.middleware as any
     );
 
     return middlewareArray;
