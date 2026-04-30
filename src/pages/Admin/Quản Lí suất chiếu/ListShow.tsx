@@ -38,10 +38,7 @@ const ListShow: React.FC = () => {
   let user = JSON.parse(localStorage.getItem("user")!);
 
   const role = user.role;
-  console.log("🚀 ~ file: ListShow.tsx:41 ~ role:", typeof role)
-  const [checked, setChecked] = React.useState(
-    (shows as any)?.data?.map((item: any) => false)
-  );
+
   const [updateShowTime] = useUpdateShowTimeMutation();
 
   const onChange = async (checked: boolean, item: any) => {
@@ -81,34 +78,37 @@ const ListShow: React.FC = () => {
       title: "Tên Phim",
       dataIndex: "film_id",
       key: "film_id",
-      filters: films?.data?.map((item) => ({
+      filters: (films as any)?.data?.map((item: any) => ({
         text: item.name,
         value: item.name,
       })),
       filteredValue: filteredInfo.film_id || null,
-      onFilter: (value: string, record) => record.film_id.includes(value),
+      onFilter: (value: string, record: DataType) =>
+        record.film_id.includes(value),
     },
     {
       title: "Thời gian",
       dataIndex: "time_id",
       key: "time_id",
-      filters: times?.data?.map((item) => ({
+      filters: (times as any)?.data?.map((item: any) => ({
         text: item.time,
         value: item.time,
       })),
       filteredValue: filteredInfo.time_id || null,
-      onFilter: (value: string, record) => record.time_id.includes(value),
+      onFilter: (value: string, record: DataType) =>
+        record.time_id.includes(value),
     },
     {
       title: "Phòng Chiếu",
       dataIndex: "room_id",
       key: "room_id",
-      filters: room?.data?.map((item) => ({
+      filters: (room as any)?.data?.map((item: any) => ({
         text: item.name,
         value: item.name,
       })),
       filteredValue: filteredInfo.room_id || null,
-      onFilter: (value: string, record) => record.room_id.includes(value),
+      onFilter: (value: string, record: DataType) =>
+        record.room_id.includes(value),
     },
     {
       title: role === 1 && "Action",
@@ -154,7 +154,7 @@ const ListShow: React.FC = () => {
         if (role !== 2) {
           return (
             <Switch
-              checked={record.status === 1 ? true : false}
+              checked={(record as any).status === 1 ? true : false}
               onChange={(value: boolean) => onChange(value, record)}
             />
           );

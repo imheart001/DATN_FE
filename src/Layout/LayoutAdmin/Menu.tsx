@@ -43,23 +43,9 @@ const items: MenuItem[] = [
   ),
   getItem("Đặt vé", "6", <AppstoreOutlined />, [
     getItem(
-      "Đặt vé",
-      "7",
-      <NavLink to="/admin/Tiketbookingdetail">
-        <CopyOutlined />
-      </NavLink>
-    ),
-    getItem(
       "Vé đã đặt",
       "8",
       <NavLink to="/admin/book_ticket">
-        <FormOutlined />
-      </NavLink>
-    ),
-    getItem(
-      "Hóa đơn trả",
-      "9",
-      <NavLink to="/admin/product/create">
         <FormOutlined />
       </NavLink>
     ),
@@ -95,14 +81,6 @@ const items: MenuItem[] = [
       "15",
       <NavLink to="/admin/listcate">
         <CopyOutlined />
-      </NavLink>
-    ),
-
-    getItem(
-      "CateDetail",
-      "16",
-      <NavLink to="/admin/category_detail">
-        <FormOutlined />
       </NavLink>
     ),
   ]),
@@ -142,43 +120,8 @@ const items: MenuItem[] = [
       </NavLink>
     ),
   ]),
-  getItem("Sản phẩm", "25", <ShopOutlined />, [
-    getItem(
-      "Sản phẩm",
-      "26",
-      <NavLink to="/admin/product">
-        <CopyOutlined />
-      </NavLink>
-    ),
-    getItem(
-      "Bảng giá",
-      "27",
-      <NavLink to="/admin/product">
-        <CopyOutlined />
-      </NavLink>
-    ),
-  ]),
-  getItem("Hệ thống", "28", <InboxOutlined />, [
-    getItem(
-      "Nhân viên",
-      "29",
-      <NavLink to="/admin/product">
-        <CopyOutlined />
-      </NavLink>
-    ),
-  ]),
-  getItem(
-    "Thống kê",
-    "30",
-    <NavLink to="/admin/user">
-      <PieChartOutlined />
-    </NavLink>
-  ),
-  getItem(
-    <Link to="/admin/members">Quản lí khách hàng vip</Link>,
-    "31",
-    <TeamOutlined />
-  ),
+
+  getItem(<Link to="/admin/members">Hội viên</Link>, "31", <TeamOutlined />),
   getItem(
     "Blogs",
     "27",
@@ -240,28 +183,28 @@ export const SideBarAdmin: React.FC<SideBarAdminProps> = ({
         </svg>
 
         {role === 3 && (
-           <Menu
-           theme="dark"
-           defaultSelectedKeys={["1"]}
-           mode="inline"
-           items={itemsAdmin3}
-         />
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={["1"]}
+            mode="inline"
+            items={itemsAdmin3}
+          />
         )}
         {role === 2 && (
-           <Menu
-           theme="dark"
-           defaultSelectedKeys={["1"]}
-           mode="inline"
-           items={itemStaffs}
-         />
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={["1"]}
+            mode="inline"
+            items={itemStaffs}
+          />
         )}
-         {role === 1 && (
-           <Menu
-           theme="dark"
-           defaultSelectedKeys={["1"]}
-           mode="inline"
-           items={items}
-         />
+        {role === 1 && (
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={["1"]}
+            mode="inline"
+            items={items}
+          />
         )}
       </Sider>
 

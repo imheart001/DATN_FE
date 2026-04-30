@@ -45,6 +45,9 @@ const PaymentMomo: React.FC = () => {
   const selectingSeat = useSelector(
     (state: any) => state.TKinformation?.selectedSeats
   );
+  const totalPriceSeat = useSelector(
+    (state: any) => state.TKinformation?.totalPriceSeat
+  );
   const id_time_details = useSelector(
     (state: any) => state.TKinformation?.showtimeId
   );
@@ -72,7 +75,7 @@ const PaymentMomo: React.FC = () => {
 
   const selectedSeatsData = {
     name: selectingSeat,
-    price: totalPrice,
+    price: totalPriceSeat,
     id_time_detail: id_selectingTime_detail,
   };
   const currentPath = location.pathname;

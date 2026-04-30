@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 
 export const HeaderAdmin = () => {
   const { Header } = Layout;
-const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user")!);
 

@@ -92,23 +92,9 @@ export const itemsAdmin: MenuItem[] = [
   ),
   getItem("Đặt vé", "42", <AppstoreOutlined />, [
     getItem(
-      "Đặt vé",
-      "43",
-      <NavLink to="/admin/Tiketbookingdetail">
-        <CopyOutlined />
-      </NavLink>
-    ),
-    getItem(
       "Vé đã đặt",
       "44",
       <NavLink to="/admin/book_ticket">
-        <FormOutlined />
-      </NavLink>
-    ),
-    getItem(
-      "Hóa đơn trả",
-      "45",
-      <NavLink to="/admin/product/create">
         <FormOutlined />
       </NavLink>
     ),
@@ -191,24 +177,7 @@ export const itemsAdmin: MenuItem[] = [
       </NavLink>
     ),
   ]),
-  getItem("Hệ thống", "62", <InboxOutlined />, [
-    getItem(
-      "Nhân viên",
-      "63",
-      <NavLink to="/admin/product">
-        <CopyOutlined />
-      </NavLink>
-    ),
-  ]),
-  getItem(
-    "Thống kê",
-    "64",
-    <NavLink to="/admin/user">
-      <PieChartOutlined />
-    </NavLink>
-  ),
 ];
-
 
 export const itemsAdmin3: MenuItem[] = [
   getItem(
@@ -220,23 +189,9 @@ export const itemsAdmin3: MenuItem[] = [
   ),
   getItem("Đặt vé", "2", <AppstoreOutlined />, [
     getItem(
-      "Đặt vé",
-      "3",
-      <NavLink to="/admin/Tiketbookingdetail">
-        <CopyOutlined />
-      </NavLink>
-    ),
-    getItem(
       "Vé đã đặt",
       "4",
       <NavLink to="/admin/book_ticket">
-        <FormOutlined />
-      </NavLink>
-    ),
-    getItem(
-      "Hóa đơn trả",
-      "5",
-      <NavLink to="/admin/product/create">
         <FormOutlined />
       </NavLink>
     ),
@@ -272,14 +227,6 @@ export const itemsAdmin3: MenuItem[] = [
       "8",
       <NavLink to="/admin/listcate">
         <CopyOutlined />
-      </NavLink>
-    ),
-
-    getItem(
-      "CateDetail",
-      "12",
-      <NavLink to="/admin/category_detail">
-        <FormOutlined />
       </NavLink>
     ),
   ]),

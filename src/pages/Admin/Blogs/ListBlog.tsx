@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 import { useState } from "react";
 
@@ -8,20 +8,20 @@ import { DeleteOutlined } from "@ant-design/icons";
 
 import AddBlog from "../Blogs/AddBlog";
 
-
 import { IBlogs } from "../../../interface/model";
 import UpdateBlog from "./UpdateBlog";
-import { RootState } from "../../../store/store";
-import { useAppSelector } from "../../../store/hooks";
-import { formatter } from "../../../utils/formatCurrency";
-import { useFetchBlogQuery , useRemoveBlogMutation} from '../../../service/blog.service';
+
+import {
+  useFetchBlogQuery,
+  useRemoveBlogMutation,
+} from "../../../service/blog.service";
 interface DataType {
-    id: string;
-    title: string;
-    slug: string;
-    image: string;
-    content: string;
-    status: number;
+  id: string;
+  title: string;
+  slug: string;
+  image: string;
+  content: string;
+  status: number;
 }
 
 const { Search } = Input;
@@ -47,10 +47,10 @@ const ListBlog: React.FC = () => {
       key: "title",
     },
     {
-        title: "Slug Blogs",
-        dataIndex: "slug",
-        key: "slug",
-      },
+      title: "Slug Blogs",
+      dataIndex: "slug",
+      key: "slug",
+    },
     {
       key: "image",
       title: "Hình ảnh",
@@ -60,15 +60,15 @@ const ListBlog: React.FC = () => {
       render: (text: string) => <Image width={50} src={text} />,
     },
     {
-        title: "Content",
-        dataIndex: "content",
-        key: "content",
-      },
-      {
-        title: "Status",
-        dataIndex: "status",
-        key: "status",
-      },
+      title: "Content",
+      dataIndex: "content",
+      key: "content",
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+    },
     {
       render: (_, record) => {
         if (role === 1) {
@@ -110,7 +110,7 @@ const ListBlog: React.FC = () => {
     image: blog?.image,
     content: blog?.content,
     status: blog?.status,
-      tags: [blog.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+    tags: [blog.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
   console.log("🚀 ~ file: ListBlog.tsx:92 ~ dataBlog ~ dataBlog:", dataBlog);
   const [dataList, setDataList] = useState<any>(null);
@@ -124,8 +124,8 @@ const ListBlog: React.FC = () => {
 
   return (
     <>
-        <div className="">
-        <h2 className="font-bold text-2xl my-4">Quản lí  blogs</h2>
+      <div className="">
+        <h2 className="font-bold text-2xl my-4">Quản lí blogs</h2>
         <div className="space-x-4 justify-center my-4">
           <Search
             placeholder="Nhập tên đồ ăn hoặc mã đồ ăn"
@@ -141,7 +141,6 @@ const ListBlog: React.FC = () => {
       ) : (
         <Table columns={columns} dataSource={dataBlog} />
       )}
-       
     </>
   );
 };

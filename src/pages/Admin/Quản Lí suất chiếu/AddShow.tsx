@@ -48,26 +48,28 @@ const AddShow: React.FC = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinish = async (values: any) => {
-    console.log(values);
     if (!selectedCinema) {
       message.error("Vui lòng chọn rạp chiếu trước khi chọn phòng chiếu");
       return;
     }
     try {
-      values.time_id.map(async (time: any) => {
+      for (const time of values.time_id) {
         const dataAddShow = {
           date: values.date.format("YYYY-MM-DD"),
           time_id: time,
           film_id: values.film_id,
           room_id: values.room_id,
         };
-        await addShow(dataAddShow).unwrap();
-      });
-      message.success("Thêm sản phẩm thành công");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin/show");
+        const response = await addShow(dataAddShow).unwrap();
+        console.log(response);
+        if (response) {
+          message.success("Thêm mới suất chiếu thành công  ");
+        }
+      }
     } catch (error) {
-      message.error("Thêm sản phẩm thất bại");
+      console.log(error);
+
+      message.error("Thêm sản phẩm thất bại  " + (error as any).data.message);
     }
   };
 

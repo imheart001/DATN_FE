@@ -15,6 +15,7 @@ import {
   setComboFoods,
   setChooseVoucher,
   setChangePoint,
+  setTotalPriceSeat,
 } from "../../../components/CinemaSlice/selectSeat";
 
 import { useFetchFoodQuery } from "../../../service/food.service";
@@ -567,9 +568,11 @@ const BookingSeat = () => {
     const moneyTotal1 =
       totalMoney + totalComboAmount - discountedAmount - point;
     dispatch(setTotalPrice(moneyTotal1));
+    dispatch(setTotalPriceSeat(totalMoney));
   } else {
     const moneyTotal2 = totalMoney + totalComboAmount - discountedAmount;
     dispatch(setTotalPrice(moneyTotal2));
+    dispatch(setTotalPriceSeat(totalMoney));
   }
 
   if (isLoading) {

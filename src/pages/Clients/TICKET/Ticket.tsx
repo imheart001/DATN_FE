@@ -279,7 +279,6 @@ const Ticket: React.FC = () => {
                     (show: any) => show.film_id === film.id
                   );
 
-                  console.log("====================================");
                   return (
                     <div className="relative">
                       <div

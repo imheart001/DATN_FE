@@ -35,6 +35,9 @@ const PaymentCoin: React.FC<PaymentCoinProps> = ({
   const totalPrice = useSelector(
     (state: any) => state.TKinformation?.totalPrice
   );
+  const totalPriceSeat = useSelector(
+    (state: any) => state.TKinformation?.totalPriceSeat
+  );
   const selectingSeat = useSelector(
     (state: any) => state.TKinformation?.selectedSeats
   );
@@ -80,7 +83,7 @@ const PaymentCoin: React.FC<PaymentCoinProps> = ({
 
       const selectedSeatsData = {
         name: selectingSeat,
-        price: totalPrice,
+        price: totalPriceSeat,
         id_time_detail: id_selectingTime_detail,
       };
       const responseAddChair = await addChair(selectedSeatsData);
