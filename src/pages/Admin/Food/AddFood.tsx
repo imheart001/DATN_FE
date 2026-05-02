@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { UserAddOutlined } from "@ant-design/icons";
+import { PlusOutlined, UserAddOutlined } from "@ant-design/icons";
 import {
   Button,
   Col,
@@ -10,6 +10,7 @@ import {
   Row,
   // Select,
   Space,
+  Upload,
   message,
 } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +21,7 @@ const AddFood: React.FC = () => {
   const [addFood] = useAddFoodMutation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-
+  const [imageFileList, setImageFileList] = useState<any>([]);
   const showDrawer = () => {
     setOpen(true);
   };
@@ -30,14 +31,23 @@ const AddFood: React.FC = () => {
   };
 
   const onFinish = async (values: any) => {
-    try {
-      await addFood(values).unwrap();
-      message.success("Thêm sản phẩm thành công");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin/food");
-    } catch (error) {
-      message.error("Thêm sản phẩm thất bại");
-    }
+    const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('price', values.price);
+      if (imageFileList.length > 0) {
+        formData.append('image', imageFileList[0].originFileObj);
+      }
+      console.log(imageFileList[0].originFileObj);
+      console.log(values.image);
+      
+    // try {
+    //   await addFood(values).unwrap();
+    //   message.success("Thêm sản phẩm thành công");
+    //   await new Promise((resolve) => setTimeout(resolve, 5000));
+    //   navigate("/admin/food");
+    // } catch (error) {
+    //   message.error("Thêm sản phẩm thất bại");
+    // }
   };
 
   const [form] = Form.useForm(); // Tạo một Form instance để sử dụng validate
@@ -92,20 +102,39 @@ const AddFood: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
+                label="Tên đồ ăn"
                 rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Tên đồ ăn" />
               </Form.Item>
             </Col>
 
             <Col span={12}>
               <Form.Item
                 name="image"
-                label="Image"
+                label="Hình Ảnh"
                 rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
+                valuePropName="fileList"
+                getValueFromEvent={(e) => {
+                  if (Array.isArray(e)) {
+                    return e;
+                  }
+                  return e && e.fileList;
+                }}
               >
-                <Input placeholder="Please enter user Image" />
+                <Upload
+                  listType="picture-card"
+                  fileList={imageFileList}
+                  beforeUpload={() => false}
+                  onChange={({ fileList }) => setImageFileList(fileList)}
+                >
+                  {imageFileList.length >= 1 ? null : (
+                    <div>
+                      <PlusOutlined />
+                      <div style={{ marginTop: 8 }}>Upload</div>
+                    </div>
+                  )}
+                </Upload>
               </Form.Item>
             </Col>
           </Row>
@@ -114,7 +143,7 @@ const AddFood: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="price"
-                label="Price"
+                label="Giá tiền"
                 rules={[
                   { required: true, message: "Trường dữ liệu bắt buộc" },
                   {
@@ -135,7 +164,7 @@ const AddFood: React.FC = () => {
                   },
                 ]}
               >
-                <Input placeholder="Please enter user Price" />
+                <Input placeholder="Giá tiền" />
               </Form.Item>
             </Col>
           </Row>

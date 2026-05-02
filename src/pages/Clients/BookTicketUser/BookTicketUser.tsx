@@ -1,11 +1,10 @@
 import { useGetBookTicketByUserQuery } from "../../../service/book_ticket.service";
-import { Table, Image, Button, Modal, Input, message, Badge, Tag } from "antd";
+import { Table, Image, Button, Modal, Input, message, Tag } from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { FilterValue } from "antd/es/table/interface";
 import moment from "moment";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFetchProductQuery } from "../../../service/films.service";
-import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 import { useSendRefundMutation } from "../../../service/refund.services";
 
 export interface DataType {
@@ -29,11 +28,11 @@ const BookTicketUser = () => {
   >({});
   const [password, setPassword] = useState<string>("");
   const [id, setID] = useState<string>("");
-  const { data: fetchBookTicket } = useGetBookTicketByUserQuery(idUser);
+  const { data: fetchBookTicket } = useGetBookTicketByUserQuery(idUser || 0);
   const { data: film } = useFetchProductQuery();
   const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const showModal = (id_book_ticket: number) => {
+  const [dataBook, setDataBook] = useState([]);
+  const showModal = (id_book_ticket: any) => {
     setID(id_book_ticket);
     setIsModalVisible(true);
   };
@@ -41,10 +40,13 @@ const BookTicketUser = () => {
   const handleOk = async () => {
     try {
       const res = await sendRefund({ password: password, id: id });
-      console.log(res);
-      message.error(res.error.data.message);
-
+      if (res.error) {
+        message.error(res?.error?.data?.message);
+        return;
+      }
+      alert("Thực hiện hoàn tiền thành công!");
       setIsModalVisible(false);
+      window.location.reload();
     } catch (error) {
       console.log(error);
     }
@@ -59,8 +61,8 @@ const BookTicketUser = () => {
   const formatDate = (dateString: string) => {
     return moment(dateString).format("DD/MM/YYYY HH:mm:ss");
   };
-  const getUniqueValues = (dataList: string, key) => {
-    return Array.from(new Set(dataList?.data?.map((item) => item[key])));
+  const getUniqueValues = (dataList: string, key: any) => {
+    return Array.from(new Set(dataList?.data?.map((item: any) => item[key])));
   };
   const columns: ColumnsType<DataType> = [
     {
@@ -209,55 +211,57 @@ const BookTicketUser = () => {
       },
     },
   ];
-  const dataBookTicket = (fetchBookTicket as any)?.map(
-    (bookticket: any, index: number) => {
-      let statusText = "";
-      switch (bookticket.status) {
-        case 0:
-          statusText = "Hoàn Tiền";
-          break;
-        case 1:
-          statusText = "Đã Nhận Vé";
-          break;
-        case 2:
-          statusText = "Đã Hủy";
-          break;
-        case 3:
-          statusText = "Quá Hạn";
-          break;
-        default:
-          statusText = "Không Xác Định";
-          break;
+  useEffect(() => {
+    const dataBookTicket = (fetchBookTicket as any)?.map(
+      (bookticket: any, index: number) => {
+        let statusText = "";
+        switch (bookticket.status) {
+          case 0:
+            statusText = "Hoàn Tiền";
+            break;
+          case 1:
+            statusText = "Đã Nhận Vé";
+            break;
+          case 2:
+            statusText = "Đã Hủy";
+            break;
+          case 3:
+            statusText = "Quá Hạn";
+            break;
+          default:
+            statusText = "Không Xác Định";
+            break;
+        }
+        return {
+          key: index.toString(),
+          id_code: bookticket.id_code,
+          time: bookticket.time,
+          name: {
+            name: bookticket.name,
+            img: bookticket.image,
+          },
+          movie_room_name: bookticket.movie_room_name,
+          name_cinema: bookticket.name_cinema,
+          date: {
+            date: bookticket.date,
+            time: bookticket.time_suatchieu,
+          },
+          food_items: bookticket.food_items,
+          chair: {
+            name: bookticket.chair_name,
+            price: bookticket.total_price,
+          },
+          cinema_name: bookticket.cinema_name,
+
+          status: {
+            status: statusText,
+            id_book_ticket: bookticket.id_book_ticket,
+          },
+        };
       }
-      return {
-        key: index.toString(),
-        id_code: bookticket.id_code,
-        time: bookticket.time,
-        name: {
-          name: bookticket.name,
-          img: bookticket.image,
-        },
-        movie_room_name: bookticket.movie_room_name,
-        name_cinema: bookticket.name_cinema,
-        date: {
-          date: bookticket.date,
-          time: bookticket.time_suatchieu,
-        },
-        food_items: bookticket.food_items,
-        chair: {
-          name: bookticket.chair_name,
-          price: bookticket.total_price,
-        },
-        cinema_name: bookticket.cinema_name,
-
-        status: {
-          status: statusText,
-          id_book_ticket: bookticket.id_book_ticket,
-        },
-      };
-    }
-  );
-
+    );
+    setDataBook(dataBookTicket);
+  },[fetchBookTicket])
   const handleChange: TableProps<DataType>["onChange"] = (
     pagination,
     filters
@@ -272,7 +276,7 @@ const BookTicketUser = () => {
         className="bg-white rounded-lg mx-auto px-10"
         onChange={handleChange}
         columns={columns}
-        dataSource={dataBookTicket}
+        dataSource={dataBook}
         scroll={{ x: 2200, y: 600 }}
       />
     </div>
