@@ -197,7 +197,17 @@ const BookTicketUser = () => {
               onOk={handleOk}
               onCancel={handleCancel}
               mask={true}
+              okButtonProps={{
+                style: { backgroundColor: "#007bff", color: "white" },
+              }}
             >
+              <h3 className="font-semibold text-red-600  text-lg my-4">
+                LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá tiền bạn
+                đã đặt
+              </h3>
+              <h3 className="font-semibold text-red-600 text-lg my-4">
+                Xác nhận mật khẩu để đồng ý hoàn vé!!
+              </h3>
               <p>Nhập Mật Khẩu</p>
               <Input
                 type="password"
@@ -261,7 +271,7 @@ const BookTicketUser = () => {
       }
     );
     setDataBook(dataBookTicket);
-  },[fetchBookTicket])
+  }, [fetchBookTicket]);
   const handleChange: TableProps<DataType>["onChange"] = (
     pagination,
     filters
