@@ -471,7 +471,7 @@ const BookingSeat = () => {
     console.log(reponse);
 
     // console.log((reponse as any).data.data);
-    // window.location.href = `${(reponse as any).data.data}`;
+    window.location.href = `${(reponse as any).data.data}`;
     // if (reponse) {
     //   window.location.href = `${reponse?.data}`;
     // }
@@ -605,27 +605,34 @@ const BookingSeat = () => {
       message.error("Vui lòng chọn ít nhất một ghế để đặt vé.");
       return;
     }
-    const seatNearOutermost = selectedSeats.find((seat) => seat.column === 10);
+    const seatNearOutermost = selectedSeats.filter(
+      (seat) => seat.column === 10
+    );
+    // console.log(seatNearOutermost);
+    // console.log(seats);
+    seatNearOutermost.map((s) => {
+      return s.row;
+    });
+    const seatHaveColumn11 = seatNearOutermost.map((s) => {
+      return seats[s.row] && seats[s.row][s.column + 1];
+    });
+    const seatHaveColumn11Available = seatHaveColumn11.find(
+      (s) => s.status === "available"
+    );
 
-    if (seatNearOutermost) {
-      const NearSeatOutermost = seatNearOutermost?.row;
-      const test3 = seats[NearSeatOutermost].find(
-        (seat) =>
-          seat.row === NearSeatOutermost &&
-          seat.column === seatNearOutermost?.column + 1
+    if (seatNearOutermost && seatHaveColumn11Available) {
+      message.error(
+        "Bạn không được bỏ trống ghế " +
+          getRowName(seatHaveColumn11Available.row) +
+          (seatHaveColumn11Available.column + 1)
       );
-      // console.log(test3);
-      if (seatNearOutermost && test3?.status === "available") {
-        message.error(
-          "Bạn không được bỏ trống ghế " +
-            getRowName(seatNearOutermost.row) +
-            (seatNearOutermost.column + 2)
-        );
-        return;
-      }
+      return;
     }
+    console.log(selectedSeats);
 
     const findSeats = () => {
+      const result = [];
+
       for (let i = 0; i < selectedSeats.length - 1; i++) {
         const seat1 = selectedSeats[i];
 
@@ -636,50 +643,48 @@ const BookingSeat = () => {
             seat1.row === seat2.row &&
             Math.abs(seat1.column - seat2.column) === 2
           ) {
-            return [seat1, seat2];
+            result.push([seat1, seat2]);
           }
         }
       }
 
-      return null;
+      return result.length > 0 ? result : null;
     };
 
     const result = findSeats();
-    if (result) {
-      const rowCheck = result
-        .filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.row === item.row)
-        )
-        .map((item) => item.row)[0];
+    console.log(result);
 
-      const seatBetween = seats[rowCheck].find(
-        (seat: any) =>
-          seat.row === rowCheck &&
-          seat.column === (result[0]?.column + result[1]?.column) / 2
-      );
-      // console.log(seatBetween);
-      if (result && seatBetween?.status === "available") {
-        message.error(
-          "Bạn không được bỏ trống ghế " +
-            getRowName(seatBetween.row) +
-            (seatBetween.column + 1)
-        );
-        return;
+    if (result) {
+      for (const seatsPair of result) {
+        for (const seat of seatsPair) {
+          const rowCheck = seat.row;
+          const seatBetween = seats[rowCheck].find(
+            (s) =>
+              s.row === rowCheck &&
+              s.column === (seatsPair[0].column + seatsPair[1].column) / 2
+          );
+
+          if (seatBetween?.status === "available") {
+            message.error(
+              `Bạn không được bỏ trống ghế ${getRowName(seatBetween.row)}${
+                seatBetween.column + 1
+              }`
+            );
+            return;
+          }
+        }
       }
     }
     if (selectedSeats) {
+      console.log(selectedSeats);
+
       const rowseatCheck = selectedSeats
         .filter(
           (item, index, self) =>
             index === self.findIndex((t) => t.row === item.row)
         )
         .map((item) => item.row)[0];
-      const seatChoosing = selectedSeats.filter(
-        (item, index, self) =>
-          index === self.findIndex((t) => t.row === item.row)
-      );
-      // console.log(seatChoosing);
+      console.log(rowseatCheck);
 
       const seat2 = selectedSeats
         .filter(
@@ -687,9 +692,10 @@ const BookingSeat = () => {
             index === self.findIndex((t) => t.row === item.row)
         )
         .map((item) => item.column)[0];
-      // console.log(seat2);
+      console.log(seat2);
 
       const seatFinded = seats[rowseatCheck].map((s) => s.column);
+      console.log(seatFinded);
 
       const findSeats = () => {
         const result = [];
@@ -702,8 +708,38 @@ const BookingSeat = () => {
 
         return result.length > 0 ? result : null;
       };
+      const seatHaveColumnss = selectedSeats.map((s) => {
+        return seats[s.row] && seats[s.row][s.column + 2];
+      });
+      console.log(seatHaveColumnss);
+
+      const seatHaveColumnss2 = selectedSeats.map((s) => {
+        return seats[s.row] && seats[s.row][s.column - 2];
+      });
+      console.log(seatHaveColumnss2);
+
+      console.log(seatHaveColumnss);
+      const allsss = [...seatHaveColumnss, ...seatHaveColumnss2];
+      console.log(allsss);
+      console.log(selectedSeats);
+      const testttt = allsss.filter((s) => {
+        return s.status === "booked";
+      });
+      console.log(testttt);
+      testttt.map((s) => {
+        return seats[s.row][s.column - 1];
+      });
+      console.log(
+        testttt.map((s) => {
+          return seats[s.row][s.column - 1];
+        })
+      );
 
       const testtt = findSeats();
+      const seatChoosing = selectedSeats.filter(
+        (item, index, self) =>
+          index === self.findIndex((t) => t.row === item.row)
+      );
       // console.log(testtt);
       if (testtt && seatChoosing) {
         if (seats[rowseatCheck][testtt[1]]?.status === "booked") {

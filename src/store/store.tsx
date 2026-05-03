@@ -19,6 +19,7 @@ import foodAPI from "../service/food.service";
 import movieRoomAPI from "../service/movieroom.service";
 import selectedCinemaReducer from "../components/CinemaSlice/selectedCinemaSlice";
 import TKinformationReducer from "../components/CinemaSlice/selectSeat";
+import PaymentmethodReducer from "../components/ChoosePayment/ChoosePayment";
 import { combineReducers } from "redux";
 import timesAPI from "../service/time.service";
 import bookTicketsAPI from "../service/book_ticket.service";
@@ -42,7 +43,13 @@ const persistConfig = {
   key: "root",
   storage,
   version: 1,
-  whitelist: ["selectedCinema", "pays", "bkseats", "TKinformation"],
+  whitelist: [
+    "selectedCinema",
+    "pays",
+    "bkseats",
+    "TKinformation",
+    "Paymentmethod",
+  ],
 };
 
 const rootReducer = combineReducers({
@@ -63,6 +70,7 @@ const rootReducer = combineReducers({
   sendEmail: sendEmailAPI.reducer,
   selectedCinema: selectedCinemaReducer,
   TKinformation: TKinformationReducer,
+  Paymentmethod: PaymentmethodReducer,
   users: usersAPI.reducer,
   blogs: blogsAPI.reducer,
   comments: commentsAPI.reducer,

@@ -17,6 +17,8 @@ const Recharge: React.FC = () => {
   const showModal = () => {
     setIsModalOpen(true);
   };
+  console.log(selectedPaymentMethod);
+
   const handlePaymentMethodSelect = (method: string) => {
     setSelectedPaymentMethod(method);
   };
@@ -44,12 +46,16 @@ const Recharge: React.FC = () => {
       message.warning("Bạn chưa chọn phương thức thanh toán");
       return;
     }
-    if (selectedPaymentMethod === "momo") {
+    if (selectedPaymentMethod == "momo") {
       const dataPost: any = {
         amount: money2,
         id_user: userId.id,
       };
       const response = await payMomo(dataPost);
+      console.log(!response);
+      console.log(response);
+      
+      // dispatch(setMoney(value));
       window.location.href = `${(response as any)?.data?.payUrl}`;
     }
   };

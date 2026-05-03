@@ -15,10 +15,11 @@ import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
 import * as moment from "moment-timezone";
 import { useSendEmailMutation } from "../../../service/sendEmail.service";
 import { useUsed_VC_ByUserIdMutation } from "../../../service/voucher.service";
+import { useDiscountPointMutation } from "../../../service/member.service";
 
 const Payment = () => {
   const location = useLocation();
-  const [vnpAmount, setVnpAmount] = useState(""); 
+  const [vnpAmount, setVnpAmount] = useState("");
   const { data: allchairbked } = useFetchChairsQuery();
   const [addIfSeatByUser] = useAddBookTicketMutation();
   const [addFood] = useAddFoodTicketDetailMutation();
@@ -26,15 +27,17 @@ const Payment = () => {
   const [useVCbyUserID] = useUsed_VC_ByUserIdMutation();
   const currentDateTime = moment().utcOffset(420).toDate();
   const dateBk = format(currentDateTime, "dd/MM/yyyy HH:mm:ss");
-
-  console.log(dateBk);
+  const moneyByPoint = useSelector((state: any) => state.TKinformation?.point);
+  console.log(allchairbked);
   const [vnp_TransactionStatus, setVnp_TransactionStatus] = useState("");
   const [addChairCalled, setAddChairCalled] = useState(false);
 
   const parsedPopCorn = useSelector(
     (state: any) => state.TKinformation?.comboFoods
   );
-
+  const totalPriceSeat = useSelector(
+    (state: any) => state.TKinformation?.totalPriceSeat
+  );
   const dispatch = useDispatch();
   const formatter = (value: number) =>
     `${value} ₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -59,11 +62,13 @@ const Payment = () => {
   const id_selectingTime_detail = useSelector(
     (state: any) => state.TKinformation?.showtimeId
   );
+  const [discountPoint] = useDiscountPointMutation();
+
   const [addChair] = useAddChairsMutation();
 
   const selectedSeatsData = {
     name: selectingSeat,
-    price: totalPrice,
+    price: totalPriceSeat,
     id_time_detail: id_selectingTime_detail,
   };
   const currentPath = location.pathname;
@@ -72,7 +77,7 @@ const Payment = () => {
   const pathParts = currentPath.split("/");
   const idCodePart = pathParts.find((part) => part.startsWith("id_code="));
   const idCode = idCodePart ? idCodePart.split("=")[1] : null;
-  console.log(idCode);
+
   useEffect(() => {
     const fetchData = async () => {
       const params = new URLSearchParams(location.search);
@@ -83,28 +88,26 @@ const Payment = () => {
       setVnp_TransactionStatus(TransactionStatus);
 
       if (!addChairCalled && vnp_TransactionStatus === "00") {
-        const matchingSeats = (allchairbked as any)?.data.filter(
-          (chair: any) => {
-            return (
-              chair.id_time_detail == id_selectingTime_detail &&
-              selectingSeat.includes(chair.name)
-            );
-          }
-        );
+        const matchingSeats = (allchairbked as any)?.filter((chair: any) => {
+          console.log(chair.seat);
 
+          return (
+            chair.id_time_detail == id_selectingTime_detail &&
+            selectingSeat.includes(chair.seat)
+          );
+        });
         if (matchingSeats && matchingSeats.length > 0) {
           console.log("Có ghế trùng");
         } else {
           try {
             const response = await addChair(selectedSeatsData as any);
             console.log(response);
-            const UsedVoucher = await useVCbyUserID(MyVoucher);
-            console.log(UsedVoucher);
 
             const responseData = (response as any)?.data;
             const IddataAfterFood_Detail: any[] = [];
+            console.log(responseData);
 
-            const newId = responseData.data.id;
+            const newId = responseData.id;
             console.log(newId);
             console.log(IddataAfterFood_Detail);
 
@@ -118,6 +121,7 @@ const Payment = () => {
               id_time_detail: id_time_details,
               id_code: idCode,
             });
+            console.log(addIfSeatResponse);
 
             await Promise.all(
               parsedPopCorn.map(async (popCorn: any) => {
@@ -135,6 +139,18 @@ const Payment = () => {
 
             console.log((addIfSeatResponse as any)?.data);
             await sendEmail({});
+            if (VoucherCode) {
+              const UsedVoucher = await useVCbyUserID(MyVoucher);
+              console.log(UsedVoucher);
+            }
+            const myPoint = {
+              discount: moneyByPoint,
+              id_user: user_id,
+            };
+
+            const reponsePoint = await discountPoint(myPoint);
+            console.log(reponsePoint);
+
             setAddChairCalled(true);
             localStorage.removeItem("foodQuantities");
           } catch (error) {
@@ -168,11 +184,11 @@ const Payment = () => {
               {id_selectingTime_detail}
             </p>
             <div className="centered-container">
-            <p className="">Thông tin mã vé</p>
-            <QRCode
-              type="svg"
-              value={`http://127.0.0.1:8000/api/QR_book/${idCode}`}
-            />
+              <p className="">Thông tin mã vé</p>
+              <QRCode
+                type="svg"
+                value={`http://127.0.0.1:8000/api/QR_book/${idCode}`}
+              />
             </div>
             <Link to={`/`}>
               <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
