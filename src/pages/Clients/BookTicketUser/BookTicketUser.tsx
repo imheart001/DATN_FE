@@ -1,5 +1,5 @@
 import { useGetBookTicketByUserQuery } from "../../../service/book_ticket.service";
-import { Table, Image, Button, Modal, Input, message, Tag } from "antd";
+import { Table, Image, Button, Modal, Input, message, Tag, Descriptions } from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { FilterValue } from "antd/es/table/interface";
 import moment from "moment";
@@ -32,10 +32,17 @@ const BookTicketUser = () => {
   const { data: film } = useFetchProductQuery();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dataBook, setDataBook] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState([]);
   const showModal = (id_book_ticket: any) => {
     setID(id_book_ticket);
     setIsModalVisible(true);
   };
+  const handleOpen = (record: any) => {
+    setSelectedRecord(record)
+    setOpen(true);
+  }
+  console.log(selectedRecord);
 
   const handleOk = async () => {
     try {
@@ -65,6 +72,101 @@ const BookTicketUser = () => {
     return Array.from(new Set(dataList?.data?.map((item: any) => item[key])));
   };
   const columns: ColumnsType<DataType> = [
+    {
+      render: (_, record: any) => {
+        return <div>
+          <Button
+            style={{ backgroundColor: "#f04848", color: "#ffff" }}
+            onClick={() => handleOpen(record)}
+          >
+            Xem chi tiết
+          </Button>
+          <Modal
+            centered
+            open={open}
+            onOk={() => setOpen(false)}
+            onCancel={() => setOpen(false)}
+            visible={isModalVisible}
+            width={1000}
+            mask={true}
+            okButtonProps={{
+              style: { backgroundColor: "#007bff", color: "white" },
+            }}
+          >
+            {selectedRecord && (
+              <Descriptions bordered column={2}>
+                <Descriptions.Item label="Tên phim">{selectedRecord?.name?.name}</Descriptions.Item>
+                <Descriptions.Item label="Ảnh">
+                  <Image src={selectedRecord?.name?.img} className="max-w-[100px]" alt="Hình ảnh phim" />
+                </Descriptions.Item>
+                <Descriptions.Item label="Mã hóa đơn"
+                  labelStyle={{ width: '100px' }}
+                >
+                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '150px' }}>
+                    {selectedRecord?.id_code}
+                  </div>
+                </Descriptions.Item>
+                <Descriptions.Item label="Phòng chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.movie_room_name}</Descriptions.Item>
+                <Descriptions.Item label="Rạp chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.name_cinema}</Descriptions.Item>
+                <Descriptions.Item label="Suất chiếu" labelStyle={{ width: '100px' }}>
+                  <div>
+                    <p className="whitespace-nowrap">Ngày: {selectedRecord?.date?.date}</p>
+                    <p className="whitespace-nowrap">Giờ:  {selectedRecord?.date?.time}</p>
+                  </div>
+                </Descriptions.Item>
+                <Descriptions.Item label="Ghế đã đặt" labelStyle={{ width: '100px' }}>
+                  <div>
+                    <p className="whitespace-nowrap">{selectedRecord?.chair?.name}</p>
+                    <p className="whitespace-nowrap">
+                      <b>Tổng Tiền</b>: {formatter(Number(selectedRecord?.chair?.price))}
+                    </p>
+                  </div>
+                </Descriptions.Item>
+                <Descriptions.Item label="Combo/Package" labelStyle={{ width: '100px' }}>{selectedRecord?.food_items}</Descriptions.Item>
+                <Descriptions.Item label="Ngày đặt" labelStyle={{ width: '100px' }}>
+                  <span>{formatDate(selectedRecord?.time)}</span>
+                </Descriptions.Item>
+                <Descriptions.Item label="Trạng thái" labelStyle={{ width: '100px' }}>
+                  <div>
+                    <Button
+                      style={{ backgroundColor: "#f04848", color: "#ffff" }}
+                      onClick={() => showModal(+text.id_book_ticket)}
+                    >
+                      Hoàn Tiền
+                    </Button>
+                    <Modal
+                      title="Xác Minh Hoàn Tiền"
+                      visible={isModalVisible}
+                      onOk={handleOk}
+                      onCancel={handleCancel}
+                      mask={true}
+                      okButtonProps={{
+                        style: { backgroundColor: "#007bff", color: "white" },
+                      }}
+                    >
+                      <h3 className="font-semibold text-red-600  text-lg my-4">
+                        LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá tiền bạn
+                        đã đặt
+                      </h3>
+                      <h3 className="font-semibold text-red-600 text-lg my-4">
+                        Xác nhận mật khẩu để đồng ý hoàn vé!!
+                      </h3>
+                      <p>Nhập Mật Khẩu</p>
+                      <Input
+                        type="password"
+                        placeholder="Nhập mật khẩu"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </Modal>
+                  </div>
+                </Descriptions.Item>
+              </Descriptions>
+            )}
+          </Modal>
+        </div>
+      },
+    },
     {
       title: "MÃ HÓA ĐƠN",
       dataIndex: "id_code",

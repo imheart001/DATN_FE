@@ -1,7 +1,5 @@
 import "../../../App.css";
 import { useFetchMembersQuery } from "../../../service/member.service";
-import { useAppSelector } from "../../../store/hooks";
-import { RootState } from "../../../store/store";
 const MemberInfo = () => {
   const { data } = useFetchMembersQuery();
 
@@ -13,7 +11,7 @@ const MemberInfo = () => {
   );
 
   return (
-    <div className="h-screen bg-white">
+    <div className="bg-white rounded-lg mx-auto px-10 text-black">
       <h1 className="mb-10" style={{ textAlign: "center", fontWeight: "bold" }}>
         Thẻ thành viên
       </h1>
@@ -81,7 +79,6 @@ const MemberInfo = () => {
         Bạn cần tích lũy 3.000.000đ để nâng hạng khách hàng VIP
       </h1>
       <hr className="mt-5" />
-
       <div className="grid grid-cols-1 gap-4 mt-3 lg:grid-cols-4 lg:gap-8">
         <div className="h-32 rounded-lg ">0</div>
         <div className="h-32 rounded-lg  lg:col-span-2"></div>

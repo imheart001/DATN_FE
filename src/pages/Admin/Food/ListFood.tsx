@@ -41,11 +41,10 @@ const ListFood: React.FC = () => {
       title: "Tên Đồ Ăn",
       dataIndex: "name",
       key: "name",
-      filters: foods?.data?.map((item) => ({ text: item.name, value: item.name})),
+      filters: foods?.data?.map((item) => ({ text: item.name, value: item.name })),
       filteredValue: filteredInfo.name || null,
       onFilter: (value: any, record) => record.name === value,
     },
-
     {
       key: "Hình Ảnh",
       title: "Hình ảnh",
@@ -58,7 +57,7 @@ const ListFood: React.FC = () => {
       title: "Giá Tiền",
       dataIndex: "price",
       key: "price",
-      filters: foods?.data?.map((item) => ({ text: item.price, value: item.price})),
+      filters: foods?.data?.map((item) => ({ text: item.price, value: item.price })),
       filteredValue: filteredInfo.price || null,
       onFilter: (value: any, record) => record.price === value,
       render: (text) => <span>{formatter(Number(text))}</span>,
@@ -104,7 +103,6 @@ const ListFood: React.FC = () => {
     price: food?.price,
     //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
-  console.log("🚀 ~ file: ListFood.tsx:92 ~ dataFood ~ dataFood:", dataFood);
   const [dataList, setDataList] = useState<any>(null);
   const handleChange: TableProps<DataType>['onChange'] = (pagination, filters) => {
     setFilteredInfo(filters);

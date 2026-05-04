@@ -78,10 +78,6 @@ function App() {
           element: <HomePages />,
         },
         {
-          path: "/member-info",
-          element: <MemberInfo />,
-        },
-        {
           path: "/book-ticket/:id",
           element: <BookingSeat />,
         },
@@ -140,6 +136,10 @@ function App() {
             {
               path: "BookTicketUser",
               element: <BookTicketUser />,
+            },
+            {
+              path: "member-info",
+              element: <MemberInfo />,
             },
           ],
         },
