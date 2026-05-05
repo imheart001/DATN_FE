@@ -92,10 +92,10 @@ const AddCinema: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please enter user name" }]}
+                label="Tên rạp"
+                rules={[{ required: true, message: "Mời nhập tên rạp" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Mời nhập tên rạp" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -104,7 +104,7 @@ const AddCinema: React.FC = () => {
                 label="Địa chỉ"
                 rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
               >
-                <Input placeholder="Please địa chỉ" />
+                <Input placeholder="Vui lòng địa chỉ" />
               </Form.Item>
             </Col>
           </Row>
@@ -113,10 +113,10 @@ const AddCinema: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
+                label="Trạng thái"
+                rules={[{ required: true, message: "vui lòng nhập trạng thái" }]}
               >
-                <Select placeholder="Please select a status">
+                <Select placeholder="vui lòng nhập trạng thái">
                   <Option value="1">1</Option>
                   <Option value="0">0</Option>
                 </Select>

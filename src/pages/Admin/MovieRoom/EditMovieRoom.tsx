@@ -58,13 +58,13 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
     try {
       await updateMovieRoom({ ...values, id: dataMovieRoom.id });
 
-      message.success("Cập nhật sản phẩm thành công");
+      message.success("Cập nhật phòng chiếu thành công");
 
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       navigate("/admin/movieroom");
     } catch (error) {
-      message.error("Cập nhật sản phẩm thất bại");
+      message.error("Cập nhật phòng chiếu thất bại");
     }
   };
   const [open, setOpen] = useState(false);
@@ -86,7 +86,7 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
       </Button>
 
       <Drawer
-        title="Update MovieRoom"
+        title="Cập nhật phòng chiếu"
         width={720}
         onClose={() => {
           onClose();
@@ -115,7 +115,7 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
           </Space>
         }
       >
-        <Form
+         <Form
           form={form}
           layout="vertical"
           hideRequiredMark
@@ -125,29 +125,27 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please enter user name" }]}
+                label="Tên phòng"
+                rules={[{ required: true, message: "Vui lòng nhập tên phòng" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Vui lòng nhập tên phòng" />
               </Form.Item>
             </Col>
 
             <Col span={12}>
               <Form.Item
                 name="id_cinema"
-                label="id_cinema"
-                rules={[{ required: true, message: "Please enter id_cinema" }]}
+                label="Rạp"
+                rules={[{ required: true, message: "Vui lòng chọn rạp " }]}
               >
-                <Select placeholder="Please select a film_id">
-                  {(cinemas as any)?.data?.map(
-                    (cinema: ICinemas, index: number) => {
+                <Select placeholder="Vui lòng chọn rạp ">
+                  {/* {
+                    (cinemas as any)?.data?.map((cinema: ICinemas, index: number) => {
                       return (
-                        <Option key={index} value={cinema.id}>
-                          {cinema.name}
-                        </Option>
-                      );
-                    }
-                  )} 
+                        <Option key={index} value={cinema.id}>{cinema.name}</Option>
+                      )
+                    })
+                  } */}
                   {role === 3 &&
                     optionRole3?.map((cinema: ICinemas, index: number) => {
                       return (

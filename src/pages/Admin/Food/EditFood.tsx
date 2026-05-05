@@ -115,20 +115,20 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
+                label="Tên đồ ăn"
                 rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Tên đồ ăn" />
               </Form.Item>
             </Col>
 
             <Col span={12}>
               <Form.Item
                 name="image"
-                label="Image"
+                label="Hình ảnh"
                 rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <Input placeholder="Please enter user Image" />
+                <Input placeholder="hình ảnh" />
               </Form.Item>
             </Col>
           </Row>
@@ -137,7 +137,7 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
             <Col span={12}>
               <Form.Item
                 name="price"
-                label="Price"
+                label="Giá tiền"
                 rules={[
                   { required: true, message: "Trường dữ liệu bắt buộc" },
                   {
@@ -158,7 +158,7 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
                   },
                 ]}
               >
-                <Input placeholder="Please enter user Price" />
+                <Input placeholder="giá tiền" />
               </Form.Item>
             </Col>
           </Row>

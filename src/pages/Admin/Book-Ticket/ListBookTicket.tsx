@@ -299,7 +299,7 @@ const ListBookTicket: React.FC = () => {
             onSearch={onSearch}
           />
 
-          <AddBookTicket />
+          {/* <AddBookTicket /> */}
         </div>
       </div>
       <Table

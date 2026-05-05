@@ -36,21 +36,21 @@ const ListBlog: React.FC = () => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã Blogs",
+      title: "ID",
       dataIndex: "id",
       key: "key",
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Title Blogs",
+      title: "Tên bài viết",
       dataIndex: "title",
       key: "title",
     },
     {
-      title: "Slug Blogs",
-      dataIndex: "slug",
-      key: "slug",
-    },
+        title: "Tiêu đề",
+        dataIndex: "slug",
+        key: "slug",
+      },
     {
       key: "image",
       title: "Hình ảnh",
@@ -60,15 +60,15 @@ const ListBlog: React.FC = () => {
       render: (text: string) => <Image width={50} src={text} />,
     },
     {
-      title: "Content",
-      dataIndex: "content",
-      key: "content",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-    },
+        title: "Nội dung",
+        dataIndex: "content",
+        key: "content",
+      },
+      {
+        title: "Trạng thái",
+        dataIndex: "status",
+        key: "status",
+      },
     {
       render: (_, record) => {
         if (role === 1) {
@@ -109,8 +109,8 @@ const ListBlog: React.FC = () => {
     slug: blog?.slug,
     image: blog?.image,
     content: blog?.content,
-    status: blog?.status,
-    tags: [blog.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+    // status: blog?.status,
+    status: [blog.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
   console.log("🚀 ~ file: ListBlog.tsx:92 ~ dataBlog ~ dataBlog:", dataBlog);
   const [dataList, setDataList] = useState<any>(null);
