@@ -57,7 +57,6 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
     }
   };
   const [open, setOpen] = useState(false);
-  console.log(dataFood);
 
   const showDrawer = () => {
     setOpen(true);

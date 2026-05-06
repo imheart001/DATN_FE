@@ -65,7 +65,7 @@ const Header: React.FC = () => {
     },
     {
       key: "6",
-      label: <Link to="/member-info">Thông tin hội viên</Link>,
+      label: <Link to={`/info_account/member-info`}>Thông tin hội viên</Link>,
     },
     {
       key: "8",
@@ -195,7 +195,7 @@ const Header: React.FC = () => {
             onChange={onChange}
             value={selectedCinema}
           />
-          <Link to={"/"} className="text-[#EE2E24] hover:text-[#EE2E24]">
+          <Link to={"/"} className=" hover:text-[#EE2E24]">
             Home
           </Link>
           <Link to={"/movies"} className="hover:text-[#EE2E24]">

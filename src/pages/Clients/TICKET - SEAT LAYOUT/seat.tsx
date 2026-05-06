@@ -1221,7 +1221,7 @@ const BookingSeat = () => {
           </section>
         </section>
         <section className="col-span-1 space-y-4">
-          <div className="bg-[#F3F3F3] space-y-2 rounded-lg px-4 py-10 shadow-lg shadow-cyan-500/50">
+           <div className="bg-[#F3F3F3] space-y-2 rounded-lg px-4 py-10 shadow-lg shadow-cyan-500/50">
             <img
               src={dataAllByTime_Byid?.image_film}
               alt=""

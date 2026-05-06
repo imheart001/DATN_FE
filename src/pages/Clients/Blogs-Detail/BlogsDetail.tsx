@@ -1,37 +1,23 @@
 import React, { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useFetchBlogQuery, useGetBlogByIdQuery } from '../../../service/blog.service';
 import Header from '../../../Layout/LayoutUser/Header';
 import { useFetchProductQuery } from '../../../service/films.service';
-import { compareDates, compareReleaseDate } from '../../../utils';
-import { useAppSelector } from '../../../store/hooks';
+import { compareDates } from '../../../utils';
 import FilmShowing from '../../../components/FilmShowing';
 import { IBlogs, IFilms } from '../../../interface/model';
-import { Avatar, Rate, Space, message } from 'antd';
+import { Avatar, Rate, Space } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { useMutation } from 'react-query';
-import { useAddCommentBlogMutation } from '../../../service/commentBlog.service';
 
 const BlogsDetail = () => {
     const { id } = useParams<string>();
-    const idBlog = id || '';
-    const { data: blog } = useGetBlogByIdQuery(id);
+    const { data: blog } = useGetBlogByIdQuery(id || '');
 
     const { data: blogs } = useFetchBlogQuery();
 
-    const [displayedBlogs, setDisplayedBlogs] = useState(3);
-
-    const handleShowMore1 = () => {
-        setDisplayedBlogs(displayedBlogs + 3);
-    };
-    const handleShowLess1 = () => {
-        setDisplayedBlogs(3);
-    };
-
     //xem thêm, ẩn film
     const [visibleMovies, setVisibleMovies] = useState(4); // Số lượng mục ban đầu cần hiển thị
-    const [showAllMovies, setShowAllMovies] = useState(false); // Biến trạng thái để kiểm soát việc hiển thị tất cả mục
-    const [isContentValid, setIsContentValid] = useState(true);
+    const [, setShowAllMovies] = useState(false); // Biến trạng thái để kiểm soát việc hiển thị tất cả mục
     const handleShowMore = () => {
         // Tăng số lượng mục hiển thị khi nhấp vào nút "Xem thêm"
         setVisibleMovies(prevVisibleMovies => prevVisibleMovies + 2); // Thay đổi số lượng hiển thị tùy ý
@@ -51,39 +37,6 @@ const BlogsDetail = () => {
         const result = compareDates(item.release_date, item.end_date);
         return result;
     });
-
-
-    //thêm comments
-    const [onAddComment] = useAddCommentBlogMutation();
-    const [content, setContent] = useState<string>('');
-    console.log(content);
-
-    const handleContentChange = (e: any) => {
-        const value = e.target.value;
-        setContent(value);
-
-        // Kiểm tra điều kiện: Nếu value sau khi trim không rỗng thì là hợp lệ
-        const isValid = value.trim().length > 0;
-        setIsContentValid(isValid);
-    };
-    const addComment = async () => {
-        const dataAdd = {
-            content: content
-        }
-        // const reponse = await  onAddComment((dataAdd as any))
-        // console.log(reponse);
-
-        if (isContentValid) {
-            onAddComment((dataAdd as any))
-                .catch(error => {
-                    console.error("Error adding comment:", error);
-                    message.error("Failed to add comment. Please try again.");
-                });
-            console.log({ id: idBlog, content });
-        }
-    };
-
-
     return (
         <>
             <section className="relative bg-[url(/banner-home.png/)] bg-cover w-full bg-center bg-no-repeat">
@@ -129,35 +82,9 @@ const BlogsDetail = () => {
                                         <Space direction="vertical" size={16}>
                                             <Space wrap size={16}>
                                                 <Avatar size={64} icon={<UserOutlined />} />
-
                                             </Space>
                                         </Space>
                                     </div>
-
-                                    {/* phần tin comment */}
-                                    <div className="overflow-hidden">
-                                        <textarea
-                                            id="comment"
-                                            className="w-full resize-none border border-gray-200 text-white align-top sm:text-sm pt-2 pl-4 bg-transparent"
-                                            rows={4}
-                                            placeholder="Add a comment..."
-                                            style={{ outline: 'none' }}
-                                            onChange={handleContentChange}
-                                        ></textarea>
-                                        {!isContentValid && (
-                                            <p className="text-red-500 text-sm mt-1">Nội dung không được để trống.</p>
-                                        )}
-                                        <div className="flex items-center justify-end gap-2 py-3">
-                                            <button
-                                                type="button"
-                                                onClick={addComment}
-                                                className="rounded bg-indigo-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
-                                            >
-                                                Post
-                                            </button>
-                                        </div>
-                                    </div>
-
                                 </div>
 
                                 {/* phần tin tức khác */}
