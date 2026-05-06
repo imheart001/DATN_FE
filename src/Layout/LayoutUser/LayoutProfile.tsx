@@ -14,9 +14,9 @@ const LayoutProfile = () => {
         color: 'white', // Màu chữ khi mục được chọn
     };
     return (
-        <div className="max-w-7xl mx-auto px-10 text-white">
+        <div className="max-w-7xl  mx-auto px-10 text-white">
             <Header />
-            <Menu className="mt-[30px] text white" style={{ backgroundColor: '#121212' }} mode="horizontal" defaultSelectedKeys={["1"]}>
+            <Menu className="mt-[30px] bg-white "  mode="horizontal" defaultSelectedKeys={["1"]}>
                 <Menu.Item  key="1" >
                     <Link to={`profile`}>Thông Tin Khách Hàng</Link>
                 </Menu.Item>

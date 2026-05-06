@@ -45,9 +45,9 @@ const abc = 3000000
 
   return (
     <>
-      <Header />
-      {/* <div className="h-scree bg-white boder mt-5 "> */}
-      <div className="mt-10 flow-root rounded-lg border bg-white border-gray-100 py-3 shadow-sm "  style={{ maxWidth: '1000px',textAlign: "center", margin: 'auto'  }}>
+      {/* <Header />   */}
+      <div className="h-scree bg-white boder ">
+      <div className="mt-10 flow-root rounded-lg border bg-white text-black border-gray-100 py-3 shadow-sm "  style={{ maxWidth: '1000px',textAlign: "center", margin: 'auto'  }}>
         <h1 className="mb-10" style={{ textAlign: "center", fontWeight: "bold" , fontSize:"30px"}}>
           Thẻ hội viên
         </h1>
@@ -173,7 +173,7 @@ const abc = 3000000
             ))}
         
 
-      </div>
+      </div></div>
     </>
   );
 };
