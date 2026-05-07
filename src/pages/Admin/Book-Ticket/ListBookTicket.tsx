@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Badge, Button, Image, Input, Space, Table, Tag } from "antd";
+import { Badge, Button, Descriptions, Image, Input, Modal, Space, Table, Tag } from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { useGetBookTicketByAdminQuery } from "../../../service/book_ticket.service";
 
@@ -12,6 +12,7 @@ import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+import { any } from "prop-types";
 
 const ListBookTicket: React.FC = () => {
   const [filteredInfo, setFilteredInfo] = useState<
@@ -25,6 +26,26 @@ const ListBookTicket: React.FC = () => {
   const { data: time } = useFetchTimeQuery();
   const { data: room } = useFetchMovieRoomQuery();
   const { data: cinema } = useFetchCinemaQuery();
+
+  //chi tiết
+  const [id, setID] = useState<string>("");
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const showModal = (id_book_ticket: any) => {
+    setID(id_book_ticket);
+    setIsModalVisible(true);
+  };
+  const [open, setOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState([]);
+  const handleOpen = (record: any) => {
+    setSelectedRecord(record)
+    setOpen(true);
+  }
+  console.log(selectedRecord);
+
+
+
+
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
   const handlePrintTicket = (idCode: string, id_user: any) => {
@@ -60,14 +81,124 @@ const ListBookTicket: React.FC = () => {
       new Set((dataList as any)?.data?.map((item: any) => item[key]))
     );
   };
+
+  const formatCurrency = (value: any) => {
+    if (typeof value !== "number") {
+      return value;
+    }
+    return `${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} Vn₫`;
+  };
   const columns: ColumnsType<DataType> = [
+    {title: "",
+    // width: 70,      
+
+      render: (_, record: any) => {
+        return <div title="Chi tiết">
+          <Button
+            
+            style={{ backgroundColor: "#f04848", color: "#ffff" }}
+            onClick={() => handleOpen(record)}
+          >
+          chi tiết
+          </Button>
+          <Modal
+            centered
+            open={open}
+            onOk={() => setOpen(false)}
+            onCancel={() => setOpen(false)}
+            visible={isModalVisible}
+            width={1000}
+            mask={true}
+            okButtonProps={{
+              style: { backgroundColor: "#007bff", color: "white" },
+            }}
+          >
+            {selectedRecord && (
+              <Descriptions bordered column={2}>
+                <Descriptions.Item label="Tên khách hàng">{selectedRecord?.users_name}</Descriptions.Item>
+                <Descriptions.Item label="Tình trạng ">
+                  {selectedRecord && (
+                    <Tag
+                      color={
+                        selectedRecord.status === 0
+                          ? "blue"
+                          : selectedRecord.status === 1
+                            ? "green"
+                            : selectedRecord.status === 2
+                              ? "warning"
+                              : selectedRecord.status === 3
+                                ? "error"
+                                : undefined
+                      }
+                      style={{ color: "black" }}
+                    >
+                      {selectedRecord.status === 0
+                        ? "Chưa Lấy Vé"
+                        : selectedRecord.status === 1
+                          ? "Đã Nhận Vé"
+                          : selectedRecord.status === 2
+                            ? "Đã Hủy"
+                            : selectedRecord.status === 3
+                              ? "Quá Hạn"
+                              : undefined}
+                    </Tag>
+                  )}
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Tên Phim" labelStyle={{ width: '100px' }}>{selectedRecord?.name}</Descriptions.Item>
+
+                <Descriptions.Item label="Ảnh">
+                  <Image src={selectedRecord?.image} className="max-w-[100px]" alt="Hình ảnh phim" />
+                </Descriptions.Item>
+                <Descriptions.Item label="Mã hóa đơn"
+                  labelStyle={{ width: '100px' }}
+                >
+                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '150px' }}>
+                    {selectedRecord?.id_code}
+                  </div>
+                </Descriptions.Item>
+                <Descriptions.Item label="Ghế" labelStyle={{ width: '100px' }}>{selectedRecord?.chair_name}</Descriptions.Item>
+                <Descriptions.Item label="Combo" labelStyle={{ width: '100px' }}>{selectedRecord?.food_items}</Descriptions.Item>
+                <Descriptions.Item label="Giờ chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.time_suatchieu}</Descriptions.Item>
+                <Descriptions.Item label="Phòng chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.movie_room_name}</Descriptions.Item>
+                <Descriptions.Item label="Ngày chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.date}</Descriptions.Item>
+                <Descriptions.Item label="Chi nhánh" labelStyle={{ width: '100px' }}>{selectedRecord?.name_cinema}</Descriptions.Item>
+                <Descriptions.Item label="Địa chỉ" labelStyle={{ width: '100px' }}>{selectedRecord?.address}</Descriptions.Item>
+                <Descriptions.Item label="Tổng tiền" labelStyle={{ width: '100px' }}>{formatCurrency(selectedRecord?.total_price)}</Descriptions.Item>
+                <Descriptions.Item label="Email" labelStyle={{ width: '100px' }}>{selectedRecord?.users_email}</Descriptions.Item>
+                <Descriptions.Item label="Ngày đặt" labelStyle={{ width: '100px' }}>{selectedRecord?.time}</Descriptions.Item>
+
+
+
+                <Descriptions.Item label="Trạng thái" labelStyle={{ width: '100px' }}>
+                  <div>
+                    <Button
+                     style={{ backgroundColor: "#f04848", color: "#ffff", width: '150px' }} // Điều chỉnh giá trị width tùy theo nhu cầu của bạn
+                     
+                      
+                      className="mr-10 group relative inline-block text-sm font-medium  focus:outline-none focus:ring active:text-red-500"
+                      onClick={() => handlePrintTicket(record.id_code, IfUser?.id)}
+                    >
+                      In vé
+                    </Button>
+
+                  </div>
+                </Descriptions.Item>
+              </Descriptions>
+            )}
+          </Modal>
+        </div>
+      },
+
+    },
     {
       title: "Tên KH",
       width: 100,
       dataIndex: "users_name",
       key: "users_name",
-      fixed: "left",
+      style: "ml-10",
       align: "center",
+      fixed: "left",
       filters: getUniqueValues(user, "name")?.map((item) => ({
         text: item,
         value: item,
@@ -123,6 +254,7 @@ const ListBookTicket: React.FC = () => {
         </span>
       ),
     },
+
     {
       title: "Mã vé",
       dataIndex: "id_code",
