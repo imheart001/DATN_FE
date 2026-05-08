@@ -47,13 +47,13 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
     try {
       await updateCate({ ...values, id: dataCate.id });
 
-      message.success("Cập nhật sản phẩm thành công");
+      message.success("Cập nhật loại phim thành công");
 
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       navigate("/admin/listcate");
     } catch (error) {
-      message.error("Cập nhật sản phẩm thất bại");
+      message.error("Cập nhật loại phim thất bại");
     }
   };
   const [open, setOpen] = useState(false);
@@ -75,7 +75,7 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
       </Button>
 
       <Drawer
-        title="Cập nhật Thể loại"
+        title="Cập nhật Thể loại phim"
         width={720}
         onClose={onClose}
         open={open}
@@ -110,30 +110,31 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please Name" }]}
+                label="Tên loại phim"
+                rules={[{ required: true, message: "Vui lòng nhập tên loại phim" }]}
               >
-                <Input placeholder="Please Name" />
+                <Input placeholder="Vui lòng nhập tên loại phim" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="slug"
-                label="Slug"
-                rules={[{ required: true, message: "Please slug" }]}
+                label="Tiêu đề"
+                rules={[{ required: true, message: "Vui lòng nhập Tiêu đề" }]}
               >
-                <Input placeholder="Please slug" />
+                <Input placeholder="Vui lòng nhập Tiêu đề" />
               </Form.Item>
             </Col>
           </Row>
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
+                label="Trạng thái"
+                rules={[{ required: true, message: "Vui lòng nhập trạng thái" }]}
               >
-                <Select placeholder="Please select a status">
+                <Select placeholder="Vui lòng nhập trạng thái">
                   <Option value="1">1</Option>
                   <Option value="0">0</Option>
                 </Select>

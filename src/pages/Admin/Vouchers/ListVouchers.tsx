@@ -124,7 +124,7 @@ const ListVouchers: React.FC = () => {
   return (
     <>
       <div className="">
-        <h2 className="font-bold text-2xl my-4">Quản lí đồ ăn</h2>
+        <h2 className="font-bold text-2xl my-4">Quản lí khuyến mãi</h2>
         <div className="space-x-4 justify-center my-4">
           <Search
             placeholder="Nhập tên đồ ăn hoặc mã đồ ăn"
