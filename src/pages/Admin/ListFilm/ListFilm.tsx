@@ -137,8 +137,8 @@ const ListFilm: React.FC = () => {
                 ? "success"
                 : !compareReleaseDate(release_date) &&
                   !compareDates(release_date, end_date)
-                  ? "error"
-                  : "warning"
+                ? "error"
+                : "warning"
             }
           >
             {compareDates(release_date, end_date) && "Đang Hoạt Động"}
@@ -160,7 +160,7 @@ const ListFilm: React.FC = () => {
         if (role === 1 || role === 3) {
           return (
             <Space size="middle">
-              <EditFilm dataID={record} />
+              <EditFilm dataID={record as any} />
 
               <Popconfirm
                 placement="topLeft"

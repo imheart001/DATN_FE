@@ -45,12 +45,18 @@ const ListBlog: React.FC = () => {
       title: "Tên bài viết",
       dataIndex: "title",
       key: "title",
+      render: (text) => (
+        <span>{text?.length > 15 ? `${text.slice(0, 15)}...` : text}</span>
+      ),
     },
     {
-        title: "Tiêu đề",
-        dataIndex: "slug",
-        key: "slug",
-      },
+      title: "Tiêu đề",
+      dataIndex: "slug",
+      key: "slug",
+      render: (text) => (
+        <span>{text?.length > 15 ? `${text.slice(0, 15)}...` : text}</span>
+      ),
+    },
     {
       key: "image",
       title: "Hình ảnh",
@@ -60,15 +66,18 @@ const ListBlog: React.FC = () => {
       render: (text: string) => <Image width={50} src={text} />,
     },
     {
-        title: "Nội dung",
-        dataIndex: "content",
-        key: "content",
-      },
-      {
-        title: "Trạng thái",
-        dataIndex: "status",
-        key: "status",
-      },
+      title: "Nội dung",
+      dataIndex: "content",
+      key: "content",
+      render: (text) => (
+        <span>{text?.length > 15 ? `${text.slice(0, 15)}...` : text}</span>
+      ),
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+    },
     {
       render: (_, record) => {
         if (role === 1) {

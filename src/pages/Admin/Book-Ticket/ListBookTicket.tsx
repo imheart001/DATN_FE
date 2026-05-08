@@ -115,58 +115,58 @@ const ListBookTicket: React.FC = () => {
           >
             {selectedRecord && (
               <Descriptions bordered column={2}>
-                <Descriptions.Item label="Tên khách hàng">{selectedRecord?.users_name}</Descriptions.Item>
+                <Descriptions.Item label="Tên khách hàng">{(selectedRecord as any)?.users_name}</Descriptions.Item>
                 <Descriptions.Item label="Tình trạng ">
                   {selectedRecord && (
                     <Tag
                       color={
-                        selectedRecord.status === 0
+                        (selectedRecord as any).status === 0
                           ? "blue"
-                          : selectedRecord.status === 1
+                          : (selectedRecord as any).status === 1
                             ? "green"
-                            : selectedRecord.status === 2
+                            : (selectedRecord as any).status === 2
                               ? "warning"
-                              : selectedRecord.status === 3
+                              : (selectedRecord as any).status === 3
                                 ? "error"
                                 : undefined
                       }
                       style={{ color: "black" }}
                     >
-                      {selectedRecord.status === 0
+                      {(selectedRecord as any).status === 0
                         ? "Chưa Lấy Vé"
-                        : selectedRecord.status === 1
+                        : (selectedRecord as any).status === 1
                           ? "Đã Nhận Vé"
-                          : selectedRecord.status === 2
+                          : (selectedRecord as any).status === 2
                             ? "Đã Hủy"
-                            : selectedRecord.status === 3
+                            : (selectedRecord as any).status === 3
                               ? "Quá Hạn"
                               : undefined}
                     </Tag>
                   )}
                 </Descriptions.Item>
 
-                <Descriptions.Item label="Tên Phim" labelStyle={{ width: '100px' }}>{selectedRecord?.name}</Descriptions.Item>
+                <Descriptions.Item label="Tên Phim" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.name}</Descriptions.Item>
 
                 <Descriptions.Item label="Ảnh">
-                  <Image src={selectedRecord?.image} className="max-w-[100px]" alt="Hình ảnh phim" />
+                  <Image src={(selectedRecord as any)?.image} className="max-w-[100px]" alt="Hình ảnh phim" />
                 </Descriptions.Item>
                 <Descriptions.Item label="Mã hóa đơn"
                   labelStyle={{ width: '100px' }}
                 >
                   <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '150px' }}>
-                    {selectedRecord?.id_code}
+                    {(selectedRecord as any)?.id_code}
                   </div>
                 </Descriptions.Item>
-                <Descriptions.Item label="Ghế" labelStyle={{ width: '100px' }}>{selectedRecord?.chair_name}</Descriptions.Item>
-                <Descriptions.Item label="Combo" labelStyle={{ width: '100px' }}>{selectedRecord?.food_items}</Descriptions.Item>
-                <Descriptions.Item label="Giờ chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.time_suatchieu}</Descriptions.Item>
-                <Descriptions.Item label="Phòng chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.movie_room_name}</Descriptions.Item>
-                <Descriptions.Item label="Ngày chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.date}</Descriptions.Item>
-                <Descriptions.Item label="Chi nhánh" labelStyle={{ width: '100px' }}>{selectedRecord?.name_cinema}</Descriptions.Item>
-                <Descriptions.Item label="Địa chỉ" labelStyle={{ width: '100px' }}>{selectedRecord?.address}</Descriptions.Item>
-                <Descriptions.Item label="Tổng tiền" labelStyle={{ width: '100px' }}>{formatCurrency(selectedRecord?.total_price)}</Descriptions.Item>
-                <Descriptions.Item label="Email" labelStyle={{ width: '100px' }}>{selectedRecord?.users_email}</Descriptions.Item>
-                <Descriptions.Item label="Ngày đặt" labelStyle={{ width: '100px' }}>{selectedRecord?.time}</Descriptions.Item>
+                <Descriptions.Item label="Ghế" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.chair_name}</Descriptions.Item>
+                <Descriptions.Item label="Combo" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.food_items}</Descriptions.Item>
+                <Descriptions.Item label="Giờ chiếu" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.time_suatchieu}</Descriptions.Item>
+                <Descriptions.Item label="Phòng chiếu" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.movie_room_name}</Descriptions.Item>
+                <Descriptions.Item label="Ngày chiếu" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.date}</Descriptions.Item>
+                <Descriptions.Item label="Chi nhánh" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.name_cinema}</Descriptions.Item>
+                <Descriptions.Item label="Địa chỉ" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.address}</Descriptions.Item>
+                <Descriptions.Item label="Tổng tiền" labelStyle={{ width: '100px' }}>{formatCurrency((selectedRecord as any)?.total_price)}</Descriptions.Item>
+                <Descriptions.Item label="Email" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.users_email}</Descriptions.Item>
+                <Descriptions.Item label="Ngày đặt" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.time}</Descriptions.Item>
 
 
 

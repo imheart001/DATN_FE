@@ -7,6 +7,8 @@ export interface IFilms {
   time: string;
   release_date: Date;
   end_date: Date;
+  limit_age: number;
+  poster: string;
   description: string;
   status: number;
 }
@@ -45,7 +47,7 @@ export interface IShowTime {
   time_id: string;
   film_id: string;
   room_id: string;
-  status: number
+  status: number;
 }
 export interface ITime {
   id: string;
@@ -57,7 +59,7 @@ export interface IBookTicket {
   id_chair: string;
   time: string;
   id_code: string;
-  status: number
+  status: number;
 }
 export interface IFood {
   id: string;
@@ -70,7 +72,7 @@ export interface IMovieRoom {
   id: string;
   name: string;
   id_cinema: string;
-  status: number
+  status: number;
   // name_cinema : string
 }
 export interface ICateDetail {
@@ -84,8 +86,7 @@ export interface IChairs {
   id_time_detail: string;
 }
 export interface IUser {
-
-  id: number,
+  id: number;
   name: string;
   phone: number;
   image: string;
@@ -120,6 +121,6 @@ export interface IBlogs {
 }
 
 export interface IComments {
-  id: string,
+  id: string;
   content: string;
 }
