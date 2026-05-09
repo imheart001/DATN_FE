@@ -19,6 +19,8 @@ import { useAddProductMutation } from "../../../service/films.service";
 import { useFetchCateQuery } from "../../../service/cate.service";
 import { ICategorys } from "../../../interface/model";
 import { useAddCateDetailMutation } from "../../../service/catedetail.service";
+import { FOLDER_NAME } from "../../../configs/config";
+import { uploadImageApi } from "../../../apis/upload-image.api";
 
 const AddFilm: React.FC = () => {
   const showDrawer = () => {
@@ -37,10 +39,14 @@ const AddFilm: React.FC = () => {
   const [form] = Form.useForm();
 
   const onFinish = async (values: any) => {
+    if (linkImage === null || linkImage.trim().length === 0) {
+      message.error('khong chọn ảnh')
+      return;
+    }
     const dataAddFilm = {
       name: values.name,
-      slug: values.slug,
-      image: values.image,
+      slug: values.slug.toString(),
+      image: linkImage,
       poster: values.poster,
       trailer: values.trailer,
       time: values.time,
@@ -63,8 +69,9 @@ const AddFilm: React.FC = () => {
       message.success("Thêm sản phẩm thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/listfilm");
-    } catch (error) {
-      message.error("Thêm sản phẩm thất bại");
+    } catch (error: any) {
+      console.log("🚀 ~ file: AddFilm.tsx:73 ~ onFinish ~ error:", error)
+      message.error(error.data.errors.name || error.data.errors.slug);
     }
   };
   // validate datetime
@@ -73,6 +80,30 @@ const AddFilm: React.FC = () => {
 
     if (value && releaseDate && value.isBefore(releaseDate)) {
       throw new Error("Ngày kết thúc không hợp lệ");
+    }
+  };
+
+  const [uploadImage] = useState("");
+  const [linkImage, setLinkImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleUpdateImage = async (e: any) => {
+    setIsLoading(true);
+    try {
+      const files = e.target.files;
+      const formData = new FormData();
+      formData.append("upload_preset", "da_an_tot_nghiep");
+      formData.append("folder", FOLDER_NAME);
+      for (const file of files) {
+        formData.append("file", file);
+        const response = await uploadImageApi(formData);
+        if (response) {
+          setLinkImage(response.url);
+          setIsLoading(false);
+        }
+      }
+    } catch (error) {
+      message.error("loi");
     }
   };
 
@@ -122,22 +153,50 @@ const AddFilm: React.FC = () => {
               <Form.Item
                 name="name"
                 label="Tên Phim"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }, {type: 'string', message: "tên phim phải là string"}]}
               >
                 <Input placeholder="Tên Phim" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="image"
-                label="Hình Ảnh"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
-              >
-                <Input placeholder="Hình Ảnh" />
+              <Form.Item name="image" label="Hình Ảnh">
+                {/* <Input placeholder="Hình Ảnh" /> */}
+
+                <div className="flex gap-1 items-center justify-between">
+                  <input
+                    type="file"
+                    value={uploadImage}
+                    className="flex-1 !hidden"
+                    onChange={(e) => handleUpdateImage(e)}
+                    id="update-image"
+                  />
+                  <label
+                    htmlFor="update-image"
+                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
+                  >
+                    upload image
+                  </label>
+                </div>
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={16}>
+          <Row>
+            <Col span={24}>
+              {linkImage && !isLoading && (
+                <img
+                  src={linkImage}
+                  alt={linkImage}
+                  className="h-[200px] w-full border shadow rounded-lg object-cover"
+                />
+              )}
+              {isLoading && (
+                <div className="h-[200px] w-full border shadow rounded-lg flex justify-center items-center">
+                  <div className="h-10 w-10 rounded-full border-2 border-blue-500 border-t-2 border-t-white animate-spin"></div>
+                </div>
+              )}
+            </Col>
+          </Row>
+          <Row gutter={16} className="my-7">
             <Col span={12}>
               <Form.Item
                 name="slug"
@@ -151,9 +210,7 @@ const AddFilm: React.FC = () => {
               <Form.Item
                 name="trailer"
                 label="Trailer"
-                rules={[
-                  { required: true, message: "Trường dữ liệu bắt buộc" },
-                ]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <Input placeholder="Trailer" />
               </Form.Item>
@@ -173,9 +230,7 @@ const AddFilm: React.FC = () => {
               <Form.Item
                 name="release_date"
                 label="Ngày Phát Hành"
-                rules={[
-                  { required: true, message: "Trường dữ liệu bắt buộc" },
-                ]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <DatePicker />
               </Form.Item>
@@ -214,10 +269,7 @@ const AddFilm: React.FC = () => {
                 label="Giới hạn tuổi"
                 rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <InputNumber
-                  className="w-full"
-                  placeholder="Giới hạn tuổi"
-                />
+                <InputNumber className="w-full" placeholder="Giới hạn tuổi" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -243,10 +295,7 @@ const AddFilm: React.FC = () => {
                   },
                 ]}
               >
-                <Input.TextArea
-                  rows={4}
-                  placeholder="Mô tả"
-                />
+                <Input.TextArea rows={4} placeholder="Mô tả" />
               </Form.Item>
             </Col>
           </Row>

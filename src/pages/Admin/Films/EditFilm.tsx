@@ -17,6 +17,8 @@ import { useUpdateProductMutation } from "../../../service/films.service";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { useFetchCateQuery } from "../../../service/cate.service";
+import { FOLDER_NAME } from "../../../configs/config";
+import { uploadImageApi } from "../../../apis/upload-image.api";
 
 interface DataType {
   key: string;
@@ -41,7 +43,8 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
   const [updateProduct] = useUpdateProductMutation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  
+  const [linkImage, setLinkImage] = useState<string | null>(null);
+
   useEffect(() => {
     if (dataID) {
       form.setFieldsValue({
@@ -56,13 +59,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         limit_age: dataID.limit_age,
         poster: dataID.poster,
       });
+      setLinkImage(dataID.images);
     }
   }, [dataID]);
   const onFinish = async (values: any) => {
     try {
       values.release_date = values.release_date.format("YYYY-MM-DD");
       values.end_date = values.end_date.format("YYYY-MM-DD");
-      await updateProduct({ ...values, id: dataID.name });
+      await updateProduct({ ...values, id: dataID.name, image: linkImage });
 
       message.success("Cập nhật sản phẩm thành công");
 
@@ -74,7 +78,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
     }
   };
   const [open, setOpen] = useState(false);
-  
+
   const validateEndDate = async (_: any, value: any) => {
     const releaseDate = form.getFieldValue("release_date");
 
@@ -88,6 +92,33 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
 
   const onClose = () => {
     setOpen(false);
+  };
+
+  const [uploadImage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleUpdateImage = async (e: any) => {
+    setIsLoading(true);
+    try {
+      const files = e.target.files;
+      const formData = new FormData();
+      formData.append("upload_preset", "da_an_tot_nghiep");
+      formData.append("folder", FOLDER_NAME);
+      for (const file of files) {
+        formData.append("file", file);
+        const response = await uploadImageApi(formData);
+        if (response) {
+          console.log(
+            "🚀 ~ file: EditFilm.tsx:112 ~ handleUpdateImage ~ response:",
+            response
+          );
+          setLinkImage(response.url);
+          setIsLoading(false);
+        }
+      }
+    } catch (error) {
+      message.error("loi");
+    }
   };
 
   return (
@@ -135,7 +166,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                 <Input placeholder="Tên Phim" />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <Form.Item
                 name="image"
                 label="Hình Ảnh"
@@ -143,6 +174,43 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
               >
                 <Input placeholder="Hình Ảnh" />
               </Form.Item>
+            </Col> */}
+            <Col span={12}>
+              <Form.Item name="image" label="Hình Ảnh">
+                {/* <Input placeholder="Hình Ảnh" /> */}
+
+                <div className="flex gap-1 items-center justify-between">
+                  <input
+                    type="file"
+                    value={uploadImage}
+                    className="flex-1 !hidden"
+                    onChange={(e) => handleUpdateImage(e)}
+                    id="update-image"
+                  />
+                  <label
+                    htmlFor="update-image"
+                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
+                  >
+                    upload image
+                  </label>
+                </div>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={24}>
+              {linkImage && !isLoading && (
+                <img
+                  src={linkImage}
+                  alt={linkImage}
+                  className="h-[200px] w-full border shadow rounded-lg object-cover"
+                />
+              )}
+              {isLoading && (
+                <div className="h-[200px] w-full border shadow rounded-lg flex justify-center items-center">
+                  <div className="h-10 w-10 rounded-full border-2 border-blue-500 border-t-2 border-t-white animate-spin"></div>
+                </div>
+              )}
             </Col>
           </Row>
           <Row gutter={16}>
@@ -159,9 +227,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
               <Form.Item
                 name="trailer"
                 label="Trailer"
-                rules={[
-                  { required: true, message: "Trường dữ liệu bắt buộc" },
-                ]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <Input placeholder="Trailer" />
               </Form.Item>
@@ -181,9 +247,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
               <Form.Item
                 name="release_date"
                 label="Ngày Phát Hành"
-                rules={[
-                  { required: true, message: "Trường dữ liệu bắt buộc" },
-                ]}
+                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <DatePicker />
               </Form.Item>
@@ -209,10 +273,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                 label="Giới hạn tuổi"
                 rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <InputNumber
-                  className="w-full"
-                  placeholder="Giới hạn tuổi"
-                />
+                <InputNumber className="w-full" placeholder="Giới hạn tuổi" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -238,10 +299,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                   },
                 ]}
               >
-                <Input.TextArea
-                  rows={4}
-                  placeholder="Mô tả"
-                />
+                <Input.TextArea rows={4} placeholder="Mô tả" />
               </Form.Item>
             </Col>
           </Row>
