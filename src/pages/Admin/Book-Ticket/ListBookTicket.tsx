@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import { Badge, Button, Descriptions, Image, Input, Modal, Space, Table, Tag } from "antd";
+import {
+  Badge,
+  Button,
+  Descriptions,
+  Image,
+  Input,
+  Modal,
+  Space,
+  Table,
+  Tag,
+} from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { useGetBookTicketByAdminQuery } from "../../../service/book_ticket.service";
 
@@ -38,13 +48,9 @@ const ListBookTicket: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState([]);
   const handleOpen = (record: any) => {
-    setSelectedRecord(record)
+    setSelectedRecord(record);
     setOpen(true);
-  }
-  console.log(selectedRecord);
-
-
-
+  };
 
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
@@ -89,108 +95,6 @@ const ListBookTicket: React.FC = () => {
     return `${value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} Vn₫`;
   };
   const columns: ColumnsType<DataType> = [
-    {title: "",
-    // width: 70,      
-
-      render: (_, record: any) => {
-        return <div title="Chi tiết">
-          <Button
-            
-            style={{ backgroundColor: "#f04848", color: "#ffff" }}
-            onClick={() => handleOpen(record)}
-          >
-          chi tiết
-          </Button>
-          <Modal
-            centered
-            open={open}
-            onOk={() => setOpen(false)}
-            onCancel={() => setOpen(false)}
-            visible={isModalVisible}
-            width={1000}
-            mask={true}
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-          >
-            {selectedRecord && (
-              <Descriptions bordered column={2}>
-                <Descriptions.Item label="Tên khách hàng">{(selectedRecord as any)?.users_name}</Descriptions.Item>
-                <Descriptions.Item label="Tình trạng ">
-                  {selectedRecord && (
-                    <Tag
-                      color={
-                        (selectedRecord as any).status === 0
-                          ? "blue"
-                          : (selectedRecord as any).status === 1
-                            ? "green"
-                            : (selectedRecord as any).status === 2
-                              ? "warning"
-                              : (selectedRecord as any).status === 3
-                                ? "error"
-                                : undefined
-                      }
-                      style={{ color: "black" }}
-                    >
-                      {(selectedRecord as any).status === 0
-                        ? "Chưa Lấy Vé"
-                        : (selectedRecord as any).status === 1
-                          ? "Đã Nhận Vé"
-                          : (selectedRecord as any).status === 2
-                            ? "Đã Hủy"
-                            : (selectedRecord as any).status === 3
-                              ? "Quá Hạn"
-                              : undefined}
-                    </Tag>
-                  )}
-                </Descriptions.Item>
-
-                <Descriptions.Item label="Tên Phim" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.name}</Descriptions.Item>
-
-                <Descriptions.Item label="Ảnh">
-                  <Image src={(selectedRecord as any)?.image} className="max-w-[100px]" alt="Hình ảnh phim" />
-                </Descriptions.Item>
-                <Descriptions.Item label="Mã hóa đơn"
-                  labelStyle={{ width: '100px' }}
-                >
-                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '150px' }}>
-                    {(selectedRecord as any)?.id_code}
-                  </div>
-                </Descriptions.Item>
-                <Descriptions.Item label="Ghế" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.chair_name}</Descriptions.Item>
-                <Descriptions.Item label="Combo" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.food_items}</Descriptions.Item>
-                <Descriptions.Item label="Giờ chiếu" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.time_suatchieu}</Descriptions.Item>
-                <Descriptions.Item label="Phòng chiếu" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.movie_room_name}</Descriptions.Item>
-                <Descriptions.Item label="Ngày chiếu" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.date}</Descriptions.Item>
-                <Descriptions.Item label="Chi nhánh" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.name_cinema}</Descriptions.Item>
-                <Descriptions.Item label="Địa chỉ" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.address}</Descriptions.Item>
-                <Descriptions.Item label="Tổng tiền" labelStyle={{ width: '100px' }}>{formatCurrency((selectedRecord as any)?.total_price)}</Descriptions.Item>
-                <Descriptions.Item label="Email" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.users_email}</Descriptions.Item>
-                <Descriptions.Item label="Ngày đặt" labelStyle={{ width: '100px' }}>{(selectedRecord as any)?.time}</Descriptions.Item>
-
-
-
-                <Descriptions.Item label="Trạng thái" labelStyle={{ width: '100px' }}>
-                  <div>
-                    <Button
-                     style={{ backgroundColor: "#f04848", color: "#ffff", width: '150px' }} // Điều chỉnh giá trị width tùy theo nhu cầu của bạn
-                     
-                      
-                      className="mr-10 group relative inline-block text-sm font-medium  focus:outline-none focus:ring active:text-red-500"
-                      onClick={() => handlePrintTicket(record.id_code, IfUser?.id)}
-                    >
-                      In vé
-                    </Button>
-
-                  </div>
-                </Descriptions.Item>
-              </Descriptions>
-            )}
-          </Modal>
-        </div>
-      },
-
-    },
     {
       title: "Tên KH",
       width: 100,
@@ -390,16 +294,184 @@ const ListBookTicket: React.FC = () => {
       key: "action",
       fixed: "right",
       align: "center",
-      width: 100,
+      width: 180,
       render: (_, record) => (
-        <Space size="middle">
-          <Button
-            className="group relative inline-block text-sm font-medium  focus:outline-none focus:ring active:text-red-500"
-            onClick={() => handlePrintTicket(record.id_code, IfUser?.id)}
-          >
-            In vé
-          </Button>
-        </Space>
+        <>
+          <Space size="middle">
+            <Button
+              className="group relative inline-block text-sm font-medium  focus:outline-none focus:ring active:text-red-500"
+              onClick={() => handlePrintTicket(record.id_code, IfUser?.id)}
+            >
+              In vé
+            </Button>
+            <div title="Chi tiết">
+              <Button
+                style={{ backgroundColor: "#f04848", color: "#ffff" }}
+                onClick={() => handleOpen(record)}
+              >
+                chi tiết
+              </Button>
+              <Modal
+                centered
+                open={open}
+                onOk={() => setOpen(false)}
+                onCancel={() => setOpen(false)}
+                visible={isModalVisible}
+                width={1000}
+                mask={true}
+                okButtonProps={{
+                  style: { backgroundColor: "#007bff", color: "white" },
+                }}
+              >
+                {selectedRecord && (
+                  <Descriptions bordered column={2}>
+                    <Descriptions.Item label="Tên khách hàng">
+                      {(selectedRecord as any)?.users_name}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Tình trạng ">
+                      {selectedRecord && (
+                        <Tag
+                          color={
+                            (selectedRecord as any).status === 0
+                              ? "blue"
+                              : (selectedRecord as any).status === 1
+                              ? "green"
+                              : (selectedRecord as any).status === 2
+                              ? "warning"
+                              : (selectedRecord as any).status === 3
+                              ? "error"
+                              : undefined
+                          }
+                          style={{ color: "black" }}
+                        >
+                          {(selectedRecord as any).status === 0
+                            ? "Chưa Lấy Vé"
+                            : (selectedRecord as any).status === 1
+                            ? "Đã Nhận Vé"
+                            : (selectedRecord as any).status === 2
+                            ? "Đã Hủy"
+                            : (selectedRecord as any).status === 3
+                            ? "Quá Hạn"
+                            : undefined}
+                        </Tag>
+                      )}
+                    </Descriptions.Item>
+
+                    <Descriptions.Item
+                      label="Tên Phim"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.name}
+                    </Descriptions.Item>
+
+                    <Descriptions.Item label="Ảnh">
+                      <Image
+                        src={(selectedRecord as any)?.image}
+                        className="max-w-[100px]"
+                        alt="Hình ảnh phim"
+                      />
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Mã hóa đơn"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      <div
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          width: "150px",
+                        }}
+                      >
+                        {(selectedRecord as any)?.id_code}
+                      </div>
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Ghế"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.chair_name}
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Combo"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.food_items}
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Giờ chiếu"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.time_suatchieu}
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Phòng chiếu"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.movie_room_name}
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Ngày chiếu"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.date}
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Chi nhánh"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.name_cinema}
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Địa chỉ"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.address}
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Tổng tiền"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {formatCurrency((selectedRecord as any)?.total_price)}
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Email"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.users_email}
+                    </Descriptions.Item>
+                    <Descriptions.Item
+                      label="Ngày đặt"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      {(selectedRecord as any)?.time}
+                    </Descriptions.Item>
+
+                    <Descriptions.Item
+                      label="Trạng thái"
+                      labelStyle={{ width: "100px" }}
+                    >
+                      <div>
+                        <Button
+                          style={{
+                            backgroundColor: "#f04848",
+                            color: "#ffff",
+                            width: "150px",
+                          }} // Điều chỉnh giá trị width tùy theo nhu cầu của bạn
+                          className="mr-10 group relative inline-block text-sm font-medium  focus:outline-none focus:ring active:text-red-500"
+                          onClick={() =>
+                            handlePrintTicket(record.id_code, IfUser?.id)
+                          }
+                        >
+                          In vé
+                        </Button>
+                      </div>
+                    </Descriptions.Item>
+                  </Descriptions>
+                )}
+              </Modal>
+            </div>
+          </Space>
+        </>
       ),
     },
   ];
@@ -438,7 +510,7 @@ const ListBookTicket: React.FC = () => {
         columns={columns}
         dataSource={filteredData}
         onChange={handleChange}
-        scroll={{ x: 2300, y: 600 }}
+        scroll={{ x: 2500, y: 600 }}
       />
     </>
   );

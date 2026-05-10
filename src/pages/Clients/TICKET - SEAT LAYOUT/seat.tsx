@@ -628,7 +628,6 @@ const BookingSeat = () => {
       );
       return;
     }
-    console.log(selectedSeats);
 
     const findSeats = () => {
       const result = [];
@@ -676,15 +675,17 @@ const BookingSeat = () => {
       }
     }
     if (selectedSeats) {
-      console.log(selectedSeats);
-
       const rowseatCheck = selectedSeats
         .filter(
           (item, index, self) =>
             index === self.findIndex((t) => t.row === item.row)
         )
         .map((item) => item.row)[0];
-      console.log(rowseatCheck);
+      const seatChoosing = selectedSeats.filter(
+        (item, index, self) =>
+          index === self.findIndex((t) => t.row === item.row)
+      );
+      // console.log(seatChoosing);
 
       const seat2 = selectedSeats
         .filter(
@@ -692,10 +693,9 @@ const BookingSeat = () => {
             index === self.findIndex((t) => t.row === item.row)
         )
         .map((item) => item.column)[0];
-      console.log(seat2);
+      // console.log(seat2);
 
       const seatFinded = seats[rowseatCheck].map((s) => s.column);
-      console.log(seatFinded);
 
       const findSeats = () => {
         const result = [];
@@ -708,38 +708,8 @@ const BookingSeat = () => {
 
         return result.length > 0 ? result : null;
       };
-      const seatHaveColumnss = selectedSeats.map((s) => {
-        return seats[s.row] && seats[s.row][s.column + 2];
-      });
-      console.log(seatHaveColumnss);
-
-      const seatHaveColumnss2 = selectedSeats.map((s) => {
-        return seats[s.row] && seats[s.row][s.column - 2];
-      });
-      console.log(seatHaveColumnss2);
-
-      console.log(seatHaveColumnss);
-      const allsss = [...seatHaveColumnss, ...seatHaveColumnss2];
-      console.log(allsss);
-      console.log(selectedSeats);
-      const testttt = allsss.filter((s) => {
-        return s.status === "booked";
-      });
-      console.log(testttt);
-      testttt.map((s) => {
-        return seats[s.row][s.column - 1];
-      });
-      console.log(
-        testttt.map((s) => {
-          return seats[s.row][s.column - 1];
-        })
-      );
 
       const testtt = findSeats();
-      const seatChoosing = selectedSeats.filter(
-        (item, index, self) =>
-          index === self.findIndex((t) => t.row === item.row)
-      );
       // console.log(testtt);
       if (testtt && seatChoosing) {
         if (seats[rowseatCheck][testtt[1]]?.status === "booked") {
@@ -1257,7 +1227,7 @@ const BookingSeat = () => {
           </section>
         </section>
         <section className="col-span-1 space-y-4">
-           <div className="bg-[#F3F3F3] space-y-2 rounded-lg px-4 py-10 shadow-lg shadow-cyan-500/50">
+          <div className="bg-[#F3F3F3] space-y-2 rounded-lg px-4 py-10 shadow-lg shadow-cyan-500/50">
             <img
               src={dataAllByTime_Byid?.image_film}
               alt=""
