@@ -37,6 +37,8 @@ const ListBookTicket: React.FC = () => {
   const { data: room } = useFetchMovieRoomQuery();
   const { data: cinema } = useFetchCinemaQuery();
 
+  console.log(dataBook_tickets);
+
   //chi tiết
   const [id, setID] = useState<string>("");
 

@@ -1,11 +1,21 @@
 import { useGetBookTicketByUserQuery } from "../../../service/book_ticket.service";
-import { Table, Image, Button, Modal, Input, message, Tag, Descriptions } from "antd";
+import {
+  Table,
+  Image,
+  Button,
+  Modal,
+  Input,
+  message,
+  Tag,
+  Descriptions,
+} from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { FilterValue } from "antd/es/table/interface";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useSendRefundMutation } from "../../../service/refund.services";
+import { formatDatee } from "../../../utils";
 
 export interface DataType {
   time: string;
@@ -39,9 +49,9 @@ const BookTicketUser = () => {
     setIsModalVisible(true);
   };
   const handleOpen = (record: any) => {
-    setSelectedRecord(record)
+    setSelectedRecord(record);
     setOpen(true);
-  }
+  };
   console.log(selectedRecord);
 
   const handleOk = async () => {
@@ -74,97 +84,151 @@ const BookTicketUser = () => {
   const columns: ColumnsType<DataType> = [
     {
       render: (_, record: any) => {
-        return <div>
-          <Button
-            style={{ backgroundColor: "#f04848", color: "#ffff" }}
-            onClick={() => handleOpen(record)}
-          >
-            Xem chi tiết
-          </Button>
-          <Modal
-            centered
-            open={open}
-            onOk={() => setOpen(false)}
-            onCancel={() => setOpen(false)}
-            visible={isModalVisible}
-            width={1000}
-            mask={true}
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-          >
-            {selectedRecord && (
-              <Descriptions bordered column={2}>
-                <Descriptions.Item label="Tên phim">{selectedRecord?.name?.name}</Descriptions.Item>
-                <Descriptions.Item label="Ảnh">
-                  <Image src={selectedRecord?.name?.img} className="max-w-[100px]" alt="Hình ảnh phim" />
-                </Descriptions.Item>
-                <Descriptions.Item label="Mã hóa đơn"
-                  labelStyle={{ width: '100px' }}
-                >
-                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '150px' }}>
-                    {selectedRecord?.id_code}
-                  </div>
-                </Descriptions.Item>
-                <Descriptions.Item label="Phòng chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.movie_room_name}</Descriptions.Item>
-                <Descriptions.Item label="Rạp chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.name_cinema}</Descriptions.Item>
-                <Descriptions.Item label="Suất chiếu" labelStyle={{ width: '100px' }}>
-                  <div>
-                    <p className="whitespace-nowrap">Ngày: {selectedRecord?.date?.date}</p>
-                    <p className="whitespace-nowrap">Giờ:  {selectedRecord?.date?.time}</p>
-                  </div>
-                </Descriptions.Item>
-                <Descriptions.Item label="Ghế đã đặt" labelStyle={{ width: '100px' }}>
-                  <div>
-                    <p className="whitespace-nowrap">{selectedRecord?.chair?.name}</p>
-                    <p className="whitespace-nowrap">
-                      <b>Tổng Tiền</b>: {formatter(Number(selectedRecord?.chair?.price))}
-                    </p>
-                  </div>
-                </Descriptions.Item>
-                <Descriptions.Item label="Combo/Package" labelStyle={{ width: '100px' }}>{selectedRecord?.food_items}</Descriptions.Item>
-                <Descriptions.Item label="Ngày đặt" labelStyle={{ width: '100px' }}>
-                  <span>{formatDate(selectedRecord?.time)}</span>
-                </Descriptions.Item>
-                <Descriptions.Item label="Trạng thái" labelStyle={{ width: '100px' }}>
-                  <div>
-                    <Button
-                      style={{ backgroundColor: "#f04848", color: "#ffff" }}
-                      onClick={() => showModal(+text.id_book_ticket)}
-                    >
-                      Hoàn Tiền
-                    </Button>
-                    <Modal
-                      title="Xác Minh Hoàn Tiền"
-                      visible={isModalVisible}
-                      onOk={handleOk}
-                      onCancel={handleCancel}
-                      mask={true}
-                      okButtonProps={{
-                        style: { backgroundColor: "#007bff", color: "white" },
+        return (
+          <div>
+            <Button
+              style={{ backgroundColor: "#f04848", color: "#ffff" }}
+              onClick={() => handleOpen(record)}
+            >
+              Xem chi tiết
+            </Button>
+            <Modal
+              centered
+              open={open}
+              onOk={() => setOpen(false)}
+              onCancel={() => setOpen(false)}
+              visible={isModalVisible}
+              width={1000}
+              mask={true}
+              okButtonProps={{
+                style: { backgroundColor: "#007bff", color: "white" },
+              }}
+            >
+              {selectedRecord && (
+                <Descriptions bordered column={2}>
+                  <Descriptions.Item label="Tên phim">
+                    {(selectedRecord as any)?.name?.name}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Ảnh">
+                    <Image
+                      src={(selectedRecord as any)?.name?.img}
+                      className="max-w-[100px]"
+                      alt="Hình ảnh phim"
+                    />
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Mã hóa đơn"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    <div
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        width: "150px",
                       }}
                     >
-                      <h3 className="font-semibold text-red-600  text-lg my-4">
-                        LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá tiền bạn
-                        đã đặt
-                      </h3>
-                      <h3 className="font-semibold text-red-600 text-lg my-4">
-                        Xác nhận mật khẩu để đồng ý hoàn vé!!
-                      </h3>
-                      <p>Nhập Mật Khẩu</p>
-                      <Input
-                        type="password"
-                        placeholder="Nhập mật khẩu"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </Modal>
-                  </div>
-                </Descriptions.Item>
-              </Descriptions>
-            )}
-          </Modal>
-        </div>
+                      {(selectedRecord as any)?.id_code}
+                    </div>
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Phòng chiếu"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    {(selectedRecord as any)?.movie_room_name}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Rạp chiếu"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    {(selectedRecord as any as any)?.name_cinema}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Suất chiếu"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    <div>
+                      <p className="whitespace-nowrap">
+                        Ngày:{" "}
+                        {formatDatee(
+                          (selectedRecord as any as any)?.date?.date
+                        )}
+                      </p>
+                      <p className="whitespace-nowrap">
+                        Giờ: {(selectedRecord as any as any)?.date?.time}
+                      </p>
+                    </div>
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Ghế đã đặt"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    <div>
+                      <p className="whitespace-nowrap">
+                        {(selectedRecord as any)?.chair?.name}
+                      </p>
+                      <p className="whitespace-nowrap">
+                        <b>Tổng Tiền</b>:{" "}
+                        {formatter(
+                          Number((selectedRecord as any)?.chair?.price)
+                        )}
+                      </p>
+                    </div>
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Combo/Package"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    {(selectedRecord as any)?.food_items}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Ngày đặt"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    <span>{(selectedRecord as any)?.time}</span>
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Trạng thái"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    <div>
+                      <Button
+                        style={{ backgroundColor: "#f04848", color: "#ffff" }}
+                        onClick={() => showModal(+(text as any).id_book_ticket)}
+                      >
+                        Hoàn Tiền
+                      </Button>
+                      <Modal
+                        title="Xác Minh Hoàn Tiền"
+                        visible={isModalVisible}
+                        onOk={handleOk}
+                        onCancel={handleCancel}
+                        mask={true}
+                        okButtonProps={{
+                          style: { backgroundColor: "#007bff", color: "white" },
+                        }}
+                      >
+                        <h3 className="font-semibold text-red-600  text-lg my-4">
+                          LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá
+                          tiền bạn đã đặt
+                        </h3>
+                        <h3 className="font-semibold text-red-600 text-lg my-4">
+                          Xác nhận mật khẩu để đồng ý hoàn vé!!
+                        </h3>
+                        <p>Nhập Mật Khẩu</p>
+                        <Input
+                          type="password"
+                          placeholder="Nhập mật khẩu"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                      </Modal>
+                    </div>
+                  </Descriptions.Item>
+                </Descriptions>
+              )}
+            </Modal>
+          </div>
+        );
       },
     },
     {
@@ -179,14 +243,14 @@ const BookTicketUser = () => {
       key: "name",
       align: "center",
       width: "10%",
-      filters: getUniqueValues(film, "name")?.map((item) => ({
+      filters: getUniqueValues(film as any, "name")?.map((item) => ({
         text: item,
         value: item,
       })),
       filteredValue: filteredInfo?.name || null,
       onFilter: (value: string, record) => {
         console.log(record);
-        return record.name?.name.includes(value);
+        return (record as any).name?.name.includes(value);
       },
       render: (text: any) => (
         <div>
@@ -274,7 +338,8 @@ const BookTicketUser = () => {
         { text: "Hoàn Tiền", value: "Hoàn Tiền" },
       ],
       filteredValue: filteredInfo.status || null,
-      onFilter: (value: string, record) => record.status.status === value,
+      onFilter: (value: string, record) =>
+        (record as any).status.status === value,
       render: (text) => {
         if (text.status === "Đã Nhận Vé") {
           return <Tag color="success">Đã Nhận Vé</Tag>;

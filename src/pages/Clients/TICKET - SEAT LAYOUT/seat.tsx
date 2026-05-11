@@ -464,17 +464,21 @@ const BookingSeat = () => {
     }
     // console.log(totalMoney + totalComboAmount + discountedAmount);
 
-    const money = {
-      amount: totalMoney + totalComboAmount - discountedAmount,
-    };
-    const reponse = await sendPaymentVnpay(money);
-    console.log(reponse);
+    if (point) {
+      const money = {
+        amount: totalMoney + totalComboAmount - discountedAmount - point,
+      };
+      const reponse = await sendPaymentVnpay(money);
 
-    // console.log((reponse as any).data.data);
-    window.location.href = `${(reponse as any).data.data}`;
-    // if (reponse) {
-    //   window.location.href = `${reponse?.data}`;
-    // }
+      window.location.href = `${(reponse as any)?.data?.data}`;
+    } else {
+      const money = {
+        amount: totalMoney + totalComboAmount - discountedAmount,
+      };
+      const reponse = await sendPaymentVnpay(money);
+
+      window.location.href = `${(reponse as any)?.data?.data}`;
+    }
   };
 
   // if (moneyByPoint) {
@@ -559,8 +563,6 @@ const BookingSeat = () => {
     seat: `${getRowName(seat.row)}${seat.column + 1}`,
     price: seat.price,
   }));
-  console.log(formattedSeats);
-  console.log(selectedSeatsInSelectedState);
 
   dispatch(setSelectSeats(seatNames));
   dispatch(setShowtimeId(id));
@@ -1428,31 +1430,67 @@ const BookingSeat = () => {
               >
                 Tiếp tục
               </button>
-              <button
-                onClick={handlePaymentVnpay}
-                className={` ${
-                  showPopCorn && choosePayment === 1
-                    ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
-                    : "hidden"
-                }`}
-              >
-                Thanh toán
-              </button>
-              <button
-                onClick={handlePaymentMomo}
-                className={` ${
-                  showPopCorn && choosePayment === 2
-                    ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
-                    : "hidden"
-                }`}
-              >
-                Thanh toán
-              </button>
+              <div className="">
+                <button
+                  onClick={onHandleNextStep}
+                  className={` ${
+                    showPopCorn && choosePayment === 1
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Quay lại
+                </button>
+                <button
+                  onClick={handlePaymentVnpay}
+                  className={` ${
+                    showPopCorn && choosePayment === 1
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Thanh toán
+                </button>
+              </div>
+              <div className="">
+                <button
+                  onClick={onHandleNextStep}
+                  className={` ${
+                    showPopCorn && choosePayment === 2
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Quay lại
+                </button>
+                <button
+                  onClick={handlePaymentMomo}
+                  className={` ${
+                    showPopCorn && choosePayment === 2
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Thanh toán
+                </button>
+              </div>
 
-              <PaymentCoin
-                showPopCorn={showPopCorn}
-                choosePayment={choosePayment}
-              />
+              <div className="">
+                <button
+                  onClick={onHandleNextStep}
+                  className={` ${
+                    showPopCorn && choosePayment === 3
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Quay lại
+                </button>
+                <PaymentCoin
+                  showPopCorn={showPopCorn}
+                  choosePayment={choosePayment}
+                />
+              </div>
             </div>
           </div>
           <div className="bg-[#F3F3F3] text-center space-y-2 rounded-lg px-4 py-2 shadow-lg shadow-cyan-500/50">

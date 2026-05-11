@@ -1,11 +1,16 @@
 import { Alert, Col, Row, Slider, Statistic } from "antd";
 import "../../../App.css";
 
-import { useFetchMembersQuery } from "../../../service/member.service";
+import {
+  useFetchMembersQuery,
+  useGetPointByIdUserQuery,
+} from "../../../service/member.service";
 
 import { any } from "prop-types";
 import { useState } from "react";
 import Marquee from "react-fast-marquee";
+import { formatter } from "../../../utils/formatCurrency";
+import { formatDatee } from "../../../utils";
 
 function getGradientColor(percentage: number) {
   const endColor = [135, 208, 104];
@@ -25,18 +30,13 @@ const MemberInfo = () => {
 
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
+  const { data: memberUser } = useGetPointByIdUserQuery(IfUser.id);
   const user_id = IfUser.id;
   const dataUser = data?.data?.filter(
     (item) => item.id_user === Number(user_id)
   );
 
-  const [value, setValue] = useState([0, 10, 20]);
-
-  const start = value[0] / 3000000;
-  const end = value[value.length - 1] / 100;
-  console.log(value);
-
-  const abc = 3000000;
+  console.log(memberUser);
 
   return (
     <>
@@ -94,10 +94,16 @@ const MemberInfo = () => {
                         {item.id_card}
                       </td>
                       <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {item.card_class === 1 ? "Bình Thường" : "Vip"}
+                        {item.card_class === 1 ? (
+                          "Bình Thường"
+                        ) : (
+                          <span className="text-yellow-500 font-semibold text-base uppercase">
+                            V.I.P
+                          </span>
+                        )}
                       </td>
                       <td className="whitespace-nowrap px-4 py-2 text-gray-700">
-                        {item.activation_date}
+                        {formatDatee(item.activation_date)}
                       </td>
                       <td className="whitespace-nowrap px-4 py-2 text-gray-700">
                         {item.total_spending.toLocaleString()}vnd
@@ -117,9 +123,22 @@ const MemberInfo = () => {
               </tbody>
             </table>
           </div>
-  
-          <hr className="mt-5" />
 
+          <hr className="mt-5" />
+          <div className="flex justify-start">
+            {(memberUser as any)?.data?.card_class === 1 ? (
+              "Hội viên thường chỉ được hoàn 1% khi đặt vé!!"
+            ) : (
+              <div>
+                Chúc mừng bạn đã là{" "}
+                <span className="text-yellow-500 font-semibold text-base uppercase">
+                  thành viên VIP
+                </span>{" "}
+                của chúng tôi! Để tri ân, bạn sẽ được hoàn 5% điểm với tổng tiền
+                khi bạn đặt vé!
+              </div>
+            )}
+          </div>
           {dataUser &&
             dataUser.length > 0 &&
             dataUser.map((item) => (
@@ -130,8 +149,8 @@ const MemberInfo = () => {
                       className=""
                       style={{ fontWeight: "bold", color: "red" }}
                       title="Số tiền chi tiêu"
-                      value={item.total_spending.toLocaleString()}
-                      suffix="/ 3.000.000"
+                      value={formatter(item.total_spending.toLocaleString())}
+                      suffix="/ 3.000.000 đ"
                     />
                     <Alert
                       className="bg-white"
