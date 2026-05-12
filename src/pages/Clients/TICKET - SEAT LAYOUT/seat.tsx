@@ -1111,6 +1111,8 @@ const BookingSeat = () => {
                     const formattedEndDate = dayjs(vc.end_time).format(
                       "DD/MM/YYYY"
                     );
+                    console.log(formattedEndDate);
+
                     const isSelected = selectedVoucher === vc.id;
                     const borderClass = isSelected
                       ? "border-2 border-red-600"

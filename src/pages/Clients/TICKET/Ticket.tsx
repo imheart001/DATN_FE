@@ -18,11 +18,14 @@ import * as moment from "moment-timezone";
 import { useGetAllCateDetailByFilmQuery } from "../../../service/catedetail.service";
 import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
 import Loading from "../../../components/isLoading/Loading";
+import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 
 const Ticket: React.FC = () => {
   const { data: films, isLoading: filmsLoading } = useFetchProductQuery();
   const { data: shows, isLoading: showsLoading } = useFetchShowTimeQuery();
   const { data: cinemas, isLoading: cinemasLoading } = useFetchCinemaQuery();
+  const { data: rooms } = useFetchMovieRoomQuery();
+  console.log(rooms);
 
   const { data: times } = useFetchTimeQuery();
 
@@ -135,7 +138,18 @@ const Ticket: React.FC = () => {
     const formattedDate = date.toISOString().slice(0, 10);
     const show = filmShows2.find((show) => show.date === formattedDate);
     const isToday = formattedDate === isToday2.toISOString().slice(0, 10);
+    console.log(show);
+    // const time_detailbyCinema = show?.times.filter(s=>s.row)
+    const roomByCinema = (rooms as any)?.data.filter(
+      (room: any) => room.id_cinema == selectedCinema
+    );
+    const roomIds = roomByCinema.map((s: any) => s.id);
+    console.log(roomByCinema.map((s: any) => s.id));
+    const filteredShowTimes = show?.times.filter((time: any) =>
+      roomIds.includes(time.room_id)
+    );
 
+    console.log(filteredShowTimes);
     const dayOfWeek = (today.getDay() + index) % 7;
     const dayNumber = date.getDate();
     const daysOfWeek = [
@@ -184,6 +198,7 @@ const Ticket: React.FC = () => {
         }
       });
     }
+    console.log(show);
 
     return {
       key: formattedDate,
@@ -192,7 +207,7 @@ const Ticket: React.FC = () => {
         <div>
           {show && show?.times?.length > 0 ? (
             <div className="grid grid-cols-5 ">
-              {show?.times?.map((time: any, timeIndex: number) => {
+              {filteredShowTimes?.map((time: any, timeIndex: number) => {
                 // Lấy thông tin thời gian
                 const showTime = getRealTime(time.time_id);
 

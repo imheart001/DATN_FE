@@ -87,7 +87,7 @@ const Login = () => {
         message.success("Đăng nhập thành công!");
         navigate("/");
       } else {
-        message.error("Đăng nhập không thành công");
+        message.error("Sai tên tài khoản hoặc mật khẩu không đúng");
       }
     } catch (error) {
       alert(`Đã xảy ra lỗi: ${error}`);
