@@ -75,7 +75,6 @@ const BookingSeat = () => {
   };
   // const [keepSeat, setkeepSeat] = useState<[]>([]);
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
-  console.log(DataSeatBooked);
 
   const { data: foods } = useFetchFoodQuery();
   const { data: dataVouchers } = useFetchVoucherQuery();
@@ -559,8 +558,6 @@ const BookingSeat = () => {
     seat: `${getRowName(seat.row)}${seat.column + 1}`,
     price: seat.price,
   }));
-  console.log(formattedSeats);
-  console.log(selectedSeatsInSelectedState);
 
   dispatch(setSelectSeats(seatNames));
   dispatch(setShowtimeId(id));

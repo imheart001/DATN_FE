@@ -42,18 +42,20 @@ const BookTicketUser = () => {
     setSelectedRecord(record)
     setOpen(true);
   }
-  console.log(selectedRecord);
-
   const handleOk = async () => {
     try {
       const res = await sendRefund({ password: password, id: id });
-      if (res.error) {
+      if (res?.error?.data?.message) {
         message.error(res?.error?.data?.message);
+        setIsModalVisible(false);
         return;
       }
-      alert("Thực hiện hoàn tiền thành công!");
+      message.success("Thực hiện hoàn tiền thành công!");
       setIsModalVisible(false);
-      window.location.reload();
+      setTimeout(() => {
+        setIsModalVisible(false);
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.log(error);
     }
@@ -127,39 +129,46 @@ const BookTicketUser = () => {
                   <span>{formatDate(selectedRecord?.time)}</span>
                 </Descriptions.Item>
                 <Descriptions.Item label="Trạng thái" labelStyle={{ width: '100px' }}>
-                  <div>
-                    <Button
-                      style={{ backgroundColor: "#f04848", color: "#ffff" }}
-                      onClick={() => showModal(+text.id_book_ticket)}
-                    >
-                      Hoàn Tiền
-                    </Button>
-                    <Modal
-                      title="Xác Minh Hoàn Tiền"
-                      visible={isModalVisible}
-                      onOk={handleOk}
-                      onCancel={handleCancel}
-                      mask={true}
-                      okButtonProps={{
-                        style: { backgroundColor: "#007bff", color: "white" },
-                      }}
-                    >
-                      <h3 className="font-semibold text-red-600  text-lg my-4">
-                        LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá tiền bạn
-                        đã đặt
-                      </h3>
-                      <h3 className="font-semibold text-red-600 text-lg my-4">
-                        Xác nhận mật khẩu để đồng ý hoàn vé!!
-                      </h3>
-                      <p>Nhập Mật Khẩu</p>
-                      <Input
-                        type="password"
-                        placeholder="Nhập mật khẩu"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </Modal>
-                  </div>
+                  {selectedRecord?.status?.status === "Đã Nhận Vé" ? (
+                    <Tag color="success">Đã Nhận Vé</Tag>
+                  ) : selectedRecord?.status?.status === "Đã Hủy" ? (
+                    <Tag color="warning">Đã Hủy</Tag>
+                  ) : selectedRecord?.status?.status === "Quá Hạn" ? (
+                    <Tag color="error">Quá Hạn</Tag>
+                  ) : (
+                    <div>
+                      <Button
+                        style={{ backgroundColor: "#f04848", color: "#ffff" }}
+                        onClick={() => showModal(+selectedRecord?.status?.id_book_ticket)}
+                      >
+                        Hoàn Tiền
+                      </Button>
+                      <Modal
+                        title="Xác Minh Hoàn Tiền"
+                        visible={isModalVisible}
+                        onOk={handleOk}
+                        onCancel={handleCancel}
+                        mask={true}
+                        okButtonProps={{
+                          style: { backgroundColor: "#007bff", color: "white" },
+                        }}
+                      >
+                        <h3 className="font-semibold text-red-600  text-lg my-4">
+                          LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá tiền bạn đã đặt
+                        </h3>
+                        <h3 className="font-semibold text-red-600 text-lg my-4">
+                          Xác nhận mật khẩu để đồng ý hoàn vé!!
+                        </h3>
+                        <p>Nhập Mật Khẩu</p>
+                        <Input
+                          type="password"
+                          placeholder="Nhập mật khẩu"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                      </Modal>
+                    </div>
+                  )}
                 </Descriptions.Item>
               </Descriptions>
             )}
