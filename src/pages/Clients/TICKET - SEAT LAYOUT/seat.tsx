@@ -463,17 +463,21 @@ const BookingSeat = () => {
     }
     // console.log(totalMoney + totalComboAmount + discountedAmount);
 
-    const money = {
-      amount: totalMoney + totalComboAmount - discountedAmount,
-    };
-    const reponse = await sendPaymentVnpay(money);
-    console.log(reponse);
+    if (point) {
+      const money = {
+        amount: totalMoney + totalComboAmount - discountedAmount - point,
+      };
+      const reponse = await sendPaymentVnpay(money);
 
-    // console.log((reponse as any).data.data);
-    // window.location.href = `${(reponse as any).data.data}`;
-    // if (reponse) {
-    //   window.location.href = `${reponse?.data}`;
-    // }
+      window.location.href = `${(reponse as any)?.data?.data}`;
+    } else {
+      const money = {
+        amount: totalMoney + totalComboAmount - discountedAmount,
+      };
+      const reponse = await sendPaymentVnpay(money);
+
+      window.location.href = `${(reponse as any)?.data?.data}`;
+    }
   };
 
   // if (moneyByPoint) {
@@ -602,27 +606,33 @@ const BookingSeat = () => {
       message.error("Vui lòng chọn ít nhất một ghế để đặt vé.");
       return;
     }
-    const seatNearOutermost = selectedSeats.find((seat) => seat.column === 10);
+    const seatNearOutermost = selectedSeats.filter(
+      (seat) => seat.column === 10
+    );
+    // console.log(seatNearOutermost);
+    // console.log(seats);
+    seatNearOutermost.map((s) => {
+      return s.row;
+    });
+    const seatHaveColumn11 = seatNearOutermost.map((s) => {
+      return seats[s.row] && seats[s.row][s.column + 1];
+    });
+    const seatHaveColumn11Available = seatHaveColumn11.find(
+      (s) => s.status === "available"
+    );
 
-    if (seatNearOutermost) {
-      const NearSeatOutermost = seatNearOutermost?.row;
-      const test3 = seats[NearSeatOutermost].find(
-        (seat) =>
-          seat.row === NearSeatOutermost &&
-          seat.column === seatNearOutermost?.column + 1
+    if (seatNearOutermost && seatHaveColumn11Available) {
+      message.error(
+        "Bạn không được bỏ trống ghế " +
+          getRowName(seatHaveColumn11Available.row) +
+          (seatHaveColumn11Available.column + 1)
       );
-      // console.log(test3);
-      if (seatNearOutermost && test3?.status === "available") {
-        message.error(
-          "Bạn không được bỏ trống ghế " +
-            getRowName(seatNearOutermost.row) +
-            (seatNearOutermost.column + 2)
-        );
-        return;
-      }
+      return;
     }
 
     const findSeats = () => {
+      const result = [];
+
       for (let i = 0; i < selectedSeats.length - 1; i++) {
         const seat1 = selectedSeats[i];
 
@@ -633,36 +643,36 @@ const BookingSeat = () => {
             seat1.row === seat2.row &&
             Math.abs(seat1.column - seat2.column) === 2
           ) {
-            return [seat1, seat2];
+            result.push([seat1, seat2]);
           }
         }
       }
 
-      return null;
+      return result.length > 0 ? result : null;
     };
 
     const result = findSeats();
-    if (result) {
-      const rowCheck = result
-        .filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.row === item.row)
-        )
-        .map((item) => item.row)[0];
+    console.log(result);
 
-      const seatBetween = seats[rowCheck].find(
-        (seat: any) =>
-          seat.row === rowCheck &&
-          seat.column === (result[0]?.column + result[1]?.column) / 2
-      );
-      // console.log(seatBetween);
-      if (result && seatBetween?.status === "available") {
-        message.error(
-          "Bạn không được bỏ trống ghế " +
-            getRowName(seatBetween.row) +
-            (seatBetween.column + 1)
-        );
-        return;
+    if (result) {
+      for (const seatsPair of result) {
+        for (const seat of seatsPair) {
+          const rowCheck = seat.row;
+          const seatBetween = seats[rowCheck].find(
+            (s) =>
+              s.row === rowCheck &&
+              s.column === (seatsPair[0].column + seatsPair[1].column) / 2
+          );
+
+          if (seatBetween?.status === "available") {
+            message.error(
+              `Bạn không được bỏ trống ghế ${getRowName(seatBetween.row)}${
+                seatBetween.column + 1
+              }`
+            );
+            return;
+          }
+        }
       }
     }
     if (selectedSeats) {
@@ -1218,7 +1228,7 @@ const BookingSeat = () => {
           </section>
         </section>
         <section className="col-span-1 space-y-4">
-           <div className="bg-[#F3F3F3] space-y-2 rounded-lg px-4 py-10 shadow-lg shadow-cyan-500/50">
+          <div className="bg-[#F3F3F3] space-y-2 rounded-lg px-4 py-10 shadow-lg shadow-cyan-500/50">
             <img
               src={dataAllByTime_Byid?.image_film}
               alt=""
@@ -1419,31 +1429,67 @@ const BookingSeat = () => {
               >
                 Tiếp tục
               </button>
-              <button
-                onClick={handlePaymentVnpay}
-                className={` ${
-                  showPopCorn && choosePayment === 1
-                    ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
-                    : "hidden"
-                }`}
-              >
-                Thanh toán
-              </button>
-              <button
-                onClick={handlePaymentMomo}
-                className={` ${
-                  showPopCorn && choosePayment === 2
-                    ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
-                    : "hidden"
-                }`}
-              >
-                Thanh toán
-              </button>
+              <div className="">
+                <button
+                  onClick={onHandleNextStep}
+                  className={` ${
+                    showPopCorn && choosePayment === 1
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Quay lại
+                </button>
+                <button
+                  onClick={handlePaymentVnpay}
+                  className={` ${
+                    showPopCorn && choosePayment === 1
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Thanh toán
+                </button>
+              </div>
+              <div className="">
+                <button
+                  onClick={onHandleNextStep}
+                  className={` ${
+                    showPopCorn && choosePayment === 2
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Quay lại
+                </button>
+                <button
+                  onClick={handlePaymentMomo}
+                  className={` ${
+                    showPopCorn && choosePayment === 2
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Thanh toán
+                </button>
+              </div>
 
-              <PaymentCoin
-                showPopCorn={showPopCorn}
-                choosePayment={choosePayment}
-              />
+              <div className="">
+                <button
+                  onClick={onHandleNextStep}
+                  className={` ${
+                    showPopCorn && choosePayment === 3
+                      ? "hover:bg-[#EAE8E4] rounded-md my-2 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
+                      : "hidden"
+                  }`}
+                >
+                  Quay lại
+                </button>
+                <PaymentCoin
+                  showPopCorn={showPopCorn}
+                  choosePayment={choosePayment}
+                />
+              </div>
             </div>
           </div>
           <div className="bg-[#F3F3F3] text-center space-y-2 rounded-lg px-4 py-2 shadow-lg shadow-cyan-500/50">

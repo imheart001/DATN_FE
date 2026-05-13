@@ -36,20 +36,26 @@ const ListBlog: React.FC = () => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã Blogs",
+      title: "ID",
       dataIndex: "id",
       key: "key",
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Title Blogs",
+      title: "Tên bài viết",
       dataIndex: "title",
       key: "title",
+      render: (text) => (
+        <span>{text?.length > 15 ? `${text.slice(0, 15)}...` : text}</span>
+      ),
     },
     {
-      title: "Slug Blogs",
+      title: "Tiêu đề",
       dataIndex: "slug",
       key: "slug",
+      render: (text) => (
+        <span>{text?.length > 15 ? `${text.slice(0, 15)}...` : text}</span>
+      ),
     },
     {
       key: "image",
@@ -60,12 +66,15 @@ const ListBlog: React.FC = () => {
       render: (text: string) => <Image width={50} src={text} />,
     },
     {
-      title: "Content",
+      title: "Nội dung",
       dataIndex: "content",
       key: "content",
+      render: (text) => (
+        <span>{text?.length > 15 ? `${text.slice(0, 15)}...` : text}</span>
+      ),
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
     },
@@ -109,8 +118,8 @@ const ListBlog: React.FC = () => {
     slug: blog?.slug,
     image: blog?.image,
     content: blog?.content,
-    status: blog?.status,
-    tags: [blog.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+    // status: blog?.status,
+    status: [blog.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
   console.log("🚀 ~ file: ListBlog.tsx:92 ~ dataBlog ~ dataBlog:", dataBlog);
   const [dataList, setDataList] = useState<any>(null);

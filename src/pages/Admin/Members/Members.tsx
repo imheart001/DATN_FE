@@ -24,7 +24,7 @@ const MemberInfoAdmin = () => {
   const formatter = (value: number) =>
     `${value} ₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   // Lọc ra các giá trị duy nhất từ danh sách rạp chiếu
-  const getUniqueValues = (dataList, key) => {
+  const getUniqueValues = (dataList:any, key:any) => {
     return Array.from(new Set(dataList?.data?.map(item => item[key])));
   };
   
@@ -91,7 +91,7 @@ const MemberInfoAdmin = () => {
   const dataUser = (member as any)?.data?.map((member: DataType, index: number) => ({
     key: index.toString(),
     id_card: member.id_card,
-    card_class: [member.card_class === 1 ? "Bình Thường" : member.card_class === 2 ? "V.I.P" : "Không xác định"],
+    card_class: [(member as any)?.card_class === 1 ? "Bình Thường" : (member as any).card_class === 2 ? "V.I.P" : "Không xác định"],
     activation_date: member.activation_date,
     total_spending: member.total_spending,
     accumulated_points: member.accumulated_points,

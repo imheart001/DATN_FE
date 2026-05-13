@@ -97,14 +97,14 @@ const PaymentMomo: React.FC = () => {
       setVnp_TransactionStatus(TransactionStatus);
 
       if (!addChairCalled && vnp_TransactionStatus == "0") {
-        const matchingSeats = (allchairbked as any)?.data?.filter(
-          (chair: any) => {
-            return (
-              chair.id_time_detail == id_selectingTime_detail &&
-              selectingSeat.includes(chair.name)
-            );
-          }
-        );
+        const matchingSeats = (allchairbked as any)?.filter((chair: any) => {
+          console.log(chair.seat);
+
+          return (
+            chair.id_time_detail == id_selectingTime_detail &&
+            selectingSeat.includes(chair.seat)
+          );
+        });
         if (matchingSeats && matchingSeats.length > 0) {
           console.log("Có ghế trùng");
         } else {

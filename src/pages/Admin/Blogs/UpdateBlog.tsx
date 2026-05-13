@@ -67,104 +67,104 @@ const UpdateBlog: React.FC<EditBlogProps> = ({dataBlog}) => {
 
   return (
     <>
-      <Button
-        onClick={showDrawer}
-        icon={<EditOutlined />}
-      >
-      </Button>
-      <Drawer
-        title="Cập nhật Title"
-        width={720}
-        onClose={() => {
-          onClose();
-          form.resetFields(); // Reset trường dữ liệu khi đóng Drawer
-        }}
-        open={open}
-        style={{
-          paddingBottom: 80,
-        }}
-        extra={
-          <Space>
-            <Button onClick={onClose}>Cancel</Button>
+    <Button
+      onClick={showDrawer}
+      icon={<EditOutlined />}
+    >
+    </Button>
+    <Drawer
+      title="Cập nhật bài viết"
+      width={720}
+      onClose={() => {
+        onClose();
+        form.resetFields(); // Reset trường dữ liệu khi đóng Drawer
+      }}
+      open={open}
+      style={{
+        paddingBottom: 80,
+      }}
+      extra={
+        <Space>
+          <Button onClick={onClose}>Cancel</Button>
 
-            <Button
-              danger
-              type="primary"
-              htmlType="submit"
-              onClick={() => {
-                form.validateFields().then((values) => {
-                  onFinish(values);
-                });
-              }}
+          <Button
+            danger
+            type="primary"
+            htmlType="submit"
+            onClick={() => {
+              form.validateFields().then((values) => {
+                onFinish(values);
+              });
+            }}
+          >
+            Submit
+          </Button>
+        </Space>
+      }
+    >
+    <Form
+        form={form}
+        layout="vertical"
+        hideRequiredMark
+        onFinish={onFinish}
+      >
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              name="title"
+              label="Tên bài viết"
+              rules={[{ required: true, message: "Mời nhập Tên bài viết" }]}
             >
-              Submit
-            </Button>
-          </Space>
-        }
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          hideRequiredMark
-          onFinish={onFinish}
-        >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="title"
-                label="Title Blogs"
-                rules={[{ required: true, message: "Please enter Title Blogs" }]}
-              >
-                <Input placeholder="Please enter Title Blogs" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="slug"
-                label="Slug blogs"
-                rules={[{ required: true, message: "Please enter Slug blogs" }]}
-              >
-                <Input placeholder="Please enter user Slug blogs" />
-              </Form.Item>
-            </Col>
+              <Input placeholder="Mời nhập Tên bài viết" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="slug"
+              label="Tiêu đề"
+              rules={[{ required: true, message: "Mời nhập tiêu đề" }]}
+            >
+              <Input placeholder="Mời nhập user tiêu đề" />
+            </Form.Item>
+          </Col>
 
-          </Row>
+        </Row>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="image"
-                label="Image"
-                rules={[{ required: true, message: "Please enter Image" }]}
-              >
-                <Input placeholder="Please enter user Image" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="content"
-                label="Content"
-                rules={[{ required: true, message: "Please select a Content" }]}
-              >
-                <Input placeholder="Please enter user Content" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
-              >
-                <Select placeholder="Please select a status">
-                  <Option value="1">1</Option>
-                  <Option value="0">0</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-      </Drawer>
-    </>
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item
+              name="image"
+              label="Hình ảnh"
+              rules={[{ required: true, message: "Mời nhập hình ảnh" }]}
+            >
+              <Input placeholder="Mời nhập user hình ảnh" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="content"
+              label="Nội dung"
+              rules={[{ required: true, message: "Mời nhập  nội dung" }]}
+            >
+              <Input placeholder="Mời nhập user nội dung" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="status"
+              label="Trạng thái"
+              rules={[{ required: true, message: "Mời nhập trạng thái" }]}
+            >
+              <Select placeholder="Mời nhập trạng thái">
+                <Option value="1">1</Option>
+                <Option value="0">0</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+    </Drawer>
+  </>
   );
 };
 

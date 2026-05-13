@@ -80,6 +80,9 @@ const FilmShowing = ({ data }: Props) => {
             title="Trailer"
             open={isModalOpen}
             onOk={handleOk}
+            okButtonProps={{
+              style: { backgroundColor: "#007bff", color: "white" },
+            }}
             onCancel={handleCancel}
           >
             <hr className="w-full my-4" />

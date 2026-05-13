@@ -26,18 +26,18 @@ const ListCate: React.FC = () => {
   console.log(cates);
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã Category",
+      title: "Id",
       dataIndex: "id",
       key: "key",
       render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Tên Category",
+      title: "Tên thể loại",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Slug",
+      title: "Tiêu đề",
       dataIndex: "slug",
       key: "slug",
     },

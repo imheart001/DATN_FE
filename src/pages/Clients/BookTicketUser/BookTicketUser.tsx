@@ -1,11 +1,21 @@
 import { useGetBookTicketByUserQuery } from "../../../service/book_ticket.service";
-import { Table, Image, Button, Modal, Input, message, Tag, Descriptions } from "antd";
+import {
+  Table,
+  Image,
+  Button,
+  Modal,
+  Input,
+  message,
+  Tag,
+  Descriptions,
+} from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
 import { FilterValue } from "antd/es/table/interface";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useSendRefundMutation } from "../../../service/refund.services";
+import { formatDatee } from "../../../utils";
 
 export interface DataType {
   time: string;
@@ -39,9 +49,11 @@ const BookTicketUser = () => {
     setIsModalVisible(true);
   };
   const handleOpen = (record: any) => {
-    setSelectedRecord(record)
+    setSelectedRecord(record);
     setOpen(true);
-  }
+  };
+  console.log(selectedRecord);
+
   const handleOk = async () => {
     try {
       const res = await sendRefund({ password: password, id: id });
@@ -154,7 +166,8 @@ const BookTicketUser = () => {
                         }}
                       >
                         <h3 className="font-semibold text-red-600  text-lg my-4">
-                          LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá tiền bạn đã đặt
+                          LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá
+                          tiền bạn đã đặt
                         </h3>
                         <h3 className="font-semibold text-red-600 text-lg my-4">
                           Xác nhận mật khẩu để đồng ý hoàn vé!!
@@ -188,14 +201,14 @@ const BookTicketUser = () => {
       key: "name",
       align: "center",
       width: "10%",
-      filters: getUniqueValues(film, "name")?.map((item) => ({
+      filters: getUniqueValues(film as any, "name")?.map((item) => ({
         text: item,
         value: item,
       })),
       filteredValue: filteredInfo?.name || null,
       onFilter: (value: string, record) => {
         console.log(record);
-        return record.name?.name.includes(value);
+        return (record as any).name?.name.includes(value);
       },
       render: (text: any) => (
         <div>
@@ -283,7 +296,8 @@ const BookTicketUser = () => {
         { text: "Hoàn Tiền", value: "Hoàn Tiền" },
       ],
       filteredValue: filteredInfo.status || null,
-      onFilter: (value: string, record) => record.status.status === value,
+      onFilter: (value: string, record) =>
+        (record as any).status.status === value,
       render: (text) => {
         if (text.status === "Đã Nhận Vé") {
           return <Tag color="success">Đã Nhận Vé</Tag>;
