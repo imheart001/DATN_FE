@@ -75,7 +75,6 @@ const BookingSeat = () => {
   };
   // const [keepSeat, setkeepSeat] = useState<[]>([]);
   const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
-  console.log(DataSeatBooked);
 
   const { data: foods } = useFetchFoodQuery();
   const { data: dataVouchers } = useFetchVoucherQuery();

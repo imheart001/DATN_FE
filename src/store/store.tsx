@@ -37,6 +37,7 @@ import payMoMoAPI from "../service/payMoMo.service";
 import memberAPI from "../service/member.service";
 import blogsAPI from "../service/blog.service";
 import commentsAPI from "../service/commentBlog.service";
+import refundAPI from "../service/refund.services";
 
 // Import redux-persist
 const persistConfig = {
@@ -74,6 +75,7 @@ const rootReducer = combineReducers({
   users: usersAPI.reducer,
   blogs: blogsAPI.reducer,
   comments: commentsAPI.reducer,
+  refund: refundAPI.reducer,
   auth: authReducer,
   [analyticApi.reducerPath]: analyticApi.reducer,
   [memberAPI.reducerPath]: memberAPI.reducer,
@@ -110,7 +112,8 @@ const store = configureStore({
       analyticApi.middleware as any,
       memberAPI.middleware as any,
       blogsAPI.middleware as any,
-      commentsAPI.middleware as any
+      commentsAPI.middleware as any,
+      refundAPI.middleware as any
     );
 
     return middlewareArray;
