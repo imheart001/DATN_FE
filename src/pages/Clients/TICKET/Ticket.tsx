@@ -138,18 +138,17 @@ const Ticket: React.FC = () => {
     const formattedDate = date.toISOString().slice(0, 10);
     const show = filmShows2.find((show) => show.date === formattedDate);
     const isToday = formattedDate === isToday2.toISOString().slice(0, 10);
-    console.log(show);
+
     // const time_detailbyCinema = show?.times.filter(s=>s.row)
     const roomByCinema = (rooms as any)?.data?.filter(
       (room: any) => room.id_cinema == selectedCinema
     );
     const roomIds = roomByCinema?.map((s: any) => s.id);
-    console.log(roomByCinema?.map((s: any) => s.id));
+
     const filteredShowTimes = show?.times?.filter((time: any) =>
       roomIds?.includes(time.room_id)
     );
 
-    console.log(filteredShowTimes);
     const dayOfWeek = (today.getDay() + index) % 7;
     const dayNumber = date.getDate();
     const daysOfWeek = [

@@ -17,7 +17,7 @@ const seatkepingAPI = createApi({
   tagTypes: ["kepingseat"],
   endpoints: (builder) => ({
     getAllSeatKepings: builder.query<ISeatKepting[], string>({
-      query: (id) => `/getReservedSeatsByTimeDetail/${id}`,
+      query: () => `/getReservedSeatsByTimeDetail/`,
       providesTags: ["kepingseat"],
     }),
 
