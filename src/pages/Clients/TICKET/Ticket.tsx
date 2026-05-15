@@ -140,13 +140,13 @@ const Ticket: React.FC = () => {
     const isToday = formattedDate === isToday2.toISOString().slice(0, 10);
     console.log(show);
     // const time_detailbyCinema = show?.times.filter(s=>s.row)
-    const roomByCinema = (rooms as any)?.data.filter(
+    const roomByCinema = (rooms as any)?.data?.filter(
       (room: any) => room.id_cinema == selectedCinema
     );
-    const roomIds = roomByCinema.map((s: any) => s.id);
-    console.log(roomByCinema.map((s: any) => s.id));
-    const filteredShowTimes = show?.times.filter((time: any) =>
-      roomIds.includes(time.room_id)
+    const roomIds = roomByCinema?.map((s: any) => s.id);
+    console.log(roomByCinema?.map((s: any) => s.id));
+    const filteredShowTimes = show?.times?.filter((time: any) =>
+      roomIds?.includes(time.room_id)
     );
 
     console.log(filteredShowTimes);
@@ -207,26 +207,28 @@ const Ticket: React.FC = () => {
         <div>
           {show && show?.times?.length > 0 ? (
             <div className="grid grid-cols-5 ">
-              {filteredShowTimes?.map((time: any, timeIndex: number) => {
-                // Lấy thông tin thời gian
-                const showTime = getRealTime(time.time_id);
+              {(filteredShowTimes || [])?.map(
+                (time: any, timeIndex: number) => {
+                  // Lấy thông tin thời gian
+                  const showTime = getRealTime(time.time_id);
 
-                if (dataChairEmpTy) {
-                  const chairEmpty = dataChairEmpTy?.find(
-                    (item: any) => item.id === time.id
-                  );
-                  return (
-                    <div key={timeIndex} className="my-1 text-center">
-                      <Button onClick={() => handleTimeSelection(time.id)}>
-                        {showTime}
-                      </Button>
-                      <div className="">
-                        {chairEmpty?.empty_chair} ghế trống
+                  if (dataChairEmpTy) {
+                    const chairEmpty = dataChairEmpTy?.find(
+                      (item: any) => item.id === time.id
+                    );
+                    return (
+                      <div key={timeIndex} className="my-1 text-center">
+                        <Button onClick={() => handleTimeSelection(time.id)}>
+                          {showTime}
+                        </Button>
+                        <div className="">
+                          {chairEmpty?.empty_chair} ghế trống
+                        </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  }
                 }
-              })}
+              )}
             </div>
           ) : (
             "Chưa cập nhật suất chiếu của ngày này"
