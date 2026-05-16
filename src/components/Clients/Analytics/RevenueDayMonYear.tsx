@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, Col, Row } from "antd";
-import { formatter } from "../../../utils/formatCurrency";
+import { formatter, formatterNumber } from "../../../utils/formatCurrency";
 interface RevenueDayMonYearProps {
   data: any;
 }
@@ -83,6 +83,15 @@ const RevenueDayMonYear: React.FC<RevenueDayMonYearProps> = ({ data }) => {
           bordered={false}
         >
           {data?.count_cinema} rạp
+        </Card>
+      </Col>
+      <Col className="text-base" span={8} style={{ width: 300, marginTop: 40 }}>
+        <Card
+          className="text-base"
+          title="Số voucher còn hoạt động"
+          bordered={false}
+        >
+          {formatterNumber(data?.voucher_is_onl_count)}
         </Card>
       </Col>
     </Row>

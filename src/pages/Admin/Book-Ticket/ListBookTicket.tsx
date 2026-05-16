@@ -38,7 +38,9 @@ const ListBookTicket: React.FC = () => {
   const { data: cinema } = useFetchCinemaQuery();
 
   console.log(dataBook_tickets);
-
+  const filteredDataBookTickets = (dataBook_tickets || []).filter(
+    (item: any) => item.status === 2 || item.status === 3
+  );
   //chi tiết
   const [id, setID] = useState<string>("");
 
@@ -300,12 +302,14 @@ const ListBookTicket: React.FC = () => {
       render: (_, record) => (
         <>
           <Space size="middle">
-            <Button
-              className="group relative inline-block text-sm font-medium  focus:outline-none focus:ring active:text-red-500"
-              onClick={() => handlePrintTicket(record.id_code, IfUser?.id)}
-            >
-              In vé
-            </Button>
+            {record.status === 0 || record.status === 1 ? (
+              <Button
+                className="group relative inline-block text-sm font-medium focus:outline-none focus:ring active:text-red-500"
+                onClick={() => handlePrintTicket(record.id_code, IfUser?.id)}
+              >
+                In vé
+              </Button>
+            ) : null}
             <div title="Chi tiết">
               <Button
                 style={{ backgroundColor: "#f04848", color: "#ffff" }}

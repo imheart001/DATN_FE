@@ -4,7 +4,6 @@ import FilmShowing from "../../../components/FilmShowing";
 import { IFilms } from "../../../interface/model";
 import { compareDates, compareReleaseDate, formatDate } from "../../../utils";
 
-
 import { useAppSelector } from "../../../store/hooks";
 
 const Movies = () => {
@@ -15,8 +14,6 @@ const Movies = () => {
     return result;
   });
 
-  
-
   const futureMovies = data?.data
     .filter((item: any) => {
       const result = compareReleaseDate(item.release_date);
@@ -26,7 +23,7 @@ const Movies = () => {
       const currentDate = new Date();
       const featureMovieDate = new Date();
       const releaseDate = new Date(item1.release_date);
-      featureMovieDate.setDate(currentDate.getDate() + 10);
+      featureMovieDate.setDate(currentDate.getDate() + 300);
       if (featureMovieDate > releaseDate) {
         return item1;
       }

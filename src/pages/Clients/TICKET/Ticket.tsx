@@ -19,6 +19,7 @@ import { useGetAllCateDetailByFilmQuery } from "../../../service/catedetail.serv
 import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
 import Loading from "../../../components/isLoading/Loading";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+import dayjs from "dayjs";
 
 const Ticket: React.FC = () => {
   const { data: films, isLoading: filmsLoading } = useFetchProductQuery();
@@ -294,7 +295,16 @@ const Ticket: React.FC = () => {
                   const showbyCinema = dataShowbyIdCinema.find(
                     (show: any) => show.film_id === film.id
                   );
-
+                  const isExpired = dayjs(film.end_date).isBefore(dayjs());
+                  const isExpired2 = dayjs(film.release_date).isAfter(dayjs());
+                  console.log(isExpired2);
+                  // release_date
+                  if (isExpired) {
+                    return null;
+                  }
+                  if (isExpired2) {
+                    return null;
+                  }
                   return (
                     <div className="relative">
                       <div

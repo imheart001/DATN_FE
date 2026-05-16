@@ -251,7 +251,7 @@ export default function Dashbroad_Admin_Cinema() {
         </div>
         <div className="col-span-1 my-10">
           <h3 className="mx-auto text-center uppercase font-semibold">
-            Tổng Doanh thu theo năm của Các rạp trong năm 2023
+            Tổng Doanh thu theo năm {year}
           </h3>
           <PieChart width={1000} height={400}>
             <Pie

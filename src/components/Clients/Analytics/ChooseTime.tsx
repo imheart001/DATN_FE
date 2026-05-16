@@ -96,6 +96,8 @@ const ChooseTime: React.FC<ChooseTimeProps> = ({
     <Space>
       <Select value={type} onChange={setType}>
         <Option value="date">Date</Option>
+        <Option value="month">Month</Option>
+        <Option value="year">Year</Option>
       </Select>
       <PickerWithType
         type={type}

@@ -38,6 +38,7 @@ import memberAPI from "../service/member.service";
 import blogsAPI from "../service/blog.service";
 import commentsAPI from "../service/commentBlog.service";
 import refundAPI from "../service/refund.services";
+import commentsFilmAPI from "../service/commentfilm.service";
 
 // Import redux-persist
 const persistConfig = {
@@ -71,6 +72,7 @@ const rootReducer = combineReducers({
   sendEmail: sendEmailAPI.reducer,
   selectedCinema: selectedCinemaReducer,
   TKinformation: TKinformationReducer,
+  commentsfilm: commentsFilmAPI.reducer,
   Paymentmethod: PaymentmethodReducer,
   users: usersAPI.reducer,
   blogs: blogsAPI.reducer,
@@ -109,6 +111,7 @@ const store = configureStore({
       movieRoomAPI.middleware as any,
       cateDetailAPI.middleware as any,
       usersAPI.middleware as any,
+      commentsFilmAPI.middleware as any,
       analyticApi.middleware as any,
       memberAPI.middleware as any,
       blogsAPI.middleware as any,

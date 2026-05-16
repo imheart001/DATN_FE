@@ -23,6 +23,7 @@ import ChooseTime from "../../../components/Clients/Analytics/ChooseTime";
 import RevenueDayMonYear from "../../../components/Clients/Analytics/RevenueDayMonYear";
 import TicketDayByUser from "../../../components/Clients/Analytics/TicketDayByUser";
 import TicketMonByUser from "../../../components/Clients/Analytics/TicketMonByUser";
+import VocuherByUserAnalytics from "../../../components/Clients/Analytics/VoucherByUser";
 export default function Dashbroad() {
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat("vi-VN", {
@@ -77,10 +78,13 @@ export default function Dashbroad() {
     ?.ticket_mon;
   const dataRevenueFilmInDay = (dataAlastic as any)?.revenue_day
     ?.revenue_and_refund_day;
+  const dataUsedByUser = (dataAlastic as any)?.revenue_voucher_is_onl;
+  console.log(dataUsedByUser);
 
   // Check if revenueData is undefined or null before further processing
   if (
     !revenueData &&
+    !dataUsedByUser &&
     !dataDayTicketCheckByStaff &&
     revenueDatabyDay !== null &&
     !dataMonTicketCheckByStaff &&
@@ -172,7 +176,30 @@ export default function Dashbroad() {
 
     return transformedItem;
   });
+  const RevenueByCinemaDataPriceChairByDay = dataByDay.map((item: any) => {
+    const transformedItem: Record<string, any> = {
+      name: item.name,
+    };
 
+    // Iterate over cinemas and set values or default to 0 if not present
+    cinemas.forEach((cinema) => {
+      transformedItem[cinema] = item[cinema]?.total_chair_price || 0;
+    });
+
+    return transformedItem;
+  });
+  const RevenueByCinemaDataPriceFoodByDay = dataByDay.map((item: any) => {
+    const transformedItem: Record<string, any> = {
+      name: item.name,
+    };
+
+    // Iterate over cinemas and set values or default to 0 if not present
+    cinemas.forEach((cinema) => {
+      transformedItem[cinema] = item[cinema]?.total_food_price || 0;
+    });
+
+    return transformedItem;
+  });
   const dataForPieChart = cinemas.map((cinema, index) => {
     const totalRevenue = Object.values(revenueDatabyYear).reduce(
       (total, yearlyData: any) =>
@@ -208,37 +235,6 @@ export default function Dashbroad() {
       <RevenueDayMonYear data={dataAlastic as any} />
       <div className="grid-cols-3 grid mt-10 max-w-full">
         <div className="overflow-y-auto h-[450px] col-span-2 space-y-20 w-[750px]">
-          <div className="">
-            <h3 className="mx-auto text-center uppercase font-semibold">
-              Tổng Doanh thu các rạp theo tháng năm 2023{" "}
-            </h3>
-            <LineChart
-              width={700}
-              className="p-4"
-              height={400}
-              data={chartData}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
-              <YAxis
-                tickFormatter={(value) => formatCurrency(value as number)}
-              />
-              <Tooltip formatter={(value) => formatCurrency(value as number)} />
-              <Legend />
-              {(cinemas as any).map((cinema: any, index: any) => (
-                <Line
-                  key={index}
-                  type="monotone"
-                  dataKey={cinema}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                    16
-                  )}`}
-                  activeDot={{ r: 8 }}
-                />
-              ))}
-            </LineChart>
-          </div>
-
           <div>
             <h3 className="mx-auto mb-4 text-center uppercase font-semibold">
               Doanh thu các rạp theo ngày tháng hiện tại{" "}
@@ -274,6 +270,124 @@ export default function Dashbroad() {
               ))}
             </LineChart>
           </div>
+          <div>
+            <div className="flex items-center mb-6 justify-center space-x-4">
+              <img
+                width="60"
+                height="60"
+                src="https://img.icons8.com/external-smashingstocks-outline-color-smashing-stocks/66/external-Chair-stationery-smashingstocks-outline-color-smashing-stocks.png"
+                alt="external-Chair-stationery-smashingstocks-outline-color-smashing-stocks"
+              />
+              <h3 className="mx-auto text-center uppercase font-semibold">
+                Tổng Doanh thu ghế các rạp theo ngày trong tháng {month}/{year}{" "}
+              </h3>
+            </div>
+            <LineChart
+              width={700}
+              height={400}
+              data={RevenueByCinemaDataPriceChairByDay}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis
+                tickFormatter={(value) => formatCurrency(value as number)}
+              />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Legend />
+              {(cinemas as any).map((cinema: any, index: any) => (
+                <Line
+                  key={index}
+                  type="monotone"
+                  dataKey={cinema}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                    16
+                  )}`}
+                  activeDot={{ r: 8 }}
+                />
+              ))}
+            </LineChart>
+          </div>
+          <div>
+            <div className="flex items-center mb-4 space-x-4 justify-center">
+              <img
+                width="50"
+                height="50"
+                src="https://img.icons8.com/external-icongeek26-outline-colour-icongeek26/64/external-popcorn-cinema-icongeek26-outline-colour-icongeek26.png"
+                alt="external-popcorn-cinema-icongeek26-outline-colour-icongeek26"
+              />
+              <h3 className="mx-auto text-center uppercase font-semibold">
+                Tổng Doanh thu bỏng nước theo ngày của các rạp ngày trong tháng{" "}
+                {month}/{year}{" "}
+              </h3>
+            </div>
+            <LineChart
+              width={700}
+              height={400}
+              data={RevenueByCinemaDataPriceFoodByDay}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis
+                tickFormatter={(value) => formatCurrency(value as number)}
+              />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Legend />
+              {(cinemas as any).map((cinema: any, index: any) => (
+                <Line
+                  key={index}
+                  type="monotone"
+                  dataKey={cinema}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                    16
+                  )}`}
+                  activeDot={{ r: 8 }}
+                />
+              ))}
+            </LineChart>
+          </div>
+          <div className="">
+            <h3 className="mx-auto text-center uppercase font-semibold">
+              Tổng Doanh thu các rạp theo tháng năm {year}{" "}
+            </h3>
+            <LineChart
+              width={700}
+              className="p-4"
+              height={400}
+              data={chartData}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
+              <YAxis
+                tickFormatter={(value) => formatCurrency(value as number)}
+              />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Legend />
+              {(cinemas as any).map((cinema: any, index: any) => (
+                <Line
+                  key={index}
+                  type="monotone"
+                  dataKey={cinema}
+                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                    16
+                  )}`}
+                  activeDot={{ r: 8 }}
+                />
+              ))}
+            </LineChart>
+          </div>
+
           <div className="">
             <div className="flex items-center justify-center space-x-4">
               <img
@@ -354,7 +468,7 @@ export default function Dashbroad() {
         </div>
         <div className="col-span-1 my-10">
           <h3 className="mx-auto text-center uppercase font-semibold">
-            Tổng Doanh thu theo năm của Các rạp trong năm 2023
+            Tổng Doanh thu theo năm của Các rạp trong năm {year}
           </h3>
           <PieChart width={1000} height={400}>
             <Pie
@@ -390,21 +504,25 @@ export default function Dashbroad() {
           </PieChart>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-10">
+      <div className="grid bg-[#F0F2F5] p-10 grid-cols-2 gap-10 h-[500px] overflow-y-auto">
         <div className="">
-          <Top5User data={dataTop5Friendly} />
+          <RevenueFilmInDay data={dataRevenueFilmInDay} />
         </div>
         <div className="">
           <RevenueFilmInMon data={dataTopRevenaFilmInMon} />
         </div>
-        {/* <div className="">
-          <TotalBookTicketInMonth data={dataTicketBookByFilmInMon} />
-        </div> */}
         <div className="">
-          <RevenueFilmInDay data={dataRevenueFilmInDay} />
+          <Top5User data={dataTop5Friendly} />
         </div>
-        <div className="space-y-10">
+
+        <div className="">
+          <VocuherByUserAnalytics data={dataUsedByUser} />
+        </div>
+
+        <div className="">
           <TicketDayByUser data={dataDayTicketCheckByStaff} />
+        </div>
+        <div className="">
           <TicketMonByUser data={dataMonTicketCheckByStaff} />
         </div>
       </div>

@@ -9,11 +9,15 @@ import {
 } from "../../../service/show.service";
 import { useSelector } from "react-redux";
 import * as moment from "moment-timezone";
-import { Button, Tabs, message } from "antd";
+import { Button, Input, Tabs, message } from "antd";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import { useEffect, useState } from "react";
 import { useGetChairEmpTyQuery } from "../../../service/chairs.service";
+import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+import CommentFilm from "../Comment/comment";
+import { useGetCommentByUserIdQuery } from "../../../service/commentfilm.service";
 // import MovieTrailer from "../MovieTrailer/MovieTrailer";
+const { TextArea } = Input;
 const Movie_About = () => {
   const { id } = useParams();
   const { data: film, error, isLoading } = useGetProductByIdQuery(`${id}`);
@@ -21,8 +25,8 @@ const Movie_About = () => {
   const { data: dataShowbyIdCinema } =
     useGetShowbyIdCinemaQuery(selectedCinema);
   const { data: shows } = useFetchShowTimeQuery();
-  console.log(shows);
-
+  const { data: Rating } = useGetCommentByUserIdQuery(`${id}`);
+  const { data: rooms } = useFetchMovieRoomQuery();
   console.log(dataShowbyIdCinema);
   const showByFilm = dataShowbyIdCinema?.filter(
     (show: any) => show.film_id == id
@@ -115,6 +119,14 @@ const Movie_About = () => {
     const formattedDate = date.toISOString().slice(0, 10);
     const show = filmShows2.find((show: any) => show.date === formattedDate);
     const isToday = formattedDate === isToday2.toISOString().slice(0, 10);
+    const roomByCinema = (rooms as any)?.data?.filter(
+      (room: any) => room.id_cinema == selectedCinema
+    );
+    const roomIds = roomByCinema?.map((s: any) => s.id);
+
+    const filteredShowTimes = show?.times?.filter((time: any) =>
+      roomIds?.includes(time.room_id)
+    );
 
     const dayOfWeek = (today.getDay() + index) % 7;
     const dayNumber = date.getDate();
@@ -172,26 +184,28 @@ const Movie_About = () => {
         <div>
           {show && show?.times?.length > 0 ? (
             <div className="grid grid-cols-5 ">
-              {show?.times?.map((time: any, timeIndex: number) => {
-                // Lấy thông tin thời gian
-                const showTime = getRealTime(time.time_id);
+              {(filteredShowTimes || [])?.map(
+                (time: any, timeIndex: number) => {
+                  // Lấy thông tin thời gian
+                  const showTime = getRealTime(time.time_id);
 
-                if (dataChairEmpTy) {
-                  const chairEmpty = dataChairEmpTy?.find(
-                    (item: any) => item.id === time.id
-                  );
-                  return (
-                    <div key={timeIndex} className="my-1 text-center">
-                      <Button onClick={() => handleTimeSelection(time.id)}>
-                        {showTime}
-                      </Button>
-                      <div className="">
-                        {chairEmpty?.empty_chair} ghế trống
+                  if (dataChairEmpTy) {
+                    const chairEmpty = dataChairEmpTy?.find(
+                      (item: any) => item.id === time.id
+                    );
+                    return (
+                      <div key={timeIndex} className="my-1 text-center">
+                        <Button onClick={() => handleTimeSelection(time.id)}>
+                          {showTime}
+                        </Button>
+                        <div className="">
+                          {chairEmpty?.empty_chair} ghế trống
+                        </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  }
                 }
-              })}
+              )}
             </div>
           ) : (
             "Chưa cập nhật suất chiếu của ngày này"
@@ -200,7 +214,7 @@ const Movie_About = () => {
       ),
     };
   });
-  console.log(showInfo);
+
   return (
     <div className="">
       <div className=" text-center bg-primary">
@@ -233,7 +247,21 @@ const Movie_About = () => {
                     <p className="text-center text-white my-4">
                       THỜI LƯỢNG: {(film as any)?.data.time}
                     </p>
-
+                    <p className="text-center text-white my-4">
+                      <div className="flex justify-center items-center space-x-2">
+                        <div className="">
+                          Đánh giá : {Rating?.averageStars}
+                        </div>
+                        <svg
+                          className="h-5 w-5"
+                          fill="#FADB14"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      </div>
+                    </p>
                     <p className="text-center text-white my-4">
                       NGÀY KHỞI CHIẾU :{" "}
                       {new Date(
@@ -261,19 +289,6 @@ const Movie_About = () => {
                       </span>
                     </div> */}
 
-                    <div className="flex justify-center mt-8">
-                      <Link
-                        to={"/book-ticket"}
-                        className="px-10 rounded-3xl bg-red-600 py-3 text-sm font-medium text-white shadow hover:bg-red-700 focus:outline-none active:bg-red-500 sm:w-auto"
-                      >
-                        Đặt vé
-                      </Link>
-                      <Link to={"#"}>
-                        <div className="px-6 hover:bg-tertiary border-tertiary text-white border p-2 rounded-[48px] ml-4 text-gray">
-                          Trailer
-                        </div>
-                      </Link>
-                    </div>
                     <Tabs
                       className="bg-white pb-10 my-10 w-full px-4 rounded-lg"
                       defaultActiveKey="1"
@@ -298,7 +313,7 @@ const Movie_About = () => {
               ></iframe>
             </div>
           </div>
-
+          <CommentFilm dataidfilm={id} />
           <p className="underline mt-[30px] text-secondary text-[#8E8E8E]">
             Xem thêm
           </p>
