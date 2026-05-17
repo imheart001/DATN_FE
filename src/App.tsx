@@ -14,7 +14,7 @@ import ListFilm from "./pages/Admin/ListFilm/ListFilm";
 import { useEffect } from "react";
 import ListCate from "./pages/Admin/Category/ListCategory";
 import ListCinema from "./pages/Admin/Cinemas/ListCinema";
-import ListShow from "./pages/Admin/Quản Lí suất chiếu/ListShow";
+import ListShow from "./pages/Admin/Time_Detail/ListShow";
 import ListBookTicket from "./pages/Admin/Book-Ticket/ListBookTicket";
 import ListMovieRoom from "./pages/Admin/MovieRoom/ListMovieRoom";
 import ListFood from "./pages/Admin/Food/ListFood";

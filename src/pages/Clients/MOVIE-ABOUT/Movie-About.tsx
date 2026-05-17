@@ -1,7 +1,7 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../../Layout/LayoutUser/Header";
 import { useGetProductByIdQuery } from "../../../service/films.service";
-import { IFilms } from "../../../interface/model";
+
 import type { TabsProps } from "antd";
 import {
   useFetchShowTimeQuery,
@@ -17,21 +17,20 @@ import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 import CommentFilm from "../Comment/comment";
 import { useGetCommentByUserIdQuery } from "../../../service/commentfilm.service";
 // import MovieTrailer from "../MovieTrailer/MovieTrailer";
-const { TextArea } = Input;
+
 const Movie_About = () => {
   const { id } = useParams();
-  const { data: film, error, isLoading } = useGetProductByIdQuery(`${id}`);
+  const { data: film } = useGetProductByIdQuery(`${id}`);
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const { data: dataShowbyIdCinema } =
     useGetShowbyIdCinemaQuery(selectedCinema);
   const { data: shows } = useFetchShowTimeQuery();
   const { data: Rating } = useGetCommentByUserIdQuery(`${id}`);
   const { data: rooms } = useFetchMovieRoomQuery();
-  console.log(dataShowbyIdCinema);
+
   const showByFilm = dataShowbyIdCinema?.filter(
     (show: any) => show.film_id == id
   );
-  console.log(showByFilm);
 
   const { data: dataChairEmpTy } = useGetChairEmpTyQuery();
   const [filmShows2, setFilmShows2] = useState<FilmShow[]>([]);
@@ -272,22 +271,6 @@ const Movie_About = () => {
                     <p className="text-center text-white my-4">
                       MÔ TẢ: {(film as any)?.data.description}
                     </p>
-
-                    {/* <div className="col-md-16 tab-style-1 margin-bottom-35">
-                      <span className="inline-flex -space-x-px overflow-hidden rounded-md border bg-white shadow-sm">
-                        <button className="inline-block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:relative">
-                          16/10/2023
-                        </button>
-
-                        <button className="inline-block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:relative">
-                          16/10/2023
-                        </button>
-
-                        <button className="inline-block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:relative">
-                          16/10/2023
-                        </button>
-                      </span>
-                    </div> */}
 
                     <Tabs
                       className="bg-white pb-10 my-10 w-full px-4 rounded-lg"
