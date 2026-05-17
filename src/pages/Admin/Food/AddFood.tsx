@@ -15,6 +15,8 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAddFoodMutation } from "../../../service/food.service";
+import { uploadImageApi } from "../../../apis/upload-image.api";
+import { FOLDER_NAME } from "../../../configs/config";
 // const { Option } = Select;
 
 const AddFood: React.FC = () => {
@@ -31,26 +33,44 @@ const AddFood: React.FC = () => {
   };
 
   const onFinish = async (values: any) => {
-    const formData = new FormData();
-      formData.append('name', values.name);
-      formData.append('price', values.price);
-      if (imageFileList.length > 0) {
-        formData.append('image', imageFileList[0].originFileObj);
-      }
-      console.log(imageFileList[0].originFileObj);
-      console.log(values.image);
-      
-    // try {
-    //   await addFood(values).unwrap();
-    //   message.success("Thêm sản phẩm thành công");
-    //   await new Promise((resolve) => setTimeout(resolve, 5000));
-    //   navigate("/admin/food");
-    // } catch (error) {
-    //   message.error("Thêm sản phẩm thất bại");
-    // }
+    const data = { ...values, image: linkImage };
+
+    try {
+      const response = await addFood(data).unwrap();
+      console.log("🚀 ~ file: AddFood.tsx:40 ~ onFinish ~ response:", response);
+      message.success("Thêm sản phẩm thành công");
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      navigate("/admin/food");
+    } catch (error) {
+      console.log("🚀 ~ file: AddFood.tsx:45 ~ onFinish ~ error:", error)
+      message.error("Thêm sản phẩm thất bại");
+    }
   };
 
   const [form] = Form.useForm(); // Tạo một Form instance để sử dụng validate
+  const [uploadImage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [linkImage, setLinkImage] = useState<string | null>(null);
+
+  const handleUpdateImageFood = async (e: any) => {
+    setIsLoading(true);
+    try {
+      const files = e.target.files;
+      const formData = new FormData();
+      formData.append("upload_preset", "da_an_tot_nghiep");
+      formData.append("folder", FOLDER_NAME);
+      for (const file of files) {
+        formData.append("file", file);
+        const response = await uploadImageApi(formData);
+        if (response) {
+          setLinkImage(response.url);
+          setIsLoading(false);
+        }
+      }
+    } catch (error) {
+      message.error("loi");
+    }
+  };
 
   return (
     <>
@@ -110,32 +130,40 @@ const AddFood: React.FC = () => {
             </Col>
 
             <Col span={12}>
-              <Form.Item
-                name="image"
-                label="Hình Ảnh"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
-                valuePropName="fileList"
-                getValueFromEvent={(e) => {
-                  if (Array.isArray(e)) {
-                    return e;
-                  }
-                  return e && e.fileList;
-                }}
-              >
-                <Upload
-                  listType="picture-card"
-                  fileList={imageFileList}
-                  beforeUpload={() => false}
-                  onChange={({ fileList }) => setImageFileList(fileList)}
-                >
-                  {imageFileList.length >= 1 ? null : (
-                    <div>
-                      <PlusOutlined />
-                      <div style={{ marginTop: 8 }}>Upload</div>
-                    </div>
-                  )}
-                </Upload>
+              <Form.Item label="Hình Ảnh">
+                <div className="flex gap-1 items-center justify-between">
+                  <input
+                    type="file"
+                    value={uploadImage}
+                    className="flex-1 !hidden"
+                    onChange={(e) => handleUpdateImageFood(e)}
+                    id="update-image-poster"
+                  />
+                  <label
+                    htmlFor="update-image-poster"
+                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
+                  >
+                    upload image
+                  </label>
+                </div>
               </Form.Item>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col span={24}>
+              {linkImage && !isLoading && (
+                <img
+                  src={linkImage ? linkImage : ""}
+                  alt={linkImage ? linkImage : ""}
+                  className="h-[200px] w-full border shadow rounded-lg object-cover"
+                />
+              )}
+              {isLoading && (
+                <div className="h-[200px] w-full border shadow rounded-lg flex justify-center items-center">
+                  <div className="h-10 w-10 rounded-full border-2 border-blue-500 border-t-2 border-t-white animate-spin"></div>
+                </div>
+              )}
             </Col>
           </Row>
 
@@ -149,7 +177,7 @@ const AddFood: React.FC = () => {
                   {
                     validator: (_, value) => {
                       if (isNaN(value)) {
-                        return Promise.reject('Vui lòng nhập một số hợp lệ');
+                        return Promise.reject("Vui lòng nhập một số hợp lệ");
                       }
                       return Promise.resolve();
                     },

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useGetUserByIdQuery } from "../../../service/book_ticket.service";
 import { useUpdateUserMutation } from "../../../service/signup_login.service";
 import { message } from "antd";
+import { FOLDER_NAME } from "../../../configs/config";
+import { uploadImageApi } from "../../../apis/upload-image.api";
 
 const Profile = () => {
   const [name, setName] = useState("");
@@ -21,6 +23,7 @@ const Profile = () => {
     if (user) {
       setName(user.name || "");
       setImage(user.image || "");
+      setLinkImage(user.image || "");
       setPhone(user.phone || 0);
       setDdate_of_birth(user.date_of_birth || "");
       setEmail(user.email || "");
@@ -57,9 +60,13 @@ const Profile = () => {
         date_of_birth,
         phone,
         email,
-        image,
+        image: linkImage,
         ...(changePassword && { old_password, new_password }), // Thêm mật khẩu khi cần
       };
+      console.log(
+        "🚀 ~ file: Profile.tsx:66 ~ handleClick ~ newUser:",
+        newUser
+      );
 
       const res: any = await upadteUser(newUser);
       console.log(res);
@@ -78,31 +85,87 @@ const Profile = () => {
   const handleCheckboxChange = () => {
     setChangePassword(!changePassword);
   };
+
+  const [uploadImage] = useState("");
+  const [linkImage, setLinkImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleUpdateImage = async (e: any) => {
+    setIsLoading(true);
+    try {
+      const files = e.target.files;
+      const formData = new FormData();
+      formData.append("upload_preset", "da_an_tot_nghiep");
+      formData.append("folder", FOLDER_NAME);
+      for (const file of files) {
+        formData.append("file", file);
+        const response = await uploadImageApi(formData);
+        if (response) {
+          setLinkImage(response.url);
+          setIsLoading(false);
+        }
+      }
+    } catch (error) {
+      message.error("loi");
+    }
+  };
   return (
     <section className=" p-4 bg-white rounded-lg">
       <main className=" flex items-center justify-center px-8 py-8 sm:px-12 lg:col-span-7 lg:px-16 lg:py-12 xl:col-span-6">
         <div className=" max-w-xl lg:max-w-3xl">
           <div className="p-4 rounded-lg w-44 h-44 flex items-center justify-center">
-            <img
-              className="rounded-lg max-w-44 max-h-44"
-              src={
-                image
-                  ? image
-                  : "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="
-              }
-              alt=""
-            />
+            {linkImage && !isLoading && (
+              <img
+                className="rounded-lg max-w-44 max-h-44"
+                src={
+                  linkImage
+                    ? linkImage
+                    : "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="
+                }
+                alt=""
+              />
+            )}
+            {isLoading && (
+              <div className="h-[200px] w-full border shadow rounded-lg flex justify-center items-center">
+                <div className="h-10 w-10 rounded-full border-2 border-blue-500 border-t-2 border-t-white animate-spin"></div>
+              </div>
+            )}
+            {!linkImage ||
+              (linkImage === null && (
+                <img
+                  className="rounded-lg max-w-44 max-h-44"
+                  src={
+                    "https://media.istockphoto.com/id/1300845620/vector/user-icon-flat-isolated-on-white-background-user-symbol-vector-illustration.jpg?s=612x612&w=0&k=20&c=yBeyba0hUkh14_jgv1OKqIH0CCSWU_4ckRkAoy2p73o="
+                  }
+                  alt=""
+                />
+              ))}
           </div>
           <form action="#" className="mt-8 grid grid-cols-6 gap-6">
             <div className="col-span-6 sm:col-span-3">
               <label className="block text-sm font-medium text-black dark:text-gray-700">
                 Ảnh Đại Diện
               </label>
-              <input
+              {/* <input
                 type="text"
                 className="mt-1 w-full h-[30px] rounded-md bg-gray-200 border-gray-500 bg-gray text-sm text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                 onChange={(e) => setImage(e.target.value)}
-              />
+              /> */}
+              <div className="flex gap-1 items-center justify-between">
+                <input
+                  type="file"
+                  value={uploadImage}
+                  className="flex-1 !hidden"
+                  onChange={(e) => handleUpdateImage(e)}
+                  id="update-image"
+                />
+                <label
+                  htmlFor="update-image"
+                  className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
+                >
+                  upload image
+                </label>
+              </div>
             </div>
             <div className="col-span-6 sm:col-span-3">
               <label className="block text-sm font-medium text-black dark:text-black">

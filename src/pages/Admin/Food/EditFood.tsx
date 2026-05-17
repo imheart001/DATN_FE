@@ -68,9 +68,10 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
     if (dataFood) {
       form.setFieldsValue({
         name: dataFood.name,
-        image: dataFood.image,
         price: dataFood.price,
+        image: dataFood.image,
       });
+      setLinkImage(dataFood.image);
     }
   }, [dataFood]);
   const onFinish = async (values: any) => {

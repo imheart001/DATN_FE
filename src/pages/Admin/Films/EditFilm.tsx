@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { EditOutlined } from "@ant-design/icons";
 import {
   Button,
-  Checkbox,
   Col,
   DatePicker,
   Drawer,
@@ -16,7 +15,6 @@ import {
 import { useUpdateProductMutation } from "../../../service/films.service";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { useFetchCateQuery } from "../../../service/cate.service";
 import { FOLDER_NAME } from "../../../configs/config";
 import { uploadImageApi } from "../../../apis/upload-image.api";
 
@@ -60,13 +58,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         poster: dataID.poster,
       });
       setLinkImage(dataID.images);
+      setUploadPoster(dataID.poster)
     }
   }, [dataID]);
   const onFinish = async (values: any) => {
     try {
       values.release_date = values.release_date.format("YYYY-MM-DD");
       values.end_date = values.end_date.format("YYYY-MM-DD");
-      await updateProduct({ ...values, id: dataID.name, image: linkImage });
+      await updateProduct({ ...values, id: dataID.name, image: linkImage, poster: uploadPoster });
 
       message.success("Cập nhật sản phẩm thành công");
 
@@ -96,6 +95,8 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
 
   const [uploadImage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPoster, setIsLoadingPoster] = useState(false);
+  const [uploadPoster, setUploadPoster] = useState<string | null>(null);
 
   const handleUpdateImage = async (e: any) => {
     setIsLoading(true);
@@ -108,15 +109,30 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         formData.append("file", file);
         const response = await uploadImageApi(formData);
         if (response) {
-          console.log(
-            "🚀 ~ file: EditFilm.tsx:112 ~ handleUpdateImage ~ response:",
-            response
-          );
           setLinkImage(response.url);
           setIsLoading(false);
         }
       }
     } catch (error) {
+      message.error("loi");
+    }
+  };
+
+  const handleUpdateImagePoster = async (e: any) => {
+    // setIsLoadingPoster(true);
+    try {
+      const files = e.target.files;
+      const formData = new FormData();
+      formData.append("upload_preset", "da_an_tot_nghiep");
+      formData.append("folder", FOLDER_NAME);
+      for (const file of files) {
+        formData.append("file", file);
+        const response = await uploadImageApi(formData);
+        setUploadPoster(response.url);
+        setIsLoadingPoster(false);
+      }
+    } catch (error) {
+      setIsLoadingPoster(false);
       message.error("loi");
     }
   };
@@ -277,13 +293,40 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="poster"
-                label="Poster"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
-              >
-                <Input placeholder="Poster" />
+              <Form.Item className="w-full" label="Poster">
+                <div className="flex gap-1 items-center justify-between">
+                  <input
+                    type="file"
+                    value={uploadImage}
+                    className="flex-1 !hidden"
+                    onChange={(e) => handleUpdateImagePoster(e)}
+                    id="update-image-poster"
+                  />
+                  <label
+                    htmlFor="update-image-poster"
+                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
+                  >
+                    upload image
+                  </label>
+                </div>
               </Form.Item>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col span={24}>
+              {uploadPoster && !isLoadingPoster && (
+                <img
+                  src={uploadPoster ? uploadPoster : ""}
+                  alt={uploadPoster ? uploadPoster : ""}
+                  className="h-[200px] w-full border shadow rounded-lg object-cover"
+                />
+              )}
+              {isLoadingPoster && (
+                <div className="h-[200px] w-full border shadow rounded-lg flex justify-center items-center">
+                  <div className="h-10 w-10 rounded-full border-2 border-blue-500 border-t-2 border-t-white animate-spin"></div>
+                </div>
+              )}
             </Col>
           </Row>
 

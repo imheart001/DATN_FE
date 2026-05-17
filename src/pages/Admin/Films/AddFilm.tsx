@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserAddOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -40,14 +40,18 @@ const AddFilm: React.FC = () => {
 
   const onFinish = async (values: any) => {
     if (linkImage === null || linkImage.trim().length === 0) {
-      message.error('khong chọn ảnh')
+      message.error("khong chọn ảnh");
+      return;
+    }
+    if (uploadPoster === null || uploadPoster.trim().length === 0) {
+      message.error("poster chưa ddocjw chọn");
       return;
     }
     const dataAddFilm = {
       name: values.name,
       slug: values.slug.toString(),
       image: linkImage,
-      poster: values.poster,
+      poster: uploadPoster,
       trailer: values.trailer,
       time: values.time,
       release_date: values.release_date.format("YYYY-MM-DD"),
@@ -70,24 +74,18 @@ const AddFilm: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/listfilm");
     } catch (error: any) {
-      console.log("🚀 ~ file: AddFilm.tsx:73 ~ onFinish ~ error:", error)
+      console.log("🚀 ~ file: AddFilm.tsx:73 ~ onFinish ~ error:", error);
       message.error(error.data.errors.name || error.data.errors.slug);
-    }
-  };
-  // validate datetime
-  const validateEndDate = async (_: any, value: any) => {
-    const releaseDate = form.getFieldValue("release_date");
-
-    if (value && releaseDate && value.isBefore(releaseDate)) {
-      throw new Error("Ngày kết thúc không hợp lệ");
     }
   };
 
   const [uploadImage] = useState("");
   const [linkImage, setLinkImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPoster, setIsLoadingPoster] = useState(false);
+  const [uploadPoster, setUploadPoster] = useState<string | null>(null);
 
-  const handleUpdateImage = async (e: any) => {
+  const handleUpdateImage = async (e: any, isPoster: boolean) => {
     setIsLoading(true);
     try {
       const files = e.target.files;
@@ -104,6 +102,36 @@ const AddFilm: React.FC = () => {
       }
     } catch (error) {
       message.error("loi");
+    }
+  };
+
+  const handleUpdateImagePoster = async (e: any) => {
+    // setIsLoadingPoster(true);
+    try {
+      const files = e.target.files;
+      const formData = new FormData();
+      formData.append("upload_preset", "da_an_tot_nghiep");
+      formData.append("folder", FOLDER_NAME);
+      for (const file of files) {
+        formData.append("file", file);
+        const response = await uploadImageApi(formData);
+        setUploadPoster(response.url);
+        setIsLoadingPoster(false);
+        if (response) {
+        }
+      }
+    } catch (error) {
+      setIsLoadingPoster(false);
+      message.error("loi");
+    }
+  };
+
+  // validate datetime
+  const validateEndDate = async (_: any, value: any) => {
+    const releaseDate = form.getFieldValue("release_date");
+
+    if (value && releaseDate && value.isBefore(releaseDate)) {
+      throw new Error("Ngày kết thúc không hợp lệ");
     }
   };
 
@@ -153,7 +181,10 @@ const AddFilm: React.FC = () => {
               <Form.Item
                 name="name"
                 label="Tên Phim"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }, {type: 'string', message: "tên phim phải là string"}]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { type: "string", message: "tên phim phải là string" },
+                ]}
               >
                 <Input placeholder="Tên Phim" />
               </Form.Item>
@@ -167,7 +198,7 @@ const AddFilm: React.FC = () => {
                     type="file"
                     value={uploadImage}
                     className="flex-1 !hidden"
-                    onChange={(e) => handleUpdateImage(e)}
+                    onChange={(e) => handleUpdateImage(e, false)}
                     id="update-image"
                   />
                   <label
@@ -273,13 +304,40 @@ const AddFilm: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                name="poster"
-                label="Poster"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
-              >
-                <Input placeholder="Poster" />
+              <Form.Item className="w-full" label="Poster">
+                <div className="flex gap-1 items-center justify-between">
+                  <input
+                    type="file"
+                    value={uploadImage}
+                    className="flex-1 !hidden"
+                    onChange={(e) => handleUpdateImagePoster(e)}
+                    id="update-image-poster"
+                  />
+                  <label
+                    htmlFor="update-image-poster"
+                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
+                  >
+                    upload image
+                  </label>
+                </div>
               </Form.Item>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col span={24}>
+              {uploadPoster && !isLoadingPoster && (
+                <img
+                  src={uploadPoster ? uploadPoster : ""}
+                  alt={uploadPoster ? uploadPoster : ""}
+                  className="h-[200px] w-full border shadow rounded-lg object-cover"
+                />
+              )}
+              {isLoadingPoster && (
+                <div className="h-[200px] w-full border shadow rounded-lg flex justify-center items-center">
+                  <div className="h-10 w-10 rounded-full border-2 border-blue-500 border-t-2 border-t-white animate-spin"></div>
+                </div>
+              )}
             </Col>
           </Row>
 

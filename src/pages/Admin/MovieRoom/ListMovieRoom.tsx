@@ -41,7 +41,7 @@ const ListMovieRoom: React.FC = () => {
   const onChange = async (checked: boolean, item: any) => {
     const status = checked ? 1 : 0;
     const data = {
-  
+      name: item.name,
       id: item.id,
       status,
     };
