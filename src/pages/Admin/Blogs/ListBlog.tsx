@@ -119,9 +119,8 @@ const ListBlog: React.FC = () => {
     image: blog?.image,
     content: blog?.content,
     // status: blog?.status,
-    status: [blog.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+    status: [blog?.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
-  console.log("🚀 ~ file: ListBlog.tsx:92 ~ dataBlog ~ dataBlog:", dataBlog);
   const [dataList, setDataList] = useState<any>(null);
 
   const onSearch = (value: any, _e: any) => {
