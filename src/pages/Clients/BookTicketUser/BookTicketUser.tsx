@@ -408,7 +408,7 @@ const BookTicketUser = () => {
   return (
     <div>
       <Table
-        className="bg-white rounded-lg mx-auto px-10"
+        className="bg-white mx-auto px-10"
         onChange={handleChange}
         columns={columns}
         dataSource={dataBook}

@@ -49,7 +49,7 @@ const CommentFilm: React.FC<CommentFilmProps> = ({ dataidfilm }) => {
     <>
       <div className="p-10 bg-white rounded-lg max-w-5xl mx-auto">
         <h1 className="flex justify-start text-xl font-semibold ">
-          Comment ({data.totalReviews})
+          Comment ({data?.totalReviews})
         </h1>
         {data?.allRatings.map((comment: any) => {
           return (
