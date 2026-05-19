@@ -37,7 +37,7 @@ const ListShow: React.FC = () => {
   const [removeShowTimes] = useRemoveShowTimeMutation();
   let user = JSON.parse(localStorage.getItem("user")!);
 
-  const role = user.role;
+  const role = user?.role;
 
   const [updateShowTime] = useUpdateShowTimeMutation();
 
@@ -223,7 +223,8 @@ const ListShow: React.FC = () => {
           />
 
           {role === 1 && <AddShow />}
-          {role === 3 && <AddShow />}
+
+          {role === 2 && <AddShow />}
         </div>
       </div>
       {dataShows ? (

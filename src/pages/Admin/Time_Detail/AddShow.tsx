@@ -7,6 +7,7 @@ import {
   DatePicker,
   Drawer,
   Form,
+  Input,
   Row,
   Select,
   Space,
@@ -23,21 +24,32 @@ import { IFilms, IMovieRoom, ITime } from "../../../interface/model";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
+import dayjs from "dayjs";
 const AddShow: React.FC = () => {
   const [addShow] = useAddShowTimeMutation();
+  let user = JSON.parse(localStorage.getItem("user")!);
+  const role = user?.role;
+  const cinema_admin = user?.id_cinema;
 
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const { data: films } = useFetchProductQuery();
   const { data: times } = useFetchTimeQuery();
   const { data: cinemas } = useFetchCinemaQuery();
+  const { data: roomBrand } = useFetchMovieRoomQuery();
   const [selectedCinema, setSelectedCinema] = useState(null);
   const [roomByCinema, setRoomByCinema] = useState([]);
-  // const roomByCinema = (cinemas as any).data.filter((cinema: any) =>cinema.)
+  const roomByCinemaaa = (roomBrand as any).data.filter(
+    (room: any) => room.id_cinema == cinema_admin
+  );
+  console.log(
+    (cinemas as any)?.data.find((c: any) => c.id == cinema_admin).name
+  );
+
   const sortedTimes = (times as any)?.data
     .slice()
     .sort((a: any, b: any) => a.time.localeCompare(b.time));
-  const { data: roomBrand } = useFetchMovieRoomQuery();
+
   const showDrawer = () => {
     setOpen(true);
   };
@@ -48,10 +60,6 @@ const AddShow: React.FC = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinish = async (values: any) => {
-    if (!selectedCinema) {
-      message.error("Vui lòng chọn rạp chiếu trước khi chọn phòng chiếu");
-      return;
-    }
     try {
       for (const time of values.time_id) {
         const dataAddShow = {
@@ -143,6 +151,16 @@ const AddShow: React.FC = () => {
                   {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (films as any)?.data?.map((time: IFilms, index: number) => {
+                      const isExpired = dayjs(time.end_date).isBefore(dayjs());
+                      const isExpired2 = dayjs(time.release_date).isAfter(
+                        dayjs()
+                      );
+                      if (isExpired) {
+                        return null;
+                      }
+                      if (isExpired2) {
+                        return null;
+                      }
                       return (
                         <Option key={index} value={time.id}>
                           {" "}
@@ -174,23 +192,39 @@ const AddShow: React.FC = () => {
                 className="w-full"
                 name="cinemas"
                 label="Rạp Chiếu"
-                rules={[{ required: true, message: "Please choose cinemas" }]}
+                rules={[
+                  {
+                    required: role === 1, // Nếu role là 1 thì mới yêu cầu chọn rạp
+                    message: "Vui Lòng Chọn Rạp Chiếu",
+                  },
+                ]}
               >
-                <Select
-                  placeholder="Vui Lòng Chọn Rạp Chiếu"
-                  onChange={handleCinemaChange}
-                >
-                  {(cinemas as any)?.data?.map(
-                    (cinema: IMovieRoom, index: number) => {
-                      return (
-                        <Option key={index} value={cinema.id}>
-                          {" "}
-                          {cinema.name}{" "}
-                        </Option>
-                      );
+                {role === 1 ? (
+                  <Select
+                    placeholder="Vui Lòng Chọn Rạp Chiếu"
+                    onChange={handleCinemaChange}
+                  >
+                    {(cinemas as any)?.data?.map(
+                      (cinema: IMovieRoom, index: number) => {
+                        return (
+                          <Option key={index} value={cinema.id}>
+                            {cinema.name}
+                          </Option>
+                        );
+                      }
+                    )}
+                  </Select>
+                ) : (
+                  <Input
+                    value={cinema_admin}
+                    placeholder={
+                      (cinemas as any)?.data.find(
+                        (c: any) => c.id == cinema_admin
+                      ).name
                     }
-                  )}
-                </Select>
+                    disabled
+                  />
+                )}
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -205,7 +239,28 @@ const AddShow: React.FC = () => {
                   className=""
                   placeholder="Vui Lòng Chọn Rạp Chiếu trước"
                 >
-                  {(roomByCinema as any)?.map(
+                  {role !== 1
+                    ? (roomByCinemaaa as any)?.map(
+                        (room: IMovieRoom, index: number) => {
+                          return (
+                            <Option key={index} value={room.id}>
+                              {" "}
+                              {room.name}{" "}
+                            </Option>
+                          );
+                        }
+                      )
+                    : (roomByCinema as any)?.map(
+                        (room: IMovieRoom, index: number) => {
+                          return (
+                            <Option key={index} value={room.id}>
+                              {" "}
+                              {room.name}{" "}
+                            </Option>
+                          );
+                        }
+                      )}
+                  {/* {(roomByCinema as any)?.map(
                     (room: IMovieRoom, index: number) => {
                       return (
                         <Option key={index} value={room.id}>
@@ -214,7 +269,7 @@ const AddShow: React.FC = () => {
                         </Option>
                       );
                     }
-                  )}
+                  )} */}
                 </Select>
               </Form.Item>
             </Col>

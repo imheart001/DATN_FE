@@ -2,7 +2,10 @@ import { useMemo, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
 import { Button, Modal, Tabs, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { useFetchProductQuery } from "../../../service/films.service";
+import {
+  useAVG_FilmsQuery,
+  useFetchProductQuery,
+} from "../../../service/films.service";
 import {
   useFetchShowTimeQuery,
   useGetShowbyIdCinemaQuery,
@@ -26,7 +29,7 @@ const Ticket: React.FC = () => {
   const { data: shows, isLoading: showsLoading } = useFetchShowTimeQuery();
   const { data: cinemas, isLoading: cinemasLoading } = useFetchCinemaQuery();
   const { data: rooms } = useFetchMovieRoomQuery();
-  console.log(rooms);
+  const { data: avg_films } = useAVG_FilmsQuery();
 
   const { data: times } = useFetchTimeQuery();
 
@@ -56,9 +59,11 @@ const Ticket: React.FC = () => {
   const currentDateTime = moment()
     .utcOffset(420)
     .format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+
   const isToday2 = new Date(currentDateTime);
   const currentDateTime2 = moment().utcOffset(420);
   const navigate = useNavigate();
+  console.log(isToday2);
   interface FilmShow {
     date: string;
     times: any[];
@@ -110,6 +115,7 @@ const Ticket: React.FC = () => {
     setIsModalOpen(false);
   };
   const today = new Date();
+  console.log(today);
 
   const month = today.getMonth() + 1; // Lấy tháng (0-11, cần cộng thêm 1)
 
@@ -129,7 +135,7 @@ const Ticket: React.FC = () => {
   };
 
   const daysToDisplay = [isToday2];
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 4; i++) {
     const nextDate = new Date(isToday2);
     nextDate.setDate(isToday2.getDate() + i);
     daysToDisplay.push(nextDate);
@@ -151,7 +157,8 @@ const Ticket: React.FC = () => {
     );
 
     const dayOfWeek = (today.getDay() + index) % 7;
-    const dayNumber = date.getDate();
+    const dayNumber = date.getUTCDate();
+
     const daysOfWeek = [
       "Chủ Nhật",
       "Thứ Hai",
@@ -198,7 +205,6 @@ const Ticket: React.FC = () => {
         }
       });
     }
-    console.log(show);
 
     return {
       key: formattedDate,
@@ -292,12 +298,15 @@ const Ticket: React.FC = () => {
                   const cate = cateAllDetail.find(
                     (item: any) => item.id === film.id
                   );
+                  const avg_film = (avg_films as any)?.filmRatings.find(
+                    (item: any) => item.film_id === film.id
+                  );
                   const showbyCinema = dataShowbyIdCinema.find(
                     (show: any) => show.film_id === film.id
                   );
                   const isExpired = dayjs(film.end_date).isBefore(dayjs());
                   const isExpired2 = dayjs(film.release_date).isAfter(dayjs());
-                  console.log(isExpired2);
+
                   // release_date
                   if (isExpired) {
                     return null;
@@ -319,15 +328,29 @@ const Ticket: React.FC = () => {
                         <div className="absolute bg-black m-2 text-white rounded-xl p-1 px-2 left-0 font-bold  top-0">
                           {film?.limit_age}+
                         </div>
-                        <div className="h-[100px]">
+                        <div className="h-[100px] ">
                           <h3 className="text-[#FFFFFF] my-[10px] mb-[7px] font-bold text-[26px]">
                             {film?.name?.length > 18
                               ? `${film?.name.slice(0, 15)}...`
                               : film?.name}
                           </h3>
-                          <div className="space-x-5 text-[#8E8E8E] text-[11px]">
+                          <div className="space-x-5 w-[200px] flex items-center text-[#8E8E8E] text-[11px]">
                             <span>{cate?.category_names}</span>
-                            <span>IMDB 8.6</span>
+                            <span className="flex items-center space-x-2">
+                              <span>{avg_film?.star} </span>
+                              {avg_film?.star ? (
+                                <svg
+                                  className="h-5 w-5"
+                                  fill="#FADB14"
+                                  viewBox="0 0 20 20"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                              ) : (
+                                ""
+                              )}
+                            </span>
                             <span>{film?.limit_age}+</span>
                           </div>
                         </div>

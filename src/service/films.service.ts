@@ -19,6 +19,10 @@ const filmsAPI = createApi({
     getFilmCinemeById: builder.query<IFilms, number | string>({
       query: (id) => `/film_cinema/${id}`,
     }),
+    AVG_Films: builder.query<any[], void>({
+      query: () => "/rating_avgs/",
+      providesTags: ["film"],
+    }),
     removeProduct: builder.mutation({
       query: (id) => ({
         url: "/film/" + id,
@@ -51,5 +55,6 @@ export const {
   useUpdateProductMutation,
   useGetProductByIdQuery,
   useGetFilmCinemeByIdQuery,
+  useAVG_FilmsQuery
 } = filmsAPI;
 export default filmsAPI;

@@ -37,6 +37,7 @@ import { usePaymentMomoMutation } from "../../../service/payMoMo.service";
 import Changepoint from "../../../components/Clients/PointChange/changpoint";
 import { usePaymentCoinsMutation } from "../../../service/usecoin.service";
 import PaymentCoin from "../Payment/PaymentCoin";
+import { useAVG_FilmsQuery } from "../../../service/films.service";
 
 enum SeatStatus {
   Available = "available",
@@ -106,9 +107,9 @@ const BookingSeat = () => {
   const [discountedAmount, setDiscountedAmount] = useState(0);
 
   const [point, setPoint] = useState(null);
-  const [discountedPoint, setDiscountedPoint] = useState(0);
+
   const [foodQuantities, setFoodQuantities] = useState<any[]>([]);
-  const [pusher, setPusher] = useState(null);
+
   const [foodQuantitiesUI, setFoodQuantitiesUI] = useState<{
     [key: string]: { quantity: number; price: number };
   }>({});

@@ -14,7 +14,7 @@ import { FilterValue } from "antd/es/table/interface";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useFetchProductQuery } from "../../../service/films.service";
-import { useSendRefundMutation } from "../../../service/refund.services";
+import { useSendRefundMutation } from "../../../service/refund.service";
 import { formatDatee } from "../../../utils";
 
 export interface DataType {
@@ -88,105 +88,159 @@ const BookTicketUser = () => {
   const columns: ColumnsType<DataType> = [
     {
       render: (_, record: any) => {
-        return <div>
-          <Button
-            style={{ backgroundColor: "#f04848", color: "#ffff" }}
-            onClick={() => handleOpen(record)}
-          >
-            Xem chi tiết
-          </Button>
-          <Modal
-            centered
-            open={open}
-            onOk={() => setOpen(false)}
-            onCancel={() => setOpen(false)}
-            visible={isModalVisible}
-            width={1000}
-            mask={true}
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-          >
-            {selectedRecord && (
-              <Descriptions bordered column={2}>
-                <Descriptions.Item label="Tên phim">{selectedRecord?.name?.name}</Descriptions.Item>
-                <Descriptions.Item label="Ảnh">
-                  <Image src={selectedRecord?.name?.img} className="max-w-[100px]" alt="Hình ảnh phim" />
-                </Descriptions.Item>
-                <Descriptions.Item label="Mã hóa đơn"
-                  labelStyle={{ width: '100px' }}
-                >
-                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '150px' }}>
-                    {selectedRecord?.id_code}
-                  </div>
-                </Descriptions.Item>
-                <Descriptions.Item label="Phòng chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.movie_room_name}</Descriptions.Item>
-                <Descriptions.Item label="Rạp chiếu" labelStyle={{ width: '100px' }}>{selectedRecord?.name_cinema}</Descriptions.Item>
-                <Descriptions.Item label="Suất chiếu" labelStyle={{ width: '100px' }}>
-                  <div>
-                    <p className="whitespace-nowrap">Ngày: {selectedRecord?.date?.date}</p>
-                    <p className="whitespace-nowrap">Giờ:  {selectedRecord?.date?.time}</p>
-                  </div>
-                </Descriptions.Item>
-                <Descriptions.Item label="Ghế đã đặt" labelStyle={{ width: '100px' }}>
-                  <div>
-                    <p className="whitespace-nowrap">{selectedRecord?.chair?.name}</p>
-                    <p className="whitespace-nowrap">
-                      <b>Tổng Tiền</b>: {formatter(Number(selectedRecord?.chair?.price))}
-                    </p>
-                  </div>
-                </Descriptions.Item>
-                <Descriptions.Item label="Combo/Package" labelStyle={{ width: '100px' }}>{selectedRecord?.food_items}</Descriptions.Item>
-                <Descriptions.Item label="Ngày đặt" labelStyle={{ width: '100px' }}>
-                  <span>{formatDate(selectedRecord?.time)}</span>
-                </Descriptions.Item>
-                <Descriptions.Item label="Trạng thái" labelStyle={{ width: '100px' }}>
-                  {selectedRecord?.status?.status === "Đã Nhận Vé" ? (
-                    <Tag color="success">Đã Nhận Vé</Tag>
-                  ) : selectedRecord?.status?.status === "Đã Hủy" ? (
-                    <Tag color="warning">Đã Hủy</Tag>
-                  ) : selectedRecord?.status?.status === "Quá Hạn" ? (
-                    <Tag color="error">Quá Hạn</Tag>
-                  ) : (
-                    <div>
-                      <Button
-                        style={{ backgroundColor: "#f04848", color: "#ffff" }}
-                        onClick={() => showModal(+selectedRecord?.status?.id_book_ticket)}
-                      >
-                        Hoàn Tiền
-                      </Button>
-                      <Modal
-                        title="Xác Minh Hoàn Tiền"
-                        visible={isModalVisible}
-                        onOk={handleOk}
-                        onCancel={handleCancel}
-                        mask={true}
-                        okButtonProps={{
-                          style: { backgroundColor: "#007bff", color: "white" },
-                        }}
-                      >
-                        <h3 className="font-semibold text-red-600  text-lg my-4">
-                          LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá
-                          tiền bạn đã đặt
-                        </h3>
-                        <h3 className="font-semibold text-red-600 text-lg my-4">
-                          Xác nhận mật khẩu để đồng ý hoàn vé!!
-                        </h3>
-                        <p>Nhập Mật Khẩu</p>
-                        <Input
-                          type="password"
-                          placeholder="Nhập mật khẩu"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                        />
-                      </Modal>
+        return (
+          <div>
+            <Button
+              style={{ backgroundColor: "#f04848", color: "#ffff" }}
+              onClick={() => handleOpen(record)}
+            >
+              Xem chi tiết
+            </Button>
+            <Modal
+              centered
+              open={open}
+              onOk={() => setOpen(false)}
+              onCancel={() => setOpen(false)}
+              visible={isModalVisible}
+              width={1000}
+              mask={true}
+              okButtonProps={{
+                style: { backgroundColor: "#007bff", color: "white" },
+              }}
+            >
+              {selectedRecord && (
+                <Descriptions bordered column={2}>
+                  <Descriptions.Item label="Tên phim">
+                    {selectedRecord?.name?.name}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Ảnh">
+                    <Image
+                      src={selectedRecord?.name?.img}
+                      className="max-w-[100px]"
+                      alt="Hình ảnh phim"
+                    />
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Mã hóa đơn"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    <div
+                      style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        width: "150px",
+                      }}
+                    >
+                      {selectedRecord?.id_code}
                     </div>
-                  )}
-                </Descriptions.Item>
-              </Descriptions>
-            )}
-          </Modal>
-        </div>
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Phòng chiếu"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    {selectedRecord?.movie_room_name}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Rạp chiếu"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    {selectedRecord?.name_cinema}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Suất chiếu"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    <div>
+                      <p className="whitespace-nowrap">
+                        Ngày: {selectedRecord?.date?.date}
+                      </p>
+                      <p className="whitespace-nowrap">
+                        Giờ: {selectedRecord?.date?.time}
+                      </p>
+                    </div>
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Ghế đã đặt"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    <div>
+                      <p className="whitespace-nowrap">
+                        {selectedRecord?.chair?.name}
+                      </p>
+                      <p className="whitespace-nowrap">
+                        <b>Tổng Tiền</b>:{" "}
+                        {formatter(Number(selectedRecord?.chair?.price))}
+                      </p>
+                    </div>
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Combo/Package"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    {selectedRecord?.food_items}
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Ngày đặt"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    <span>{formatDate(selectedRecord?.time)}</span>
+                  </Descriptions.Item>
+                  <Descriptions.Item
+                    label="Trạng thái"
+                    labelStyle={{ width: "100px" }}
+                  >
+                    {selectedRecord?.status?.status === "Đã Nhận Vé" ? (
+                      <Tag color="success">Đã Nhận Vé</Tag>
+                    ) : selectedRecord?.status?.status === "Đã Hủy" ? (
+                      <Tag color="warning">Đã Hủy</Tag>
+                    ) : selectedRecord?.status?.status === "Quá Hạn" ? (
+                      <Tag color="error">Quá Hạn</Tag>
+                    ) : (
+                      <div>
+                        <Button
+                          style={{ backgroundColor: "#f04848", color: "#ffff" }}
+                          onClick={() =>
+                            showModal(+selectedRecord?.status?.id_book_ticket)
+                          }
+                        >
+                          Hoàn Tiền
+                        </Button>
+                        <Modal
+                          title="Xác Minh Hoàn Tiền"
+                          visible={isModalVisible}
+                          onOk={handleOk}
+                          onCancel={handleCancel}
+                          mask={true}
+                          okButtonProps={{
+                            style: {
+                              backgroundColor: "#007bff",
+                              color: "white",
+                            },
+                          }}
+                        >
+                          <h3 className="font-semibold text-red-600  text-lg my-4">
+                            LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70%
+                            giá tiền bạn đã đặt
+                          </h3>
+                          <h3 className="font-semibold text-red-600 text-lg my-4">
+                            Xác nhận mật khẩu để đồng ý hoàn vé!!
+                          </h3>
+                          <p>Nhập Mật Khẩu</p>
+                          <Input
+                            type="password"
+                            placeholder="Nhập mật khẩu"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                          />
+                        </Modal>
+                      </div>
+                    )}
+                  </Descriptions.Item>
+                </Descriptions>
+              )}
+            </Modal>
+          </div>
+        );
       },
     },
     {
