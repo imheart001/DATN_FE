@@ -45,9 +45,9 @@ const ListMovieRoom: React.FC = () => {
       id: item.id,
       status,
     };
-    console.log("🚀 ~ file: ListMovieRoom.tsx:49 ~ onChange ~ data:", data)
+    console.log("🚀 ~ file: ListMovieRoom.tsx:49 ~ onChange ~ data:", data);
     try {
-      const result = await updateMovieRoom({ ...data as any });
+      const result = await updateMovieRoom({ ...(data as any) });
       console.log(
         "🚀 ~ file: ListMovieRoom.tsx:51 ~ onChange ~ result:",
         result
@@ -195,7 +195,7 @@ const ListMovieRoom: React.FC = () => {
           />
 
           {role === 1 && <AddMovieRoom />}
-          {role === 3 && <AddMovieRoom />}
+          {role === 2 && <AddMovieRoom />}
         </div>
       </div>
       {dataList ? (

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 import { UserAddOutlined } from "@ant-design/icons";
@@ -128,7 +127,7 @@ const AddMovieRoom: React.FC = () => {
                       )
                     })
                   } */}
-                  {role === 3 &&
+                  {role === 2 &&
                     optionRole3?.map((cinema: ICinemas, index: number) => {
                       return (
                         <Option key={index} value={cinema.id}>
