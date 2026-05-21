@@ -73,7 +73,7 @@ const ListFood: React.FC = () => {
     },
     {
       render: (_, record) => {
-        if (role === 1 || role === 3) {
+        if (role === 1 ) {
           return (
             <Space size="middle">
               <EditFood dataFood={record} />
@@ -138,7 +138,7 @@ const ListFood: React.FC = () => {
             onSearch={onSearch}
           />
 
-          <AddFood />
+           <AddFood  />
         </div>
       </div>
       {dataList ? (
