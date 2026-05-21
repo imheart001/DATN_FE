@@ -30,6 +30,10 @@ const Ticket: React.FC = () => {
   const { data: cinemas, isLoading: cinemasLoading } = useFetchCinemaQuery();
   const { data: rooms } = useFetchMovieRoomQuery();
   const { data: avg_films } = useAVG_FilmsQuery();
+  const hiddenRoom = (rooms as any)?.data?.filter(
+    (item: any) => item.status === 1
+  );
+  console.log(hiddenRoom);
 
   const { data: times } = useFetchTimeQuery();
 
@@ -63,7 +67,7 @@ const Ticket: React.FC = () => {
   const isToday2 = new Date(currentDateTime);
   const currentDateTime2 = moment().utcOffset(420);
   const navigate = useNavigate();
-  console.log(isToday2);
+
   interface FilmShow {
     date: string;
     times: any[];
@@ -115,7 +119,6 @@ const Ticket: React.FC = () => {
     setIsModalOpen(false);
   };
   const today = new Date();
-  console.log(today);
 
   const month = today.getMonth() + 1; // Lấy tháng (0-11, cần cộng thêm 1)
 
@@ -215,10 +218,19 @@ const Ticket: React.FC = () => {
             <div className="grid grid-cols-5 ">
               {(filteredShowTimes || [])?.map(
                 (time: any, timeIndex: number) => {
+                  // hiddenRoom
                   // Lấy thông tin thời gian
-                  const showTime = getRealTime(time.time_id);
+                  if (time.status !== 1) {
+                    return null;
+                  }
 
-                  if (dataChairEmpTy) {
+                  // console.log(showTime);
+                  if (
+                    dataChairEmpTy &&
+                    time.status === 1 &&
+                    hiddenRoom.some((room: any) => room.id === time.room_id)
+                  ) {
+                    const showTime = getRealTime(time.time_id);
                     const chairEmpty = dataChairEmpTy?.find(
                       (item: any) => item.id === time.id
                     );

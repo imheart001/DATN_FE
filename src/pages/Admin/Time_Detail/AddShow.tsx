@@ -39,11 +39,11 @@ const AddShow: React.FC = () => {
   const { data: roomBrand } = useFetchMovieRoomQuery();
   const [selectedCinema, setSelectedCinema] = useState(null);
   const [roomByCinema, setRoomByCinema] = useState([]);
-  const roomByCinemaaa = (roomBrand as any).data.filter(
+  const roomByCinemaaa = (roomBrand as any)?.data?.filter(
     (room: any) => room.id_cinema == cinema_admin
   );
   console.log(
-    (cinemas as any)?.data.find((c: any) => c.id == cinema_admin).name
+    (cinemas as any)?.data?.find((c: any) => c.id == cinema_admin)?.name
   );
 
   const sortedTimes = (times as any)?.data
