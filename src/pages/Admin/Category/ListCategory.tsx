@@ -45,32 +45,34 @@ const ListCate: React.FC = () => {
     {
       title: "Action",
       key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <UpdateCategory dataCate={record} />
+      render: (_, record) => {
+        return (
+          <Space size="middle">
+            <UpdateCategory dataCate={record} />
 
-          <Popconfirm
-            placement="topLeft"
-            title="Bạn muốn xóa sản phẩm?"
-            description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeCate(record.id)}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-            cancelButtonProps={{
-              style: { backgroundColor: "#dc3545", color: "white" },
-            }}
-          >
-            <Button>
-              <div className="flex ">
-                <DeleteOutlined />
-              </div>
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+            <Popconfirm
+              placement="topLeft"
+              title="Bạn muốn xóa sản phẩm?"
+              description="Xóa sẽ mất sản phẩm này trong database!"
+              onConfirm={() => removeCate(record.id)}
+              okText="Yes"
+              cancelText="No"
+              okButtonProps={{
+                style: { backgroundColor: "#007bff", color: "white" },
+              }}
+              cancelButtonProps={{
+                style: { backgroundColor: "#dc3545", color: "white" },
+              }}
+            >
+              <Button>
+                <div className="flex ">
+                  <DeleteOutlined />
+                </div>
+              </Button>
+            </Popconfirm>
+          </Space>
+        );
+      },
     },
   ];
 
@@ -84,14 +86,15 @@ const ListCate: React.FC = () => {
       tags: [cate.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
     })
   );
-  
-  const [categoryDetails, setCategoryDetails] = useState<any>(null)
+
+  const [categoryDetails, setCategoryDetails] = useState<any>(null);
 
   const onSearch = (value: any, _e: any) => {
-    const results =dataCate.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()))
-    setCategoryDetails(results)
-  }
-
+    const results = dataCate.filter((item: any) =>
+      item.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setCategoryDetails(results);
+  };
 
   return (
     <>
@@ -107,8 +110,10 @@ const ListCate: React.FC = () => {
           <AddCategory />
         </div>
       </div>
-      {!categoryDetails && (<Table columns={columns} dataSource={dataCate} />)}
-      {categoryDetails && (<Table columns={columns} dataSource={categoryDetails} />)}
+      {!categoryDetails && <Table columns={columns} dataSource={dataCate} />}
+      {categoryDetails && (
+        <Table columns={columns} dataSource={categoryDetails} />
+      )}
     </>
   );
 };

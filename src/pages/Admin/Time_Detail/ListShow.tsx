@@ -55,14 +55,14 @@ const ListShow: React.FC = () => {
       const result = await updateShowTime({ ...data, id: item.id });
       if ((result as any).error) {
         message.error(
-          "The date field must be a date after or equal to 2023-12-10."
+          "Có lỗi xảy ra"
         );
         return;
       }
       message.success("cập nhật thành công!");
     } catch (error) {
       message.error(
-        "The date field must be a date after or equal to 2023-12-10."
+        "Có lỗi xảy ra"
       );
     }
   };
@@ -114,7 +114,7 @@ const ListShow: React.FC = () => {
       title: role === 1 && "Action",
       key: "action",
       render: (_, record) => {
-        if (role === 1 || role === 3) {
+        if (role === 1 || role === 2) {
           return (
             <Space size="middle">
               <EditShow dataShow={record} />
@@ -148,10 +148,10 @@ const ListShow: React.FC = () => {
       },
     },
     {
-      title: role !== 2 && "Hành động",
+      title: role == 1 && "Hành động",
       key: "action",
       render: (_: any, record) => {
-        if (role !== 2) {
+        if (role == 1) {
           return (
             <Switch
               checked={(record as any).status === 1 ? true : false}
@@ -223,7 +223,6 @@ const ListShow: React.FC = () => {
           />
 
           {role === 1 && <AddShow />}
-
           {role === 2 && <AddShow />}
         </div>
       </div>
