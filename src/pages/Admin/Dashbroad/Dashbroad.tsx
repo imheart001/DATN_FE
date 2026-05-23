@@ -24,13 +24,18 @@ import RevenueDayMonYear from "../../../components/Clients/Analytics/RevenueDayM
 import TicketDayByUser from "../../../components/Clients/Analytics/TicketDayByUser";
 import TicketMonByUser from "../../../components/Clients/Analytics/TicketMonByUser";
 import VocuherByUserAnalytics from "../../../components/Clients/Analytics/VoucherByUser";
+import { Select } from "antd";
+import { useFetchCinemaQuery } from "../../../service/brand.service";
+import { Link, useNavigate } from "react-router-dom";
 export default function Dashbroad() {
+  const navigate = useNavigate();
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(value);
   };
+  const { data: cinemass } = useFetchCinemaQuery();
 
   const [dataAlastic, setDataAlastic] = useState([]);
   const [getDataRevenue] = useGetAnalyticsMutation();
@@ -218,6 +223,15 @@ export default function Dashbroad() {
     };
   });
 
+  const handleSelectChange = (value: any) => {
+    if (value === "admin") {
+      // Handle the case when the demo option is selected
+      navigate("/admin");
+    } else {
+      // Handle the case when a cinema is selected
+      navigate(`/admin/dashboards/${value}`);
+    }
+  };
   return (
     <>
       <ChooseTime
@@ -228,10 +242,20 @@ export default function Dashbroad() {
         setYear={setYear}
         year={year}
       />
-      <h1 className="text-center text-xl pb-10 mb-10 block font-bold uppercase text-red-600 border-b-2 border-red-600">
+      <span className="ml-10 mr-4">Doanh thu theo rạp:</span>
+      <Select className="w-[20%]" onChange={handleSelectChange}>
+        <Select.Option key="demo" value="admin">
+          <Link to={"/admin"}>Doanh thu tổng</Link>
+        </Select.Option>
+        {(cinemass as any)?.data.map((c: any) => (
+          <Select.Option key={c.id} value={c.id}>
+            Doanh thu rạp {c.name}
+          </Select.Option>
+        ))}
+      </Select>
+      <h1 className="text-center pt-4 text-xl pb-10 mb-10 block font-bold uppercase text-red-600 border-b-2 border-red-600">
         -- Dashbroad Admin Tổng --
       </h1>
-
       <RevenueDayMonYear data={dataAlastic as any} />
       <div className="grid-cols-3 grid mt-10 max-w-full">
         <div className="overflow-y-auto h-[450px] col-span-2 space-y-20 w-[750px]">

@@ -50,16 +50,12 @@ import Dashbroad from "./pages/Admin/Dashbroad/Dashbroad";
 import ResultPaymentCoin from "./components/Clients/ResultPaymentCoin/ResultPaymentCoin";
 import Dashbroad_Admin_Cinema from "./pages/Admin/Dashbroad/Dashboard-Admin_Cinema";
 import Dashboard_Staff from "./pages/Admin/Dashbroad/Dashboard-Staff";
-import { useGetUserByIdQuery } from "./service/book_ticket.service";
 
 function App() {
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
 
-  // console.log(userId?.role);
-  // const userId = useSelector(
-  //   (state: any) => state.auth?.role
-  // );
+
   const dashbroadElement =
     userId?.role == 1 ? (
       <Dashbroad />
@@ -68,6 +64,7 @@ function App() {
     ) : (
       <Dashboard_Staff />
     );
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -175,7 +172,7 @@ function App() {
           element: dashbroadElement,
         },
         {
-          path: "/admin/dashboards",
+          path: "/admin/dashboards/:cinemaId",
           element: <Dashbroad_Admin_Cinema />,
         },
         {

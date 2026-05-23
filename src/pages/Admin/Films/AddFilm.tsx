@@ -280,7 +280,7 @@ const AddFilm: React.FC = () => {
             </Col>
           </Row>
           <Form.Item name="cate_id" label="Danh mục">
-            <Checkbox.Group>
+            <Checkbox.Group className="h-[80px] overflow-y-auto">
               <Row gutter={100} key={"danhmuc"}>
                 {(dataCate as any)?.data.map((cate: any) => (
                   <Col key={cate.id} span={8}>

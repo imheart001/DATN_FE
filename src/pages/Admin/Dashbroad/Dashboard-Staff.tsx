@@ -15,7 +15,7 @@ export default function Dashboard_Staff() {
   const [day, setDay] = useState<number | undefined>(undefined);
   const [month, setMonth] = useState<number | undefined>(undefined);
   const [year, setYear] = useState<number | undefined>(undefined);
-
+  console.log(dataAlastic as any);
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
   useEffect(() => {
@@ -50,6 +50,7 @@ export default function Dashboard_Staff() {
       </>
     );
   }
+
   return (
     <>
       <ChooseTime
@@ -85,8 +86,12 @@ export default function Dashboard_Staff() {
             title="Tổng doanh thu đồ ăn theo ngày"
             bordered={false}
           >
-            {(dataAlastic as any)?.revenue_food?.total_food_price
-              ? formatter((dataAlastic as any)?.revenue_food?.total_food_price)
+            {(dataAlastic as any)?.revenue_staff?.revenue_food
+              ?.total_food_price > 0
+              ? formatter(
+                  (dataAlastic as any)?.revenue_staff?.revenue_food
+                    ?.total_food_price
+                )
               : "0 đ"}
           </Card>
         </Col>

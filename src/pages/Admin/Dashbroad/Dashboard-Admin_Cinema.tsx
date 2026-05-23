@@ -24,14 +24,19 @@ import ChooseTime from "../../../components/Clients/Analytics/ChooseTime";
 import TicketDayByUser from "../../../components/Clients/Analytics/TicketDayByUser";
 import TicketMonByUser from "../../../components/Clients/Analytics/TicketMonByUser";
 import RevenueDayMonYearByAdminCinema from "../../../components/Clients/Analytics/RevenueDayMonYearByAdminCinema";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { Select } from "antd";
+import { useFetchCinemaQuery } from "../../../service/brand.service";
 export default function Dashbroad_Admin_Cinema() {
+  const { cinemaId } = useParams();
+  const navigate = useNavigate();
   const formatCurrency = (value: number): string => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(value);
   };
-
+  const { data: cinemass } = useFetchCinemaQuery();
   const [dataAlastic, setDataAlastic] = useState([]);
   const [getDataRevenue] = useGetAnalyticsAdminCinemaMutation();
   const [day, setDay] = useState<number | undefined>(undefined);
@@ -40,6 +45,7 @@ export default function Dashbroad_Admin_Cinema() {
 
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
+  const role = IfUser?.role;
   useEffect(() => {
     const dataAdd = {
       day: day,
@@ -47,9 +53,17 @@ export default function Dashbroad_Admin_Cinema() {
       year: year,
       id_cinema: IfUser?.id_cinema,
     };
+    const dataAddAdmin = {
+      day: day,
+      month: month,
+      year: year,
+      id_cinema: cinemaId,
+    };
     const getData = async () => {
       try {
-        const response = await getDataRevenue(dataAdd);
+        const response = await getDataRevenue(
+          role === 1 ? dataAddAdmin : dataAdd
+        );
         // Update state with new data
 
         setDataAlastic((response as any)?.data);
@@ -60,7 +74,7 @@ export default function Dashbroad_Admin_Cinema() {
 
     // Call the getData function to fetch data
     getData();
-  }, [getDataRevenue, day, month, year]);
+  }, [getDataRevenue, day, month, year, cinemaId]);
 
   // Ensure that revenueData is a valid object
   const revenueData = (dataAlastic as any)?.statistical_cinema
@@ -164,7 +178,15 @@ export default function Dashbroad_Admin_Cinema() {
       fill: color,
     };
   });
-
+  const handleSelectChange = (value: any) => {
+    if (value === "admin") {
+      // Handle the case when the demo option is selected
+      navigate("/admin");
+    } else {
+      // Handle the case when a cinema is selected
+      navigate(`/admin/dashboards/${value}`);
+    }
+  };
   return (
     <>
       <ChooseTime
@@ -175,25 +197,43 @@ export default function Dashbroad_Admin_Cinema() {
         setYear={setYear}
         year={year}
       />
-      <h1 className="text-center text-xl pb-10 mb-10 block font-bold uppercase text-red-600 border-b-2 border-red-600">
+      {role === 1 && <span className="ml-10 mr-4">Doanh thu theo rạp:</span>}
+      {role === 1 && (
+        <Select className="w-[20%]" onChange={handleSelectChange}>
+          <Select.Option key="demo" value="admin">
+            <Link to={"/admin"}>Doanh thu tổng</Link>
+          </Select.Option>
+          {(cinemass as any)?.data.map((c: any) => (
+            <Select.Option key={c.id} value={c.id}>
+              Doanh thu rạp {c.name}
+            </Select.Option>
+          ))}
+        </Select>
+      )}
+      <h1 className="text-center pt-4 text-xl pb-10 mb-10 block font-bold uppercase text-red-600 border-b-2 border-red-600">
         -- Dashbroad_Admin_Cinema --
       </h1>
 
       <RevenueDayMonYearByAdminCinema data={dataAlastic as any} />
       <div className="grid-cols-3 grid mt-10 max-w-full">
         <div className="overflow-y-auto h-[450px] col-span-2 space-y-20 w-[750px]">
-          <div className="">
-            <h3 className="mx-auto text-center uppercase font-semibold">
-              Doanh thu theo tháng năm 2023{" "}
+          <div>
+            <h3 className="mx-auto mb-4 text-center uppercase font-semibold">
+              Doanh thu theo ngày{" "}
             </h3>
             <LineChart
               width={700}
-              className="p-4"
               height={400}
-              data={chartData}
+              data={transformedDataByDay}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
+              <XAxis dataKey="name" />
               <YAxis
                 tickFormatter={(value) => formatCurrency(value as number)}
               />
@@ -212,24 +252,18 @@ export default function Dashbroad_Admin_Cinema() {
               ))}
             </LineChart>
           </div>
-
-          <div>
-            <h3 className="mx-auto mb-4 text-center uppercase font-semibold">
-              Doanh thu theo ngày{" "}
+          <div className="">
+            <h3 className="mx-auto text-center uppercase font-semibold">
+              Doanh thu theo tháng năm 2023{" "}
             </h3>
             <LineChart
               width={700}
+              className="p-4"
               height={400}
-              data={transformedDataByDay}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
+              data={chartData}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
               <YAxis
                 tickFormatter={(value) => formatCurrency(value as number)}
               />
