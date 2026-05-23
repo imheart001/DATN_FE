@@ -97,7 +97,7 @@ const ListMovieRoom: React.FC = () => {
 
     {
       render: (_, record) => {
-        if (role === 1 || role === 2) {
+        if (role === 1 || role === 3) {
           return (
             <Space size="middle">
               <EditMovieRoom dataMovieRoom={record} />
@@ -129,10 +129,10 @@ const ListMovieRoom: React.FC = () => {
     },
 
     {
-      title: role == 1 && "Hành động",
+      title: role !== 2 && "Hành động",
       key: "action",
       render: (_: any, record: any) => {
-        if (role == 1) {
+        if (role !== 2) {
           return (
             <Switch
               checked={record.status === 1 ? true : false}
@@ -211,7 +211,7 @@ const ListMovieRoom: React.FC = () => {
           onChange={handleChange}
         />
       )}
-      {!dataList && role === 1 && (
+      {!dataList && role === 3 && (
         <Table columns={columns} dataSource={resultCinemas} />
       )}
     </>
