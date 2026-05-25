@@ -104,7 +104,7 @@ const HomePages = () => {
           Tính Năng Đặc Biệt
         </h2>
         <span className="block text-[#8E8E8E] text-[17px] text-center">
-          Trải nghiệm độc quyền chỉ có tại CGV!
+          Trải nghiệm độc quyền chỉ có tại STC Cinema!
         </span>
         <div className="Special Features img grid grid-cols-2 gap-8 my-10">
           <Link to={"#"}>

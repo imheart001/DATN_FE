@@ -196,19 +196,19 @@ const Header: React.FC = () => {
             value={selectedCinema}
           />
           <Link to={"/"} className=" hover:text-[#EE2E24]">
-            Home
+            Trang chủ
           </Link>
           <Link to={"/movies"} className="hover:text-[#EE2E24]">
-            Movie
+            Phim
           </Link>
           <Link to={"/ticket"} className="hover:text-[#EE2E24]">
-            Ticket
+            Đặt vé
           </Link>
           <Link to={"/F&B"} className="hover:text-[#EE2E24]">
-            F&B
+            Giá vé
           </Link>
           <Link to={"/cinema"} className="hover:text-[#EE2E24]">
-            Cinema
+            Blog
           </Link>
 
           {(IfUser as any)?.role === 2 && (
