@@ -23,6 +23,7 @@ import { useFetchTimeQuery } from "../../../service/time.service";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 import { any } from "prop-types";
+import { compareDates } from "../../../utils";
 
 const ListBookTicket: React.FC = () => {
   const [filteredInfo, setFilteredInfo] = useState<
@@ -55,7 +56,10 @@ const ListBookTicket: React.FC = () => {
     setSelectedRecord(record);
     setOpen(true);
   };
-
+  const movieReleases = film?.data.filter((item: any) => {
+    const result = compareDates(item.release_date, item.end_date);
+    return result;
+  });
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
   const handlePrintTicket = (idCode: string, id_user: any) => {
@@ -204,7 +208,7 @@ const ListBookTicket: React.FC = () => {
       align: "center",
       key: "name",
       width: 160,
-      filters: (film as any)?.data?.map((item: any) => ({
+      filters: (movieReleases as any)?.map((item: any) => ({
         text: item.name,
         value: item.name,
       })),
