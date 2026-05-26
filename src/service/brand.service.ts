@@ -8,7 +8,7 @@ const cinemasAPI = createApi({
   }),
   tagTypes: ["cinema"],
   endpoints: (builder) => ({
-    fetchCinema: builder.query<ICinemas[], void>({
+    fetchCinema: builder.query<any[], void>({
       query: () => "/Cinemas/",
       providesTags: ["cinema"],
     }),

@@ -45,6 +45,14 @@ export default function Dashbroad_Admin_Cinema() {
 
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
+  const Name_Cinema = (cinemass as any)?.data?.find(
+    (c: any) => c.id == IfUser.id_cinema
+  )?.name;
+  const Name_CinemaByAdmin1 = (cinemass as any)?.data?.find(
+    (c: any) => c.id == cinemaId
+  )?.name;
+  console.log(Name_CinemaByAdmin1);
+
   const role = IfUser?.role;
   useEffect(() => {
     const dataAdd = {
@@ -211,7 +219,8 @@ export default function Dashbroad_Admin_Cinema() {
         </Select>
       )}
       <h1 className="text-center pt-4 text-xl pb-10 mb-10 block font-bold uppercase text-red-600 border-b-2 border-red-600">
-        -- Dashbroad_Admin_Cinema --
+        -- Dashbroad_Admin_Cinema Rạp{" "}
+        {Name_Cinema ? Name_Cinema : Name_CinemaByAdmin1}--
       </h1>
 
       <RevenueDayMonYearByAdminCinema data={dataAlastic as any} />

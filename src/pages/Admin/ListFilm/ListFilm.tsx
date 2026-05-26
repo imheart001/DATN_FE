@@ -154,10 +154,10 @@ const ListFilm: React.FC = () => {
     },
 
     {
-      title: role === 1 || (role === 2 && "Action"),
+      title: role === 1 && "Action",
       key: "action",
       render: (_, record) => {
-        if (role === 1 || role === 2) {
+        if (role === 1) {
           return (
             <Space size="middle">
               <EditFilm dataID={record as any} />
@@ -217,7 +217,6 @@ const ListFilm: React.FC = () => {
           />
           <RangePicker />
           {role === 1 && <AddFilm />}
-          {role === 2 && <AddFilm />}
         </div>
       </div>
       {!movies && (

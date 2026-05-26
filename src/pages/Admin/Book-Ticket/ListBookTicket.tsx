@@ -11,7 +11,10 @@ import {
   Tag,
 } from "antd";
 import type { ColumnsType, TableProps } from "antd/es/table";
-import { useGetBookTicketByAdminQuery } from "../../../service/book_ticket.service";
+import {
+  useGetBookTicketByAdminCinemaQuery,
+  useGetBookTicketByAdminQuery,
+} from "../../../service/book_ticket.service";
 
 import AddBookTicket from "./AddBookTicket";
 import { formatter } from "../../../utils/formatCurrency";
@@ -29,6 +32,9 @@ const ListBookTicket: React.FC = () => {
   const [filteredInfo, setFilteredInfo] = useState<
     Record<string, FilterValue | null>
   >({});
+  const getIfUser = localStorage.getItem("user");
+  const IfUser = JSON.parse(`${getIfUser}`);
+  const role = IfUser?.role;
   const { Search } = Input;
   const { data: dataBook_tickets } = useGetBookTicketByAdminQuery();
   const { data: user } = useFetchUsersQuery();
@@ -37,6 +43,10 @@ const ListBookTicket: React.FC = () => {
   const { data: time } = useFetchTimeQuery();
   const { data: room } = useFetchMovieRoomQuery();
   const { data: cinema } = useFetchCinemaQuery();
+  const { data: dataBTKByAdminCinema } = useGetBookTicketByAdminCinemaQuery(
+    `${IfUser?.id_cinema}`
+  );
+  console.log(dataBTKByAdminCinema);
 
   console.log(dataBook_tickets);
   const filteredDataBookTickets = (dataBook_tickets || []).filter(
@@ -56,12 +66,11 @@ const ListBookTicket: React.FC = () => {
     setSelectedRecord(record);
     setOpen(true);
   };
-  const movieReleases = film?.data.filter((item: any) => {
+  const movieReleases = (film as any)?.data.filter((item: any) => {
     const result = compareDates(item.release_date, item.end_date);
     return result;
   });
-  const getIfUser = localStorage.getItem("user");
-  const IfUser = JSON.parse(`${getIfUser}`);
+
   const handlePrintTicket = (idCode: string, id_user: any) => {
     window.open(
       `http://127.0.0.1:8000/api/print-ticket/${idCode}/${id_user}`,
@@ -500,8 +509,12 @@ const ListBookTicket: React.FC = () => {
   const filteredData = dataBook_tickets?.filter((item: DataType) =>
     item?.id_code?.toLowerCase()?.includes(searchTerm?.toLowerCase())
   );
+  const filteredDataByAdminCinema = dataBTKByAdminCinema?.filter(
+    (item: DataType) =>
+      item?.id_code?.toLowerCase()?.includes(searchTerm?.toLowerCase())
+  );
   // console.log(filteredData);
-
+  // dataBTKByAdminCinema
   return (
     <>
       <div className="">
@@ -518,7 +531,7 @@ const ListBookTicket: React.FC = () => {
       </div>
       <Table
         columns={columns}
-        dataSource={filteredData}
+        dataSource={role === 1 ? filteredData : filteredDataByAdminCinema}
         onChange={handleChange}
         scroll={{ x: 2500, y: 600 }}
       />

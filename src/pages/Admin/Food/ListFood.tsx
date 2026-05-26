@@ -31,7 +31,7 @@ const ListFood: React.FC = () => {
   >({});
   let user = JSON.parse(localStorage.getItem("user")!);
 
-  const role = user.role;
+  const role = user?.role;
 
   const columns: ColumnsType<DataType> = [
     {
@@ -43,7 +43,7 @@ const ListFood: React.FC = () => {
       title: "Tên Đồ Ăn",
       dataIndex: "name",
       key: "name",
-      filters: foods?.data?.map((item) => ({
+      filters: (foods as any)?.data?.map((item: any) => ({
         text: item.name,
         value: item.name,
       })),
@@ -63,7 +63,7 @@ const ListFood: React.FC = () => {
       title: "Giá Tiền",
       dataIndex: "price",
       key: "price",
-      filters: foods?.data?.map((item) => ({
+      filters: (foods as any)?.data?.map((item: any) => ({
         text: item.price,
         value: item.price,
       })),
@@ -73,7 +73,7 @@ const ListFood: React.FC = () => {
     },
     {
       render: (_, record) => {
-        if (role === 1 ) {
+        if (role === 1) {
           return (
             <Space size="middle">
               <EditFood dataFood={record} />
@@ -138,7 +138,7 @@ const ListFood: React.FC = () => {
             onSearch={onSearch}
           />
 
-           <AddFood  />
+          {role === 1 && <AddFood />}
         </div>
       </div>
       {dataList ? (

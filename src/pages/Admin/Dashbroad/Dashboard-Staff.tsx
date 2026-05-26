@@ -53,14 +53,17 @@ export default function Dashboard_Staff() {
 
   return (
     <>
-      <ChooseTime
-        day={day}
-        setDay={setDay}
-        setMonth={setMonth}
-        month={month}
-        setYear={setYear}
-        year={year}
-      />
+      {IfUser?.role !== 3 && (
+        <ChooseTime
+          day={day}
+          setDay={setDay}
+          setMonth={setMonth}
+          month={month}
+          setYear={setYear}
+          year={year}
+        />
+      )}
+
       <h1 className="text-center text-xl pb-10 mb-10 block font-bold uppercase text-red-600 border-b-2 border-red-600">
         -- Dashboard_Staff --
       </h1>

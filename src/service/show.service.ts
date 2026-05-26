@@ -16,6 +16,10 @@ const showsAPI = createApi({
       query: (id) => `/time_detail/${id}`,
       providesTags: ["show"],
     }),
+    getShowTimeByAdminCinema: builder.query<any, number | string>({
+      query: (id) => `/get_time_detail_by_id_cinema/${id}`,
+      providesTags: ["show"],
+    }),
     getShowbyIdCinema: builder.query<any, number | string>({
       query: (id) => `/check_time_detail_by_film_id/${id}`,
       providesTags: ["show"],
@@ -57,5 +61,6 @@ export const {
   useRemoveShowTimeMutation,
   useUpdateShowTimeMutation,
   useGetAllDataShowTimeByIdQuery,
+  useGetShowTimeByAdminCinemaQuery,
 } = showsAPI;
 export default showsAPI;

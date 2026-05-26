@@ -222,13 +222,6 @@ export const itemsAdmin3: MenuItem[] = [
         <CopyOutlined />
       </NavLink>
     ),
-    getItem(
-      "Loại phim",
-      "8",
-      <NavLink to="/admin/listcate">
-        <CopyOutlined />
-      </NavLink>
-    ),
   ]),
 
   getItem("Quản lí đồ ăn", "12", <HomeOutlined />, [
@@ -240,5 +233,4 @@ export const itemsAdmin3: MenuItem[] = [
       </NavLink>
     ),
   ]),
-  getItem("Quản lí khách hàng", "14", <TeamOutlined />),
 ];

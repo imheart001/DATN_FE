@@ -24,6 +24,12 @@ const bookTicketsAPI = createApi({
       query: (id) => `/purchase_history_user/${id}`,
       providesTags: ["bookTicket"],
     }),
+    getBookTicketByAdminCinema: builder.query<IBookTicketUser, number | string>(
+      {
+        query: (id) => `/purchase_history_ad_cinema/${id}`,
+        providesTags: ["bookTicket"],
+      }
+    ),
     getQRcodeById: builder.query<IBookTicket, number | string>({
       query: (id) => `/QR_book/${id}`,
       providesTags: ["bookTicket"],
@@ -68,5 +74,6 @@ export const {
   useGetBookTicketByAdminQuery,
   useGetBookTicketByUserQuery,
   useGetQRcodeByIdQuery,
+  useGetBookTicketByAdminCinemaQuery,
 } = bookTicketsAPI;
 export default bookTicketsAPI;

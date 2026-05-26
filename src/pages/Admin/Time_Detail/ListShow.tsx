@@ -8,6 +8,7 @@ import { useFetchTimeQuery } from "../../../service/time.service";
 import EditShow from "./EditShow";
 import {
   useFetchShowTimeQuery,
+  useGetShowTimeByAdminCinemaQuery,
   useRemoveShowTimeMutation,
   useUpdateShowTimeMutation,
 } from "../../../service/show.service";
@@ -35,8 +36,13 @@ const ListShow: React.FC = () => {
   const { data: times } = useFetchTimeQuery();
   const { data: room } = useFetchMovieRoomQuery();
   const [removeShowTimes] = useRemoveShowTimeMutation();
-  let user = JSON.parse(localStorage.getItem("user")!);
 
+  let user = JSON.parse(localStorage.getItem("user")!);
+  const { data: dataShowsByAdminCinema } = useGetShowTimeByAdminCinemaQuery(
+    `${user?.id_cinema}`
+  );
+  console.log(shows);
+  // const showsByAdminCinema = (shows as any)?.data.filter(s=>s.)
   const role = user?.role;
 
   const [updateShowTime] = useUpdateShowTimeMutation();
@@ -54,16 +60,12 @@ const ListShow: React.FC = () => {
       };
       const result = await updateShowTime({ ...data, id: item.id });
       if ((result as any).error) {
-        message.error(
-          "Có lỗi xảy ra"
-        );
+        message.error("Có lỗi xảy ra");
         return;
       }
       message.success("cập nhật thành công!");
     } catch (error) {
-      message.error(
-        "Có lỗi xảy ra"
-      );
+      message.error("Có lỗi xảy ra");
     }
   };
 
@@ -109,6 +111,11 @@ const ListShow: React.FC = () => {
       filteredValue: filteredInfo.room_id || null,
       onFilter: (value: string, record: DataType) =>
         record.room_id.includes(value),
+    },
+    {
+      title: role !== 1 && "Rạp Chiếu",
+      dataIndex: role !== 1 && "name",
+      key: role !== 1 && "name",
     },
     {
       title: role === 1 && "Action",
@@ -164,36 +171,37 @@ const ListShow: React.FC = () => {
   ];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dataShow = (shows as any)?.data?.map(
-    (show: IShowTime, index: number) => {
-      return {
-        key: index.toString(),
-        id: show.id,
-        date: show.date,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        film_id: (films as any)?.data?.find(
-          (films: IFilms) => films.id === show.film_id
-        )?.name,
-        id_film: (films as any)?.data?.find(
-          (films: IFilms) => films.id === show.film_id
-        )?.id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        time_id: (times as any)?.data?.find(
-          (times: ITime) => times.id === show.time_id
-        )?.time,
-        id_time: (times as any)?.data?.find(
-          (times: ITime) => times.id === show.time_id
-        )?.id,
-        id_room: (roomBrand as any)?.data?.find(
-          (room: IMovieRoom) => room.id === show.room_id
-        )?.id,
-        room_id: (roomBrand as any)?.data?.find(
-          (room: IMovieRoom) => room.id === show.room_id
-        )?.name,
-        status: show.status,
-      };
-    }
-  );
+  const dataShow = (
+    role === 1 ? (shows as any) : (dataShowsByAdminCinema as any)
+  )?.data?.map((show: IShowTime, index: number) => {
+    return {
+      key: index.toString(),
+      id: show.id,
+      date: show.date,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      film_id: (films as any)?.data?.find(
+        (films: IFilms) => films.id === show.film_id
+      )?.name,
+      id_film: (films as any)?.data?.find(
+        (films: IFilms) => films.id === show.film_id
+      )?.id,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      time_id: (times as any)?.data?.find(
+        (times: ITime) => times.id === show.time_id
+      )?.time,
+      id_time: (times as any)?.data?.find(
+        (times: ITime) => times.id === show.time_id
+      )?.id,
+      id_room: (roomBrand as any)?.data?.find(
+        (room: IMovieRoom) => room.id === show.room_id
+      )?.id,
+      room_id: (roomBrand as any)?.data?.find(
+        (room: IMovieRoom) => room.id === show.room_id
+      )?.name,
+      name: show.name,
+      status: show.status,
+    };
+  });
 
   const handleChange: TableProps<DataType>["onChange"] = (
     pagination,

@@ -25,15 +25,21 @@ interface DataType {
 const { Search } = Input;
 
 const ListMovieRoom: React.FC = () => {
+  const getIfUser = localStorage.getItem("user");
+  const IfUser = JSON.parse(`${getIfUser}`);
   const { data: movies } = useFetchMovieRoomQuery();
-  console.log("🚀 ~ file: ListMovieRoom.tsx:27 ~ movies:", movies);
+
+  const dataMVRByAdminCinema = (movies as any)?.data.filter(
+    (r: any) => r.id_cinema == IfUser.id_cinema
+  );
+  console.log(dataMVRByAdminCinema);
   const { data: cinemas } = useFetchCinemaQuery();
   const [filteredInfo, setFilteredInfo] = useState<
     Record<string, FilterValue | null>
   >({});
   let user = JSON.parse(localStorage.getItem("user")!);
 
-  const role = user.role;
+  const role = user?.role;
   const id_cinema = user.id_cinema;
   const [updateMovieRoom] = useUpdateMovieRoomMutation();
   const navigate = useNavigate();
@@ -97,7 +103,7 @@ const ListMovieRoom: React.FC = () => {
 
     {
       render: (_, record) => {
-        if (role === 1 || role === 3) {
+        if (role === 1 || role === 2) {
           return (
             <Space size="middle">
               <EditMovieRoom dataMovieRoom={record} />
@@ -129,10 +135,10 @@ const ListMovieRoom: React.FC = () => {
     },
 
     {
-      title: role !== 2 && "Hành động",
+      title: role === 1 && "Hành động",
       key: "action",
       render: (_: any, record: any) => {
-        if (role !== 2) {
+        if (role === 1) {
           return (
             <Switch
               checked={record.status === 1 ? true : false}
@@ -144,20 +150,20 @@ const ListMovieRoom: React.FC = () => {
     },
   ];
 
-  const dataMovie = (movies as any)?.data?.map(
-    (movie: IMovieRoom, index: number) => ({
-      key: index.toString(),
-      id: movie.id,
-      name: movie?.name,
-      id_cinema: (cinemas as any)?.data?.find(
-        (cinemas: ICinemas) => cinemas.id === movie.id_cinema
-      )?.name,
-      cinema_id: (cinemas as any)?.data?.find(
-        (cinemas: ICinemas) => cinemas.id === movie.id_cinema
-      )?.id,
-      status: movie.status,
-    })
-  );
+  const dataMovie = (
+    role === 1 ? (movies as any)?.data : dataMVRByAdminCinema
+  )?.map((movie: IMovieRoom, index: number) => ({
+    key: index.toString(),
+    id: movie.id,
+    name: movie?.name,
+    id_cinema: (cinemas as any)?.data?.find(
+      (cinemas: ICinemas) => cinemas.id === movie.id_cinema
+    )?.name,
+    cinema_id: (cinemas as any)?.data?.find(
+      (cinemas: ICinemas) => cinemas.id === movie.id_cinema
+    )?.id,
+    status: movie.status,
+  }));
 
   const resultCinemas = dataMovie?.filter(
     (item: any) => item.cinema_id === id_cinema
@@ -211,9 +217,9 @@ const ListMovieRoom: React.FC = () => {
           onChange={handleChange}
         />
       )}
-      {!dataList && role === 3 && (
+      {/* {!dataList && role === 3 && (
         <Table columns={columns} dataSource={resultCinemas} />
-      )}
+      )} */}
     </>
   );
 };
