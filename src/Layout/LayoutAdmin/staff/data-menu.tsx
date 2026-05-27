@@ -53,7 +53,7 @@ export const itemStaffs = [
       </NavLink>
     ),
     getItem(
-      "MovieRoom",
+      "Phòng chiếu",
       "36",
       <NavLink to="/admin/movieroom">
         <FormOutlined />
@@ -109,7 +109,7 @@ export const itemsAdmin: MenuItem[] = [
       </NavLink>
     ),
     getItem(
-      "MovieRoom",
+      "Phòng chiếu",
       "48",
       <NavLink to="/admin/movieroom">
         <FormOutlined />
@@ -206,7 +206,7 @@ export const itemsAdmin3: MenuItem[] = [
       </NavLink>
     ),
     getItem(
-      "MovieRoom",
+      "Phòng chiếu",
       "5",
       <NavLink to="/admin/movieroom">
         <FormOutlined />

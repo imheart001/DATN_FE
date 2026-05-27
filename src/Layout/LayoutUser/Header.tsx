@@ -207,9 +207,6 @@ const Header: React.FC = () => {
           <Link to={"/F&B"} className="hover:text-[#EE2E24]">
             Giá vé
           </Link>
-          <Link to={"/cinema"} className="hover:text-[#EE2E24]">
-            Blog
-          </Link>
 
           {(IfUser as any)?.role === 2 && (
             <Dropdown

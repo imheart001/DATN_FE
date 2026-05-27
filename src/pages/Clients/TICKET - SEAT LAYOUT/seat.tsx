@@ -63,11 +63,20 @@ const BookingSeat = () => {
   const { data: dataAllByTime_Byid } = useGetAllDataShowTimeByIdQuery(
     id as string
   );
-  const deadline = Date.now() + 1000 * 60 * 10;
+  const [deadline, setDeadline] = useState(Date.now() + 1000 * 60 * 10);
+  const [countdownKey, setCountdownKey] = useState(1); // Change key to reset Countdown
+
   const navigate = useNavigate();
-  const onFinish: CountdownProps["onFinish"] = () => {
+
+  const startCountdown = () => {
+    setDeadline(Date.now() + 1000 * 60 * 10);
+    setCountdownKey((prevKey) => prevKey + 1); // Change key to reset Countdown
+  };
+
+  const onFinish = () => {
     navigate("/");
   };
+
   const { Countdown } = Statistic;
   const [sendPaymentVnpay] = useSendPaymentVnPayMutation();
 
@@ -1204,22 +1213,6 @@ const BookingSeat = () => {
               </div>
               <div className="mb-8">
                 <Changepoint point={point} setPoint={setPoint} />
-                {/* <Space>
-                  <InputNumber
-                    min={1}
-                    max={10}
-                    value={value}
-                    onChange={handleChange}
-                  />
-                  {formatter(value)}
-                  <Button
-                    type="primary"
-                    onClick={handleButtonClick}
-                    className="bg-blue-600"
-                  >
-                    Đổi điểm
-                  </Button>
-                </Space> */}
               </div>
               <div className="mb-8">
                 <span className="block font-medium text-lg text-red-600 border-b-2 border-red-600">
@@ -1530,7 +1523,11 @@ const BookingSeat = () => {
             <h1 className="text-xl font-semibold">Thời gian còn lại</h1>
             <Row className="w-full text-center">
               <Col className="w-full text-center">
-                <Countdown value={deadline} onFinish={onFinish} />
+                <Countdown
+                  key={countdownKey} // Change key to reset Countdown
+                  value={deadline}
+                  onFinish={onFinish}
+                />
               </Col>
             </Row>
           </div>

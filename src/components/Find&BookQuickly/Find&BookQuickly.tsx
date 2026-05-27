@@ -8,6 +8,7 @@ import "moment/locale/vi";
 import * as moment from "moment-timezone";
 import { useFetchTimeQuery } from "../../service/time.service";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 interface Film {
   label: React.ReactNode;
   value: string;
@@ -56,29 +57,41 @@ const FindBookQuickly: React.FC = () => {
     // console.log(originalFormat);
     setSelectedDate(originalFormat);
   };
-  const filmOptions: Film[] = (DataFilm as any)?.data?.map((film: any) => ({
-    label: (
-      <Dropdown
-        overlay={
-          <Menu>
-            <Menu.Item key="1">
-              <img
-                src={film.image}
-                className="block mx-auto w-[201px] shadow-lg shadow-cyan-500/50 rounded-2xl h-[295px]"
-                alt={film.name}
-              />
-            </Menu.Item>
-          </Menu>
-        }
-        placement="right"
-        arrow
-      >
-        <a onClick={() => handleFilmSelect(film.id)}>{film.name}</a>
-      </Dropdown>
-    ),
-    value: film.id,
-    image: film.image,
-  }));
+  const filmOptions: Film[] = (DataFilm as any)?.data
+    ?.map((film: any) => {
+      const isExpired = dayjs(film.end_date).isBefore(dayjs());
+      const isExpired2 = dayjs(film.release_date).isAfter(dayjs());
+
+      // release_date
+      if (isExpired || isExpired2) {
+        return null;
+      }
+
+      return {
+        label: (
+          <Dropdown
+            overlay={
+              <Menu>
+                <Menu.Item key="1">
+                  <img
+                    src={film.image}
+                    className="block mx-auto w-[201px] shadow-lg shadow-cyan-500/50 rounded-2xl h-[295px]"
+                    alt={film.name}
+                  />
+                </Menu.Item>
+              </Menu>
+            }
+            placement="right"
+            arrow
+          >
+            <a onClick={() => handleFilmSelect(film.id)}>{film.name}</a>
+          </Dropdown>
+        ),
+        value: film.id,
+        image: film.image,
+      };
+    })
+    .filter(Boolean);
   const cinemaOptions: Cinema[] = (DataRap as any)?.data?.map(
     (cinema: any) => ({
       label: (

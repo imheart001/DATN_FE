@@ -60,7 +60,7 @@ const items: MenuItem[] = [
       </NavLink>
     ),
     getItem(
-      "MovieRoom",
+      "Phòng chiếu",
       "12",
       <NavLink to="/admin/movieroom">
         <FormOutlined />
