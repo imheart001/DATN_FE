@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { Space, Table, Input, Button, Image, Popconfirm } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 
 import AddFood from "../Food/AddFood";
@@ -12,6 +12,8 @@ import {
 } from "../../../service/food.service";
 import { IFood } from "../../../interface/model";
 import EditFood from "./EditFood";
+import { formatter } from "../../../utils/formatCurrency";
+import { FilterValue } from "antd/es/table/interface";
 interface DataType {
   id: string;
   name: string;
@@ -24,22 +26,33 @@ const { Search } = Input;
 const ListFood: React.FC = () => {
   const { data: foods } = useFetchFoodQuery();
   const [removeFood] = useRemoveFoodMutation();
-  console.log(foods);
+  const [filteredInfo, setFilteredInfo] = useState<
+    Record<string, FilterValue | null>
+  >({});
+  let user = JSON.parse(localStorage.getItem("user")!);
+
+  const role = user?.role;
+
   const columns: ColumnsType<DataType> = [
     {
-      title: "Mã Food",
+      title: "Mã Đồ Ăn",
       dataIndex: "id",
       key: "key",
-      render: (text) => <a className="text-blue-700">{text}</a>,
     },
     {
-      title: "Tên Food",
+      title: "Tên Đồ Ăn",
       dataIndex: "name",
       key: "name",
+      filters: (foods as any)?.data?.map((item: any) => ({
+        text: item.name,
+        value: item.name,
+      })),
+      filteredValue: filteredInfo.name || null,
+      onFilter: (value: any, record) => record.name === value,
     },
 
     {
-      key: "image",
+      key: "Hình Ảnh",
       title: "Hình ảnh",
       dataIndex: "image",
       align: "center",
@@ -47,37 +60,47 @@ const ListFood: React.FC = () => {
       render: (text: string) => <Image width={50} src={text} />,
     },
     {
-      title: "Price",
+      title: "Giá Tiền",
       dataIndex: "price",
       key: "price",
+      filters: (foods as any)?.data?.map((item: any) => ({
+        text: item.price,
+        value: item.price,
+      })),
+      filteredValue: filteredInfo.price || null,
+      onFilter: (value: any, record) => record.price === value,
+      render: (text) => <span>{formatter(Number(text))}</span>,
     },
     {
-      render: (_, record) => (
-        <Space size="middle">
-          <EditFood dataFood={record} />
-
-          <Popconfirm
-            placement="topLeft"
-            title="Bạn muốn xóa sản phẩm?"
-            description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => removeFood(record.id)}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-            cancelButtonProps={{
-              style: { backgroundColor: "#dc3545", color: "white" },
-            }}
-          >
-            <Button>
-              <div className="flex ">
-                <DeleteOutlined />
-              </div>
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+      render: (_, record) => {
+        if (role === 1) {
+          return (
+            <Space size="middle">
+              <EditFood dataFood={record} />
+              <Popconfirm
+                placement="topLeft"
+                title="Bạn muốn xóa sản phẩm?"
+                description="Xóa sẽ mất sản phẩm này trong database!"
+                onConfirm={() => removeFood(record.id)}
+                okText="Yes"
+                cancelText="No"
+                okButtonProps={{
+                  style: { backgroundColor: "#007bff", color: "white" },
+                }}
+                cancelButtonProps={{
+                  style: { backgroundColor: "#dc3545", color: "white" },
+                }}
+              >
+                <Button>
+                  <div className="flex ">
+                    <DeleteOutlined />
+                  </div>
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+      },
     },
   ];
 
@@ -89,13 +112,20 @@ const ListFood: React.FC = () => {
     price: food?.price,
     //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
-  console.log("🚀 ~ file: ListFood.tsx:92 ~ dataFood ~ dataFood:", dataFood)
-  const [dataList, setDataList] = useState<any>(null)
-
+  console.log("🚀 ~ file: ListFood.tsx:92 ~ dataFood ~ dataFood:", dataFood);
+  const [dataList, setDataList] = useState<any>(null);
+  const handleChange: TableProps<DataType>["onChange"] = (
+    pagination,
+    filters
+  ) => {
+    setFilteredInfo(filters);
+  };
   const onSearch = (value: any, _e: any) => {
-    const results =dataFood.filter((item: any) => item.name.toLowerCase().includes(value.toLowerCase()))
-    setDataList(results)
-  }
+    const results = dataFood.filter((item: any) =>
+      item.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setDataList(results);
+  };
 
   return (
     <>
@@ -108,15 +138,21 @@ const ListFood: React.FC = () => {
             onSearch={onSearch}
           />
 
-          <AddFood />
+          {role === 1 && <AddFood />}
         </div>
       </div>
       {dataList ? (
-        <Table columns={columns} dataSource={dataList} />
-
+        <Table
+          columns={columns}
+          dataSource={dataList}
+          onChange={handleChange}
+        />
       ) : (
-
-        <Table columns={columns} dataSource={dataFood} />
+        <Table
+          columns={columns}
+          dataSource={dataFood}
+          onChange={handleChange}
+        />
       )}
     </>
   );

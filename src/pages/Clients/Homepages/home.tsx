@@ -1,7 +1,27 @@
 import Header from "../../../Layout/LayoutUser/Header";
 import { Link } from "react-router-dom";
+import FindBookQuickly from "../../../components/Find&BookQuickly/Find&BookQuickly";
+import { useFetchBlogQuery } from "../../../service/blog.service";
+import { compareDates, compareReleaseDate } from "../../../utils";
+import { useAppSelector } from "../../../store/hooks";
+import { IBlogs } from "../../../interface/model";
+import FilmShowing from "../../../components/FilmShowing";
+import { useState } from "react";
+import "../../../index.css";
 
 const HomePages = () => {
+  const [displayedBlogs, setDisplayedBlogs] = useState(3);
+
+  const { data: blogs, error } = useFetchBlogQuery() as any;
+
+  console.log(blogs);
+  const handleShowMore = () => {
+    setDisplayedBlogs(displayedBlogs + 10);
+  };
+  const handleShowLess = () => {
+    setDisplayedBlogs(3);
+  };
+
   return (
     <>
       <section className="relative bg-[url(/banner-home.png/)] bg-cover w-full bg-center bg-no-repeat">
@@ -24,6 +44,7 @@ const HomePages = () => {
             Đặt vé !
           </Link>
         </div>
+        <FindBookQuickly />
       </section>
       <div className="What’s On max-w-6xl px-10 my-[66px] mx-auto">
         <h2 className="text-[#FFFFFF] text-[40px] font-bold text-center">
@@ -32,32 +53,58 @@ const HomePages = () => {
         <span className="block text-[#8E8E8E] text-[17px] text-center">
           Khám phá một bộ sưu tập các ưu đãi độc đáo và đặc biệt!
         </span>
-        <div className="What’s On img grid grid-cols-2 gap-8 my-10">
-          <Link to={"#"}>
-            <img src="/w-on-1.png/" className="rounded-xl" alt="" />
-          </Link>
-          <Link to={"#"}>
-            <img src="/w-on-2.png/" className="rounded-xl" alt="" />
-          </Link>
-          <Link to={"#"}>
-            <img src="/w-on-3.png/" className="rounded-xl" alt="" />
-          </Link>
-          <Link to={"#"}>
-            <img src="/w-on-4.png/" className="rounded-xl" alt="" />
-          </Link>
+
+        <div className="What’s On img my-10 grid grid-cols-3 gap-8">
+          {blogs &&
+            blogs?.data?.slice(0, displayedBlogs).map((blog: IBlogs) =>
+              blog.status === 1 ? (
+                <article
+                  key={blog.id}
+                  className="relative overflow-hidden rounded-lg border border-gray-200 shadow transition hover:shadow-lg"
+                >
+                  <Link to={`/blog/${blog.id}`}>
+                    <img
+                      src={blog.image}
+                      className="w-full h-full object-cover"
+                      alt={blog.title}
+                    />
+                  </Link>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50">
+                    <Link to={`/blog/${blog.id}`}>
+                      <h3 className="text-white text-sm">{blog.title}</h3>
+                    </Link>
+                  </div>
+                </article>
+              ) : null
+            )}
         </div>
-        <span className="block text-center">
-          <u className="text-[#8E8E8E] text-center text-[17px]">
-            Hiển thị thêm!
-          </u>
-        </span>
+
+        {blogs?.data?.length > 3 && (
+          <span className="block text-center">
+            {displayedBlogs === 3 ? (
+              <u
+                className="text-[#8E8E8E] text-center text-[17px]"
+                onClick={handleShowMore}
+              >
+                <a>Hiển thị thêm!</a>
+              </u>
+            ) : (
+              <u
+                className="text-[#8E8E8E] text-center text-[17px]"
+                onClick={handleShowLess}
+              >
+                <a>Ẩn bớt</a>
+              </u>
+            )}
+          </span>
+        )}
       </div>
       <div className="Special Features  max-w-6xl  px-10 mx-auto my-[66px]">
         <h2 className="text-[#FFFFFF] text-[40px] font-bold text-center">
           Tính Năng Đặc Biệt
         </h2>
         <span className="block text-[#8E8E8E] text-[17px] text-center">
-          Trải nghiệm độc quyền chỉ có tại CGV!
+          Trải nghiệm độc quyền chỉ có tại STC Cinema!
         </span>
         <div className="Special Features img grid grid-cols-2 gap-8 my-10">
           <Link to={"#"}>
@@ -96,6 +143,7 @@ const HomePages = () => {
             />
             <span className="absolute inset-y-0 top-0  grid w-10 place-content-center">
               <button
+                title="..."
                 type="button"
                 className="text-gray-600 hover:text-gray-700"
               >
@@ -124,6 +172,7 @@ const HomePages = () => {
             />
             <span className="absolute inset-y-0 top-0 grid w-10 place-content-center">
               <button
+                title="..."
                 type="button"
                 className="text-gray-600 hover:text-gray-700"
               >

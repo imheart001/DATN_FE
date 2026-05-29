@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Space,
   Table,
@@ -10,7 +10,7 @@ import {
   message,
   Image,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TableProps } from "antd/es/table";
 import { DeleteOutlined } from "@ant-design/icons";
 import AddFilm from "../Films/AddFilm";
 
@@ -22,6 +22,7 @@ import {
 import { IFilms } from "../../../interface/model";
 import Loading from "../../../components/isLoading/Loading";
 import { compareDates, compareReleaseDate } from "../../../utils";
+import { FilterValue } from "antd/es/table/interface";
 interface DataType {
   key: string;
   name: string;
@@ -42,14 +43,15 @@ const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 const ListFilm: React.FC = () => {
+  const [filteredInfo, setFilteredInfo] = useState<
+    Record<string, FilterValue | null>
+  >({});
   const { data: films, isLoading } = useFetchProductQuery();
-  console.log("🚀 ~ file: ListFilm.tsx:46 ~ films:", films)
+  const [movies, setMovise] = useState<any>(null);
+  const [removeProduct] = useRemoveProductMutation();
   if (isLoading) {
     return <Loading />;
   }
-  const [movies, setMovise] = useState<any>(null)
-  const [removeProduct] = useRemoveProductMutation();
-
   const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
     key: index.toString(),
     name: film?.id,
@@ -60,12 +62,19 @@ const ListFilm: React.FC = () => {
     release_date: film.release_date,
     end_date: film.end_date,
     nameFilm: film?.name,
+    limit_age: film?.limit_age,
+    poster: film?.poster,
     time: film?.time,
     images: film?.image,
     dateSt: new Date(film.release_date),
     dateEnd: new Date(film.end_date),
     tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
+  console.log(films);
+
+  const user = JSON.parse(localStorage.getItem("user")!);
+
+  const role = user.role;
 
   const columns: ColumnsType<DataType> = [
     {
@@ -78,19 +87,12 @@ const ListFilm: React.FC = () => {
       title: "Tên phim",
       dataIndex: "nameFilm",
       key: "nameFilm",
-      onFilter: (value: any, record: any) => {
-        console.log("🚀 ~ file: ListFilm.tsx:82 ~ value:", value)
-        
-        console.log("🚀 ~ file: ListFilm.tsx:82 ~ record:", record)
-        return (
-          record.name === value
-        )
-      },
-      filters: dataFilm.map((fileItem: any) => ({
-        text: fileItem.nameFilm,
-        value: fileItem.name
+      filters: (films as any)?.data?.map((item: any) => ({
+        text: item.name,
+        value: item.name,
       })),
-      filterSearch: true,
+      filteredValue: filteredInfo.nameFilm || null,
+      onFilter: (value, record) => record.nameFilm === value,
     },
     {
       title: "Thời lượng",
@@ -119,65 +121,90 @@ const ListFilm: React.FC = () => {
     },
     {
       title: "Trạng thái",
-
       key: "tags",
       dataIndex: "tags",
-      render: (_, { tags, release_date, end_date }) => {
-        return  (
-          <Tag color={
-            compareDates(release_date, end_date) ? 'success' : !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) ? 'error' : 'warning'
-          }>
-          { compareDates(release_date, end_date) && 'Đang Hoạt Động'}
-          { !compareReleaseDate(release_date)&& !compareDates(release_date, end_date) && 'Ngừng Hoạt Động'}
-          {compareReleaseDate(release_date) && !compareDates(release_date, end_date) && 'Sắp Chiếu'}
-        </Tag>
-        )
+      filters: [
+        { text: "Ngưng Hoạt Động", value: "Ngừng hoạt động" },
+        { text: "Đang Hoạt Động", value: "Hoạt động" },
+      ],
+      filteredValue: filteredInfo.tags || null,
+      onFilter: (value: any, record) => record.tags.includes(value),
+      render: (_, { release_date, end_date }) => {
+        return (
+          <Tag
+            color={
+              compareDates(release_date, end_date)
+                ? "success"
+                : !compareReleaseDate(release_date) &&
+                  !compareDates(release_date, end_date)
+                ? "error"
+                : "warning"
+            }
+          >
+            {compareDates(release_date, end_date) && "Đang Hoạt Động"}
+            {!compareReleaseDate(release_date) &&
+              !compareDates(release_date, end_date) &&
+              "Ngừng Hoạt Động"}
+            {compareReleaseDate(release_date) &&
+              !compareDates(release_date, end_date) &&
+              "Sắp Chiếu"}
+          </Tag>
+        );
       },
     },
 
     {
-      title: "Action",
+      title: role === 1 && "Action",
       key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <EditFilm dataID={record} />
+      render: (_, record) => {
+        if (role === 1) {
+          return (
+            <Space size="middle">
+              <EditFilm dataID={record as any} />
 
-          <Popconfirm
-            placement="topLeft"
-            title="Bạn muốn xóa sản phẩm?"
-            description="Xóa sẽ mất sản phẩm này trong database!"
-            onConfirm={() => {
-              removeProduct(record.name);
-              message.success("Xóa sản phẩm thành công!");
-            }}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{
-              style: { backgroundColor: "#007bff", color: "white" },
-            }}
-            cancelButtonProps={{
-              style: { backgroundColor: "#dc3545", color: "white" },
-            }}
-          >
-            <Button>
-              <div className="flex ">
-                <DeleteOutlined />
-              </div>
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
+              <Popconfirm
+                placement="topLeft"
+                title="Bạn muốn xóa sản phẩm?"
+                description="Xóa sẽ mất sản phẩm này trong database!"
+                onConfirm={() => {
+                  removeProduct(record.name);
+                  message.success("Xóa sản phẩm thành công!");
+                }}
+                okText="Yes"
+                cancelText="No"
+                okButtonProps={{
+                  style: { backgroundColor: "#007bff", color: "white" },
+                }}
+                cancelButtonProps={{
+                  style: { backgroundColor: "#dc3545", color: "white" },
+                }}
+              >
+                <Button>
+                  <div className="flex ">
+                    <DeleteOutlined />
+                  </div>
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+      },
     },
   ];
- 
-
 
   /* tim kien san pham */
   const onSearch = (value: any, _e: any) => {
-    const results =dataFilm.filter((item: any) => item.nameFilm.toLowerCase().includes(value.toLowerCase()))
-      setMovise(results)
-  }
-
+    const results = dataFilm.filter((item: any) =>
+      item.nameFilm.toLowerCase().includes(value.toLowerCase())
+    );
+    setMovise(results);
+  };
+  const handleChange: TableProps<DataType>["onChange"] = (
+    pagination,
+    filters
+  ) => {
+    setFilteredInfo(filters);
+  };
   return (
     <>
       <div className="">
@@ -187,18 +214,21 @@ const ListFilm: React.FC = () => {
             placeholder="Nhập tên phim hoặc mã phim"
             style={{ width: 600 }}
             onSearch={onSearch}
-
           />
           <RangePicker />
-          <AddFilm />
+          {role === 1 && <AddFilm />}
         </div>
       </div>
       {!movies && (
-        <Table columns={columns} dataSource={dataFilm} />
+        <Table
+          columns={columns}
+          dataSource={dataFilm}
+          onChange={handleChange}
+        />
       )}
-     {movies && (
-        <Table columns={columns} dataSource={movies} />
-     )}
+      {movies && (
+        <Table columns={columns} dataSource={movies} onChange={handleChange} />
+      )}
     </>
   );
 };

@@ -83,7 +83,7 @@ button.ghost:hover i.login {
   overflow: hidden;
   width: 768px;
   max-width: 100%;
-  min-height: 500px;
+  min-height: 560px;
 }
 
 .form-container {
@@ -238,4 +238,52 @@ button.ghost:hover i.login {
 
 .social-container a:hover {
   border: 1px solid #4bb6b7;
+}
+
+.center-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.center-image img {
+  max-width: 70%;
+  max-height: 70%;
+}
+.w-500 {
+  width: 500px;
+}
+.centered-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* height: 100vh; Đảm bảo chiều cao 100% của viewport */
+}
+.blogs{
+  /* Frame 30 */
+
+position: absolute;
+width: 620px;
+height: 240.39px;
+left: 0px;
+top: 0px;
+
+/* Secondary */
+background: #8E8E8E;
+border-radius: 12px;
+
+
+/* image 14 */
+
+position: absolute;
+width: 624px;
+height: 242px;
+left: -2px;
+top: -1px;
+
+background: url(image.png);
+border-radius: 12px;
+
 }

@@ -1,4 +1,4 @@
-import { Cascader } from "antd";
+import { Cascader, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { useFetchCinemaQuery } from "../../service/brand.service";
 import { useEffect, useState } from "react";
@@ -6,9 +6,14 @@ import { ICinemas } from "../../interface/model";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedCinema } from "../../components/CinemaSlice/selectedCinemaSlice";
 import { Modal } from "antd";
-import {
-  useFetchProductQuery,
-} from "../../service/films.service";
+import type { MenuProps } from "antd";
+import { Dropdown, Space, Divider, Button, theme } from "antd";
+import { useFetchProductQuery } from "../../service/films.service";
+import { setUserId, updateToken } from "../../components/CinemaSlice/authSlice";
+
+import { formatter } from "../../utils/formatCurrency";
+import Recharge from "../../components/Clients/NapTien/naptien";
+import { useGetUserByIdQuery } from "../../service/book_ticket.service";
 interface Option {
   value: string;
   label: string;
@@ -16,7 +21,89 @@ interface Option {
 }
 
 const displayRender = (labels: string[]) => labels[labels.length - 1];
-const Header = () => {
+const Header: React.FC = () => {
+  const getIfUser = localStorage.getItem("user");
+  const IfUser = JSON.parse(`${getIfUser}`);
+  const { data: dataUserbyId } = useGetUserByIdQuery(`${IfUser?.id}`);
+
+  const items: MenuProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <a target="_blank" rel="noopener noreferrer">
+          Chào {IfUser?.name}
+        </a>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <Link rel="noopener noreferrer" to={`/info_account/profile`}>
+          Thông tin cá nhân
+        </Link>
+      ),
+    },
+    {
+      key: "3",
+      label: (
+        <Link rel="noopener noreferrer" to={`/info_account/BookTicketUser`}>
+          Lịch sử đặt vé
+        </Link>
+      ),
+    },
+    {
+      key: "4",
+      label: (
+        <Link rel="noopener noreferrer" to={`/info_account/BookTicketUser`}>
+          Số dư: {formatter((dataUserbyId as any)?.coin)}
+        </Link>
+      ),
+    },
+    {
+      key: "5",
+      label: <Recharge />,
+    },
+    {
+      key: "6",
+      label: <Link to={`/info_account/member-info`}>Thông tin hội viên</Link>,
+    },
+    {
+      key: "8",
+      label: (
+        <div className="">
+          {(IfUser as any)?.role === 1 ? (
+            <Link to="/admin">Admin</Link>
+          ) : (
+            "User"
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "7",
+      danger: true,
+      label: (
+        <button
+          onClick={() => {
+            message.success("Đăng xuất thành công!");
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("user");
+            localStorage.clear();
+            dispatch(updateToken(null)),
+              dispatch(setUserId(null)),
+              setTimeout(() => {
+                navigate("/");
+              }, 1000);
+          }}
+        >
+          {" "}
+          Đăng xuất
+        </button>
+      ),
+    },
+  ];
+
   const dispatch = useDispatch();
   const selectedCinema = useSelector((state: any) => state.selectedCinema);
   const user = useSelector((state: any) => state.auth?.token);
@@ -53,10 +140,21 @@ const Header = () => {
   }, [films]);
   useEffect(() => {
     if (cinemas) {
-      const cinemaData = (cinemas as any)?.data?.map((cinema: ICinemas) => ({
-        value: cinema.id.toString(),
-        label: cinema.name,
-      }));
+      const cinemaData = (cinemas as any)?.data
+        ?.filter((cinema: ICinemas) => {
+          if (cinema?.status === 1) {
+            return {
+              value: cinema?.id.toString(),
+              label: cinema?.name,
+              status: cinema?.status,
+            };
+          }
+        })
+        .map((item: any) => ({
+          value: item?.id.toString(),
+          label: item?.name,
+          status: item?.status,
+        }));
       setCinemaOptions(cinemaData);
     }
   }, [cinemas]);
@@ -81,14 +179,13 @@ const Header = () => {
             expandTrigger="hover"
             displayRender={displayRender}
             onChange={onChange}
-            value={selectedCinema}
           />
         </Modal>
       )}
       <header className="max-w-5xl mx-auto px-10 ">
         <div className="flex justify-between text-[18px]  items-center py-8 text-[#8E8E8E]">
           <Link to={"/"}>
-            <img srcSet="/logo.png/" alt="" />
+            <img srcSet="/lg.png/ 8x" alt="" />
           </Link>
           <Cascader
             options={cinemaOptions}
@@ -98,27 +195,71 @@ const Header = () => {
             onChange={onChange}
             value={selectedCinema}
           />
-          <Link to={"/"} className="text-[#EE2E24] hover:text-[#EE2E24]">
-            Home
+          <Link to={"/"} className=" hover:text-[#EE2E24]">
+            Trang chủ
           </Link>
           <Link to={"/movies"} className="hover:text-[#EE2E24]">
-            Movie
+            Phim
           </Link>
           <Link to={"/ticket"} className="hover:text-[#EE2E24]">
-            Ticket
+            Đặt vé
           </Link>
           <Link to={"/F&B"} className="hover:text-[#EE2E24]">
-            F&B
+            Giá vé
           </Link>
-          <Link to={"/cinema"} className="hover:text-[#EE2E24]">
-            Cinema
-          </Link>
-          <Link to={"/orther"} className="hover:text-[#EE2E24]">
-            Other
-          </Link>
-          <Link to={linkTo}>
-            <img srcSet="/person-circle.png/ 1.2x" alt="" />
-          </Link>
+
+          {(IfUser as any)?.role === 2 && (
+            <Dropdown
+              menu={{ items }}
+              placement="bottomLeft"
+              arrow={{ pointAtCenter: true }}
+            >
+              <Link to={linkTo}>
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </Link>
+            </Dropdown>
+          )}
+          {(IfUser as any)?.role === 3 && (
+            <Dropdown
+              menu={{ items }}
+              placement="bottomLeft"
+              arrow={{ pointAtCenter: true }}
+            >
+              <Link to={linkTo}>
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </Link>
+            </Dropdown>
+          )}
+          {(IfUser as any)?.role === 1 && (
+            <Dropdown
+              menu={{ items }}
+              placement="bottomLeft"
+              arrow={{ pointAtCenter: true }}
+            >
+              <Link to={linkTo}>
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </Link>
+            </Dropdown>
+          )}
+          {(IfUser as any)?.role === 0 && (
+            <Dropdown
+              menu={{ items }}
+              placement="bottomLeft"
+              arrow={{ pointAtCenter: true }}
+            >
+              <button title="...">
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </button>
+            </Dropdown>
+          )}
+          {(IfUser as any)?.role !== 1 &&
+            (IfUser as any)?.role !== 2 &&
+            (IfUser as any)?.role !== 3 &&
+            (IfUser as any)?.role !== 0 && (
+              <Link to={linkTo}>
+                <img srcSet="/person-circle.png/ 1.2x" alt="" />
+              </Link>
+            )}
         </div>
         <div className="flex items-center my-2">
           <div className="relative w-full">

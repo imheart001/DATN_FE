@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { UserAddOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -31,11 +31,11 @@ const AddCategory: React.FC = () => {
   const onFinish = async (values: any) => {
     try {
       await addCategory(values).unwrap();
-      message.success("Thêm sản phẩm thành công");
+      message.success("Thêm loại phim thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin/cinema");
+      navigate("/admin/listcate");
     } catch (error) {
-      message.error("Thêm sản phẩm thất bại");
+      message.error("Thêm loại phim thất bại");
     }
   };
 
@@ -91,19 +91,19 @@ const AddCategory: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="name"
-                label="Name"
-                rules={[{ required: true, message: "Please enter user name" }]}
+                label="Tên loại phim"
+                rules={[{ required: true, message: "Vui lòng nhập tên loại phim" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Vui lòng nhập tên loại phim" />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="slug"
-                label="Slug"
-                rules={[{ required: true, message: "Please enter slug" }]}
+                label="Tiêu đề"
+                rules={[{ required: true, message: "Vui lòng nhập Tiêu đề" }]}
               >
-                <Input placeholder="Please enter user name" />
+                <Input placeholder="Vui lòng nhập Tiêu đề" />
               </Form.Item>
             </Col>
           </Row>
@@ -112,10 +112,10 @@ const AddCategory: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="status"
-                label="Status"
-                rules={[{ required: true, message: "Please select a status" }]}
+                label="Trạng thái"
+                rules={[{ required: true, message: "Vui lòng nhập trạng thái" }]}
               >
-                <Select placeholder="Please select a status">
+                <Select placeholder="Vui lòng nhập trạng thái">
                   <Option value="1">1</Option>
                   <Option value="0">0</Option>
                 </Select>

@@ -12,8 +12,8 @@ const cateDetailAPI = createApi({
       query: () => "/category_detail/",
       providesTags: ["catedetail"],
     }),
-    getALLCateDetailById: builder.query({
-      query: (id) => `/categorie_detail_name/${id}`,
+    getAllCateDetailByFilm: builder.query<any, void>({
+      query: () => "/categorie_detail_name/",
       providesTags: ["catedetail"],
     }),
     getCateDetailById: builder.query<ICateDetail, number | string>({
@@ -30,7 +30,7 @@ const cateDetailAPI = createApi({
       invalidatesTags: ["catedetail"],
     }),
     addCateDetail: builder.mutation({
-      query: (catedetail: ICateDetail) => ({
+      query: (catedetail: any) => ({
         url: "/category_detail/",
         method: "POST",
         body: catedetail,
@@ -48,7 +48,7 @@ const cateDetailAPI = createApi({
   }),
 });
 export const {
-  useGetALLCateDetailByIdQuery,
+  useGetAllCateDetailByFilmQuery,
   useFetchCateDetailQuery,
   useAddCateDetailMutation,
   useGetCateDetailByIdQuery,
