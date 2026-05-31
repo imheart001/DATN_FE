@@ -2,7 +2,7 @@ import * as ReactDOM from "react-dom";
 import App from "./App.jsx";
 import "./index.css";
 import { Provider } from "react-redux";
-import { persistor, store } from "./store/store.tsx";
+import { persistor, store } from "./store/store.ts";
 import { PersistGate } from "redux-persist/integration/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import * as React from "react";
