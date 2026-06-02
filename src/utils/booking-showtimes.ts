@@ -28,6 +28,16 @@ const normalizeTime = (time: string) => {
   return time.length === 5 ? `${time}:00` : time;
 };
 
+const getShowtimeTimestamp = (
+  showtime: IBookingShowtimeRow | null | undefined
+) => {
+  if (!showtime) {
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  return dayjs(`${showtime.date}T${normalizeTime(showtime.time)}`).valueOf();
+};
+
 export const sortBookingShowtimes = (showtimes: IBookingShowtimeRow[]) => {
   return [...showtimes].sort((left, right) => {
     const leftDateTime = dayjs(`${left.date}T${normalizeTime(left.time)}`);
@@ -52,6 +62,36 @@ export const groupBookingShowtimesByFilm = (
     },
     {} as Record<string, IBookingShowtimeRow[]>
   );
+};
+
+export const sortFilmsByBookingPriority = <
+  T extends { id: string | number; name?: string | null }
+>(
+  films: T[],
+  showtimesByFilm: Record<string, IBookingShowtimeRow[]>
+) => {
+  return [...films].sort((left, right) => {
+    const leftShowtimes = showtimesByFilm[String(left.id)] ?? [];
+    const rightShowtimes = showtimesByFilm[String(right.id)] ?? [];
+    const leftHasShowtimes = leftShowtimes.length > 0;
+    const rightHasShowtimes = rightShowtimes.length > 0;
+
+    if (leftHasShowtimes !== rightHasShowtimes) {
+      return leftHasShowtimes ? -1 : 1;
+    }
+
+    const leftNextShowtime = getNextShowtime(leftShowtimes);
+    const rightNextShowtime = getNextShowtime(rightShowtimes);
+    const nextShowtimeDiff =
+      getShowtimeTimestamp(leftNextShowtime) -
+      getShowtimeTimestamp(rightNextShowtime);
+
+    if (nextShowtimeDiff !== 0) {
+      return nextShowtimeDiff;
+    }
+
+    return String(left.name ?? "").localeCompare(String(right.name ?? ""), "vi");
+  });
 };
 
 export const getBookingDateOptions = (

@@ -1,15 +1,24 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
 import { useFetchProductQuery } from "../../../service/films.service";
 import FilmShowing from "../../../components/FilmShowing";
 import { IFilms } from "../../../interface/model";
 import { compareDates, compareReleaseDate } from "../../../utils";
+import { useAppSelector } from "../../../store/hooks";
+import { useBookingShowtimes } from "../../../hooks/useBookingShowtimes";
+import { sortFilmsByBookingPriority } from "../../../utils/booking-showtimes";
 
 const INITIAL_VISIBLE_MOVIES = 8;
 const VISIBLE_MOVIES_STEP = 4;
 
 const Movies = () => {
   const { data } = useFetchProductQuery() as any;
+  const selectedCinema = useAppSelector(
+    (state) => state.selectedCinema as string | null
+  );
+  const { showtimesByFilm } = useBookingShowtimes({
+    cinemaId: selectedCinema,
+  });
   const [visibleNowShowingCount, setVisibleNowShowingCount] = useState(
     INITIAL_VISIBLE_MOVIES
   );
@@ -18,14 +27,19 @@ const Movies = () => {
   );
 
   const movieReleases = useMemo(() => {
-    return (
+    const filteredMovies =
       data?.data?.filter((item: any) => compareDates(item.release_date, item.end_date)) ??
-      []
-    );
-  }, [data]);
+      [];
+
+    if (!selectedCinema) {
+      return filteredMovies;
+    }
+
+    return sortFilmsByBookingPriority(filteredMovies, showtimesByFilm);
+  }, [data, selectedCinema, showtimesByFilm]);
 
   const futureMovies = useMemo(() => {
-    return (
+    const filteredMovies =
       data?.data
         ?.filter((item: any) => compareReleaseDate(item.release_date))
         .filter((item: any) => {
@@ -34,9 +48,14 @@ const Movies = () => {
           const releaseDate = new Date(item.release_date);
           featureMovieDate.setDate(currentDate.getDate() + 300);
           return featureMovieDate > releaseDate;
-        }) ?? []
-    );
-  }, [data]);
+        }) ?? [];
+
+    if (!selectedCinema) {
+      return filteredMovies;
+    }
+
+    return sortFilmsByBookingPriority(filteredMovies, showtimesByFilm);
+  }, [data, selectedCinema, showtimesByFilm]);
 
   const visibleNowShowingMovies = useMemo(() => {
     return movieReleases.slice(0, visibleNowShowingCount);
@@ -54,6 +73,11 @@ const Movies = () => {
   const canCollapseUpcoming =
     futureMovies.length > INITIAL_VISIBLE_MOVIES &&
     visibleUpcomingCount >= futureMovies.length;
+
+  useEffect(() => {
+    setVisibleNowShowingCount(INITIAL_VISIBLE_MOVIES);
+    setVisibleUpcomingCount(INITIAL_VISIBLE_MOVIES);
+  }, [selectedCinema]);
 
   const handleToggleNowShowing = () => {
     if (hasMoreNowShowing) {

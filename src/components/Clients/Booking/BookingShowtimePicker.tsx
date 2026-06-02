@@ -51,7 +51,7 @@ const BookingShowtimePicker = ({
     activeDate: activeDateOption?.key ?? dayjs().format("YYYY-MM-DD"),
   });
 
-  retun (
+  return (
     <div className="space-y-4">
       <div className="flex gap-2 overflow-x-auto pb-2">
         {dateOptions.map((option) => (

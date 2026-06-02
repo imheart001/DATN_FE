@@ -58,6 +58,8 @@ interface SeatInfo {
   price: number;
 }
 
+const INITIAL_VISIBLE_COMBOS = 3;
+
 const BookingSeat = () => {
   const { id } = useParams();
   const { data: dataAllByTime_Byid } = useGetAllDataShowTimeByIdQuery(
@@ -182,6 +184,7 @@ const BookingSeat = () => {
   const [selectedSeatsCount, setSelectedSeatsCount] = useState(0);
 
   const [showPopCorn, setShowPopCorn] = useState(false);
+  const [showAllCombos, setShowAllCombos] = useState(false);
 
   const formatter = (value: number) =>
     `${value} ₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -633,6 +636,16 @@ const BookingSeat = () => {
   const dayOfWeek = daysOfWeek[dateObject.getDay()];
   const formattedDate = `${day}/${month}/${year}`;
 
+  const comboFoods = (foods as any)?.data ?? [];
+  const visibleComboFoods = showAllCombos
+    ? comboFoods
+    : comboFoods.filter(
+        (food: any, index: number) =>
+          index < INITIAL_VISIBLE_COMBOS ||
+          (foodQuantitiesUI[food.id]?.quantity ?? 0) > 0
+      );
+  const hasMoreCombos = comboFoods.length > INITIAL_VISIBLE_COMBOS;
+
   const selectedVoucherInfo = (dataVouchers as any)?.data.find(
     (vc: any) => vc.id === selectedVoucher
   );
@@ -1000,9 +1013,22 @@ const BookingSeat = () => {
                   ))}
                 </div>
               </div>
-              <span className="block mb-4 text-lg font-semibold text-red-600">
-                COMBO ƯU ĐÃI
-              </span>
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <span className="block text-lg font-semibold text-red-600">
+                  {"COMBO ƯU ĐÃI"}
+                </span>
+                {hasMoreCombos && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllCombos((prev) => !prev)}
+                    className="rounded-full border border-red-600 px-4 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50"
+                  >
+                    {showAllCombos
+                      ? "Thu gọn combo"
+                      : `Xem thêm ${comboFoods.length - INITIAL_VISIBLE_COMBOS} combo`}
+                  </button>
+                )}
+              </div>
               <div className="mb-8 border rounded-[10px]">
                 <table className="min-w-full divide-y divide-gray-200 shadow-lg">
                   <thead>
@@ -1036,7 +1062,7 @@ const BookingSeat = () => {
                         Thành tiền
                       </th>
                     </tr>
-                    {(foods as any)?.data.map((food: any, index: any) => {
+                    {visibleComboFoods.map((food: any, index: any) => {
                       return (
                         <>
                           <tr key={index}>

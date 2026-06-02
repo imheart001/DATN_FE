@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
 import { Alert, Modal, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
@@ -18,6 +18,7 @@ import {
   extractLimitAge,
   formatShowtimeLabel,
   getNextShowtime,
+  sortFilmsByBookingPriority,
 } from "../../../utils/booking-showtimes";
 
 const INITIAL_VISIBLE_FILMS = 8;
@@ -67,7 +68,7 @@ const Ticket: React.FC = () => {
   }, [selectedFilmId, showtimesByFilm]);
 
   const availableFilms = useMemo(() => {
-    return (
+    const filteredFilms =
       (films as any)?.data?.filter((film: any) => {
         const isExpired = dayjs(film.end_date).endOf("day").isBefore(dayjs());
         const isUpcoming = dayjs(film.release_date)
@@ -75,9 +76,14 @@ const Ticket: React.FC = () => {
           .isAfter(dayjs());
 
         return !isExpired && !isUpcoming;
-      }) ?? []
-    );
-  }, [films]);
+      }) ?? [];
+
+    if (!selectedCinema) {
+      return filteredFilms;
+    }
+
+    return sortFilmsByBookingPriority(filteredFilms, showtimesByFilm);
+  }, [films, selectedCinema, showtimesByFilm]);
 
   const visibleFilms = useMemo(() => {
     return availableFilms.slice(0, visibleFilmCount);
@@ -92,6 +98,10 @@ const Ticket: React.FC = () => {
     filmsLoading ||
     cinemasLoading ||
     (!!selectedCinema && bookingShowtimesLoading);
+
+  useEffect(() => {
+    setVisibleFilmCount(INITIAL_VISIBLE_FILMS);
+  }, [selectedCinema]);
 
   const handleTimeSelection = (showId: string) => {
     if (user) {
