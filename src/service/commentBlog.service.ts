@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_BASE_URL } from "./api.config";
 import { IComments } from "../interface/model";
 
 const commentsAPI = createApi({
     reducerPath: "comments",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: API_BASE_URL,
         prepareHeaders: (headers, { getState }) => {
           // Add your authorization header here
           const token = localStorage.getItem("authToken");
@@ -35,3 +36,4 @@ export const {
     useAddCommentBlogMutation
 } = commentsAPI;
 export default commentsAPI;
+

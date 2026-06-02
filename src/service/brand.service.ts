@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_BASE_URL } from "./api.config";
 import { ICinemas } from "../interface/model";
 
 const cinemasAPI = createApi({
   reducerPath: "cinemas",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://127.0.0.1:8000/api",
+    baseUrl: API_BASE_URL,
   }),
   tagTypes: ["cinema"],
   endpoints: (builder) => ({
@@ -49,3 +50,4 @@ export const {
   useUpdateCinemaMutation,
 } = cinemasAPI;
 export default cinemasAPI;
+

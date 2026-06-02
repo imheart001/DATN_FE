@@ -49,6 +49,22 @@ export interface IShowTime {
   room_id: string;
   status: number;
 }
+export interface IBookingShowtimeRow {
+  show_id: string;
+  film_id: string;
+  film_name: string;
+  film_image: string;
+  limit_age: string | number;
+  cinema_id: string;
+  cinema_name: string;
+  room_id: string;
+  room_name: string;
+  date: string;
+  time_id: string;
+  time: string;
+  available_seats: number;
+  status: number;
+}
 export interface ITime {
   id: string;
   time: string;

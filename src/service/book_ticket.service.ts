@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_BASE_URL } from "./api.config";
 import { IBookTicket, IBookTicketUser, IUser } from "../interface/model";
 
 const bookTicketsAPI = createApi({
   reducerPath: "bookTickets",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://127.0.0.1:8000/api",
+    baseUrl: API_BASE_URL,
   }),
   tagTypes: ["bookTicket"],
   endpoints: (builder) => ({
@@ -77,3 +78,4 @@ export const {
   useGetBookTicketByAdminCinemaQuery,
 } = bookTicketsAPI;
 export default bookTicketsAPI;
+

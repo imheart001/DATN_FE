@@ -3,17 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { useFetchCinemaQuery } from "../../service/brand.service";
 import { useEffect, useState } from "react";
 import { ICinemas } from "../../interface/model";
-import { useDispatch, useSelector } from "react-redux";
 import { setSelectedCinema } from "../../components/CinemaSlice/selectedCinemaSlice";
 import { Modal } from "antd";
 import type { MenuProps } from "antd";
-import { Dropdown, Space, Divider, Button, theme } from "antd";
+import { Dropdown } from "antd";
 import { useFetchProductQuery } from "../../service/films.service";
 import { setUserId, updateToken } from "../../components/CinemaSlice/authSlice";
 
 import { formatter } from "../../utils/formatCurrency";
 import Recharge from "../../components/Clients/NapTien/naptien";
 import { useGetUserByIdQuery } from "../../service/book_ticket.service";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 interface Option {
   value: string;
   label: string;
@@ -104,9 +104,11 @@ const Header: React.FC = () => {
     },
   ];
 
-  const dispatch = useDispatch();
-  const selectedCinema = useSelector((state: any) => state.selectedCinema);
-  const user = useSelector((state: any) => state.auth?.token);
+  const dispatch = useAppDispatch();
+  const selectedCinema = useAppSelector(
+    (state) => state.selectedCinema as string | null
+  );
+  const user = useAppSelector((state) => state.auth?.token);
   const { data: cinemas } = useFetchCinemaQuery();
   const [movies, setMovies] = useState<any>([]);
   const [matchingNames, setMatchingNames] = useState([]);
@@ -158,10 +160,12 @@ const Header: React.FC = () => {
       setCinemaOptions(cinemaData);
     }
   }, [cinemas]);
-  const onChange = (value: any) => {
-    dispatch(setSelectedCinema(value));
+  const onChange = (value: Array<string | number>) => {
+    const cinemaId = value[0] ? String(value[0]) : null;
+    dispatch(setSelectedCinema(cinemaId));
     handleCancel();
   };
+  const cascaderValue = selectedCinema ? [selectedCinema] : undefined;
   const linkTo = user ? "/admin" : "/login";
   return (
     <>
@@ -179,6 +183,7 @@ const Header: React.FC = () => {
             expandTrigger="hover"
             displayRender={displayRender}
             onChange={onChange}
+            value={cascaderValue}
           />
         </Modal>
       )}
@@ -193,7 +198,7 @@ const Header: React.FC = () => {
             expandTrigger="hover"
             displayRender={displayRender}
             onChange={onChange}
-            value={selectedCinema}
+            value={cascaderValue}
           />
           <Link to={"/"} className=" hover:text-[#EE2E24]">
             Trang chủ

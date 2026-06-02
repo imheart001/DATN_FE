@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_BASE_URL } from "./api.config";
 import { IMovieRoom } from "../interface/model";
 
 const movieRoomAPI = createApi({
   reducerPath: "movies",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://127.0.0.1:8000/api",
+    baseUrl: API_BASE_URL,
   }),
   tagTypes: ["movieroom"],
   endpoints: (builder) => ({
@@ -49,3 +50,4 @@ export const {
   useUpdateMovieRoomMutation,
 } = movieRoomAPI;
 export default movieRoomAPI;
+

@@ -1,9 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_BASE_URL } from "./api.config";
 
 const refundAPI = createApi({
     reducerPath: "refund",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://127.0.0.1:8000/api",
+        baseUrl: API_BASE_URL,
         prepareHeaders: (headers) => {
             const token = localStorage.getItem("authToken");
             if (token) {
@@ -26,3 +27,4 @@ const refundAPI = createApi({
 });
 export const { useSendRefundMutation } = refundAPI;
 export default refundAPI;
+

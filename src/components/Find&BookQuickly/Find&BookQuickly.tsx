@@ -1,304 +1,197 @@
-import { Cascader, Dropdown, Menu, Select, message } from "antd";
-import { useFetchProductQuery } from "../../service/films.service";
-
-import { useFetchCinemaQuery } from "../../service/brand.service";
-import { useEffect, useState } from "react";
-import { useFetchShowTimeQuery } from "../../service/show.service";
-import "moment/locale/vi";
-import * as moment from "moment-timezone";
-import { useFetchTimeQuery } from "../../service/time.service";
+import { Select, message } from "antd";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-interface Film {
-  label: React.ReactNode;
-  value: string;
-  image: string;
-}
-interface Cinema {
-  label: React.ReactNode;
-  value: string;
-}
-const { Option } = Select;
+import { useFetchProductQuery } from "../../service/films.service";
+import { useFetchCinemaQuery } from "../../service/brand.service";
+import { useBookingShowtimes } from "../../hooks/useBookingShowtimes";
+import {
+  formatShowtimeLabel,
+  getBookingDateOptions,
+} from "../../utils/booking-showtimes";
+
 const FindBookQuickly: React.FC = () => {
-  const { data: DataFilm } = useFetchProductQuery();
-  const { data: DataRap } = useFetchCinemaQuery();
-  const { data: shows } = useFetchShowTimeQuery();
-  const { data: times } = useFetchTimeQuery();
+  const navigate = useNavigate();
+  const { data: dataFilm } = useFetchProductQuery();
+  const { data: dataCinema } = useFetchCinemaQuery();
+
   const [selectedFilm, setSelectedFilm] = useState<string | null>(null);
   const [selectedCinema, setSelectedCinema] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  // console.log(selectedFilm, selectedCinema, selectedDate, selectedTime);
+  const [selectedShowId, setSelectedShowId] = useState<string | null>(null);
 
-  const [findDate, setFindDate] = useState([]);
-  const handleFilmSelect = (filmId: string) => {
+  const { showtimes } = useBookingShowtimes({
+    cinemaId: selectedCinema,
+    filmId: selectedFilm,
+  });
+
+  const filmOptions = useMemo(() => {
+    return ((dataFilm as any)?.data ?? [])
+      .filter((film: any) => {
+        const isExpired = dayjs(film.end_date).endOf("day").isBefore(dayjs());
+        const isUpcoming = dayjs(film.release_date)
+          .startOf("day")
+          .isAfter(dayjs());
+
+        return !isExpired && !isUpcoming;
+      })
+      .map((film: any) => ({
+        label: film.name,
+        value: String(film.id),
+      }));
+  }, [dataFilm]);
+
+  const cinemaOptions = useMemo(() => {
+    return ((dataCinema as any)?.data ?? [])
+      .filter((cinema: any) => cinema.status === 1)
+      .map((cinema: any) => ({
+        label: cinema.name,
+        value: String(cinema.id),
+      }));
+  }, [dataCinema]);
+
+  const dateOptions = useMemo(() => {
+    return getBookingDateOptions(showtimes)
+      .filter((option) => option.showtimes.length > 0)
+      .map((option) => ({
+        label: option.label,
+        value: option.key,
+      }));
+  }, [showtimes]);
+
+  const timeOptions = useMemo(() => {
+    return showtimes
+      .filter((showtime) => showtime.date === selectedDate)
+      .map((showtime) => ({
+        label: `${formatShowtimeLabel(showtime.time)} · ${showtime.room_name} · ${showtime.available_seats} ghế`,
+        value: String(showtime.show_id),
+        disabled: Number(showtime.available_seats) <= 0,
+      }));
+  }, [selectedDate, showtimes]);
+
+  const helperText = useMemo(() => {
+    if (!selectedFilm) {
+      return "Vui lòng chọn phim trước";
+    }
+
+    if (!selectedCinema) {
+      return "Vui lòng chọn rạp trước";
+    }
+
+    if (showtimes.length === 0) {
+      return "Rạp này chưa có lịch chiếu cho phim này";
+    }
+
+    return "Chọn ngày và giờ chiếu phù hợp để tiếp tục";
+  }, [selectedCinema, selectedFilm, showtimes]);
+
+  const handleFilmChange = (value?: string) => {
+    setSelectedFilm(value ?? null);
     setSelectedCinema(null);
     setSelectedDate(null);
-    setSelectedTime(null);
-    setSelectedFilm(filmId);
-    setFindDate([]);
-  };
-  const handleTimeSelect = (timeId: string) => {
-    // console.log(timeId);
-
-    setSelectedTime(timeId);
-  };
-  const handleCinemaSelect = (cinemaId: string) => {
-    setSelectedCinema(cinemaId);
-  };
-  const convertToOriginalFormat = (formattedDate: string) => {
-    const momentDate = moment(formattedDate, "DD/MM/YYYY - ddd");
-    return momentDate.format("YYYY-MM-DD");
+    setSelectedShowId(null);
   };
 
-  const handleDateSelect = (dateId: string) => {
-    const originalFormat = convertToOriginalFormat(dateId);
-    // console.log(originalFormat);
-    setSelectedDate(originalFormat);
+  const handleCinemaChange = (value?: string) => {
+    setSelectedCinema(value ?? null);
+    setSelectedDate(null);
+    setSelectedShowId(null);
   };
-  const filmOptions: Film[] = (DataFilm as any)?.data
-    ?.map((film: any) => {
-      const isExpired = dayjs(film.end_date).isBefore(dayjs());
-      const isExpired2 = dayjs(film.release_date).isAfter(dayjs());
 
-      // release_date
-      if (isExpired || isExpired2) {
-        return null;
-      }
+  const handleDateChange = (value?: string) => {
+    setSelectedDate(value ?? null);
+    setSelectedShowId(null);
+  };
 
-      return {
-        label: (
-          <Dropdown
-            overlay={
-              <Menu>
-                <Menu.Item key="1">
-                  <img
-                    src={film.image}
-                    className="block mx-auto w-[201px] shadow-lg shadow-cyan-500/50 rounded-2xl h-[295px]"
-                    alt={film.name}
-                  />
-                </Menu.Item>
-              </Menu>
-            }
-            placement="right"
-            arrow
-          >
-            <a onClick={() => handleFilmSelect(film.id)}>{film.name}</a>
-          </Dropdown>
-        ),
-        value: film.id,
-        image: film.image,
-      };
-    })
-    .filter(Boolean);
-  const cinemaOptions: Cinema[] = (DataRap as any)?.data?.map(
-    (cinema: any) => ({
-      label: (
-        <div className="">
-          {selectedFilm && (
-            <a onClick={() => handleCinemaSelect(cinema.id)}>{cinema.name}</a>
-          )}{" "}
-          {!selectedFilm && <div className="">Vui lòng chọn phim</div>}
-        </div>
-      ),
-      value: cinema.id,
-    })
-  );
-  const currentDateTime = moment().utcOffset(420).format("YYYY-MM-DD");
-  // console.log(currentDateTime);
+  const handleShowtimeChange = (value?: string) => {
+    setSelectedShowId(value ?? null);
+  };
 
-  useEffect(() => {
-    if (selectedFilm && selectedCinema) {
-      // Lọc danh sách ngày chiếu dựa trên phim và rạp được chọn
-      const filteredShows = (shows as any)?.data.filter((show: any) => {
-        return show.film_id == selectedFilm && show.room_id == selectedCinema;
-      });
-
-      // In ra danh sách ngày chiếu đã lọc
-      const currentDateShows = filteredShows.filter((show: any) => {
-        return moment(show.date).isSameOrAfter(currentDateTime, "day");
-      });
-      const groupedDates = currentDateShows.reduce(
-        (accumulator: any, show: any) => {
-          const showDate = show.date;
-
-          // Kiểm tra xem ngày đã tồn tại trong accumulator chưa
-          if (!accumulator[showDate]) {
-            accumulator[showDate] = [];
-          }
-
-          // Thêm show vào ngày tương ứng
-          accumulator[showDate].push(show);
-
-          return accumulator;
-        },
-        {}
-      );
-
-      // Chuyển đổi groupedDates thành mảng
-      const groupedDatesArray = Object.entries(groupedDates).map(
-        ([date, shows]) => ({
-          date: moment(date).format("DD/MM/YYYY - ddd"),
-          shows,
-        })
-      );
-
-      setFindDate(groupedDatesArray as any);
-    }
-  }, [selectedFilm, selectedCinema, shows]);
-
-  const filteredShows = (shows as any)?.data.filter((show: any) => {
-    return (
-      show.film_id == selectedFilm &&
-      show.room_id == selectedCinema &&
-      show.date === selectedDate
-    );
-  });
-  // const findTime = findShowsByDate[0].map((show) => show.date === "2023-12-06");
-
-  const currentTime = moment().format("HH:mm");
-
-  // const filteredTimesData = (times?.data || []).filter((time: any) => {
-  //   return (
-  //     filteredShows.map((show: any) => show.time_id).includes(time.id) &&
-  //     moment(time.time, "HH:mm").isSameOrAfter(moment(currentTime, "HH:mm"))
-  //   );
-  // });
-  const filteredTimesData = ((times as any)?.data || []).filter((time: any) => {
-    return (
-      // Check if the selected date is today
-      (selectedDate === currentDateTime &&
-        moment(time.time, "HH:mm").isSameOrAfter(
-          moment(currentTime, "HH:mm")
-        )) ||
-      // Check if the selected date is in the future
-      (selectedDate !== currentDateTime &&
-        filteredShows?.map((show: any) => show.time_id).includes(time.id))
-    );
-  });
-  // console.log(filteredTimesData);
-
-  const findFinalShow = (shows as any)?.data.filter((show: any) => {
-    return (
-      show.film_id == selectedFilm &&
-      show.room_id == selectedCinema &&
-      show.date == selectedDate &&
-      show.time_id == selectedTime
-    );
-  });
   const handleLinkBookTicket = () => {
-    if (findFinalShow && findFinalShow.length > 0) {
-      navigate(`book-ticket/${findFinalShow[0]?.id}`);
-    } else {
-      // Handle the case when findFinalShow is empty or undefined
+    if (!selectedShowId) {
       message.warning(
-        "Vui lòng chọn đúng và đầy đủ thứ tự Phim, Rạp , Ngày Chiếu, Giờ Chiếu"
+        "Vui lòng chọn đúng và đầy đủ thứ tự Phim, Rạp, Ngày Chiếu, Giờ Chiếu"
       );
+      return;
     }
+
+    navigate(`book-ticket/${selectedShowId}`);
   };
 
   return (
-    <>
-      {filmOptions && (
+    <section>
+      <section className="mx-auto max-w-5xl space-y-2 rounded-lg border-cyan-500 bg-white p-4 shadow-xl shadow-cyan-500/50">
         <section>
-          <section className="bg-white rounded-lg max-w-5xl space-y-2 mx-auto p-4 border-cyan-500 shadow-xl shadow-cyan-500/50">
-            <section>
-              <h1 className="text-center block font-bold text-xl text-red-600 border-b-2 border-red-600">
-                Đặt vé nhanh ở đây
-              </h1>
-            </section>
-            <section className="grid  grid-cols-5 items-center space-x-4">
-              <section>
-                <Cascader
-                  className="border-none"
-                  options={filmOptions}
-                  placeholder="Tìm phim..."
-                />
-              </section>
-              <section>
-                <Cascader options={cinemaOptions} placeholder="Rạp" />
-              </section>
-              <section>
-                <Select placeholder="Ngày chiếu" className="w-full" allowClear>
-                  {selectedFilm !== null &&
-                    selectedCinema !== null &&
-                    findDate &&
-                    findDate?.length === 0 && (
-                      <Option value="1">Không có ngày chiếu nào phù hợp</Option>
-                    )}
-                  {findDate &&
-                    findDate.length === 0 &&
-                    selectedFilm == null &&
-                    selectedCinema == null && (
-                      <Option value="2" className="w-[150%]">
-                        Vui lòng Chọn Phim và Rạp Trước
-                      </Option>
-                    )}
-                  {findDate &&
-                    findDate.length === 0 &&
-                    selectedFilm !== null &&
-                    selectedCinema == null && (
-                      <Option value="2" className="w-[150%]">
-                        Vui lòng Chọn Rạp Trước
-                      </Option>
-                    )}
-                  {findDate &&
-                    findDate.map((item: any) => {
-                      return (
-                        <>
-                          <Option value={item?.date}>
-                            {" "}
-                            <a onClick={() => handleDateSelect(item?.date)}>
-                              {item?.date}
-                            </a>
-                          </Option>
-                        </>
-                      );
-                    })}
-                  {/* <Option>female</Option>
-                  <Option value="other">other</Option> */}
-                </Select>
-              </section>
-              <section>
-                {/* <Cascader placeholder="Suất chiếu" /> */}
-                <Select
-                  placeholder="Suất chiếu"
-                  className="w-full"
-                  allowClear
-                  onChange={() => setSelectedTime(null)}
-                >
-                  {/* <Option>Không có giờ chiếu nào</Option> */}
+          <h1 className="block border-b-2 border-red-600 text-center text-xl font-bold text-red-600">
+            Đặt vé nhanh ở đây
+          </h1>
+          <p className="mt-3 text-center text-sm text-slate-500">{helperText}</p>
+        </section>
 
-                  {filteredTimesData?.map((time: any) => {
-                    return (
-                      <>
-                        <Option value={time?.id}>
-                          {" "}
-                          <a onClick={() => handleTimeSelect(time.id)}>
-                            {time?.time}
-                          </a>
-                        </Option>
-                      </>
-                    );
-                  })}
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-5">
+          <section>
+            <Select
+              className="w-full"
+              placeholder="Tìm phim..."
+              options={filmOptions}
+              value={selectedFilm ?? undefined}
+              onChange={handleFilmChange}
+              allowClear
+            />
+          </section>
 
-                  {/* <Option value="other">other</Option> */}
-                </Select>
-              </section>
-              <section>
-                <button
-                  onClick={handleLinkBookTicket}
-                  className="hover:bg-[#EAE8E4] rounded-md my-2 border-cyan-500 shadow-xl shadow-cyan-500/50 hover:text-black bg-black text-[#FFFFFF] w-full text-center py-2 text-[16px]"
-                >
-                  Mua Vé Ngay
-                </button>
-              </section>
-            </section>
+          <section>
+            <Select
+              className="w-full"
+              placeholder="Rạp"
+              options={cinemaOptions}
+              value={selectedCinema ?? undefined}
+              onChange={handleCinemaChange}
+              disabled={!selectedFilm}
+              allowClear
+            />
+          </section>
+
+          <section>
+            <Select
+              className="w-full"
+              placeholder="Ngày chiếu"
+              options={dateOptions}
+              value={selectedDate ?? undefined}
+              onChange={handleDateChange}
+              disabled={!selectedFilm || !selectedCinema || dateOptions.length === 0}
+              allowClear
+            />
+          </section>
+
+          <section>
+            <Select
+              className="w-full"
+              placeholder="Suất chiếu"
+              options={timeOptions}
+              value={selectedShowId ?? undefined}
+              onChange={handleShowtimeChange}
+              disabled={!selectedDate || timeOptions.length === 0}
+              allowClear
+            />
+          </section>
+
+          <section>
+            <button
+              onClick={handleLinkBookTicket}
+              disabled={!selectedShowId}
+              className={`my-2 w-full rounded-md py-2 text-[16px] transition ${
+                selectedShowId
+                  ? "bg-black text-[#FFFFFF] shadow-xl shadow-cyan-500/50 hover:bg-[#EAE8E4] hover:text-black"
+                  : "cursor-not-allowed bg-slate-300 text-slate-500"
+              }`}
+            >
+              Mua Vé Ngay
+            </button>
           </section>
         </section>
-      )}
-    </>
+      </section>
+    </section>
   );
 };
 

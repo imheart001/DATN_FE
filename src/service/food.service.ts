@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { API_BASE_URL } from "./api.config";
 import { IFood } from "../interface/model";
 
 const foodAPI = createApi({
   reducerPath: "foods",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://127.0.0.1:8000/api",
+    baseUrl: API_BASE_URL,
   }),
   tagTypes: ["food"],
   endpoints: (builder) => ({
@@ -59,3 +60,4 @@ export const {
   useAddFoodTicketDetailMutation,
 } = foodAPI;
 export default foodAPI;
+
