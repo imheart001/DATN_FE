@@ -9,6 +9,7 @@ import type { MenuProps } from "antd";
 import { Dropdown } from "antd";
 import { useFetchProductQuery } from "../../service/films.service";
 import { setUserId, updateToken } from "../../components/CinemaSlice/authSlice";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 import { formatter } from "../../utils/formatCurrency";
 import Recharge from "../../components/Clients/NapTien/naptien";
@@ -23,8 +24,17 @@ interface Option {
 const displayRender = (labels: string[]) => labels[labels.length - 1];
 const Header: React.FC = () => {
   const getIfUser = localStorage.getItem("user");
-  const IfUser = JSON.parse(`${getIfUser}`);
-  const { data: dataUserbyId } = useGetUserByIdQuery(`${IfUser?.id}`);
+  let IfUser: any = null;
+  if (getIfUser) {
+    try {
+      IfUser = JSON.parse(getIfUser);
+    } catch {
+      localStorage.removeItem("user");
+    }
+  }
+  const { data: dataUserbyId } = useGetUserByIdQuery(
+    IfUser?.id ? `${IfUser.id}` : skipToken
+  );
 
   const items: MenuProps["items"] = [
     {
