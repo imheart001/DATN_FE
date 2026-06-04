@@ -1,9 +1,10 @@
 // api.js
 
 import { ISeatKepting } from "../interface/model";
+import { API_BASE_URL } from "../service/api.config";
 
 export const addSeat = async (newSeat: ISeatKepting) => {
-  const response = await fetch(`http://127.0.0.1:8000/api/cache_seat`, {
+  const response = await fetch(`${API_BASE_URL}/cache_seat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -22,7 +23,7 @@ export const addSeat = async (newSeat: ISeatKepting) => {
 
 export const checkSeat = async (id: any) => {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/getReservedSeatsByTimeDetail/${id}`,
+    `${API_BASE_URL}/getReservedSeatsByTimeDetail/${id}`,
     {
       method: "GET",
       headers: {

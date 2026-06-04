@@ -37,6 +37,7 @@ interface DataType {
   end_date: string;
   dateSt: Date;
   dateEnd: Date;
+  releaseCount: number;
   tags: string[];
 }
 const { Search } = Input;
@@ -68,6 +69,7 @@ const ListFilm: React.FC = () => {
     images: film?.image,
     dateSt: new Date(film.release_date),
     dateEnd: new Date(film.end_date),
+    releaseCount: (film as any).releases?.length ?? 1,
     tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
   console.log(films);
@@ -118,6 +120,17 @@ const ListFilm: React.FC = () => {
       align: "center",
       width: "20%",
       render: (text: string) => <Image width={50} src={text} />,
+    },
+    {
+      title: "Đợt chiếu",
+      dataIndex: "releaseCount",
+      key: "releaseCount",
+      align: "center",
+      render: (count: number) => (
+        <Tag color={count > 1 ? "blue" : "default"}>
+          {count} đợt
+        </Tag>
+      ),
     },
     {
       title: "Trạng thái",

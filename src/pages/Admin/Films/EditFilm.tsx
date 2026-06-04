@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
-import { EditOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Button,
   Col,
   DatePicker,
+  Divider,
   Drawer,
   Form,
   Input,
   InputNumber,
+  Modal,
+  Popconfirm,
   Row,
   Space,
+  Table,
+  Tag,
   message,
 } from "antd";
 import { useUpdateProductMutation } from "../../../service/films.service";
@@ -17,6 +22,12 @@ import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { FOLDER_NAME } from "../../../configs/config";
 import { uploadImageApi } from "../../../apis/upload-image.api";
+import {
+  useFetchReleasesByFilmQuery,
+  useAddReleaseMutation,
+  useDeleteReleaseMutation,
+} from "../../../service/filmRelease.service";
+import { compareDates } from "../../../utils";
 
 interface DataType {
   key: string;
@@ -347,7 +358,167 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
             </Col>
           </Row>
         </Form>
+
+        {/* Film Releases Section */}
+        <FilmReleasesSection filmId={dataID?.name} />
       </Drawer>
+    </>
+  );
+};
+
+/**
+ * Sub-component: Manage film releases (re-release periods)
+ */
+const FilmReleasesSection: React.FC<{ filmId: string }> = ({ filmId }) => {
+  const { data: releasesData, refetch } = useFetchReleasesByFilmQuery(filmId, {
+    skip: !filmId,
+  });
+  const [addRelease, { isLoading: isAdding }] = useAddReleaseMutation();
+  const [deleteRelease] = useDeleteReleaseMutation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [releaseForm] = Form.useForm();
+
+  const releases = releasesData?.data ?? [];
+
+  const handleAddRelease = async () => {
+    try {
+      const values = await releaseForm.validateFields();
+      await addRelease({
+        filmId,
+        body: {
+          release_date: values.release_date.format("YYYY-MM-DD"),
+          end_date: values.end_date.format("YYYY-MM-DD"),
+          label: values.label || "Khởi chiếu lại",
+          note: values.note,
+        },
+      }).unwrap();
+      message.success("Đợt chiếu mới đã được tạo");
+      setIsModalOpen(false);
+      releaseForm.resetFields();
+      refetch();
+    } catch (error: any) {
+      message.error(error?.data?.message || "Lỗi khi tạo đợt chiếu");
+    }
+  };
+
+  const handleDeleteRelease = async (releaseId: string) => {
+    try {
+      await deleteRelease({ filmId, releaseId }).unwrap();
+      message.success("Đã xóa đợt chiếu");
+      refetch();
+    } catch (error: any) {
+      message.error(error?.data?.message || "Lỗi khi xóa đợt chiếu");
+    }
+  };
+
+  const columns = [
+    {
+      title: "Label",
+      dataIndex: "label",
+      key: "label",
+      render: (text: string) => <Tag color="blue">{text || "N/A"}</Tag>,
+    },
+    {
+      title: "Ngày bắt đầu",
+      dataIndex: "release_date",
+      key: "release_date",
+      render: (date: string) => new Date(date).toLocaleDateString("vi-VN"),
+    },
+    {
+      title: "Ngày kết thúc",
+      dataIndex: "end_date",
+      key: "end_date",
+      render: (date: string) => new Date(date).toLocaleDateString("vi-VN"),
+    },
+    {
+      title: "Trạng thái",
+      key: "status",
+      render: (_: any, record: any) => {
+        const isActive = compareDates(record.release_date, record.end_date);
+        return <Tag color={isActive ? "green" : "default"}>{isActive ? "Đang chiếu" : "Đã kết thúc"}</Tag>;
+      },
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "note",
+      key: "note",
+      ellipsis: true,
+    },
+    {
+      title: "",
+      key: "action",
+      render: (_: any, record: any) =>
+        releases.length > 1 ? (
+          <Popconfirm
+            title="Xóa đợt chiếu này?"
+            onConfirm={() => handleDeleteRelease(record.id)}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Button danger size="small">
+              Xóa
+            </Button>
+          </Popconfirm>
+        ) : null,
+    },
+  ];
+
+  return (
+    <>
+      <Divider />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <h3 style={{ margin: 0, fontWeight: 600 }}>Đợt chiếu ({releases.length})</h3>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setIsModalOpen(true)}
+          size="small"
+        >
+          Thêm đợt chiếu mới
+        </Button>
+      </div>
+      <Table
+        columns={columns}
+        dataSource={releases.map((r: any, i: number) => ({ ...r, key: r.id || i }))}
+        pagination={false}
+        size="small"
+      />
+
+      <Modal
+        title="Thêm đợt chiếu mới (Re-release)"
+        open={isModalOpen}
+        onOk={handleAddRelease}
+        onCancel={() => {
+          setIsModalOpen(false);
+          releaseForm.resetFields();
+        }}
+        confirmLoading={isAdding}
+        okText="Tạo đợt chiếu"
+        cancelText="Hủy"
+      >
+        <Form form={releaseForm} layout="vertical">
+          <Form.Item
+            name="release_date"
+            label="Ngày bắt đầu chiếu"
+            rules={[{ required: true, message: "Bắt buộc" }]}
+          >
+            <DatePicker style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item
+            name="end_date"
+            label="Ngày kết thúc chiếu"
+            rules={[{ required: true, message: "Bắt buộc" }]}
+          >
+            <DatePicker style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item name="label" label="Nhãn">
+            <Input placeholder="Ví dụ: Khởi chiếu lại, Special Screening" />
+          </Form.Item>
+          <Form.Item name="note" label="Ghi chú">
+            <Input.TextArea rows={2} placeholder="Ghi chú tùy chọn" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 };

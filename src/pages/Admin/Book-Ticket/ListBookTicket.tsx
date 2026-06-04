@@ -27,6 +27,7 @@ import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 import { any } from "prop-types";
 import { compareDates } from "../../../utils";
+import { API_BASE_URL } from "../../../service/api.config";
 
 const ListBookTicket: React.FC = () => {
   const [filteredInfo, setFilteredInfo] = useState<
@@ -73,7 +74,7 @@ const ListBookTicket: React.FC = () => {
 
   const handlePrintTicket = (idCode: string, id_user: any) => {
     window.open(
-      `http://127.0.0.1:8000/api/print-ticket/${idCode}/${id_user}`,
+      `${API_BASE_URL}/print-ticket/${idCode}/${id_user}`,
       "_blank"
     );
     window.location.reload();

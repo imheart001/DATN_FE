@@ -1,3 +1,14 @@
+export interface IFilmRelease {
+  id: string;
+  film_id: string;
+  release_date: string;
+  end_date: string;
+  label: string;
+  note: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface IFilms {
   id: string;
   name: string;
@@ -11,6 +22,7 @@ export interface IFilms {
   poster: string;
   description: string;
   status: number;
+  releases?: IFilmRelease[];
 }
 export interface ICategorys {
   id: string;

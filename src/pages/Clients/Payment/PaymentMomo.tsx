@@ -18,6 +18,7 @@ import * as moment from "moment-timezone";
 import { useSendEmailMutation } from "../../../service/sendEmail.service";
 import { useUsed_VC_ByUserIdMutation } from "../../../service/voucher.service";
 import { useDiscountPointMutation } from "../../../service/member.service";
+import { API_BASE_URL } from "../../../service/api.config";
 
 const PaymentMomo: React.FC = () => {
   const location = useLocation();
@@ -194,7 +195,7 @@ const PaymentMomo: React.FC = () => {
               <p>Thông tin mã vé</p>
               <QRCode
                 type="svg"
-                value={`http://127.0.0.1:8000/api/QR_book/${idCode}`}
+                value={`${API_BASE_URL}/QR_book/${idCode}`}
               />
               <Button type="primary" key="console" className="bg-blue-500">
                 <Link to={"/"}>Quay về trang chủ</Link>

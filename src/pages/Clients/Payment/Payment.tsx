@@ -16,6 +16,7 @@ import * as moment from "moment-timezone";
 import { useSendEmailMutation } from "../../../service/sendEmail.service";
 import { useUsed_VC_ByUserIdMutation } from "../../../service/voucher.service";
 import { useDiscountPointMutation } from "../../../service/member.service";
+import { API_BASE_URL } from "../../../service/api.config";
 
 const Payment = () => {
   const location = useLocation();
@@ -187,7 +188,7 @@ const Payment = () => {
               <p className="">Thông tin mã vé</p>
               <QRCode
                 type="svg"
-                value={`http://127.0.0.1:8000/api/QR_book/${idCode}`}
+                value={`${API_BASE_URL}/QR_book/${idCode}`}
               />
             </div>
             <Link to={`/`}>
