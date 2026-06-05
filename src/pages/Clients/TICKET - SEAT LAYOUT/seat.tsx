@@ -178,6 +178,14 @@ const BookingSeat = () => {
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
 
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token || !userId) {
+      message.error("Vui lòng đăng nhập để đặt vé!");
+      navigate("/login");
+    }
+  }, [navigate, userId]);
+
   const { data: PointUser } = useGetPointByIdUserQuery(userId?.id);
   // console.log(PointUser);
   const { data: VoucherUsedbyUser } = useGetVoucherbyIdUserQuery(userId?.id);
@@ -333,7 +341,7 @@ const BookingSeat = () => {
           },
         };
       });
-      setSelectedSeats(selectedSeats.filter((selected) => selected !== seat));
+      setSelectedSeats(selectedSeats.filter((selected) => selected.row !== row || selected.column !== column));
       setSelectedSeatsCount(selectedSeatsCount - 1);
       const seatKeping = {
         id_time_detail: id,

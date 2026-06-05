@@ -1,7 +1,6 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useState } from "react";
 import { useResetPasswordMutation } from "../../../service/signup_login.service";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -32,12 +31,6 @@ const ResetPassword = () => {
 
   const [updatePassword] = useResetPasswordMutation();
 
-  const [formState, setFormState] = useState({
-    email: "",
-    currentPassword: "",
-    password: "",
-    cpassword: "",
-  });
 
   const navigate = useNavigate();
   const onSubmitHandler = async (data: {
@@ -87,13 +80,6 @@ const ResetPassword = () => {
                 <input
                   type="email"
                   {...register("email")}
-                  value={formState.email}
-                  onChange={(e) =>
-                    setFormState((pre) => ({
-                      ...pre,
-                      email: e.target.value,
-                    }))
-                  }
                   id="email"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="name@company.com"
@@ -113,13 +99,6 @@ const ResetPassword = () => {
                 <input
                   type="text"
                   {...register("currentPassword")}
-                  value={formState.currentPassword}
-                  onChange={(e) =>
-                    setFormState((pre) => ({
-                      ...pre,
-                      currentPassword: e.target.value,
-                    }))
-                  }
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="mat khau moi"
                 />
@@ -139,13 +118,6 @@ const ResetPassword = () => {
                 <input
                   {...register("password")}
                   type="password"
-                  value={formState.password}
-                  onChange={(e) =>
-                    setFormState((pre) => ({
-                      ...pre,
-                      password: e.target.value,
-                    }))
-                  }
                   placeholder="••••••••"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 />
@@ -163,13 +135,6 @@ const ResetPassword = () => {
                   type="password"
                   placeholder="••••••••"
                   {...register("cpassword")}
-                  value={formState.cpassword}
-                  onChange={(e) =>
-                    setFormState((pre) => ({
-                      ...pre,
-                      cpassword: e.target.value,
-                    }))
-                  }
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 />
                 {errors?.cpassword && (

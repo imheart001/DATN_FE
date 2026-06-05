@@ -1,7 +1,6 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useState } from "react";
 import { useForgorPasswordMutation } from "../../../service/signup_login.service";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -24,8 +23,6 @@ const ForgotPassword = () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-
-  const [email, setEmail] = useState("");
 
   const onSubmitHandler = async (data: { email: string }) => {
     try {
@@ -79,9 +76,7 @@ const ForgotPassword = () => {
                         id="email"
                         {...register("email")}
                         className="py-3 px-4 block w-full border-2 border-gray-200 rounded-md text-sm focus:border-blue-500 focus:ring-blue-500 shadow-sm"
-                        value={email}
                         aria-describedby="email-error"
-                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
                     {errors?.email && (

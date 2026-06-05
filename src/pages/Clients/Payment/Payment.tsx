@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
 import { Link, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { Button, QRCode, Result, Space } from "antd";
+import { useSelector } from "react-redux";
+import { Button, QRCode, Result } from "antd";
 import {
   useAddChairsMutation,
   useFetchChairsQuery,
@@ -20,7 +20,7 @@ import { API_BASE_URL } from "../../../service/api.config";
 
 const Payment = () => {
   const location = useLocation();
-  const [vnpAmount, setVnpAmount] = useState("");
+
   const { data: allchairbked } = useFetchChairsQuery();
   const [addIfSeatByUser] = useAddBookTicketMutation();
   const [addFood] = useAddFoodTicketDetailMutation();
@@ -39,7 +39,7 @@ const Payment = () => {
   const totalPriceSeat = useSelector(
     (state: any) => state.TKinformation?.totalPriceSeat
   );
-  const dispatch = useDispatch();
+
   const formatter = (value: number) =>
     `${value} ₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const selectingSeat = useSelector(
@@ -82,10 +82,9 @@ const Payment = () => {
   useEffect(() => {
     const fetchData = async () => {
       const params = new URLSearchParams(location.search);
-      const amount = params.get("vnp_Amount") || "";
       const TransactionStatus = params.get("vnp_TransactionStatus") || "";
 
-      setVnpAmount(amount);
+
       setVnp_TransactionStatus(TransactionStatus);
 
       if (!addChairCalled && vnp_TransactionStatus === "00") {
@@ -144,13 +143,15 @@ const Payment = () => {
               const UsedVoucher = await useVCbyUserID(MyVoucher);
               console.log(UsedVoucher);
             }
-            const myPoint = {
-              discount: moneyByPoint,
-              id_user: user_id,
-            };
+            if (moneyByPoint && moneyByPoint > 0) {
+              const myPoint = {
+                discount: moneyByPoint,
+                id_user: user_id,
+              };
 
-            const reponsePoint = await discountPoint(myPoint);
-            console.log(reponsePoint);
+              const reponsePoint = await discountPoint(myPoint);
+              console.log(reponsePoint);
+            }
 
             setAddChairCalled(true);
             localStorage.removeItem("foodQuantities");

@@ -6,6 +6,13 @@ const foodAPI = createApi({
   reducerPath: "foods",
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: ["food"],
   endpoints: (builder) => ({

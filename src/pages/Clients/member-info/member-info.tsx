@@ -1,4 +1,4 @@
-import { Alert, Col, Row, Slider, Statistic } from "antd";
+import { Alert, Col, Statistic } from "antd";
 import "../../../App.css";
 
 import {
@@ -6,24 +6,11 @@ import {
   useGetPointByIdUserQuery,
 } from "../../../service/member.service";
 
-import { any } from "prop-types";
-import { useState } from "react";
 import Marquee from "react-fast-marquee";
 import { formatter } from "../../../utils/formatCurrency";
 import { formatDatee } from "../../../utils";
 
-function getGradientColor(percentage: number) {
-  const endColor = [135, 208, 104];
-  const startColor = [255, 204, 199];
 
-  const midColor = startColor.map((start, i) => {
-    const end = endColor[i];
-    const delta = end - start;
-    return (start + delta * percentage).toFixed(0);
-  });
-
-  return `rgb(${midColor.join(",")})`;
-}
 
 const MemberInfo = () => {
   const { data } = useFetchMembersQuery();
@@ -143,13 +130,13 @@ const MemberInfo = () => {
             dataUser.length > 0 &&
             dataUser.map((item) => (
               <Col span={24} key={item.id}>
-                {item.total_spending < 3000000 ? (
+                {item.card_class !== 2 && item.total_spending < 3000000 ? (
                   <>
                     <Statistic
                       className=""
                       style={{ fontWeight: "bold", color: "red" }}
                       title="Số tiền chi tiêu"
-                      value={formatter(item.total_spending.toLocaleString())}
+                      value={formatter(Number(item.total_spending))}
                       suffix="/ 3.000.000 đ"
                     />
                     <Alert
@@ -169,7 +156,7 @@ const MemberInfo = () => {
                         >
                           Bạn cần chi tiêu ít nhất "{" "}
                           {`${(
-                            3000000 - parseInt(item.total_spending, 10)
+                            3000000 - Number(item.total_spending)
                           ).toLocaleString()} VND`}{" "}
                           " để trở thành khách hàng VIP
                         </Marquee>

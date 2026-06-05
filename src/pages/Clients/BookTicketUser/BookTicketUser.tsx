@@ -4,8 +4,6 @@ import {
   Image,
   Button,
   Modal,
-  Input,
-  message,
   Tag,
   Descriptions,
 } from "antd";
@@ -14,8 +12,6 @@ import { FilterValue } from "antd/es/table/interface";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { useFetchProductQuery } from "../../../service/films.service";
-import { useSendRefundMutation } from "../../../service/refund.service";
-import { formatDatee } from "../../../utils";
 
 export interface DataType {
   time: string;
@@ -31,59 +27,27 @@ export interface DataType {
 }
 
 const BookTicketUser = () => {
-  const [sendRefund] = useSendRefundMutation();
   const idUser = localStorage.getItem("user_id");
   const [filteredInfo, setFilteredInfo] = useState<
     Record<string, FilterValue | null>
   >({});
-  const [password, setPassword] = useState<string>("");
-  const [id, setID] = useState<string>("");
   const { data: fetchBookTicket } = useGetBookTicketByUserQuery(idUser || 0);
   const { data: film } = useFetchProductQuery();
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [dataBook, setDataBook] = useState([]);
   const [open, setOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState([]);
-  const showModal = (id_book_ticket: any) => {
-    setID(id_book_ticket);
-    setIsModalVisible(true);
-  };
+  const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const handleOpen = (record: any) => {
     setSelectedRecord(record);
     setOpen(true);
   };
   console.log(selectedRecord);
-
-  const handleOk = async () => {
-    try {
-      const res = await sendRefund({ password: password, id: id });
-      if (res?.error?.data?.message) {
-        message.error(res?.error?.data?.message);
-        setIsModalVisible(false);
-        return;
-      }
-      message.success("Thực hiện hoàn tiền thành công!");
-      setIsModalVisible(false);
-      setTimeout(() => {
-        setIsModalVisible(false);
-        window.location.reload();
-      }, 2000);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    // Thực hiện xử lý khi bấm Hủy
-  };
   const formatter = (value: number) =>
     `${value} Vn₫`.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const formatDate = (dateString: string) => {
     return moment(dateString).format("DD/MM/YYYY HH:mm:ss");
   };
-  const getUniqueValues = (dataList: string, key: any) => {
-    return Array.from(new Set(dataList?.data?.map((item: any) => item[key])));
+  const getUniqueValues = (dataList: any, key: any) => {
+    return Array.from(new Set((dataList as any)?.data?.map((item: any) => item[key])));
   };
   const columns: ColumnsType<DataType> = [
     {
@@ -101,7 +65,6 @@ const BookTicketUser = () => {
               open={open}
               onOk={() => setOpen(false)}
               onCancel={() => setOpen(false)}
-              visible={isModalVisible}
               width={1000}
               mask={true}
               okButtonProps={{
@@ -196,44 +159,7 @@ const BookTicketUser = () => {
                     ) : selectedRecord?.status?.status === "Quá Hạn" ? (
                       <Tag color="error">Quá Hạn</Tag>
                     ) : (
-                      <div>
-                        <Button
-                          style={{ backgroundColor: "#f04848", color: "#ffff" }}
-                          onClick={() =>
-                            showModal(+selectedRecord?.status?.id_book_ticket)
-                          }
-                        >
-                          Hoàn Tiền
-                        </Button>
-                        <Modal
-                          title="Xác Minh Hoàn Tiền"
-                          visible={isModalVisible}
-                          onOk={handleOk}
-                          onCancel={handleCancel}
-                          mask={true}
-                          okButtonProps={{
-                            style: {
-                              backgroundColor: "#007bff",
-                              color: "white",
-                            },
-                          }}
-                        >
-                          <h3 className="font-semibold text-red-600  text-lg my-4">
-                            LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70%
-                            giá tiền bạn đã đặt
-                          </h3>
-                          <h3 className="font-semibold text-red-600 text-lg my-4">
-                            Xác nhận mật khẩu để đồng ý hoàn vé!!
-                          </h3>
-                          <p>Nhập Mật Khẩu</p>
-                          <Input
-                            type="password"
-                            placeholder="Nhập mật khẩu"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                          />
-                        </Modal>
-                      </div>
+                      <Tag color="blue">Chưa Lấy Vé</Tag>
                     )}
                   </Descriptions.Item>
                 </Descriptions>
@@ -255,12 +181,12 @@ const BookTicketUser = () => {
       key: "name",
       align: "center",
       width: "10%",
-      filters: getUniqueValues(film as any, "name")?.map((item) => ({
-        text: item,
-        value: item,
+      filters: getUniqueValues(film as any, "name")?.map((item: any) => ({
+        text: String(item),
+        value: String(item),
       })),
       filteredValue: filteredInfo?.name || null,
-      onFilter: (value: string, record) => {
+      onFilter: (value: any, record) => {
         console.log(record);
         return (record as any).name?.name.includes(value);
       },
@@ -347,10 +273,10 @@ const BookTicketUser = () => {
         { text: "Đã Nhận Vé", value: "Đã Nhận Vé" },
         { text: "Đã Hủy", value: "Đã Hủy" },
         { text: "Quá Hạn", value: "Quá Hạn" },
-        { text: "Hoàn Tiền", value: "Hoàn Tiền" },
+        { text: "Chưa Lấy Vé", value: "Chưa Lấy Vé" },
       ],
       filteredValue: filteredInfo.status || null,
-      onFilter: (value: string, record) =>
+      onFilter: (value: any, record) =>
         (record as any).status.status === value,
       render: (text) => {
         if (text.status === "Đã Nhận Vé") {
@@ -362,41 +288,7 @@ const BookTicketUser = () => {
         if (text.status === "Quá Hạn") {
           return <Tag color="error">Quá Hạn</Tag>;
         }
-        return (
-          <div>
-            <Button
-              style={{ backgroundColor: "#f04848", color: "#ffff" }}
-              onClick={() => showModal(+text.id_book_ticket)}
-            >
-              Hoàn Tiền
-            </Button>
-            <Modal
-              title="Xác Minh Hoàn Tiền"
-              visible={isModalVisible}
-              onOk={handleOk}
-              onCancel={handleCancel}
-              mask={true}
-              okButtonProps={{
-                style: { backgroundColor: "#007bff", color: "white" },
-              }}
-            >
-              <h3 className="font-semibold text-red-600  text-lg my-4">
-                LƯU Ý: Nếu bạn hoàn tiền bạn sẽ chỉ được hoàn 70% giá tiền bạn
-                đã đặt
-              </h3>
-              <h3 className="font-semibold text-red-600 text-lg my-4">
-                Xác nhận mật khẩu để đồng ý hoàn vé!!
-              </h3>
-              <p>Nhập Mật Khẩu</p>
-              <Input
-                type="password"
-                placeholder="Nhập mật khẩu"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Modal>
-          </div>
-        );
+        return <Tag color="blue">Chưa Lấy Vé</Tag>;
       },
     },
   ];
@@ -406,7 +298,7 @@ const BookTicketUser = () => {
         let statusText = "";
         switch (bookticket.status) {
           case 0:
-            statusText = "Hoàn Tiền";
+            statusText = "Chưa Lấy Vé";
             break;
           case 1:
             statusText = "Đã Nhận Vé";
@@ -452,7 +344,7 @@ const BookTicketUser = () => {
     setDataBook(dataBookTicket);
   }, [fetchBookTicket]);
   const handleChange: TableProps<DataType>["onChange"] = (
-    pagination,
+    _pagination,
     filters
   ) => {
     console.log(filters);
