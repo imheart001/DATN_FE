@@ -15,6 +15,7 @@ import { formatter } from "../../utils/formatCurrency";
 import Recharge from "../../components/Clients/NapTien/naptien";
 import { useGetUserByIdQuery } from "../../service/book_ticket.service";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { resetTKinformation } from "../../components/CinemaSlice/selectSeat";
 interface Option {
   value: string;
   label: string;
@@ -81,8 +82,8 @@ const Header: React.FC = () => {
       key: "8",
       label: (
         <div className="">
-          {(IfUser as any)?.role === 1 ? (
-            <Link to="/admin">Admin</Link>
+          {(IfUser as any)?.role === 1 || (IfUser as any)?.role === 2 || (IfUser as any)?.role === 3 ? (
+            <a href="/admin">Admin</a>
           ) : (
             "User"
           )}
@@ -102,6 +103,7 @@ const Header: React.FC = () => {
             localStorage.clear();
             dispatch(updateToken(null)),
               dispatch(setUserId(null)),
+              dispatch(resetTKinformation()),
               setTimeout(() => {
                 navigate("/");
               }, 1000);
@@ -229,9 +231,9 @@ const Header: React.FC = () => {
               placement="bottomLeft"
               arrow={{ pointAtCenter: true }}
             >
-              <Link to={linkTo}>
+              <a href="/admin">
                 <img srcSet="/person-circle.png/ 1.2x" alt="" />
-              </Link>
+              </a>
             </Dropdown>
           )}
           {(IfUser as any)?.role === 3 && (
@@ -240,9 +242,9 @@ const Header: React.FC = () => {
               placement="bottomLeft"
               arrow={{ pointAtCenter: true }}
             >
-              <Link to={linkTo}>
+              <a href="/admin">
                 <img srcSet="/person-circle.png/ 1.2x" alt="" />
-              </Link>
+              </a>
             </Dropdown>
           )}
           {(IfUser as any)?.role === 1 && (
@@ -251,9 +253,9 @@ const Header: React.FC = () => {
               placement="bottomLeft"
               arrow={{ pointAtCenter: true }}
             >
-              <Link to={linkTo}>
+              <a href="/admin">
                 <img srcSet="/person-circle.png/ 1.2x" alt="" />
-              </Link>
+              </a>
             </Dropdown>
           )}
           {(IfUser as any)?.role === 0 && (

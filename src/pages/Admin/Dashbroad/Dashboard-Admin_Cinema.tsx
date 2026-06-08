@@ -211,12 +211,16 @@ export default function Dashbroad_Admin_Cinema() {
         {role === 1 && (
           <div className="flex items-center gap-3">
             <span className="font-semibold text-gray-700">Doanh thu theo rạp:</span>
-            <Select className="w-[250px]" onChange={handleSelectChange}>
+            <Select 
+              className="w-[250px]" 
+              value={cinemaId ? String(cinemaId) : "admin"}
+              onChange={handleSelectChange}
+            >
               <Select.Option key="demo" value="admin">
-                <Link to={"/admin"}>Doanh thu tổng</Link>
+                Doanh thu tổng
               </Select.Option>
-              {(cinemass as any)?.data.map((c: any) => (
-                <Select.Option key={c.id} value={c.id}>
+              {((cinemass as any)?.data || []).map((c: any) => (
+                <Select.Option key={c.id} value={String(c.id)}>
                   Doanh thu rạp {c.name}
                 </Select.Option>
               ))}
