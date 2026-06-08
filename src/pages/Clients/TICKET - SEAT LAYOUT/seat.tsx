@@ -1108,13 +1108,15 @@ const BookingSeat = () => {
                                 trigger={["hover", "click"]}
                                 placement="right"
                               >
-                                <span className="cursor-pointer hover:text-red-500 font-medium transition duration-200 block text-center">
-                                  {food.name}
-                                </span>
+                                <div className="cursor-pointer text-center select-none">
+                                  <span className="hover:text-red-500 font-medium transition duration-200 block">
+                                    {food.name}
+                                  </span>
+                                  <div className="text-[10px] text-gray-400 mt-1">
+                                    Còn lại: {food.quantity ?? 100} | <span className="text-red-500 font-semibold">Xem chi tiết</span>
+                                  </div>
+                                </div>
                               </Popover>
-                              <div className="text-[10px] text-gray-400 text-center mt-1">
-                                Còn lại: {food.quantity ?? 100} | <span className="text-red-500 font-semibold cursor-pointer">Xem chi tiết</span>
-                              </div>
                             </td>
                             <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
                               {formatter(food.price)}
