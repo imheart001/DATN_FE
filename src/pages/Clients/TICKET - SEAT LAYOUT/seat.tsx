@@ -1243,7 +1243,6 @@ const BookingSeat = () => {
                               </span>
                             </div>
                             <h3
-                              onClick={() => onHandleChooseVC(vc.id, vc.code)}
                               className={`${textClass} text-right font-semibold`}
                             >
                               {buttonText}

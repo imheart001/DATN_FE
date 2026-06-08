@@ -32,7 +32,7 @@ import {
   useRevenueByReleaseMutation,
 } from "../../../service/filmRelease.service";
 import { formatter } from "../../../utils/formatCurrency";
-import { compareDates } from "../../../utils";
+import { compareDates, compareReleaseDate } from "../../../utils";
 
 interface DataType {
   key: string;
@@ -173,11 +173,12 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         }}
         extra={
           <Space>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose} style={{ color: "#000000", borderColor: "#d9d9d9" }}>Cancel</Button>
             <Button
               danger
               type="primary"
               htmlType="submit"
+              style={{ backgroundColor: "#ff4d4f", borderColor: "#ff4d4f", color: "#ffffff" }}
               onClick={() => {
                 form.validateFields().then((values) => {
                   onFinish(values);
@@ -223,7 +224,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                   />
                   <label
                     htmlFor="update-image"
-                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
+                    className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition"
                   >
                     upload image
                   </label>
@@ -322,7 +323,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                   />
                   <label
                     htmlFor="update-image-poster"
-                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
+                    className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition"
                   >
                     upload image
                   </label>
@@ -456,8 +457,16 @@ const FilmReleasesSection: React.FC<{ filmId: string }> = ({ filmId }) => {
       title: "Trạng thái",
       key: "status",
       render: (_: any, record: any) => {
+        const isUpcoming = compareReleaseDate(record.release_date);
         const isActive = compareDates(record.release_date, record.end_date);
-        return <Tag color={isActive ? "green" : "default"}>{isActive ? "Đang chiếu" : "Đã kết thúc"}</Tag>;
+
+        if (isUpcoming && !isActive) {
+          return <Tag color="blue">Sắp chiếu</Tag>;
+        } else if (isActive) {
+          return <Tag color="green">Đang chiếu</Tag>;
+        } else {
+          return <Tag color="default">Đã kết thúc</Tag>;
+        }
       },
     },
     {
@@ -506,7 +515,7 @@ const FilmReleasesSection: React.FC<{ filmId: string }> = ({ filmId }) => {
         <Space>
           <Button
             type="primary"
-            style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
+            style={{ backgroundColor: "#52c41a", borderColor: "#52c41a", color: "#ffffff" }}
             onClick={handleLoadRevenue}
             loading={isLoadingRevenue}
             size="small"
@@ -516,6 +525,7 @@ const FilmReleasesSection: React.FC<{ filmId: string }> = ({ filmId }) => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
+            style={{ backgroundColor: "#1677ff", borderColor: "#1677ff", color: "#ffffff" }}
             onClick={() => setIsModalOpen(true)}
             size="small"
           >
@@ -624,6 +634,12 @@ const FilmReleasesSection: React.FC<{ filmId: string }> = ({ filmId }) => {
         confirmLoading={isAdding}
         okText="Tạo đợt chiếu"
         cancelText="Hủy"
+        okButtonProps={{
+          style: { backgroundColor: "#1677ff", borderColor: "#1677ff", color: "#ffffff" }
+        }}
+        cancelButtonProps={{
+          style: { color: "#000000", borderColor: "#d9d9d9" }
+        }}
       >
         <Form form={releaseForm} layout="vertical">
           <Form.Item
