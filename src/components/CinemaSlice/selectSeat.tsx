@@ -35,7 +35,7 @@ const TKinformationSlice = createSlice({
     setChangePoint: (state, action) => {
       state.point = action.payload;
     },
-    clearTKinformation: (state) => {
+    resetTKinformation: (state) => {
       state.selectedSeats = [];
       state.showtimeId = null;
       state.totalPrice = 0;
@@ -55,7 +55,7 @@ export const {
   setChooseVoucher,
   setChangePoint,
   setTotalPriceSeat,
-  clearTKinformation,
+  resetTKinformation,
 } = TKinformationSlice.actions;
 
 export default TKinformationSlice.reducer;

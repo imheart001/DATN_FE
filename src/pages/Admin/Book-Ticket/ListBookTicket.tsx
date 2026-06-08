@@ -326,7 +326,7 @@ const ListBookTicket: React.FC = () => {
             ) : null}
             <div title="Chi tiết">
               <Button
-                style={{ backgroundColor: "#f04848", color: "#ffff" }}
+                style={{ backgroundColor: "#f04848", color: "#ffffff" }}
                 onClick={() => handleOpen(record)}
               >
                 chi tiết
@@ -474,7 +474,7 @@ const ListBookTicket: React.FC = () => {
                         <Button
                           style={{
                             backgroundColor: "#f04848",
-                            color: "#ffff",
+                            color: "#ffffff",
                             width: "150px",
                           }} // Điều chỉnh giá trị width tùy theo nhu cầu của bạn
                           className="mr-10 group relative inline-block text-sm font-medium  focus:outline-none focus:ring active:text-red-500"

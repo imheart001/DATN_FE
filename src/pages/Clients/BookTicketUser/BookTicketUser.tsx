@@ -55,7 +55,7 @@ const BookTicketUser = () => {
         return (
           <div>
             <Button
-              style={{ backgroundColor: "#f04848", color: "#ffff" }}
+              style={{ backgroundColor: "#f04848", color: "#ffffff" }}
               onClick={() => handleOpen(record)}
             >
               Xem chi tiết
