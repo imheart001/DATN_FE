@@ -29,19 +29,23 @@ const CommentFilm: React.FC<CommentFilmProps> = ({ dataidfilm }) => {
       const response = await addComentFilm(dataAddComment);
       console.log(response);
 
-      if ((response as any).data.data) {
+      if ((response as any)?.data?.data) {
         message.success("Bình luận thành công");
-      }
-      if (
-        (response as any).data.message ==
-        "Mỗi khách hàng chỉ được đánh giá 1 lần"
-      ) {
-        message.error("Mỗi khách hàng chỉ được đánh giá 1 lần");
+        form.resetFields();
       } else {
-        message.error("Bình luận thất bại:");
+        const errorData = (response as any)?.error?.data;
+        const errorMessage = errorData?.message || errorData?.error || (response as any)?.data?.message;
+        
+        if (errorMessage === "Mỗi khách hàng chỉ được đánh giá 1 lần") {
+          message.error("Mỗi khách hàng chỉ được đánh giá 1 lần");
+        } else if (errorMessage) {
+          message.error(errorMessage);
+        } else {
+          message.error("Bình luận thất bại");
+        }
       }
     } catch (errInfo) {
-      message.error("Bình luận thất bại:");
+      message.error("Bình luận thất bại");
     }
   };
 
