@@ -19,6 +19,8 @@ interface DataType {
   name: string;
   image: string;
   price: number;
+  description?: string;
+  quantity?: number;
 }
 
 const { Search } = Input;
@@ -72,6 +74,20 @@ const ListFood: React.FC = () => {
       render: (text) => <span>{formatter(Number(text))}</span>,
     },
     {
+      title: "Mô tả / Combo gồm",
+      dataIndex: "description",
+      key: "description",
+      width: "25%",
+      ellipsis: true,
+    },
+    {
+      title: "Số lượng còn",
+      dataIndex: "quantity",
+      key: "quantity",
+      align: "center",
+      render: (text) => <span>{text ?? 100}</span>,
+    },
+    {
       render: (_, record) => {
         if (role === 1) {
           return (
@@ -110,12 +126,14 @@ const ListFood: React.FC = () => {
     name: food?.name,
     image: food?.image,
     price: food?.price,
+    description: food?.description,
+    quantity: food?.quantity,
     //   tags: [food.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
   }));
   console.log("🚀 ~ file: ListFood.tsx:92 ~ dataFood ~ dataFood:", dataFood);
   const [dataList, setDataList] = useState<any>(null);
   const handleChange: TableProps<DataType>["onChange"] = (
-    pagination,
+    _pagination,
     filters
   ) => {
     setFilteredInfo(filters);

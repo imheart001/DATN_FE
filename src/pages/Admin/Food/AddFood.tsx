@@ -195,6 +195,46 @@ const AddFood: React.FC = () => {
                 <Input placeholder="Giá tiền" />
               </Form.Item>
             </Col>
+
+            <Col span={12}>
+              <Form.Item
+                name="quantity"
+                label="Số lượng nhập kho"
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  {
+                    validator: (_, value) => {
+                      if (isNaN(value)) {
+                        return Promise.reject("Vui lòng nhập một số hợp lệ");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                  {
+                    validator: (_, value) => {
+                      if (value < 0) {
+                        return Promise.reject("Số lượng không thể là số âm");
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                initialValue={100}
+              >
+                <Input placeholder="Số lượng" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={24}>
+              <Form.Item
+                name="description"
+                label="Mô tả chi tiết (Các thành phần trong Combo)"
+              >
+                <Input.TextArea rows={4} placeholder="Ví dụ: 1 Bắp ngọt lớn + 1 Nước ngọt Coca Cola 22oz" />
+              </Form.Item>
+            </Col>
           </Row>
         </Form>
       </Drawer>

@@ -3,7 +3,7 @@ import Header from "../../../Layout/LayoutUser/Header";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useFetchChairsQuery } from "../../../service/chairs.service";
 import { useGetAllDataShowTimeByIdQuery } from "../../../service/show.service";
-import { Button, Col, InputNumber, Row, Space, Statistic, message } from "antd";
+import { Button, Col, InputNumber, Row, Space, Statistic, message, Tooltip, Popover } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../../../components/isLoading/Loading";
 import Pusher from "pusher-js";
@@ -1091,8 +1091,30 @@ const BookingSeat = () => {
                                 className="w-[50px] bg-[#F3F3F3] h-[50px]"
                               />
                             </td>
-                            <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
-                              {food.name}
+                            <td className="whitespace-nowrap text-left px-4 py-2 text-gray-700">
+                              <Popover
+                                content={
+                                  <div className="max-w-[280px]">
+                                    <p className="font-semibold text-red-600 mb-1">{food.name}</p>
+                                    <p className="text-gray-600 text-xs mb-2">
+                                      {food.description || "Không có mô tả chi tiết."}
+                                    </p>
+                                    <p className="text-gray-500 text-[11px] font-medium border-t pt-1">
+                                      Kho hàng còn lại: <span className="font-bold text-gray-700">{food.quantity ?? 100}</span>
+                                    </p>
+                                  </div>
+                                }
+                                title="Chi tiết sản phẩm"
+                                trigger={["hover", "click"]}
+                                placement="right"
+                              >
+                                <span className="cursor-pointer hover:text-red-500 font-medium transition duration-200 block text-center">
+                                  {food.name}
+                                </span>
+                              </Popover>
+                              <div className="text-[10px] text-gray-400 text-center mt-1">
+                                Còn lại: {food.quantity ?? 100} | <span className="text-red-500 font-semibold cursor-pointer">Xem chi tiết</span>
+                              </div>
                             </td>
                             <td className="whitespace-nowrap text-center  px-4 py-2 text-gray-700">
                               {formatter(food.price)}
@@ -1142,9 +1164,13 @@ const BookingSeat = () => {
                                     type="button"
                                     className="w-10 h-10 leading-10 text-gray-600 transition hover:opacity-75"
                                     onClick={() => {
-                                      if (
-                                        foodQuantitiesUI[food.id]?.quantity > 9
-                                      ) {
+                                      const currentQty = foodQuantitiesUI[food.id]?.quantity || 0;
+                                      const stock = food.quantity ?? 100;
+                                      if (currentQty >= stock) {
+                                        message.warning(
+                                          `Sản phẩm này chỉ còn lại ${stock} trong kho!`
+                                        );
+                                      } else if (currentQty >= 10) {
                                         message.warning(
                                           "Bạn chỉ được mua tối đa 10 sản phẩm/đặt vé"
                                         );
@@ -1157,7 +1183,7 @@ const BookingSeat = () => {
                                       }
                                     }}
                                     disabled={
-                                      foodQuantitiesUI[food.id]?.quantity > 10
+                                      (foodQuantitiesUI[food.id]?.quantity || 0) >= Math.min(10, food.quantity ?? 100)
                                     }
                                   >
                                     +
