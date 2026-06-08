@@ -18,7 +18,7 @@ import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchTimeQuery } from "../../../service/time.service";
 import { IFilms, IMovieRoom, ITime } from "../../../interface/model";
 import { useUpdateShowTimeMutation } from "../../../service/show.service";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 
 interface DataType {
@@ -43,27 +43,28 @@ const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
   useEffect(() => {
     if (dataShow) {
       form.setFieldsValue({
-        date: moment(dataShow.date),
+        date: dayjs(dataShow.date),
         time_id: dataShow.time_id,
         film_id: dataShow.film_id,
         room_id: dataShow.room_id,
       });
     }
   }, [dataShow]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFinish = async (values: any) => {
     console.log("🚀 ~ file: EditShow.tsx:55 ~ onFinish ~ values:", values)
     try {
       values.date = values.date.format("YYYY-MM-DD");
-      await updateShowTime({ ...values, id: dataShow.id });
+      await updateShowTime({ ...values, id: dataShow.id }).unwrap();
       console.log(values);
       message.success("Cập nhật sản phẩm thành công");
 
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       navigate("/admin/show");
-    } catch (error) {
-      message.error("Cập nhật sản phẩm thất bại");
+    } catch (error: any) {
+      console.error(error);
+      const errMsg = error?.data?.error?.date?.[0] || error?.data?.message || "Cập nhật sản phẩm thất bại";
+      message.error(errMsg);
     }
   };
   const [open, setOpen] = useState(false);

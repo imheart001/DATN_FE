@@ -19,7 +19,7 @@ import {
 } from "antd";
 import { useUpdateProductMutation } from "../../../service/films.service";
 import { useNavigate } from "react-router-dom";
-import moment from "moment";
+import dayjs from "dayjs";
 import { FOLDER_NAME } from "../../../configs/config";
 import { uploadImageApi } from "../../../apis/upload-image.api";
 import {
@@ -62,8 +62,8 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         name: dataID.nameFilm,
         trailer: dataID.trailer,
         time: dataID.time,
-        release_date: moment(dataID.dateSt), // Sử dụng thư viện moment để xử lý ngày
-        end_date: moment(dataID.dateEnd),
+        release_date: dayjs(dataID.dateSt), // Sử dụng thư viện dayjs để xử lý ngày
+        end_date: dayjs(dataID.dateEnd),
         description: dataID.description,
         limit_age: dataID.limit_age,
         poster: dataID.poster,
@@ -76,15 +76,17 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
     try {
       values.release_date = values.release_date.format("YYYY-MM-DD");
       values.end_date = values.end_date.format("YYYY-MM-DD");
-      await updateProduct({ ...values, id: dataID.name, image: linkImage, poster: uploadPoster });
+      await updateProduct({ ...values, id: dataID.name, image: linkImage, poster: uploadPoster }).unwrap();
 
       message.success("Cập nhật sản phẩm thành công");
 
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
       navigate("/admin/listfilm");
-    } catch (error) {
-      message.error("Cập nhật sản phẩm thất bại");
+    } catch (error: any) {
+      console.error(error);
+      const errMsg = error?.data?.error?.name?.[0] || error?.data?.message || "Cập nhật sản phẩm thất bại";
+      message.error(errMsg);
     }
   };
   const [open, setOpen] = useState(false);
