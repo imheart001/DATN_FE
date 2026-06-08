@@ -9,6 +9,7 @@ import {
   Legend,
   Pie,
   PieChart,
+  ResponsiveContainer,
 } from "recharts";
 
 import { format } from "date-fns";
@@ -233,323 +234,338 @@ export default function Dashbroad() {
     }
   };
   return (
-    <>
-      <ChooseTime
-        day={day}
-        setDay={setDay}
-        setMonth={setMonth}
-        month={month}
-        setYear={setYear}
-        year={year}
-      />
-      <span className="ml-10 mr-4">Doanh thu theo rạp:</span>
-      <Select className="w-[20%]" onChange={handleSelectChange}>
-        <Select.Option key="demo" value="admin">
-          <Link to={"/admin"}>Doanh thu tổng</Link>
-        </Select.Option>
-        {(cinemass as any)?.data.map((c: any) => (
-          <Select.Option key={c.id} value={c.id}>
-            Doanh thu rạp {c.name}
-          </Select.Option>
-        ))}
-      </Select>
-      <h1 className="text-center pt-4 text-xl pb-10 mb-10 block font-bold uppercase text-red-600 border-b-2 border-red-600">
-        -- Dashbroad Admin Tổng --
-      </h1>
-      <RevenueDayMonYear data={dataAlastic as any} />
-      <div className="grid-cols-3 grid mt-10 max-w-full">
-        <div className="overflow-y-auto h-[450px] col-span-2 space-y-20 w-[750px]">
-          <div>
-            <h3 className="mx-auto mb-4 text-center uppercase font-semibold">
-              Doanh thu các rạp theo ngày tháng hiện tại{" "}
-            </h3>
-            <LineChart
-              width={700}
-              height={400}
-              data={transformedDataByDay}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis
-                tickFormatter={(value) => formatCurrency(value as number)}
-              />
-              <Tooltip formatter={(value) => formatCurrency(value as number)} />
-              <Legend />
-              {(cinemas as any).map((cinema: any, index: any) => (
-                <Line
-                  key={index}
-                  type="monotone"
-                  dataKey={cinema}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                    16
-                  )}`}
-                  activeDot={{ r: 8 }}
-                />
-              ))}
-            </LineChart>
-          </div>
-          <div>
-            <div className="flex items-center mb-6 justify-center space-x-4">
-              <img
-                width="60"
-                height="60"
-                src="https://img.icons8.com/external-smashingstocks-outline-color-smashing-stocks/66/external-Chair-stationery-smashingstocks-outline-color-smashing-stocks.png"
-                alt="external-Chair-stationery-smashingstocks-outline-color-smashing-stocks"
-              />
-              <h3 className="mx-auto text-center uppercase font-semibold">
-                Tổng Doanh thu ghế các rạp theo ngày trong tháng {month}/{year}{" "}
-              </h3>
-            </div>
-            <LineChart
-              width={700}
-              height={400}
-              data={RevenueByCinemaDataPriceChairByDay}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis
-                tickFormatter={(value) => formatCurrency(value as number)}
-              />
-              <Tooltip formatter={(value) => formatCurrency(value as number)} />
-              <Legend />
-              {(cinemas as any).map((cinema: any, index: any) => (
-                <Line
-                  key={index}
-                  type="monotone"
-                  dataKey={cinema}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                    16
-                  )}`}
-                  activeDot={{ r: 8 }}
-                />
-              ))}
-            </LineChart>
-          </div>
-          <div>
-            <div className="flex items-center mb-4 space-x-4 justify-center">
-              <img
-                width="50"
-                height="50"
-                src="https://img.icons8.com/external-icongeek26-outline-colour-icongeek26/64/external-popcorn-cinema-icongeek26-outline-colour-icongeek26.png"
-                alt="external-popcorn-cinema-icongeek26-outline-colour-icongeek26"
-              />
-              <h3 className="mx-auto text-center uppercase font-semibold">
-                Tổng Doanh thu bỏng nước theo ngày của các rạp ngày trong tháng{" "}
-                {month}/{year}{" "}
-              </h3>
-            </div>
-            <LineChart
-              width={700}
-              height={400}
-              data={RevenueByCinemaDataPriceFoodByDay}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis
-                tickFormatter={(value) => formatCurrency(value as number)}
-              />
-              <Tooltip formatter={(value) => formatCurrency(value as number)} />
-              <Legend />
-              {(cinemas as any).map((cinema: any, index: any) => (
-                <Line
-                  key={index}
-                  type="monotone"
-                  dataKey={cinema}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                    16
-                  )}`}
-                  activeDot={{ r: 8 }}
-                />
-              ))}
-            </LineChart>
-          </div>
-          <div className="">
-            <h3 className="mx-auto text-center uppercase font-semibold">
-              Tổng Doanh thu các rạp theo tháng năm {year}{" "}
-            </h3>
-            <LineChart
-              width={700}
-              className="p-4"
-              height={400}
-              data={chartData}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
-              <YAxis
-                tickFormatter={(value) => formatCurrency(value as number)}
-              />
-              <Tooltip formatter={(value) => formatCurrency(value as number)} />
-              <Legend />
-              {(cinemas as any).map((cinema: any, index: any) => (
-                <Line
-                  key={index}
-                  type="monotone"
-                  dataKey={cinema}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                    16
-                  )}`}
-                  activeDot={{ r: 8 }}
-                />
-              ))}
-            </LineChart>
-          </div>
-
-          <div className="">
-            <div className="flex items-center justify-center space-x-4">
-              <img
-                width="66"
-                height="66"
-                src="https://img.icons8.com/external-smashingstocks-outline-color-smashing-stocks/66/external-Chair-stationery-smashingstocks-outline-color-smashing-stocks.png"
-                alt="external-Chair-stationery-smashingstocks-outline-color-smashing-stocks"
-              />
-              <h3 className="mx-auto text-center uppercase font-semibold">
-                Tổng Doanh thu ghế các rạp theo tháng năm 2023{" "}
-              </h3>
-            </div>
-            <LineChart
-              width={700}
-              className="p-4"
-              height={400}
-              data={chartDataChairMonByCinema}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
-              <YAxis
-                tickFormatter={(value) => formatCurrency(value as number)}
-              />
-              <Tooltip formatter={(value) => formatCurrency(value as number)} />
-              <Legend />
-              {(cinemas as any).map((cinema: any, index: any) => (
-                <Line
-                  key={index}
-                  type="monotone"
-                  dataKey={cinema}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                    16
-                  )}`}
-                  activeDot={{ r: 8 }}
-                />
-              ))}
-            </LineChart>
-          </div>
-
-          <div className="">
-            <div className="flex items-center space-x-4 justify-center">
-              <img
-                width="50"
-                height="50"
-                src="https://img.icons8.com/external-icongeek26-outline-colour-icongeek26/64/external-popcorn-cinema-icongeek26-outline-colour-icongeek26.png"
-                alt="external-popcorn-cinema-icongeek26-outline-colour-icongeek26"
-              />
-              <h3 className="mx-auto text-center uppercase font-semibold">
-                Tổng Doanh thu bỏng nước theo tháng của từng rạp{" "}
-              </h3>
-            </div>
-            <LineChart
-              width={700}
-              className="p-4"
-              height={400}
-              data={chartDataFoodMonByCinema}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
-              <YAxis
-                tickFormatter={(value) => formatCurrency(value as number)}
-              />
-              <Tooltip formatter={(value) => formatCurrency(value as number)} />
-              <Legend />
-              {(cinemas as any).map((cinema: any, index: any) => (
-                <Line
-                  key={index}
-                  type="monotone"
-                  dataKey={cinema}
-                  stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                    16
-                  )}`}
-                  activeDot={{ r: 8 }}
-                />
-              ))}
-            </LineChart>
-          </div>
-        </div>
-        <div className="col-span-1 my-10">
-          <h3 className="mx-auto text-center uppercase font-semibold">
-            Tổng Doanh thu theo năm của Các rạp trong năm {year}
-          </h3>
-          <PieChart width={1000} height={400}>
-            <Pie
-              dataKey="value"
-              isAnimationActive={false}
-              data={dataForPieChart}
-              cx={200}
-              cy={200}
-              outerRadius={80}
-              label={(props) => {
-                const percentage = (props.percent * 100).toFixed(2);
-                return (
-                  <text
-                    x={props.x}
-                    y={props.y}
-                    fill={props.fill}
-                    textAnchor={props.textAnchor}
-                  >
-                    <tspan x={props.x} dx="0px" dy="0px">
-                      {props.name}
-                    </tspan>
-                    <tspan x={props.x} dx="0px" dy="1.2em">
-                      {formatCurrency(props.value)}
-                    </tspan>
-                    <tspan x={props.x} dy="-40px" fontSize="14" fill="red">
-                      {percentage}%
-                    </tspan>
-                  </text>
-                );
-              }}
-            />
-            <Tooltip formatter={(value) => formatCurrency(value as number)} />
-          </PieChart>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Top Filter and Actions Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+        <ChooseTime
+          day={day}
+          setDay={setDay}
+          setMonth={setMonth}
+          month={month}
+          setYear={setYear}
+          year={year}
+        />
+        <div className="flex items-center gap-3">
+          <span className="font-semibold text-gray-700">Doanh thu theo rạp:</span>
+          <Select className="w-[250px]" onChange={handleSelectChange}>
+            <Select.Option key="demo" value="admin">
+              <Link to={"/admin"}>Doanh thu tổng</Link>
+            </Select.Option>
+            {(cinemass as any)?.data.map((c: any) => (
+              <Select.Option key={c.id} value={c.id}>
+                Doanh thu rạp {c.name}
+              </Select.Option>
+            ))}
+          </Select>
         </div>
       </div>
-      <div className="grid bg-[#F0F2F5] p-10 grid-cols-2 gap-10 h-[500px] overflow-y-auto">
-        <div className="">
+
+      <h1 className="text-center pt-4 text-2xl pb-6 mb-8 block font-bold uppercase text-red-600 border-b-2 border-red-500 tracking-wide">
+        -- Dashboard Admin Tổng --
+      </h1>
+
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+        <RevenueDayMonYear data={dataAlastic as any} />
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10 w-full">
+        {/* Line Charts Column */}
+        <div className="lg:col-span-2 space-y-8 w-full">
+          {/* Chart 1: Doanh thu các rạp theo ngày */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+              Doanh thu các rạp theo ngày tháng hiện tại
+            </h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart
+                data={transformedDataByDay}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis
+                  tickFormatter={(value) => formatCurrency(value as number)}
+                />
+                <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                <Legend />
+                {(cinemas as any).map((cinema: any, index: any) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey={cinema}
+                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                      16
+                    )}`}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Chart 2: Doanh thu ghế theo ngày */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div className="flex items-center mb-6 justify-center gap-3">
+              <img
+                width="32"
+                height="32"
+                src="https://img.icons8.com/external-smashingstocks-outline-color-smashing-stocks/66/external-Chair-stationery-smashingstocks-outline-color-smashing-stocks.png"
+                alt="chair-icon"
+              />
+              <h3 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+                Tổng Doanh thu ghế các rạp theo ngày trong tháng {month}/{year}
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart
+                data={RevenueByCinemaDataPriceChairByDay}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis
+                  tickFormatter={(value) => formatCurrency(value as number)}
+                />
+                <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                <Legend />
+                {(cinemas as any).map((cinema: any, index: any) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey={cinema}
+                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                      16
+                    )}`}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Chart 3: Doanh thu bỏng nước theo ngày */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div className="flex items-center mb-6 justify-center gap-3">
+              <img
+                width="32"
+                height="32"
+                src="https://img.icons8.com/external-icongeek26-outline-colour-icongeek26/64/external-popcorn-cinema-icongeek26-outline-colour-icongeek26.png"
+                alt="popcorn-icon"
+              />
+              <h3 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+                Tổng Doanh thu bỏng nước theo ngày của các rạp ngày trong tháng {month}/{year}
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart
+                data={RevenueByCinemaDataPriceFoodByDay}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis
+                  tickFormatter={(value) => formatCurrency(value as number)}
+                />
+                <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                <Legend />
+                {(cinemas as any).map((cinema: any, index: any) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey={cinema}
+                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                      16
+                    )}`}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Chart 4: Doanh thu các rạp theo tháng */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+              Tổng Doanh thu các rạp theo tháng năm {year}
+            </h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
+                <YAxis
+                  tickFormatter={(value) => formatCurrency(value as number)}
+                />
+                <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                <Legend />
+                {(cinemas as any).map((cinema: any, index: any) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey={cinema}
+                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                      16
+                    )}`}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Chart 5: Doanh thu ghế theo tháng */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div className="flex items-center mb-6 justify-center gap-3">
+              <img
+                width="32"
+                height="32"
+                src="https://img.icons8.com/external-smashingstocks-outline-color-smashing-stocks/66/external-Chair-stationery-smashingstocks-outline-color-smashing-stocks.png"
+                alt="chair-icon"
+              />
+              <h3 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+                Tổng Doanh thu ghế các rạp theo tháng năm {year}
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={chartDataChairMonByCinema} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
+                <YAxis
+                  tickFormatter={(value) => formatCurrency(value as number)}
+                />
+                <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                <Legend />
+                {(cinemas as any).map((cinema: any, index: any) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey={cinema}
+                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                      16
+                    )}`}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Chart 6: Doanh thu bỏng nước theo tháng */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div className="flex items-center mb-6 justify-center gap-3">
+              <img
+                width="32"
+                height="32"
+                src="https://img.icons8.com/external-icongeek26-outline-colour-icongeek26/64/external-popcorn-cinema-icongeek26-outline-colour-icongeek26.png"
+                alt="popcorn-icon"
+              />
+              <h3 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+                Tổng Doanh thu bỏng nước theo tháng của từng rạp năm {year}
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={chartDataFoodMonByCinema} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" padding={{ left: 30, right: 30 }} />
+                <YAxis
+                  tickFormatter={(value) => formatCurrency(value as number)}
+                />
+                <Tooltip formatter={(value) => formatCurrency(value as number)} />
+                <Legend />
+                {(cinemas as any).map((cinema: any, index: any) => (
+                  <Line
+                    key={index}
+                    type="monotone"
+                    dataKey={cinema}
+                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
+                      16
+                    )}`}
+                    activeDot={{ r: 8 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Pie Chart Column (Sticks to right on desktop) */}
+        <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-fit">
+          <h3 className="mb-6 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+            Tổng Doanh thu theo năm của Các rạp trong năm {year}
+          </h3>
+          <ResponsiveContainer width="100%" height={380}>
+            <PieChart>
+              <Pie
+                dataKey="value"
+                isAnimationActive={false}
+                data={dataForPieChart}
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                label={(props) => {
+                  const percentage = (props.percent * 100).toFixed(2);
+                  return (
+                    <text
+                      x={props.x}
+                      y={props.y}
+                      fill={props.fill}
+                      textAnchor={props.textAnchor}
+                    >
+                      <tspan x={props.x} dx="0px" dy="0px">
+                        {props.name}
+                      </tspan>
+                      <tspan x={props.x} dx="0px" dy="1.2em">
+                        {formatCurrency(props.value)}
+                      </tspan>
+                      <tspan x={props.x} dy="-40px" fontSize="14" fill="red">
+                        {percentage}%
+                      </tspan>
+                    </text>
+                  );
+                }}
+              />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Grid for tables - Natural height, no nested scroll */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 bg-gray-100 p-6 rounded-xl mt-12 border border-gray-200">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <RevenueFilmInDay data={dataRevenueFilmInDay} />
         </div>
-        <div className="">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <RevenueFilmInMon data={dataTopRevenaFilmInMon} />
         </div>
-        <div className="">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <Top5User data={dataTop5Friendly} />
         </div>
-
-        <div className="">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <VocuherByUserAnalytics data={dataUsedByUser} />
         </div>
-
-        <div className="">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <TicketDayByUser data={dataDayTicketCheckByStaff} />
         </div>
-        <div className="">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <TicketMonByUser data={dataMonTicketCheckByStaff} />
         </div>
       </div>
-    </>
+    </div>
   );
 }
