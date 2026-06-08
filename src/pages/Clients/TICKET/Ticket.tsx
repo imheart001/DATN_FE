@@ -221,7 +221,9 @@ const Ticket: React.FC = () => {
                         </Link>
                       </h3>
                       <div className="flex w-[200px] items-center space-x-5 text-[11px] text-[#8E8E8E]">
-                        <span>{cate?.category_names}</span>
+                        <span className="truncate inline-block max-w-[130px]" title={cate?.category_names}>
+                          {cate?.category_names}
+                        </span>
                         <span className="flex items-center space-x-2">
                           <span>{avgFilm?.star}</span>
                           {avgFilm?.star ? (
