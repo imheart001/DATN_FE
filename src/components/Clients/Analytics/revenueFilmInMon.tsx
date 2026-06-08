@@ -8,8 +8,6 @@ interface DataType {
   film_name: string;
   TotalAmount: string;
   TotalTickets: string;
-  RefundAmount: number;
-  RefundTickets: number;
 }
 
 const columns: ColumnsType<DataType> = [
@@ -17,7 +15,7 @@ const columns: ColumnsType<DataType> = [
     title: "Stt",
     dataIndex: "key",
     align: "center",
-    render: (text, record, index) => <span>{index + 1}</span>,
+    render: (_, __, index) => <span>{index + 1}</span>,
     width: "10%",
   },
   {
@@ -41,24 +39,6 @@ const columns: ColumnsType<DataType> = [
     align: "center",
     render: (text) => <a>{text} vé</a>,
     width: "15%",
-    // render: (text) => <span>{formatter(Number(text))}</span>,
-  },
-  {
-    title: "Tổng vé đã hoàn",
-    className: "column-money",
-    dataIndex: "RefundTickets",
-    align: "center",
-    render: (text) => <a>{text} vé</a>,
-    width: "15%",
-    // render: (text) => <span>{formatter(Number(text))}</span>,
-  },
-  {
-    title: "Doanh thu vé hoàn",
-    className: "column-money",
-    dataIndex: "RefundAmount",
-    align: "center",
-    render: (text) => <span>{formatter(Number(text))}</span>,
-    width: "16%",
     // render: (text) => <span>{formatter(Number(text))}</span>,
   },
 ];
