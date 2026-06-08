@@ -35,6 +35,15 @@ const TKinformationSlice = createSlice({
     setChangePoint: (state, action) => {
       state.point = action.payload;
     },
+    clearTKinformation: (state) => {
+      state.selectedSeats = [];
+      state.showtimeId = null;
+      state.totalPrice = 0;
+      state.totalPriceSeat = 0;
+      state.comboFoods = [];
+      state.chooseVoucher = "";
+      state.point = 0;
+    },
   },
 });
 
@@ -46,6 +55,7 @@ export const {
   setChooseVoucher,
   setChangePoint,
   setTotalPriceSeat,
+  clearTKinformation,
 } = TKinformationSlice.actions;
 
 export default TKinformationSlice.reducer;

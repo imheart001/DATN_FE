@@ -155,7 +155,9 @@ const BookingSeat = () => {
     dispatch(setChooseVoucher(voucherCode));
   };
 
-  dispatch(setComboFoods(foodQuantities));
+  useEffect(() => {
+    dispatch(setComboFoods(foodQuantities));
+  }, [foodQuantities, dispatch]);
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(0);
   const [choosePayment, setChoosePayment] = useState(1);
@@ -529,7 +531,9 @@ const BookingSeat = () => {
   // if (moneyByPoint) {
   //   setDiscountedPoint(moneyByPoint);
   // }
-  dispatch(setChangePoint(point));
+  useEffect(() => {
+    dispatch(setChangePoint(point));
+  }, [point, dispatch]);
 
   const moneyByPoint = useSelector((state: any) => state.TKinformation?.point);
 
@@ -609,18 +613,20 @@ const BookingSeat = () => {
     price: seat.price,
   }));
 
-  dispatch(setSelectSeats(seatNames));
-  dispatch(setShowtimeId(id));
-  if (point) {
-    const moneyTotal1 =
-      totalMoney + totalComboAmount - discountedAmount - point;
-    dispatch(setTotalPrice(moneyTotal1));
-    dispatch(setTotalPriceSeat(totalMoney));
-  } else {
-    const moneyTotal2 = totalMoney + totalComboAmount - discountedAmount;
-    dispatch(setTotalPrice(moneyTotal2));
-    dispatch(setTotalPriceSeat(totalMoney));
-  }
+  useEffect(() => {
+    dispatch(setSelectSeats(seatNames));
+    dispatch(setShowtimeId(id));
+    if (point) {
+      const moneyTotal1 =
+        totalMoney + totalComboAmount - discountedAmount - point;
+      dispatch(setTotalPrice(moneyTotal1));
+      dispatch(setTotalPriceSeat(totalMoney));
+    } else {
+      const moneyTotal2 = totalMoney + totalComboAmount - discountedAmount;
+      dispatch(setTotalPrice(moneyTotal2));
+      dispatch(setTotalPriceSeat(totalMoney));
+    }
+  }, [seatNames, id, point, totalMoney, totalComboAmount, discountedAmount, dispatch]);
 
   if (isLoading) {
     return <Loading />; // Hoặc bạn có thể hiển thị thông báo "Loading" hoặc hiển thị một spinner

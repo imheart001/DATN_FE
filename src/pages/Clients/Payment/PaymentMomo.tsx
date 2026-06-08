@@ -1,9 +1,9 @@
 import { Button, Result, QRCode } from "antd";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   useAddChairsMutation,
   useFetchChairsQuery,
@@ -18,9 +18,12 @@ import { useSendEmailMutation } from "../../../service/sendEmail.service";
 import { useUsed_VC_ByUserIdMutation } from "../../../service/voucher.service";
 import { useDiscountPointMutation } from "../../../service/member.service";
 import { API_BASE_URL } from "../../../service/api.config";
+import { clearTKinformation } from "../../../components/CinemaSlice/selectSeat";
 
 const PaymentMomo: React.FC = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const isProcessing = useRef(false);
 
   const { data: allchairbked } = useFetchChairsQuery();
   const [addIfSeatByUser] = useAddBookTicketMutation();
@@ -95,6 +98,8 @@ const PaymentMomo: React.FC = () => {
       setVnp_TransactionStatus(TransactionStatus);
 
       if (!addChairCalled && vnp_TransactionStatus == "0") {
+        if (isProcessing.current) return;
+        isProcessing.current = true;
         const matchingSeats = (allchairbked as any)?.filter((chair: any) => {
           console.log(chair.seat);
 
@@ -162,7 +167,9 @@ const PaymentMomo: React.FC = () => {
 
             setAddChairCalled(true);
             localStorage.removeItem("foodQuantities");
+            dispatch(clearTKinformation());
           } catch (error) {
+            isProcessing.current = false;
             console.error(error);
           }
         }

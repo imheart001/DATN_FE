@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Button, Input, Modal, message } from "antd";
+import { Input, Modal, message } from "antd";
 import { usePaymentCoinsMutation } from "../../../service/usecoin.service";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useAddBookTicketMutation } from "../../../service/book_ticket.service";
 import { useAddFoodTicketDetailMutation } from "../../../service/food.service";
 import { useSendEmailMutation } from "../../../service/sendEmail.service";
@@ -10,9 +10,8 @@ import { useAddChairsMutation } from "../../../service/chairs.service";
 import { useDiscountPointMutation } from "../../../service/member.service";
 import { format } from "date-fns";
 import * as moment from "moment-timezone";
-import Loading from "../../../components/isLoading/Loading";
-import ResultPaymentCoin from "../../../components/Clients/ResultPaymentCoin/ResultPaymentCoin";
 import { useNavigate } from "react-router-dom";
+import { clearTKinformation } from "../../../components/CinemaSlice/selectSeat";
 interface PaymentCoinProps {
   showPopCorn: any;
   choosePayment: any;
@@ -21,6 +20,7 @@ const PaymentCoin: React.FC<PaymentCoinProps> = ({
   showPopCorn,
   choosePayment,
 }) => {
+  const dispatch = useDispatch();
   const currentDateTime = moment().utcOffset(420).toDate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [password, setPassword] = useState(""); // Thêm state để lưu trữ mật khẩu
@@ -133,6 +133,7 @@ const PaymentCoin: React.FC<PaymentCoinProps> = ({
         const reponsePoint = await discountPoint(myPoint);
         console.log(reponsePoint);
       }
+      dispatch(clearTKinformation());
     }
   };
 
