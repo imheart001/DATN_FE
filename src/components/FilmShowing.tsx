@@ -65,7 +65,9 @@ const FilmShowing = ({ data }: Props) => {
       </h3>
 
       <div className="flex w-[200px] items-center justify-between space-x-5 text-[11px] text-[#8E8E8E]">
-        <span>{categoryNames}</span>
+        <span className="truncate inline-block max-w-[130px]" title={categoryNames}>
+          {categoryNames}
+        </span>
         <span>
           {rating?.averageStars ? (
             <div className="flex items-center justify-center space-x-2">

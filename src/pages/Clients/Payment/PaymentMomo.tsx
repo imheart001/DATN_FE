@@ -34,7 +34,10 @@ const PaymentMomo: React.FC = () => {
   const dateBk = format(currentDateTime, "dd/MM/yyyy HH:mm:ss");
 
   console.log(dateBk);
-  const [vnp_TransactionStatus, setVnp_TransactionStatus] = useState("");
+  const [vnp_TransactionStatus, setVnp_TransactionStatus] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("resultCode") || "pending";
+  });
   const [addChairCalled, setAddChairCalled] = useState(false);
   const parsedPopCorn = useSelector(
     (state: any) => state.TKinformation?.comboFoods
@@ -95,7 +98,7 @@ const PaymentMomo: React.FC = () => {
       const TransactionStatus = params.get("resultCode") || "";
 
 
-      setVnp_TransactionStatus(TransactionStatus);
+      setVnp_TransactionStatus(TransactionStatus || "pending");
 
       if (!addChairCalled && vnp_TransactionStatus == "0") {
         if (isProcessing.current) return;
@@ -180,7 +183,7 @@ const PaymentMomo: React.FC = () => {
   }, [vnp_TransactionStatus, addChairCalled, (allchairbked as any)?.data]);
   return (
     <div className="bg-white">
-      {vnp_TransactionStatus == "0" && (
+      {vnp_TransactionStatus === "0" && (
         <Result
           status="success"
           title="Thanh Toán Thành Công"
@@ -211,7 +214,14 @@ const PaymentMomo: React.FC = () => {
           ]}
         />
       )}
-      {vnp_TransactionStatus != "0" && (
+      {vnp_TransactionStatus === "pending" && (
+        <div className="bg-white p-10 rounded-lg shadow-lg text-center flex flex-col items-center justify-center min-h-[300px]">
+          <p className="text-gray-500 text-lg font-semibold animate-pulse">
+            Đang xác thực giao dịch, vui lòng chờ trong giây lát...
+          </p>
+        </div>
+      )}
+      {vnp_TransactionStatus !== "0" && vnp_TransactionStatus !== "pending" && (
         <div className="bg-white p-10 rounded-lg shadow-lg text-center">
           {/* <Header /> */}
           <Result

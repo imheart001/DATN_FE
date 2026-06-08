@@ -33,7 +33,10 @@ const Payment = () => {
   const dateBk = format(currentDateTime, "dd/MM/yyyy HH:mm:ss");
   const moneyByPoint = useSelector((state: any) => state.TKinformation?.point);
   console.log(allchairbked);
-  const [vnp_TransactionStatus, setVnp_TransactionStatus] = useState("");
+  const [vnp_TransactionStatus, setVnp_TransactionStatus] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("vnp_TransactionStatus") || "pending";
+  });
   const [addChairCalled, setAddChairCalled] = useState(false);
 
   const parsedPopCorn = useSelector(
@@ -88,7 +91,7 @@ const Payment = () => {
       const TransactionStatus = params.get("vnp_TransactionStatus") || "";
 
 
-      setVnp_TransactionStatus(TransactionStatus);
+      setVnp_TransactionStatus(TransactionStatus || "pending");
 
       if (!addChairCalled && vnp_TransactionStatus === "00") {
         if (isProcessing.current) return;
@@ -173,7 +176,7 @@ const Payment = () => {
   }, [vnp_TransactionStatus, addChairCalled, (allchairbked as any)?.data]);
 
   let content;
-  if (vnp_TransactionStatus == "00") {
+  if (vnp_TransactionStatus === "00") {
     content = (
       <div className="bg-white p-10 rounded-lg shadow-lg">
         {/* <Header /> */}
@@ -206,6 +209,14 @@ const Payment = () => {
             </Link>
           </div>
         </section>
+      </div>
+    );
+  } else if (vnp_TransactionStatus === "pending") {
+    content = (
+      <div className="bg-white p-10 rounded-lg shadow-lg text-center flex flex-col items-center justify-center min-h-[300px]">
+        <p className="text-gray-500 text-lg font-semibold animate-pulse">
+          Đang xác thực giao dịch, vui lòng chờ trong giây lát...
+        </p>
       </div>
     );
   } else {

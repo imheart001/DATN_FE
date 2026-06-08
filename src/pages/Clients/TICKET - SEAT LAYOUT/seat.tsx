@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Header from "../../../Layout/LayoutUser/Header";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useFetchChairsQuery } from "../../../service/chairs.service";
@@ -180,10 +180,14 @@ const BookingSeat = () => {
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
 
+  const hasShownToast = useRef(false);
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token || !userId) {
-      message.error("Vui lòng đăng nhập để đặt vé!");
+      if (!hasShownToast.current) {
+        hasShownToast.current = true;
+        message.error("Vui lòng đăng nhập để đặt vé!");
+      }
       navigate("/login");
     }
   }, [navigate, userId]);
