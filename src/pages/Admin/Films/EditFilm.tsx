@@ -284,7 +284,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                 label="Ngày Phát Hành"
                 rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
-                <DatePicker />
+                <DatePicker disabled />
               </Form.Item>
             </Col>
             <Col span={6}>
@@ -296,7 +296,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                   { validator: validateEndDate },
                 ]}
               >
-                <DatePicker />
+                <DatePicker disabled />
               </Form.Item>
             </Col>
           </Row>
