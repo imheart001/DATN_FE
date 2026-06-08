@@ -44,9 +44,9 @@ const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
     if (dataShow) {
       form.setFieldsValue({
         date: dayjs(dataShow.date),
-        time_id: dataShow.time_id,
-        film_id: dataShow.film_id,
-        room_id: dataShow.room_id,
+        time_id: (dataShow as any).id_time,
+        film_id: (dataShow as any).id_film,
+        room_id: (dataShow as any).id_room,
       });
     }
   }, [dataShow]);
