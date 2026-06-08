@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { EditOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Button,
+  Card,
   Col,
   DatePicker,
   Divider,
@@ -13,6 +14,8 @@ import {
   Popconfirm,
   Row,
   Space,
+  Spin,
+  Statistic,
   Table,
   Tag,
   message,
@@ -26,7 +29,9 @@ import {
   useFetchReleasesByFilmQuery,
   useAddReleaseMutation,
   useDeleteReleaseMutation,
+  useRevenueByReleaseMutation,
 } from "../../../service/filmRelease.service";
+import { formatter } from "../../../utils/formatCurrency";
 import { compareDates } from "../../../utils";
 
 interface DataType {
@@ -399,7 +404,22 @@ const FilmReleasesSection: React.FC<{ filmId: string }> = ({ filmId }) => {
       releaseForm.resetFields();
       refetch();
     } catch (error: any) {
-      message.error(error?.data?.message || "Lỗi khi tạo đợt chiếu");
+      let errMsg = "Lỗi khi tạo đợt chiếu";
+      if (error?.data?.errors) {
+        const errorKeys = Object.keys(error.data.errors);
+        if (errorKeys.length > 0) {
+          const firstKey = errorKeys[0];
+          const firstErrors = error.data.errors[firstKey];
+          if (Array.isArray(firstErrors) && firstErrors.length > 0) {
+            errMsg = firstErrors[0];
+          } else if (typeof firstErrors === 'string') {
+            errMsg = firstErrors;
+          }
+        }
+      } else if (error?.data?.message) {
+        errMsg = error.data.message;
+      }
+      message.error(errMsg);
     }
   };
 
@@ -465,19 +485,43 @@ const FilmReleasesSection: React.FC<{ filmId: string }> = ({ filmId }) => {
     },
   ];
 
+  // Revenue by release
+  const [fetchRevenue, { isLoading: isLoadingRevenue }] = useRevenueByReleaseMutation();
+  const [revenueData, setRevenueData] = useState<any>(null);
+
+  const handleLoadRevenue = async () => {
+    try {
+      const res = await fetchRevenue({ film_id: filmId }).unwrap();
+      setRevenueData(res);
+    } catch (error: any) {
+      message.error(error?.data?.message || "Lỗi khi tải doanh thu");
+    }
+  };
+
   return (
     <>
       <Divider />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <h3 style={{ margin: 0, fontWeight: 600 }}>Đợt chiếu ({releases.length})</h3>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => setIsModalOpen(true)}
-          size="small"
-        >
-          Thêm đợt chiếu mới
-        </Button>
+        <Space>
+          <Button
+            type="primary"
+            style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }}
+            onClick={handleLoadRevenue}
+            loading={isLoadingRevenue}
+            size="small"
+          >
+            Xem doanh thu
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setIsModalOpen(true)}
+            size="small"
+          >
+            Thêm đợt chiếu mới
+          </Button>
+        </Space>
       </div>
       <Table
         columns={columns}
@@ -485,6 +529,89 @@ const FilmReleasesSection: React.FC<{ filmId: string }> = ({ filmId }) => {
         pagination={false}
         size="small"
       />
+
+      {/* Revenue by Release Section */}
+      {isLoadingRevenue && (
+        <div style={{ textAlign: "center", padding: 24 }}>
+          <Spin tip="Đang tải doanh thu..." />
+        </div>
+      )}
+      {revenueData && revenueData.releases && (
+        <>
+          <Divider dashed />
+          <div style={{ marginBottom: 12 }}>
+            <h3 style={{ margin: 0, fontWeight: 600 }}>
+              Doanh thu theo đợt chiếu
+              <Tag color="gold" style={{ marginLeft: 8, fontSize: 13 }}>
+                Tổng: {formatter(revenueData.grand_total || 0)}
+              </Tag>
+            </h3>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {revenueData.releases.map((rel: any) => (
+              <Card
+                key={rel.release_id}
+                size="small"
+                title={
+                  <span>
+                    <Tag color="blue">{rel.label || "N/A"}</Tag>
+                    {new Date(rel.release_date).toLocaleDateString("vi-VN")} → {new Date(rel.end_date).toLocaleDateString("vi-VN")}
+                  </span>
+                }
+                style={{ borderLeft: "3px solid #1677ff" }}
+              >
+                <Row gutter={16}>
+                  <Col span={6}>
+                    <Statistic
+                      title="Doanh thu vé"
+                      value={rel.ticket_revenue || 0}
+                      formatter={(val) => formatter(Number(val))}
+                      valueStyle={{ color: "#3f8600", fontSize: 15 }}
+                    />
+                  </Col>
+                  <Col span={6}>
+                    <Statistic
+                      title="Doanh thu F&B"
+                      value={rel.food_revenue || 0}
+                      formatter={(val) => formatter(Number(val))}
+                      valueStyle={{ color: "#1677ff", fontSize: 15 }}
+                    />
+                  </Col>
+                  <Col span={4}>
+                    <Statistic
+                      title="Tổng doanh thu"
+                      value={rel.total_revenue || 0}
+                      formatter={(val) => formatter(Number(val))}
+                      valueStyle={{ color: "#cf1322", fontSize: 15, fontWeight: 600 }}
+                    />
+                  </Col>
+                  <Col span={4}>
+                    <Statistic
+                      title="Vé bán ra"
+                      value={rel.ticket_count || 0}
+                      suffix="vé"
+                      valueStyle={{ fontSize: 15 }}
+                    />
+                  </Col>
+                  <Col span={4}>
+                    <Statistic
+                      title="Vé hoàn"
+                      value={rel.refund_count || 0}
+                      suffix="vé"
+                      valueStyle={{ color: rel.refund_count > 0 ? "#cf1322" : "#8c8c8c", fontSize: 15 }}
+                    />
+                  </Col>
+                </Row>
+                {rel.note && (
+                  <div style={{ marginTop: 8, color: "#8c8c8c", fontSize: 12 }}>
+                    {rel.note}
+                  </div>
+                )}
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
 
       <Modal
         title="Thêm đợt chiếu mới (Re-release)"
