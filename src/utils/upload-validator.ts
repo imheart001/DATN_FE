@@ -43,11 +43,11 @@ export const getUploadErrorMessage = (error: any): string => {
  * @returns string Formatted error message
  */
 export const getValidationErrorMessage = (error: any, defaultMsg: string): string => {
-  if (error?.data?.errors) {
-    const errors = error.data.errors;
-    return Object.keys(errors)
+  const validationErrors = error?.data?.errors || error?.data?.error;
+  if (validationErrors && typeof validationErrors === "object") {
+    return Object.keys(validationErrors)
       .map((key) => {
-        const fieldError = errors[key];
+        const fieldError = validationErrors[key];
         return Array.isArray(fieldError) ? fieldError[0] : fieldError;
       })
       .join(", ");
