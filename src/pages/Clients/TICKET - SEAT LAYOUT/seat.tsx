@@ -219,7 +219,9 @@ const BookingSeat = () => {
       .flat()
       .flat() || [];
   // console.log(bookedSeatNames);
-  const findData = dataSeatKeping?.map((s: any) => s.seat) || [];
+  const findData = dataSeatKeping
+    ?.filter((s: any) => String(s.id_time_detail) === String(id))
+    ?.map((s: any) => s.seat) || [];
 
   const [seats, setSeats] = useState<SeatInfo[][]>(
     // Initialize seats array based on the keptSeat data
@@ -377,7 +379,7 @@ const BookingSeat = () => {
 
           const seatName = `${getRowName(rowIndex)}${columnIndex + 1}`;
           const keptSeatInfo = dataSeatKeping.find(
-            (s: any) => s.seat === seatName
+            (s: any) => s.seat === seatName && String(s.id_time_detail) === String(id)
           );
 
           if (keptSeatInfo) {
@@ -402,7 +404,7 @@ const BookingSeat = () => {
       setSelectedSeats(currentUserKeptSeats);
       setSelectedSeatsCount(currentUserKeptSeats.length);
     }
-  }, [dataSeatKeping, userId?.id]);
+  }, [dataSeatKeping, id, userId?.id]);
 
   // Keep selectedSeats ref up-to-date to avoid stale closures in Pusher
   const selectedSeatsRef = useRef(selectedSeats);
