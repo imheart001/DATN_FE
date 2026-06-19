@@ -114,11 +114,11 @@ const AddCategory: React.FC = () => {
               <Form.Item
                 name="status"
                 label="Trạng thái"
-                rules={[{ required: true, message: "Vui lòng nhập trạng thái" }]}
+                rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
               >
-                <Select placeholder="Vui lòng nhập trạng thái">
-                  <Option value="1">1</Option>
-                  <Option value="0">0</Option>
+                <Select placeholder="Vui lòng chọn trạng thái">
+                  <Option value={1}>Hoạt động</Option>
+                  <Option value={0}>Không hoạt động</Option>
                 </Select>
               </Form.Item>
             </Col>
