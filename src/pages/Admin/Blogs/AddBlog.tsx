@@ -157,11 +157,11 @@ const AddBlog: React.FC = () => {
                   value={uploadImage}
                   className="flex-1 !hidden"
                   onChange={(e) => handleUpdateImage(e)}
-                  id="update-image"
+                  id="add-blog-image"
                 />
                 <div className="flex flex-col">
                   <label
-                    htmlFor="update-image"
+                    htmlFor="add-blog-image"
                     className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition text-center"
                   >
                     upload image
