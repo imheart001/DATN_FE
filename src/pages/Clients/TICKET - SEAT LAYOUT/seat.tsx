@@ -302,7 +302,7 @@ const BookingSeat = () => {
     if (seat.status === SeatStatus.Available) {
       const selectedPrice = seat.type === SeatType.VIP ? 50000 : 45000;
 
-      if (selectedSeatsCount < 8) {
+      if (selectedSeats.length < 8) {
         updatedSeats[row][column] = {
           ...seat,
           status: SeatStatus.Selected,
@@ -322,8 +322,9 @@ const BookingSeat = () => {
             },
           };
         });
-        setSelectedSeats([...selectedSeats, updatedSeats[row][column]]);
-        setSelectedSeatsCount(selectedSeatsCount + 1);
+        const newSelectedSeats = [...selectedSeats, updatedSeats[row][column]];
+        setSelectedSeats(newSelectedSeats);
+        setSelectedSeatsCount(newSelectedSeats.length);
         const seatKeping = {
           id_time_detail: id,
           id_user: userId.id,
@@ -352,8 +353,9 @@ const BookingSeat = () => {
           },
         };
       });
-      setSelectedSeats(selectedSeats.filter((selected) => selected.row !== row || selected.column !== column));
-      setSelectedSeatsCount(selectedSeatsCount - 1);
+      const newSelectedSeats = selectedSeats.filter((selected) => selected.row !== row || selected.column !== column);
+      setSelectedSeats(newSelectedSeats);
+      setSelectedSeatsCount(newSelectedSeats.length);
       const seatKeping = {
         id_time_detail: id,
         id_user: userId.id,
@@ -428,14 +430,6 @@ const BookingSeat = () => {
     channel.bind("SeatKepted", (data: any) => {
       console.log("Pusher SeatKepted Event:", data);
 
-      const myKeptSeatsInEvent = data
-        ? data.filter(
-            (s: any) =>
-              String(s.id_user) === String(userId?.id) &&
-              String(s.id_time_detail) === String(id)
-          ).map((s: any) => s.seat)
-        : [];
-
       setSeats((prevSeats) => {
         return prevSeats.map((row, rowIndex) =>
           row.map((seat, columnIndex) => {
@@ -444,33 +438,32 @@ const BookingSeat = () => {
             }
 
             const seatName = `${getRowName(rowIndex)}${columnIndex + 1}`;
+
+            // Giữ nguyên trạng thái nếu ghế này đang được chọn locally bởi chính user này
+            const isSelectedLocally = selectedSeatsRef.current.some(
+              (s) => s.row === rowIndex && s.column === columnIndex
+            );
+
+            if (isSelectedLocally) {
+              return { ...seat, status: SeatStatus.Selected };
+            }
+
             const reservation = data?.find(
               (s: any) => s.seat === seatName && String(s.id_time_detail) === String(id)
             );
 
             if (reservation) {
-              if (String(reservation.id_user) === String(userId?.id)) {
-                return { ...seat, status: SeatStatus.Selected };
-              } else {
+              if (String(reservation.id_user) !== String(userId?.id)) {
                 return { ...seat, status: SeatStatus.Kepted };
               }
             } else {
-              if (seat.status === SeatStatus.Selected || seat.status === SeatStatus.Kepted) {
+              if (seat.status === SeatStatus.Kepted) {
                 return { ...seat, status: SeatStatus.Available };
               }
-              return seat;
             }
+            return seat;
           })
         );
-      });
-
-      setSelectedSeats((prevSelected) => {
-        const filtered = prevSelected.filter((seat) => {
-          const seatName = `${getRowName(seat.row)}${seat.column + 1}`;
-          return myKeptSeatsInEvent.includes(seatName);
-        });
-        setSelectedSeatsCount(filtered.length);
-        return filtered;
       });
     });
 

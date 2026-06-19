@@ -28,7 +28,6 @@ const seatkepingAPI = createApi({
         method: "POST",
         body: seat,
       }),
-      invalidatesTags: ["kepingseat"],
     }),
 
     clearUserSeats: builder.mutation({
