@@ -65,13 +65,13 @@ const BookingSeat = () => {
   const { data: dataAllByTime_Byid } = useGetAllDataShowTimeByIdQuery(
     id as string
   );
-  const [deadline, setDeadline] = useState(Date.now() + 1000 * 60 * 10);
+  const [deadline, setDeadline] = useState(Date.now() + 1000 * 60 * 1);
   const [countdownKey, setCountdownKey] = useState(1); // Change key to reset Countdown
 
   const navigate = useNavigate();
 
   const startCountdown = () => {
-    setDeadline(Date.now() + 1000 * 60 * 10);
+    setDeadline(Date.now() + 1000 * 60 * 1);
     setCountdownKey((prevKey) => prevKey + 1); // Change key to reset Countdown
   };
 
