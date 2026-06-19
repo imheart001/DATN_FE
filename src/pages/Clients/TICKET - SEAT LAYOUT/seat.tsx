@@ -263,6 +263,11 @@ const BookingSeat = () => {
     )
   );
 
+  const seatsRef = useRef<SeatInfo[][]>(seats);
+  useEffect(() => {
+    seatsRef.current = seats;
+  }, [seats]);
+
   const seatBookedByIdTimeDetail = DataSeatBooked?.filter(
     (data: any) => data.id_time_detail == id
   );
@@ -297,17 +302,25 @@ const BookingSeat = () => {
   }, [DataSeatBooked]);
 
   const handleSeatClick = async (row: number, column: number) => {
-    const updatedSeats = [...seats];
-    const seat = updatedSeats[row][column];
+    const currentSeats = seatsRef.current;
+    const currentSelected = selectedSeatsRef.current;
+    const seat = currentSeats[row][column];
+
     if (seat.status === SeatStatus.Available) {
       const selectedPrice = seat.type === SeatType.VIP ? 50000 : 45000;
 
-      if (selectedSeats.length < 8) {
-        updatedSeats[row][column] = {
-          ...seat,
-          status: SeatStatus.Selected,
-          price: selectedPrice,
-        };
+      if (currentSelected.length < 8) {
+        const updatedSeats = currentSeats.map((r, ri) =>
+          r.map((s, ci) => (ri === row && ci === column ? { ...s, status: SeatStatus.Selected, price: selectedPrice } : s))
+        );
+        const newSelectedSeats = [...currentSelected, { ...seat, status: SeatStatus.Selected, price: selectedPrice, row, column }];
+
+        seatsRef.current = updatedSeats;
+        selectedSeatsRef.current = newSelectedSeats;
+
+        setSeats(updatedSeats);
+        setSelectedSeats(newSelectedSeats);
+        setSelectedSeatsCount(newSelectedSeats.length);
 
         setSeatInfo((prevSeatInfo) => {
           const seatType = seat.type;
@@ -322,9 +335,7 @@ const BookingSeat = () => {
             },
           };
         });
-        const newSelectedSeats = [...selectedSeats, updatedSeats[row][column]];
-        setSelectedSeats(newSelectedSeats);
-        setSelectedSeatsCount(newSelectedSeats.length);
+
         const seatKeping = {
           id_time_detail: id,
           id_user: userId.id,
@@ -335,11 +346,18 @@ const BookingSeat = () => {
         message.warning("Bạn chỉ có thể chọn tối đa 8 ghế trong một lần mua.");
       }
     } else if (seat.status === SeatStatus.Selected) {
-      updatedSeats[row][column] = {
-        ...seat,
-        status: SeatStatus.Available,
-        price: 0,
-      };
+      const updatedSeats = currentSeats.map((r, ri) =>
+        r.map((s, ci) => (ri === row && ci === column ? { ...s, status: SeatStatus.Available, price: 0 } : s))
+      );
+      const newSelectedSeats = currentSelected.filter((selected) => selected.row !== row || selected.column !== column);
+
+      seatsRef.current = updatedSeats;
+      selectedSeatsRef.current = newSelectedSeats;
+
+      setSeats(updatedSeats);
+      setSelectedSeats(newSelectedSeats);
+      setSelectedSeatsCount(newSelectedSeats.length);
+
       setSeatInfo((prevSeatInfo) => {
         const seatType = seat.type;
         const prevQuantity = prevSeatInfo[seatType]?.quantity || 0;
@@ -353,9 +371,7 @@ const BookingSeat = () => {
           },
         };
       });
-      const newSelectedSeats = selectedSeats.filter((selected) => selected.row !== row || selected.column !== column);
-      setSelectedSeats(newSelectedSeats);
-      setSelectedSeatsCount(newSelectedSeats.length);
+
       const seatKeping = {
         id_time_detail: id,
         id_user: userId.id,
@@ -363,8 +379,6 @@ const BookingSeat = () => {
       };
       await keptSeat(seatKeping);
     }
-
-    setSeats(updatedSeats);
   };
 
   console.log(selectedSeats);
