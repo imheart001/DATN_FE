@@ -69,6 +69,22 @@ const Payment = () => {
   const id_selectingTime_detail = useSelector(
     (state: any) => state.TKinformation?.showtimeId
   );
+  const [displayPrice, setDisplayPrice] = useState(0);
+  const [displaySeats, setDisplaySeats] = useState("");
+  const [displayShowtime, setDisplayShowtime] = useState("");
+
+  useEffect(() => {
+    if (totalPrice && totalPrice > 0) {
+      setDisplayPrice(totalPrice);
+    }
+    if (selectingSeat) {
+      setDisplaySeats(selectingSeat);
+    }
+    if (id_selectingTime_detail) {
+      setDisplayShowtime(id_selectingTime_detail);
+    }
+  }, [totalPrice, selectingSeat, id_selectingTime_detail]);
+
   const [discountPoint] = useDiscountPointMutation();
 
   const [addChair] = useAddChairsMutation();
@@ -188,12 +204,12 @@ const Payment = () => {
               qua email trong thời gian sớm nhất.
             </p>
             <p className="text-gray-700 mb-4">
-              Số tiền đã thanh toán: {formatter(totalPrice)} VND
+              Số tiền đã thanh toán: {formatter(displayPrice)} VND
             </p>
             {/* <p className="text-gray-700 mb-6">Trạng thái:{idCode} </p> */}
             <p className="text-gray-700 mb-6">
-              Các ghế đang chọn: {selectingSeat}, suất chiếu{" "}
-              {id_selectingTime_detail}
+              Các ghế đang chọn: {displaySeats}, suất chiếu{" "}
+              {displayShowtime}
             </p>
             <div className="centered-container">
               <p className="">Thông tin mã vé</p>
