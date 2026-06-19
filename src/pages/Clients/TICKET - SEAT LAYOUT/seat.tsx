@@ -87,8 +87,7 @@ const BookingSeat = () => {
   const getRowName = (row: number): string => {
     return String.fromCharCode(65 + row);
   };
-  // const [keepSeat, setkeepSeat] = useState<[]>([]);
-  const { data: DataSeatBooked, isLoading } = useFetchChairsQuery();
+  const { data: DataSeatBooked, isLoading, refetch: refetchBookedChairs } = useFetchChairsQuery();
   const [seatingSelect, setSeatingSelect] = useState("");
   const { data: foods } = useFetchFoodQuery();
   const { data: dataVouchers } = useFetchVoucherQuery();
@@ -268,38 +267,30 @@ const BookingSeat = () => {
     seatsRef.current = seats;
   }, [seats]);
 
-  const seatBookedByIdTimeDetail = DataSeatBooked?.filter(
-    (data: any) => data.id_time_detail == id
-  );
-  const seatNameBooked = seatBookedByIdTimeDetail?.map(
-    (seat: any) => seat.seat
-  );
   useEffect(() => {
-    const updatedSeats = [...seats];
-    const parseSeatName = (seatName: any) => {
-      const row = seatName.charAt(0).charCodeAt(0) - "A".charCodeAt(0);
-      const column = parseInt(seatName.slice(1)) - 1;
-      return [row, column];
-    };
+    if (!DataSeatBooked) return;
 
-    // Loop through the booked seats and set their status to "Booked"
-    seatNameBooked?.forEach((seatName: any) => {
-      const [rowIndex, columnIndex] = parseSeatName(seatName);
-      // console.log(rowIndex, columnIndex);
+    const seatBookedByIdTimeDetail = DataSeatBooked.filter(
+      (data: any) => String(data.id_time_detail) === String(id)
+    );
+    const seatNameBooked = seatBookedByIdTimeDetail.map(
+      (seat: any) => seat.seat
+    );
 
-      if (
-        rowIndex >= 0 &&
-        rowIndex < numRows &&
-        columnIndex >= 0 &&
-        columnIndex < numColumns
-      ) {
-        updatedSeats[rowIndex][columnIndex].status = SeatStatus.Booked;
-      }
+    setSeats((prevSeats) => {
+      const updatedSeats = prevSeats.map((row, rowIndex) =>
+        row.map((seat, columnIndex) => {
+          const seatName = `${getRowName(rowIndex)}${columnIndex + 1}`;
+          if (seatNameBooked.includes(seatName)) {
+            return { ...seat, status: SeatStatus.Booked };
+          }
+          return seat;
+        })
+      );
+      seatsRef.current = updatedSeats;
+      return updatedSeats;
     });
-
-    // Update the seats state with the modified seat statuses
-    setSeats(updatedSeats);
-  }, [DataSeatBooked]);
+  }, [DataSeatBooked, id]);
 
   const handleSeatClick = async (row: number, column: number) => {
     const currentSeats = seatsRef.current;
@@ -443,6 +434,7 @@ const BookingSeat = () => {
 
     channel.bind("SeatKepted", (data: any) => {
       console.log("Pusher SeatKepted Event:", data);
+      refetchBookedChairs();
 
       setSeats((prevSeats) => {
         return prevSeats.map((row, rowIndex) =>
