@@ -362,107 +362,119 @@ const BookingSeat = () => {
 
   console.log(selectedSeats);
 
+  // Synchronize seat selection on initial load (dataSeatKeping)
   useEffect(() => {
-    const pusher = new Pusher("d76cdda00e63582c39f9", {
-      cluster: "ap1",
+    if (!dataSeatKeping) return;
+
+    const currentUserKeptSeats: SeatInfo[] = [];
+
+    setSeats((prevSeats) => {
+      return prevSeats.map((row, rowIndex) =>
+        row.map((seat, columnIndex) => {
+          if (seat.status === SeatStatus.Booked) {
+            return seat;
+          }
+
+          const seatName = `${getRowName(rowIndex)}${columnIndex + 1}`;
+          const keptSeatInfo = dataSeatKeping.find(
+            (s: any) => s.seat === seatName
+          );
+
+          if (keptSeatInfo) {
+            if (String(keptSeatInfo.id_user) === String(userId?.id)) {
+              const updatedSeat = { ...seat, status: SeatStatus.Selected };
+              currentUserKeptSeats.push(updatedSeat);
+              return updatedSeat;
+            } else {
+              return { ...seat, status: SeatStatus.Kepted };
+            }
+          } else {
+            if (seat.status === SeatStatus.Selected || seat.status === SeatStatus.Kepted) {
+              return { ...seat, status: SeatStatus.Available };
+            }
+            return seat;
+          }
+        })
+      );
+    });
+
+    if (currentUserKeptSeats.length > 0) {
+      setSelectedSeats(currentUserKeptSeats);
+      setSelectedSeatsCount(currentUserKeptSeats.length);
+    }
+  }, [dataSeatKeping, userId?.id]);
+
+  // Keep selectedSeats ref up-to-date to avoid stale closures in Pusher
+  const selectedSeatsRef = useRef(selectedSeats);
+  useEffect(() => {
+    selectedSeatsRef.current = selectedSeats;
+  }, [selectedSeats]);
+
+  // Real-time synchronization via Pusher
+  useEffect(() => {
+    const pusherAppKey = import.meta.env.VITE_PUSHER_APP_KEY || "d76cdda00e63582c39f9";
+    const pusherCluster = import.meta.env.VITE_PUSHER_APP_CLUSTER || "ap1";
+
+    const pusher = new Pusher(pusherAppKey, {
+      cluster: pusherCluster,
     });
     const channel = pusher.subscribe("Cinema");
 
-    channel.bind("SeatKepted", function (data: any) {
-      // Update the seat status based on the received data
-      console.log(data);
-      const parseSeatName = (seatName: any) => {
-        const row = seatName.charAt(0).charCodeAt(0) - "A".charCodeAt(0);
-        const column = parseInt(seatName.slice(1)) - 1;
-        return [row, column];
-      };
+    channel.bind("SeatKepted", (data: any) => {
+      console.log("Pusher SeatKepted Event:", data);
 
-      const updatedSeats = [...seats];
+      const myKeptSeatsInEvent = data
+        ? data.filter(
+            (s: any) =>
+              String(s.id_user) === String(userId?.id) &&
+              String(s.id_time_detail) === String(id)
+          ).map((s: any) => s.seat)
+        : [];
 
-      {
-        data &&
-          data?.forEach((s: any) => {
-            const seatName = s.seat;
-
-            const [rowIndex, columnIndex] = parseSeatName(seatName);
-            console.log(rowIndex, columnIndex);
-
-            const isSeatSelected = selectedSeats.some(
-              (selectedSeat: any) =>
-                selectedSeat.row === rowIndex &&
-                selectedSeat.column === columnIndex
-            );
-            console.log(isSeatSelected);
-            if (
-              rowIndex >= 0 &&
-              rowIndex < numRows &&
-              columnIndex >= 0 &&
-              columnIndex < numColumns
-            ) {
-              const seat = updatedSeats[rowIndex][columnIndex];
-
-              if (
-                data &&
-                s.id_user == userId?.id &&
-                s.id_time_detail == id &&
-                isSeatSelected === true
-              ) {
-                // If id_user matches, update status to Selected
-                seat.status = SeatStatus.Selected;
-              } else {
-                seat.status = SeatStatus.Available;
-              }
-              if (
-                data &&
-                s.id_user == userId?.id &&
-                s.id_time_detail == id &&
-                isSeatSelected === false
-              ) {
-                // If id_user matches, update status to Selected
-                seat.status = SeatStatus.Kepted;
-              }
-              if (s.id_user != userId?.id && s.id_time_detail == id) {
-                // If id_user doesn't match, update status to Kepted
-                seat.status = SeatStatus.Kepted;
-              }
-              // Add condition to check if the seat is not in dataSeatKeping
-              if (!data?.some((d: any) => d.seat === seatName)) {
-                // If id_user doesn't match and seat is not in dataSeatKeping, update status to Available
-                seat.status = SeatStatus.Available;
-              }
+      setSeats((prevSeats) => {
+        return prevSeats.map((row, rowIndex) =>
+          row.map((seat, columnIndex) => {
+            if (seat.status === SeatStatus.Booked) {
+              return seat;
             }
-          });
-      }
 
-      updatedSeats.forEach((row, rowIndex) => {
-        row.forEach((seat, columnIndex) => {
-          const seatName = `${getRowName(rowIndex)}${columnIndex + 1}`;
-          const isSeatInData = data.some((s: any) => s.seat == seatName);
+            const seatName = `${getRowName(rowIndex)}${columnIndex + 1}`;
+            const reservation = data?.find(
+              (s: any) => s.seat === seatName && String(s.id_time_detail) === String(id)
+            );
 
-          if (seat.status == SeatStatus.Kepted && !isSeatInData) {
-            seat.status = SeatStatus.Available;
-          }
-        });
+            if (reservation) {
+              if (String(reservation.id_user) === String(userId?.id)) {
+                return { ...seat, status: SeatStatus.Selected };
+              } else {
+                return { ...seat, status: SeatStatus.Kepted };
+              }
+            } else {
+              if (seat.status === SeatStatus.Selected || seat.status === SeatStatus.Kepted) {
+                return { ...seat, status: SeatStatus.Available };
+              }
+              return seat;
+            }
+          })
+        );
       });
 
-      setSeats(updatedSeats);
+      setSelectedSeats((prevSelected) => {
+        const filtered = prevSelected.filter((seat) => {
+          const seatName = `${getRowName(seat.row)}${seat.column + 1}`;
+          return myKeptSeatsInEvent.includes(seatName);
+        });
+        setSelectedSeatsCount(filtered.length);
+        return filtered;
+      });
     });
 
     return () => {
-      // Unsubscribe from the Pusher channel when the component unmounts or when dataSeatKeping changes
-      pusher.unsubscribe("Cinema");
-    };
-  }, [dataSeatKeping, selectedSeats]);
-
-  useEffect(() => {
-    const pusher = new Pusher("d76cdda00e63582c39f9", {
-      cluster: "ap1",
-    });
-    return () => {
+      channel.unbind_all();
       pusher.unsubscribe("Cinema");
       pusher.disconnect();
     };
-  }, []);
+  }, [id, userId?.id]);
   useEffect(() => {}, [foodQuantitiesUI, dispatch]);
   useEffect(() => {
     // Calculate the total amount before discount
