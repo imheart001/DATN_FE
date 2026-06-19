@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -28,6 +28,12 @@ import VocuherByUserAnalytics from "../../../components/Clients/Analytics/Vouche
 import { Select } from "antd";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { Link, useNavigate } from "react-router-dom";
+
+const COLORS = [
+  "#1890ff", "#2f54eb", "#722ed1", "#eb2f96", "#f5222d", 
+  "#fa541c", "#fa8c16", "#faad14", "#a0d911", "#52c41a", 
+  "#13c2c2", "#0050b3", "#391085", "#ad2102", "#1d39c4"
+];
 export default function Dashbroad() {
   const navigate = useNavigate();
   const formatCurrency = (value: number): string => {
@@ -43,12 +49,16 @@ export default function Dashbroad() {
   const [day, setDay] = useState<number | undefined>(undefined);
   const [month, setMonth] = useState<number | undefined>(undefined);
   const [year, setYear] = useState<number | undefined>(undefined);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const dataAdd = {
       day: day,
       month: month,
       year: year,
+      start_date: startDate,
+      end_date: endDate,
     };
     const getData = async () => {
       try {
@@ -63,42 +73,170 @@ export default function Dashbroad() {
 
     // Call the getData function to fetch data
     getData();
-  }, [getDataRevenue, day, month, year]);
+  }, [getDataRevenue, day, month, year, startDate, endDate]);
 
   // Ensure that revenueData is a valid object
   const revenueData = (dataAlastic as any)?.statistical_cinema
-    ?.Revenue_by_cinema_in_the_month;
+    ?.Revenue_by_cinema_in_the_month || {};
   const revenueDatabyDay = (dataAlastic as any)?.statistical_cinema
-    ?.Revenue_by_cinema_on_the_day;
+    ?.Revenue_by_cinema_on_the_day || {};
 
   const revenueDatabyYear = (dataAlastic as any)?.statistical_cinema
-    ?.Revenue_by_cinema_in_the_year;
-  const dataTop5Friendly = (dataAlastic as any)?.revenue_month?.user_friendly;
+    ?.Revenue_by_cinema_in_the_year || {};
+  const dataTop5Friendly = (dataAlastic as any)?.revenue_month?.user_friendly || [];
   const dataTopRevenaFilmInMon = (dataAlastic as any)?.revenue_month
-    ?.revenue_and_refund_month;
+    ?.revenue_and_refund_month || [];
   const dataTicketBookByFilmInMon = (dataAlastic as any)?.revenue_month
-    ?.book_total_mon;
+    ?.book_total_mon || [];
   const dataDayTicketCheckByStaff = (dataAlastic as any)?.revenue_day
-    ?.ticket_day;
+    ?.ticket_day || [];
   const dataMonTicketCheckByStaff = (dataAlastic as any)?.revenue_day
-    ?.ticket_mon;
+    ?.ticket_mon || [];
   const dataRevenueFilmInDay = (dataAlastic as any)?.revenue_day
-    ?.revenue_and_refund_day;
-  const dataUsedByUser = (dataAlastic as any)?.revenue_voucher_is_onl;
+    ?.revenue_and_refund_day || [];
+  const dataUsedByUser = (dataAlastic as any)?.revenue_voucher_is_onl || [];
   console.log(dataUsedByUser);
 
-  // Check if revenueData is undefined or null before further processing
-  if (
-    !revenueData &&
-    !dataUsedByUser &&
-    !dataDayTicketCheckByStaff &&
-    revenueDatabyDay !== null &&
-    !dataMonTicketCheckByStaff &&
-    !revenueDatabyYear &&
-    !dataTop5Friendly &&
-    !dataTopRevenaFilmInMon &&
-    !dataTicketBookByFilmInMon
-  ) {
+  // Extract unique cinemas from the data
+  const cinemas = useMemo(() => {
+    return Object.values(revenueData).reduce(
+      (allCinemas: string[], monthlyData: any) => {
+        Object.keys(monthlyData).forEach((cinema) => {
+          if (!allCinemas.includes(cinema)) {
+            allCinemas.push(cinema);
+          }
+        });
+        return allCinemas;
+      },
+      []
+    );
+  }, [revenueData]);
+
+  // Convert the revenue data object into an array of objects for recharts
+  const chartData = useMemo(() => {
+    return Object.keys(revenueData).map((month) => {
+      const monthlyData = revenueData[month];
+      const newData: Record<string, any> = {
+        name: new Date(month + "-01").toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+        }),
+      };
+
+      cinemas.forEach((cinema) => {
+        newData[cinema] = monthlyData[cinema]?.total_amount || 0;
+      });
+
+      return newData;
+    });
+  }, [revenueData, cinemas]);
+
+  const chartDataFoodMonByCinema = useMemo(() => {
+    return Object.keys(revenueData).map((month) => {
+      const monthlyData = revenueData[month];
+      const newData: Record<string, any> = {
+        name: new Date(month + "-01").toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+        }),
+      };
+
+      cinemas.forEach((cinema) => {
+        newData[cinema] = monthlyData[cinema]?.total_food_price || 0;
+      });
+
+      return newData;
+    });
+  }, [revenueData, cinemas]);
+
+  const chartDataChairMonByCinema = useMemo(() => {
+    return Object.keys(revenueData).map((month) => {
+      const monthlyData = revenueData[month];
+      const newData: Record<string, any> = {
+        name: new Date(month + "-01").toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+        }),
+      };
+
+      cinemas.forEach((cinema) => {
+        newData[cinema] = monthlyData[cinema]?.total_chair_price || 0;
+      });
+
+      return newData;
+    });
+  }, [revenueData, cinemas]);
+
+  const dataByDay = useMemo(() => {
+    return Object.keys(revenueDatabyDay).map((day) => ({
+      name: format(new Date(day), "dd/MM/yyyy"),
+      ...revenueDatabyDay[day],
+    }));
+  }, [revenueDatabyDay]);
+
+  const transformedDataByDay = useMemo(() => {
+    return dataByDay.map((item: any) => {
+      const transformedItem: Record<string, any> = {
+        name: item.name,
+      };
+
+      cinemas.forEach((cinema) => {
+        transformedItem[cinema] = item[cinema]?.total_amount || 0;
+      });
+
+      return transformedItem;
+    });
+  }, [dataByDay, cinemas]);
+
+  const RevenueByCinemaDataPriceChairByDay = useMemo(() => {
+    return dataByDay.map((item: any) => {
+      const transformedItem: Record<string, any> = {
+        name: item.name,
+      };
+
+      cinemas.forEach((cinema) => {
+        transformedItem[cinema] = item[cinema]?.total_chair_price || 0;
+      });
+
+      return transformedItem;
+    });
+  }, [dataByDay, cinemas]);
+
+  const RevenueByCinemaDataPriceFoodByDay = useMemo(() => {
+    return dataByDay.map((item: any) => {
+      const transformedItem: Record<string, any> = {
+        name: item.name,
+      };
+
+      cinemas.forEach((cinema) => {
+        transformedItem[cinema] = item[cinema]?.total_food_price || 0;
+      });
+
+      return transformedItem;
+    });
+  }, [dataByDay, cinemas]);
+
+  const dataForPieChart = useMemo(() => {
+    return cinemas.map((cinema, index) => {
+      const totalRevenue = Object.values(revenueDatabyYear).reduce(
+        (total, yearlyData: any) =>
+          total + (yearlyData[cinema]?.total_amount || 0),
+        0
+      );
+
+      const colors = ["#8884d8", "#82ca9d", "#ffc658"];
+      const color = colors[index % colors.length];
+
+      return {
+        name: cinema,
+        value: totalRevenue,
+        fill: color,
+      };
+    });
+  }, [revenueDatabyYear, cinemas]);
+
+  // Check if dataAlastic is undefined or null before further processing
+  if (!dataAlastic || Object.keys(dataAlastic).length === 0) {
     return (
       <>
         <ChoosePop />
@@ -106,123 +244,12 @@ export default function Dashbroad() {
     );
   }
 
-  // Extract unique cinemas from the data
-  const cinemas = Object.values(revenueData).reduce(
-    (allCinemas: string[], monthlyData: any) => {
-      Object.keys(monthlyData).forEach((cinema) => {
-        if (!allCinemas.includes(cinema)) {
-          allCinemas.push(cinema);
-        }
-      });
-      return allCinemas;
-    },
-    []
-  );
+  const currentMonthDisplay = month || new Date().getMonth() + 1;
+  const currentYearDisplay = year || new Date().getFullYear();
 
-  // Convert the revenue data object into an array of objects for recharts
-  const chartData = Object.keys(revenueData).map((month) => {
-    const monthlyData = revenueData[month];
-    const newData: Record<string, any> = {
-      name: new Date(month + "-01").toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-      }),
-    };
-
-    cinemas.forEach((cinema) => {
-      newData[cinema] = monthlyData[cinema]?.total_amount || 0; // Replace 'total_amount' with the property you want
-    });
-
-    return newData;
-  });
-  const chartDataFoodMonByCinema = Object.keys(revenueData).map((month) => {
-    const monthlyData = revenueData[month];
-    const newData: Record<string, any> = {
-      name: new Date(month + "-01").toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-      }),
-    };
-
-    cinemas.forEach((cinema) => {
-      newData[cinema] = monthlyData[cinema]?.total_food_price || 0; // Replace 'total_amount' with the property you want
-    });
-
-    return newData;
-  });
-  const chartDataChairMonByCinema = Object.keys(revenueData).map((month) => {
-    const monthlyData = revenueData[month];
-    const newData: Record<string, any> = {
-      name: new Date(month + "-01").toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-      }),
-    };
-
-    cinemas.forEach((cinema) => {
-      newData[cinema] = monthlyData[cinema]?.total_chair_price || 0; // Replace 'total_amount' with the property you want
-    });
-
-    return newData;
-  });
-
-  const dataByDay = Object.keys(revenueDatabyDay).map((day) => ({
-    name: format(new Date(day), "dd/MM/yyyy"),
-    ...revenueDatabyDay[day],
-  }));
-  const transformedDataByDay = dataByDay.map((item: any) => {
-    const transformedItem: Record<string, any> = {
-      name: item.name,
-    };
-
-    // Iterate over cinemas and set values or default to 0 if not present
-    cinemas.forEach((cinema) => {
-      transformedItem[cinema] = item[cinema]?.total_amount || 0;
-    });
-
-    return transformedItem;
-  });
-  const RevenueByCinemaDataPriceChairByDay = dataByDay.map((item: any) => {
-    const transformedItem: Record<string, any> = {
-      name: item.name,
-    };
-
-    // Iterate over cinemas and set values or default to 0 if not present
-    cinemas.forEach((cinema) => {
-      transformedItem[cinema] = item[cinema]?.total_chair_price || 0;
-    });
-
-    return transformedItem;
-  });
-  const RevenueByCinemaDataPriceFoodByDay = dataByDay.map((item: any) => {
-    const transformedItem: Record<string, any> = {
-      name: item.name,
-    };
-
-    // Iterate over cinemas and set values or default to 0 if not present
-    cinemas.forEach((cinema) => {
-      transformedItem[cinema] = item[cinema]?.total_food_price || 0;
-    });
-
-    return transformedItem;
-  });
-  const dataForPieChart = cinemas.map((cinema, index) => {
-    const totalRevenue = Object.values(revenueDatabyYear).reduce(
-      (total, yearlyData: any) =>
-        total + (yearlyData[cinema]?.total_amount || 0),
-      0
-    );
-
-    // Mảng màu sẽ được sử dụng để đảm bảo mỗi phần của biểu đồ tròn có một màu khác nhau
-    const colors = ["#8884d8", "#82ca9d", "#ffc658"];
-    const color = colors[index % colors.length];
-
-    return {
-      name: cinema,
-      value: totalRevenue,
-      fill: color,
-    };
-  });
+  const dateRangeTitle = startDate && endDate
+    ? `từ ngày ${format(new Date(startDate), "dd/MM/yyyy")} đến ngày ${format(new Date(endDate), "dd/MM/yyyy")}`
+    : `trong tháng ${currentMonthDisplay}/${currentYearDisplay}`;
 
   const handleSelectChange = (value: any) => {
     if (value === "admin") {
@@ -244,6 +271,8 @@ export default function Dashbroad() {
           month={month}
           setYear={setYear}
           year={year}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
         />
         <div className="flex items-center gap-3">
           <span className="font-semibold text-gray-700">Doanh thu theo rạp:</span>
@@ -278,9 +307,9 @@ export default function Dashbroad() {
         <div className="lg:col-span-2 space-y-8 w-full">
           {/* Chart 1: Doanh thu các rạp theo ngày */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-              Doanh thu các rạp theo ngày tháng hiện tại
-            </h3>
+            <h2 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+              Doanh thu các rạp theo ngày {dateRangeTitle}
+            </h2>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart
                 data={transformedDataByDay}
@@ -303,9 +332,7 @@ export default function Dashbroad() {
                     key={index}
                     type="monotone"
                     dataKey={cinema}
-                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                      16
-                    )}`}
+                    stroke={COLORS[index % COLORS.length]}
                     activeDot={{ r: 8 }}
                   />
                 ))}
@@ -322,9 +349,9 @@ export default function Dashbroad() {
                 src="https://img.icons8.com/external-smashingstocks-outline-color-smashing-stocks/66/external-Chair-stationery-smashingstocks-outline-color-smashing-stocks.png"
                 alt="chair-icon"
               />
-              <h3 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-                Tổng Doanh thu ghế các rạp theo ngày trong tháng {month}/{year}
-              </h3>
+              <h2 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+                Tổng Doanh thu ghế các rạp theo ngày {dateRangeTitle}
+              </h2>
             </div>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart
@@ -348,9 +375,7 @@ export default function Dashbroad() {
                     key={index}
                     type="monotone"
                     dataKey={cinema}
-                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                      16
-                    )}`}
+                    stroke={COLORS[index % COLORS.length]}
                     activeDot={{ r: 8 }}
                   />
                 ))}
@@ -367,9 +392,9 @@ export default function Dashbroad() {
                 src="https://img.icons8.com/external-icongeek26-outline-colour-icongeek26/64/external-popcorn-cinema-icongeek26-outline-colour-icongeek26.png"
                 alt="popcorn-icon"
               />
-              <h3 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-                Tổng Doanh thu bỏng nước theo ngày của các rạp ngày trong tháng {month}/{year}
-              </h3>
+              <h2 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+                Tổng Doanh thu bỏng nước theo ngày của các rạp {dateRangeTitle}
+              </h2>
             </div>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart
@@ -393,9 +418,7 @@ export default function Dashbroad() {
                     key={index}
                     type="monotone"
                     dataKey={cinema}
-                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                      16
-                    )}`}
+                    stroke={COLORS[index % COLORS.length]}
                     activeDot={{ r: 8 }}
                   />
                 ))}
@@ -405,9 +428,9 @@ export default function Dashbroad() {
 
           {/* Chart 4: Doanh thu các rạp theo tháng */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-              Tổng Doanh thu các rạp theo tháng năm {year}
-            </h3>
+            <h2 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+                Tổng Doanh thu các rạp theo tháng năm {currentYearDisplay}
+            </h2>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -422,9 +445,7 @@ export default function Dashbroad() {
                     key={index}
                     type="monotone"
                     dataKey={cinema}
-                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                      16
-                    )}`}
+                    stroke={COLORS[index % COLORS.length]}
                     activeDot={{ r: 8 }}
                   />
                 ))}
@@ -441,9 +462,9 @@ export default function Dashbroad() {
                 src="https://img.icons8.com/external-smashingstocks-outline-color-smashing-stocks/66/external-Chair-stationery-smashingstocks-outline-color-smashing-stocks.png"
                 alt="chair-icon"
               />
-              <h3 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-                Tổng Doanh thu ghế các rạp theo tháng năm {year}
-              </h3>
+              <h2 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+                Tổng Doanh thu ghế các rạp theo tháng năm {currentYearDisplay}
+              </h2>
             </div>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={chartDataChairMonByCinema} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -459,9 +480,7 @@ export default function Dashbroad() {
                     key={index}
                     type="monotone"
                     dataKey={cinema}
-                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                      16
-                    )}`}
+                    stroke={COLORS[index % COLORS.length]}
                     activeDot={{ r: 8 }}
                   />
                 ))}
@@ -478,9 +497,9 @@ export default function Dashbroad() {
                 src="https://img.icons8.com/external-icongeek26-outline-colour-icongeek26/64/external-popcorn-cinema-icongeek26-outline-colour-icongeek26.png"
                 alt="popcorn-icon"
               />
-              <h3 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-                Tổng Doanh thu bỏng nước theo tháng của từng rạp năm {year}
-              </h3>
+              <h2 className="text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+                Tổng Doanh thu bỏng nước theo tháng của từng rạp năm {currentYearDisplay}
+              </h2>
             </div>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={chartDataFoodMonByCinema} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -496,9 +515,7 @@ export default function Dashbroad() {
                     key={index}
                     type="monotone"
                     dataKey={cinema}
-                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                      16
-                    )}`}
+                    stroke={COLORS[index % COLORS.length]}
                     activeDot={{ r: 8 }}
                   />
                 ))}
@@ -509,9 +526,9 @@ export default function Dashbroad() {
 
         {/* Pie Chart Column (Sticks to right on desktop) */}
         <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-fit">
-          <h3 className="mb-6 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-            Tổng Doanh thu theo năm của Các rạp trong năm {year}
-          </h3>
+          <h2 className="mb-6 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+            Tổng Doanh thu theo năm của Các rạp trong năm {currentYearDisplay}
+          </h2>
           <ResponsiveContainer width="100%" height={380}>
             <PieChart>
               <Pie

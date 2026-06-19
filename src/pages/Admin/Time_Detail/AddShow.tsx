@@ -22,8 +22,9 @@ import {
 } from "../../../service/time.service";
 import { IFilms, IMovieRoom, ITime } from "../../../interface/model";
 import { useFetchProductQuery } from "../../../service/films.service";
-import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
+import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+import { getValidationErrorMessage } from "../../../utils";
 import dayjs from "dayjs";
 const AddShow: React.FC = () => {
   const [addShow] = useAddShowTimeMutation();
@@ -77,7 +78,7 @@ const AddShow: React.FC = () => {
     } catch (error) {
       console.log(error);
 
-      message.error("Thêm sản phẩm thất bại  " + (error as any).data.message);
+      message.error(getValidationErrorMessage(error, "Thêm mới suất chiếu thất bại"));
     }
   };
 

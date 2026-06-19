@@ -28,11 +28,11 @@ const bookTicketsAPI = createApi({
       query: () => `/purchase_history_ad/`,
       providesTags: ["bookTicket"],
     }),
-    getBookTicketByUser: builder.query<IBookTicketUser, number | string>({
+    getBookTicketByUser: builder.query<IBookTicketUser[], number | string>({
       query: (id) => `/purchase_history_user/${id}`,
       providesTags: ["bookTicket"],
     }),
-    getBookTicketByAdminCinema: builder.query<IBookTicketUser, number | string>(
+    getBookTicketByAdminCinema: builder.query<IBookTicketUser[], number | string>(
       {
         query: (id) => `/purchase_history_ad_cinema/${id}`,
         providesTags: ["bookTicket"],

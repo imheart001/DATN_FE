@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useAddBlogMutation } from "../../../service/blog.service";
 import { uploadImageApi } from "../../../apis/upload-image.api";
 import { FOLDER_NAME } from "../../../configs/config";
+import { validateImageFile, getUploadErrorMessage, getValidationErrorMessage } from "../../../utils";
 const { Option } = Select;
 
 const AddBlog: React.FC = () => {
@@ -36,19 +37,32 @@ const AddBlog: React.FC = () => {
   const [linkImage, setLinkImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const onFinish = async (values: any) => {
+    if (!linkImage) {
+      message.error("Vui lòng tải lên hình ảnh cho bài viết!");
+      return;
+    }
     try {
       await addBlog({ ...values, image: linkImage }).unwrap();
       message.success("Thêm bài viết thành công");
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/blogs");
     } catch (error) {
-      message.error("Thêm bài viết thất bại");
+      message.error(getValidationErrorMessage(error, "Thêm bài viết thất bại"));
     }
   };
   const handleUpdateImage = async (e: any) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate type and size
+    for (const file of files) {
+      if (!validateImageFile(file)) {
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
-      const files = e.target.files;
       const formData = new FormData();
       formData.append("upload_preset", "da_an_tot_nghiep");
       formData.append("folder", FOLDER_NAME);
@@ -57,11 +71,12 @@ const AddBlog: React.FC = () => {
         const response = await uploadImageApi(formData);
         if (response) {
           setLinkImage(response.url);
-          setIsLoading(false);
         }
       }
-    } catch (error) {
-      message.error("loi");
+    } catch (error: any) {
+      message.error(getUploadErrorMessage(error));
+    } finally {
+      setIsLoading(false);
     }
   };
   const [form] = Form.useForm(); // Tạo một Form instance để sử dụng validate
@@ -144,12 +159,15 @@ const AddBlog: React.FC = () => {
                   onChange={(e) => handleUpdateImage(e)}
                   id="update-image"
                 />
-                <label
-                  htmlFor="update-image"
-                  className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
-                >
-                  upload image
-                </label>
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="update-image"
+                    className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition text-center"
+                  >
+                    upload image
+                  </label>
+                  <span className="text-xs text-gray-400 mt-1">Tối đa 10MB (PNG, JPG, WEBP)</span>
+                </div>
               </div>
             </Form.Item>
           </Col>
@@ -186,8 +204,8 @@ const AddBlog: React.FC = () => {
                 rules={[{ required: true, message: "Mời nhập trạng thái" }]}
               >
                 <Select placeholder="Mời nhập trạng thái">
-                  <Option value="1">1</Option>
-                  <Option value="0">0</Option>
+                  <Option value={1}>Hoạt động</Option>
+                  <Option value={0}>Ngừng hoạt động</Option>
                 </Select>
               </Form.Item>
             </Col>

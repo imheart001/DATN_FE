@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import {
   LineChart,
@@ -28,6 +28,12 @@ import RevenueDayMonYearByAdminCinema from "../../../components/Clients/Analytic
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Select } from "antd";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
+
+const COLORS = [
+  "#1890ff", "#2f54eb", "#722ed1", "#eb2f96", "#f5222d", 
+  "#fa541c", "#fa8c16", "#faad14", "#a0d911", "#52c41a", 
+  "#13c2c2", "#0050b3", "#391085", "#ad2102", "#1d39c4"
+];
 export default function Dashbroad_Admin_Cinema() {
   const { cinemaId } = useParams();
   const navigate = useNavigate();
@@ -43,6 +49,8 @@ export default function Dashbroad_Admin_Cinema() {
   const [day, setDay] = useState<number | undefined>(undefined);
   const [month, setMonth] = useState<number | undefined>(undefined);
   const [year, setYear] = useState<number | undefined>(undefined);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [endDate, setEndDate] = useState<string | undefined>(undefined);
 
   const getIfUser = localStorage.getItem("user");
   const IfUser = JSON.parse(`${getIfUser}`);
@@ -61,12 +69,16 @@ export default function Dashbroad_Admin_Cinema() {
       month: month,
       year: year,
       id_cinema: IfUser?.id_cinema,
+      start_date: startDate,
+      end_date: endDate,
     };
     const dataAddAdmin = {
       day: day,
       month: month,
       year: year,
       id_cinema: cinemaId,
+      start_date: startDate,
+      end_date: endDate,
     };
     const getData = async () => {
       try {
@@ -83,110 +95,119 @@ export default function Dashbroad_Admin_Cinema() {
 
     // Call the getData function to fetch data
     getData();
-  }, [getDataRevenue, day, month, year, cinemaId]);
+  }, [getDataRevenue, day, month, year, cinemaId, startDate, endDate]);
 
   // Ensure that revenueData is a valid object
   const revenueData = (dataAlastic as any)?.statistical_cinema
-    ?.Revenue_in_months_of_the_year;
+    ?.Revenue_in_months_of_the_year || {};
   const revenueDatabyDay = (dataAlastic as any)?.statistical_cinema
-    ?.Revenue_on_days_in_the_month;
+    ?.Revenue_on_days_in_the_month || {};
 
   const revenueDatabyYear = (dataAlastic as any)?.statistical_cinema
-    ?.Revenue_by_year;
-  const dataTop5Friendly = (dataAlastic as any)?.revenue_month?.user_friendly;
+    ?.Revenue_by_year || {};
+  const dataTop5Friendly = (dataAlastic as any)?.revenue_month?.user_friendly || [];
   const dataTopRevenaFilmInMon = (dataAlastic as any)?.revenue_admin_cinema
-    ?.revenue_and_refund_month_cinema;
+    ?.revenue_and_refund_month_cinema || [];
 
   const dataTicketBookByFilmInMon = (dataAlastic as any)?.revenue_month
-    ?.book_total_mon;
+    ?.book_total_mon || [];
   const dataDayTicketCheckByStaff = (dataAlastic as any)?.revenue_admin_cinema
-    ?.ticket_staff_fill_day;
+    ?.ticket_staff_fill_day || [];
   const dataMonTicketCheckByStaff = (dataAlastic as any)?.revenue_admin_cinema
-    ?.ticket_staff_fill_mon;
+    ?.ticket_staff_fill_mon || [];
   const dataRevenueFilmInDay = (dataAlastic as any)?.revenue_admin_cinema
-    ?.revenue_and_refund_day_cinema;
+    ?.revenue_and_refund_day_cinema || [];
 
-  // Check if revenueData is undefined or null before further processing
-  if (
-    !revenueData &&
-    !dataDayTicketCheckByStaff &&
-    revenueDatabyDay !== null &&
-    !dataMonTicketCheckByStaff &&
-    !revenueDatabyYear &&
-    !dataTop5Friendly &&
-    !dataTopRevenaFilmInMon &&
-    !dataTicketBookByFilmInMon
-  ) {
+  // Extract unique cinemas from the data
+  const cinemas = useMemo(() => {
+    return Object.values(revenueData).reduce(
+      (allCinemas: string[], monthlyData: any) => {
+        Object.keys(monthlyData).forEach((cinema) => {
+          if (!allCinemas.includes(cinema)) {
+            allCinemas.push(cinema);
+          }
+        });
+        return allCinemas;
+      },
+      []
+    );
+  }, [revenueData]);
+
+  // Convert the revenue data object into an array of objects for recharts
+  const chartData = useMemo(() => {
+    return Object.keys(revenueData).map((month) => {
+      const monthlyData = revenueData[month];
+      const newData: Record<string, any> = {
+        name: new Date(month + "-01").toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+        }),
+      };
+
+      cinemas.forEach((cinema: string) => {
+        newData[cinema] = monthlyData[cinema] || 0;
+      });
+
+      return newData;
+    });
+  }, [revenueData, cinemas]);
+
+  const dataByDay = useMemo(() => {
+    return Object.keys(revenueDatabyDay).map((day) => ({
+      name: format(new Date(day), "dd/MM/yyyy"),
+      ...revenueDatabyDay[day],
+    }));
+  }, [revenueDatabyDay]);
+
+  const transformedDataByDay = useMemo(() => {
+    return dataByDay.map((item: any) => {
+      const transformedItem: Record<string, any> = {
+        name: item.name,
+      };
+
+      // Iterate over cinemas and set values or default to 0 if not present
+      cinemas.forEach((cinema: string) => {
+        transformedItem[cinema] = item[cinema] || 0;
+      });
+
+      return transformedItem;
+    });
+  }, [dataByDay, cinemas]);
+
+  const dataForPieChart = useMemo(() => {
+    return cinemas.map((cinema: string, index: number) => {
+      const totalRevenue = Object.values(revenueDatabyYear).reduce(
+        (total: number, yearlyData: any) => total + (yearlyData[cinema] || 0),
+        0
+      );
+
+      // Mảng màu sẽ được sử dụng để đảm bảo mỗi phần của biểu đồ tròn có một màu khác nhau
+      const colors = ["#8884d8", "#82ca9d", "#ffc658"];
+      const color = colors[index % colors.length];
+
+      return {
+        name: cinema,
+        value: totalRevenue,
+        fill: color,
+      };
+    });
+  }, [revenueDatabyYear, cinemas]);
+
+  // Check if dataAlastic is undefined or null before further processing
+  if (!dataAlastic || Object.keys(dataAlastic).length === 0) {
     return (
       <>
         <ChoosePop />
       </>
     );
   }
+  const currentMonthDisplay = month || new Date().getMonth() + 1;
+  const currentYearDisplay = year || new Date().getFullYear();
 
-  // Extract unique cinemas from the data
-  const cinemas = Object.values(revenueData).reduce(
-    (allCinemas: string[], monthlyData: any) => {
-      Object.keys(monthlyData).forEach((cinema) => {
-        if (!allCinemas.includes(cinema)) {
-          allCinemas.push(cinema);
-        }
-      });
-      return allCinemas;
-    },
-    []
-  );
+  const dateRangeTitle = startDate && endDate
+    ? `từ ngày ${format(new Date(startDate), "dd/MM/yyyy")} đến ngày ${format(new Date(endDate), "dd/MM/yyyy")}`
+    : `trong tháng ${currentMonthDisplay}/${currentYearDisplay}`;
 
-  // Convert the revenue data object into an array of objects for recharts
-  const chartData = Object.keys(revenueData).map((month) => {
-    const monthlyData = revenueData[month];
-    const newData: Record<string, any> = {
-      name: new Date(month + "-01").toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-      }),
-    };
-
-    cinemas.forEach((cinema) => {
-      newData[cinema] = monthlyData[cinema] || 0;
-    });
-
-    return newData;
-  });
-
-  const dataByDay = Object.keys(revenueDatabyDay).map((day) => ({
-    name: format(new Date(day), "dd/MM/yyyy"),
-    ...revenueDatabyDay[day],
-  }));
-  const transformedDataByDay = dataByDay.map((item) => {
-    const transformedItem: Record<string, any> = {
-      name: item.name,
-    };
-
-    // Iterate over cinemas and set values or default to 0 if not present
-    cinemas.forEach((cinema) => {
-      transformedItem[cinema] = item[cinema] || 0;
-    });
-
-    return transformedItem;
-  });
-
-  const dataForPieChart = cinemas.map((cinema, index) => {
-    const totalRevenue = Object.values(revenueDatabyYear).reduce(
-      (total, yearlyData: any) => total + (yearlyData[cinema] || 0),
-      0
-    );
-
-    // Mảng màu sẽ được sử dụng để đảm bảo mỗi phần của biểu đồ tròn có một màu khác nhau
-    const colors = ["#8884d8", "#82ca9d", "#ffc658"];
-    const color = colors[index % colors.length];
-
-    return {
-      name: cinema,
-      value: totalRevenue,
-      fill: color,
-    };
-  });
   const handleSelectChange = (value: any) => {
     if (value === "admin") {
       // Handle the case when the demo option is selected
@@ -207,6 +228,8 @@ export default function Dashbroad_Admin_Cinema() {
           month={month}
           setYear={setYear}
           year={year}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
         />
         {role === 1 && (
           <div className="flex items-center gap-3">
@@ -243,9 +266,9 @@ export default function Dashbroad_Admin_Cinema() {
         <div className="lg:col-span-2 space-y-8 w-full">
           {/* Chart 1: Doanh thu theo ngày */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-              Doanh thu theo ngày
-            </h3>
+            <h2 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+              Doanh thu theo ngày {dateRangeTitle}
+            </h2>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart
                 data={transformedDataByDay}
@@ -268,9 +291,7 @@ export default function Dashbroad_Admin_Cinema() {
                     key={index}
                     type="monotone"
                     dataKey={cinema}
-                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                      16
-                    )}`}
+                    stroke={COLORS[index % COLORS.length]}
                     activeDot={{ r: 8 }}
                   />
                 ))}
@@ -280,9 +301,9 @@ export default function Dashbroad_Admin_Cinema() {
 
           {/* Chart 2: Doanh thu theo tháng */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-              Doanh thu theo tháng năm {year}
-            </h3>
+            <h2 className="mb-4 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+              Doanh thu theo tháng năm {currentYearDisplay}
+            </h2>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -297,9 +318,7 @@ export default function Dashbroad_Admin_Cinema() {
                     key={index}
                     type="monotone"
                     dataKey={cinema}
-                    stroke={`#${Math.floor(Math.random() * 16777215).toString(
-                      16
-                    )}`}
+                    stroke={COLORS[index % COLORS.length]}
                     activeDot={{ r: 8 }}
                   />
                 ))}
@@ -310,9 +329,9 @@ export default function Dashbroad_Admin_Cinema() {
 
         {/* Pie Chart Column (Sticks to right on desktop) */}
         <div className="lg:col-span-1 bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center h-fit">
-          <h3 className="mb-6 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
-            Tổng Doanh thu theo năm {year}
-          </h3>
+          <h2 className="mb-6 text-center uppercase font-semibold text-gray-700 text-sm tracking-wider">
+            Tổng Doanh thu theo năm {currentYearDisplay}
+          </h2>
           <ResponsiveContainer width="100%" height={380}>
             <PieChart>
               <Pie

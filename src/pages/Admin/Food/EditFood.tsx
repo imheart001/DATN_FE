@@ -10,6 +10,7 @@ import {
   Drawer,
   Form,
   Input,
+  InputNumber,
   Row,
   Select,
   Space,
@@ -20,6 +21,7 @@ import {
 import { useUpdateFoodMutation } from "../../../service/food.service";
 import { FOLDER_NAME } from "../../../configs/config";
 import { uploadImageApi } from "../../../apis/upload-image.api";
+import { validateImageFile, getUploadErrorMessage, getValidationErrorMessage } from "../../../utils";
 
 interface DataType {
   id: string;
@@ -41,11 +43,21 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
   const [uploadImage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [linkImage, setLinkImage] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
 
   const handleUpdateImage = async (e: any) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate type and size
+    for (const file of files) {
+      if (!validateImageFile(file)) {
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
-      const files = e.target.files;
       const formData = new FormData();
       formData.append("upload_preset", "da_an_tot_nghiep");
       formData.append("folder", FOLDER_NAME);
@@ -58,16 +70,17 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
             response
           );
           setLinkImage(response.url);
-          setIsLoading(false);
         }
       }
-    } catch (error) {
-      message.error("loi");
+    } catch (error: any) {
+      message.error(getUploadErrorMessage(error));
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (dataFood) {
+    if (open && dataFood) {
       form.setFieldsValue({
         name: dataFood.name,
         price: dataFood.price,
@@ -77,10 +90,14 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
       });
       setLinkImage(dataFood.image);
     }
-  }, [dataFood]);
+  }, [open, dataFood]);
   const onFinish = async (values: any) => {
+    if (!linkImage) {
+      message.error("Vui lòng tải lên hình ảnh cho đồ ăn!");
+      return;
+    }
     try {
-      await updateFood({ ...values, id: dataFood.id, image: linkImage });
+      await updateFood({ ...values, id: dataFood.id, image: linkImage }).unwrap();
 
       message.success("Cập nhật sản phẩm thành công");
 
@@ -88,10 +105,9 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
 
       navigate("/admin/food");
     } catch (error) {
-      message.error("Cập nhật sản phẩm thất bại");
+      message.error(getValidationErrorMessage(error, "Cập nhật sản phẩm thất bại"));
     }
   };
-  const [open, setOpen] = useState(false);
 
   const showDrawer = () => {
     setOpen(true);
@@ -177,12 +193,15 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
                     onChange={(e) => handleUpdateImage(e)}
                     id="update-image"
                   />
-                  <label
-                    htmlFor="update-image"
-                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
-                  >
-                    upload image
-                  </label>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="update-image"
+                      className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition text-center"
+                    >
+                      upload image
+                    </label>
+                    <span className="text-xs text-gray-400 mt-1">Tối đa 10MB (PNG, JPG, WEBP)</span>
+                  </div>
                 </div>
               </Form.Item>
             </Col>
@@ -214,23 +233,24 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
                   { required: true, message: "Trường dữ liệu bắt buộc" },
                   {
                     validator: (_, value) => {
-                      if (isNaN(value)) {
-                        return Promise.reject("Vui lòng nhập một số hợp lệ");
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                  {
-                    validator: (_, value) => {
-                      if (value < 0) {
-                        return Promise.reject("Giá không thể là số âm");
+                      if (value !== undefined && value !== null && value !== "") {
+                        const num = Number(value);
+                        if (isNaN(num)) {
+                          return Promise.reject("Vui lòng nhập một số hợp lệ");
+                        }
+                        if (num < 0) {
+                          return Promise.reject("Giá không thể là số âm");
+                        }
+                        if (num > 10000000) {
+                          return Promise.reject("Giá tiền không thể vượt quá 10.000.000 Vn₫");
+                        }
                       }
                       return Promise.resolve();
                     },
                   },
                 ]}
               >
-                <Input placeholder="giá tiền" />
+                <InputNumber placeholder="giá tiền" style={{ width: "100%" }} />
               </Form.Item>
             </Col>
 
@@ -242,23 +262,27 @@ const UpdateCategory: React.FC<EditFoodProps> = ({ dataFood }) => {
                   { required: true, message: "Trường dữ liệu bắt buộc" },
                   {
                     validator: (_, value) => {
-                      if (isNaN(value)) {
-                        return Promise.reject("Vui lòng nhập một số hợp lệ");
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                  {
-                    validator: (_, value) => {
-                      if (value < 0) {
-                        return Promise.reject("Số lượng không thể là số âm");
+                      if (value !== undefined && value !== null && value !== "") {
+                        const num = Number(value);
+                        if (isNaN(num)) {
+                          return Promise.reject("Vui lòng nhập một số hợp lệ");
+                        }
+                        if (num < 0) {
+                          return Promise.reject("Số lượng không thể là số âm");
+                        }
+                        if (num > 1000000) {
+                          return Promise.reject("Số lượng không thể vượt quá 1.000.000");
+                        }
+                        if (!Number.isInteger(num)) {
+                          return Promise.reject("Số lượng phải là số nguyên");
+                        }
                       }
                       return Promise.resolve();
                     },
                   },
                 ]}
               >
-                <Input placeholder="Số lượng" />
+                <InputNumber placeholder="Số lượng" style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>

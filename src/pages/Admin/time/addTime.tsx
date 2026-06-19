@@ -13,6 +13,7 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAddTimeMutation } from "../../../service/time.service";
+import { getValidationErrorMessage } from "../../../utils";
 
 const { Option } = Select;
 
@@ -36,7 +37,7 @@ const AddTime: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/time");
     } catch (error) {
-      message.error("Thêm giờ chiếu thất bại");
+      message.error(getValidationErrorMessage(error, "Thêm giờ chiếu thất bại"));
     }
   };
 

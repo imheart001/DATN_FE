@@ -7,6 +7,7 @@ import {
   Drawer,
   Form,
   Input,
+  InputNumber,
   Row,
   Select,
   // Select,
@@ -16,6 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { useAddVoucherMutation } from "../../../service/voucher.service";
+import { getValidationErrorMessage } from "../../../utils";
 // const { Option } = Select;
 import { DatePicker } from "antd";
 
@@ -41,7 +43,7 @@ const AddVoucher: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/vouchers");
     } catch (error) {
-      message.error("Thêm Voucher thất bại");
+      message.error(getValidationErrorMessage(error, "Thêm Voucher thất bại"));
     }
   };
 
@@ -107,10 +109,26 @@ const AddVoucher: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="price_voucher"
-                label="Price"
-                rules={[{ required: true, message: "Please enter Price" }]}
+                label="Giá trị giảm"
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { type: "number", message: "Giá trị giảm phải là số" },
+                  {
+                    validator: (_, value) => {
+                      if (value !== undefined && value !== null) {
+                        if (value < 0) {
+                          return Promise.reject("Giá trị giảm không thể là số âm");
+                        }
+                        if (value > 10000000) {
+                          return Promise.reject("Giá trị giảm không thể vượt quá 10.000.000 Vn₫");
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
-                <Input placeholder="Please enter Price" />
+                <InputNumber placeholder="Giá trị giảm" style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>
@@ -132,9 +150,28 @@ const AddVoucher: React.FC = () => {
               <Form.Item
                 name="usage_limit"
                 label="Số lượng ban đầu"
-                rules={[{ required: true, message: "Please Số lượng ban đầu" }]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { type: "number", message: "Số lượng phải là số" },
+                  {
+                    validator: (_, value) => {
+                      if (value !== undefined && value !== null) {
+                        if (value < 0) {
+                          return Promise.reject("Số lượng không thể là số âm");
+                        }
+                        if (value > 1000000) {
+                          return Promise.reject("Số lượng không thể vượt quá 1.000.000");
+                        }
+                        if (!Number.isInteger(value)) {
+                          return Promise.reject("Số lượng phải là số nguyên");
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
-                <Input placeholder="Please enter Số lượng ban đầu" />
+                <InputNumber placeholder="Số lượng ban đầu" style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>
@@ -143,9 +180,25 @@ const AddVoucher: React.FC = () => {
               <Form.Item
                 name="minimum_amount"
                 label="Áp dụng cho đơn từ ?"
-                rules={[{ required: true, message: "Please Max Sale Price" }]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { type: "number", message: "Giá trị đơn hàng phải là số" },
+                  {
+                    validator: (_, value) => {
+                      if (value !== undefined && value !== null) {
+                        if (value < 0) {
+                          return Promise.reject("Giá trị không thể là số âm");
+                        }
+                        if (value > 100000000) {
+                          return Promise.reject("Giá trị tối đa là 100.000.000 Vn₫");
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
-                <Input placeholder="Please Max Sale Price" />
+                <InputNumber placeholder="Áp dụng cho đơn từ" style={{ width: "100%" }} />
               </Form.Item>
             </Col>
 
@@ -153,9 +206,25 @@ const AddVoucher: React.FC = () => {
               <Form.Item
                 name="percent"
                 label="Số % giảm"
-                rules={[{ required: true, message: "Please Số % giảm" }]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { type: "number", message: "Số % giảm phải là số" },
+                  {
+                    validator: (_, value) => {
+                      if (value !== undefined && value !== null) {
+                        if (value < 0 || value > 100) {
+                          return Promise.reject("Phần trăm giảm phải từ 0% đến 100%");
+                        }
+                        if (!Number.isInteger(value)) {
+                          return Promise.reject("Phần trăm phải là số nguyên");
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
-                <Input placeholder="Please enter Số % giảm" />
+                <InputNumber placeholder="Số % giảm" style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>

@@ -13,6 +13,7 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAddCateMutation } from "../../../service/cate.service";
+import { getValidationErrorMessage } from "../../../utils";
 const { Option } = Select;
 
 const AddCategory: React.FC = () => {
@@ -35,7 +36,7 @@ const AddCategory: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/listcate");
     } catch (error) {
-      message.error("Thêm loại phim thất bại");
+      message.error(getValidationErrorMessage(error, "Thêm loại phim thất bại"));
     }
   };
 

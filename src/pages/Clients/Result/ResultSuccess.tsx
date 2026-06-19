@@ -7,6 +7,8 @@ import { Button, QRCode, Result, Space } from "antd";
 import { useRechargeByMomoMutation } from "../../../service/payMoMo.service";
 import { setMoney } from "../../../components/ChoosePayment/ChoosePayment";
 import { useDispatch, useSelector } from "react-redux";
+import { useGetUserByIdQuery } from "../../../service/book_ticket.service";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const ResultSuccess = () => {
   const location = useLocation();
@@ -17,30 +19,39 @@ const ResultSuccess = () => {
   const amount = params.get("amount") || "";
   const money2 = useSelector((state: any) => state.Paymentmethod?.coin);
   console.log(money2);
-  const TransactionStatus = params.get("resultCode") || "";
+  const momoResultCode = params.get("resultCode");
+  const vnpResponseCode = params.get("vnp_ResponseCode");
+  const isSuccess =
+    (momoResultCode !== null && momoResultCode === "0") ||
+    (vnpResponseCode !== null && vnpResponseCode === "00");
+
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
+  const { refetch: refetchUser } = useGetUserByIdQuery(
+    userId?.id ? `${userId.id}` : skipToken
+  );
   const dataRecharge: any = {
     coin: money2,
     id_user: userId?.id,
   };
   useEffect(() => {
     const fetchData = async () => {
-      if (TransactionStatus && TransactionStatus == "0") {
+      if (isSuccess) {
         const response = await recharge(dataRecharge);
         console.log(response);
 
         if ((response as any)?.data.status) {
           dispatch(setMoney(null));
+          refetchUser();
         }
       }
     };
 
     fetchData(); // Call the asynchronous function inside useEffect
-  }, []);
+  }, [isSuccess]);
 
   let content;
-  if (TransactionStatus == "0") {
+  if (isSuccess) {
     content = (
       <div className="bg-white p-10 rounded-lg shadow-lg">
         <Result

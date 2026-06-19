@@ -21,6 +21,7 @@ import { ICategorys } from "../../../interface/model";
 import { useAddCateDetailMutation } from "../../../service/catedetail.service";
 import { FOLDER_NAME } from "../../../configs/config";
 import { uploadImageApi } from "../../../apis/upload-image.api";
+import { validateImageFile, getUploadErrorMessage, getValidationErrorMessage } from "../../../utils";
 
 const AddFilm: React.FC = () => {
   const showDrawer = () => {
@@ -39,12 +40,12 @@ const AddFilm: React.FC = () => {
   const [form] = Form.useForm();
 
   const onFinish = async (values: any) => {
-    if (linkImage === null || linkImage.trim().length === 0) {
-      message.error("khong chọn ảnh");
+    if (!linkImage || linkImage.trim().length === 0) {
+      message.error("Vui lòng tải lên hình ảnh cho phim!");
       return;
     }
-    if (uploadPoster === null || uploadPoster.trim().length === 0) {
-      message.error("poster chưa ddocjw chọn");
+    if (!uploadPoster || uploadPoster.trim().length === 0) {
+      message.error("Vui lòng tải lên poster cho phim!");
       return;
     }
     const dataAddFilm = {
@@ -71,11 +72,13 @@ const AddFilm: React.FC = () => {
       });
 
       message.success("Thêm sản phẩm thành công");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      navigate("/admin/listfilm");
+      onClose();
+      form.resetFields();
+      setLinkImage(null);
+      setUploadPoster(null);
     } catch (error: any) {
       console.log("🚀 ~ file: AddFilm.tsx:73 ~ onFinish ~ error:", error);
-      message.error(error.data.errors.name || error.data.errors.slug);
+      message.error(getValidationErrorMessage(error, "Thêm phim thất bại"));
     }
   };
 
@@ -86,9 +89,18 @@ const AddFilm: React.FC = () => {
   const [uploadPoster, setUploadPoster] = useState<string | null>(null);
 
   const handleUpdateImage = async (e: any, isPoster: boolean) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate type and size
+    for (const file of files) {
+      if (!validateImageFile(file)) {
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
-      const files = e.target.files;
       const formData = new FormData();
       formData.append("upload_preset", "da_an_tot_nghiep");
       formData.append("folder", FOLDER_NAME);
@@ -97,32 +109,42 @@ const AddFilm: React.FC = () => {
         const response = await uploadImageApi(formData);
         if (response) {
           setLinkImage(response.url);
-          setIsLoading(false);
         }
       }
-    } catch (error) {
-      message.error("loi");
+    } catch (error: any) {
+      message.error(getUploadErrorMessage(error));
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleUpdateImagePoster = async (e: any) => {
-    // setIsLoadingPoster(true);
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate type and size
+    for (const file of files) {
+      if (!validateImageFile(file)) {
+        return;
+      }
+    }
+
+    setIsLoadingPoster(true);
     try {
-      const files = e.target.files;
       const formData = new FormData();
       formData.append("upload_preset", "da_an_tot_nghiep");
       formData.append("folder", FOLDER_NAME);
       for (const file of files) {
         formData.append("file", file);
         const response = await uploadImageApi(formData);
-        setUploadPoster(response.url);
-        setIsLoadingPoster(false);
         if (response) {
+          setUploadPoster(response.url);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
+      message.error(getUploadErrorMessage(error));
+    } finally {
       setIsLoadingPoster(false);
-      message.error("loi");
     }
   };
 
@@ -199,14 +221,17 @@ const AddFilm: React.FC = () => {
                     value={uploadImage}
                     className="flex-1 !hidden"
                     onChange={(e) => handleUpdateImage(e, false)}
-                    id="update-image"
+                    id="add-film-image"
                   />
-                  <label
-                    htmlFor="update-image"
-                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
-                  >
-                    upload image
-                  </label>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="add-film-image"
+                      className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition text-center"
+                    >
+                      upload image
+                    </label>
+                    <span className="text-xs text-gray-400 mt-1">Tối đa 10MB (PNG, JPG, WEBP)</span>
+                  </div>
                 </div>
               </Form.Item>
             </Col>
@@ -252,9 +277,25 @@ const AddFilm: React.FC = () => {
               <Form.Item
                 name="time"
                 label="Thời Lượng"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { type: "number", message: "Thời lượng phải là số" },
+                  {
+                    validator: (_, value) => {
+                      if (value !== undefined && value !== null) {
+                        if (value <= 0) {
+                          return Promise.reject("Thời lượng phải lớn hơn 0 phút");
+                        }
+                        if (value > 1000) {
+                          return Promise.reject("Thời lượng không hợp lý (tối đa 1000 phút)");
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
-                <Input placeholder="Thời Lượng" />
+                <InputNumber className="w-full" placeholder="Thời Lượng" />
               </Form.Item>
             </Col>
             <Col span={6}>
@@ -298,7 +339,23 @@ const AddFilm: React.FC = () => {
                 className="w-full"
                 name="limit_age"
                 label="Giới hạn tuổi"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { type: "number", message: "Giới hạn tuổi phải là số" },
+                  {
+                    validator: (_, value) => {
+                      if (value !== undefined && value !== null) {
+                        if (value < 0) {
+                          return Promise.reject("Độ tuổi không thể âm");
+                        }
+                        if (value > 100) {
+                          return Promise.reject("Độ tuổi không hợp lệ (tối đa 100)");
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
                 <InputNumber className="w-full" placeholder="Giới hạn tuổi" />
               </Form.Item>
@@ -311,14 +368,17 @@ const AddFilm: React.FC = () => {
                     value={uploadImage}
                     className="flex-1 !hidden"
                     onChange={(e) => handleUpdateImagePoster(e)}
-                    id="update-image-poster"
+                    id="add-film-poster"
                   />
-                  <label
-                    htmlFor="update-image-poster"
-                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
-                  >
-                    upload image
-                  </label>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="add-film-poster"
+                      className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition text-center"
+                    >
+                      upload image
+                    </label>
+                    <span className="text-xs text-gray-400 mt-1">Tối đa 10MB (PNG, JPG, WEBP)</span>
+                  </div>
                 </div>
               </Form.Item>
             </Col>

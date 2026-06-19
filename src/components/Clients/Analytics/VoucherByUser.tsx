@@ -42,7 +42,7 @@ const VocuherByUserAnalytics: React.FC<VocuherByUserAnalyticsProps> = ({
     {
       title: "% được lựa chọn",
       dataIndex: "percentage_used",
-      render: (text) => <a>{(parseFloat(text) * 100).toFixed(1)}%</a>,
+      render: (text) => <a>{text ? parseFloat(text).toFixed(1) : "0.0"}%</a>,
     },
   ];
 

@@ -206,7 +206,7 @@ const Ticket: React.FC = () => {
                       className="h-[340px] w-[228px] rounded-2xl"
                     />
                     <div className="absolute left-0 top-0 m-2 rounded-xl bg-black px-2 p-1 font-bold text-white">
-                      {film?.limit_age}+
+                      {extractLimitAge(film?.limit_age)}+
                     </div>
 
                     <div className="h-[150px]">
@@ -237,7 +237,7 @@ const Ticket: React.FC = () => {
                             </svg>
                           </span>
                         ) : null}
-                        <span className="shrink-0">{film?.limit_age}+</span>
+                        <span className="shrink-0">{extractLimitAge(film?.limit_age)}+</span>
                       </div>
                       <div className="mt-4 text-xs text-[#C8C8C8]">
                         {nextShowtime

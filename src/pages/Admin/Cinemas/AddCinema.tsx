@@ -13,6 +13,7 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useAddCinemaMutation } from "../../../service/brand.service";
+import { getValidationErrorMessage } from "../../../utils";
 
 const { Option } = Select;
 
@@ -36,7 +37,7 @@ const AddCinema: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/cinema");
     } catch (error) {
-      message.error("Thêm sản phẩm thất bại");
+      message.error(getValidationErrorMessage(error, "Thêm sản phẩm thất bại"));
     }
   };
 

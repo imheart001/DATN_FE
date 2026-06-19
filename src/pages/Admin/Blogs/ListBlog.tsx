@@ -77,6 +77,9 @@ const ListBlog: React.FC = () => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
+      render: (status: number) => (
+        <span>{status === 1 ? "Hoạt động" : "Ngừng hoạt động"}</span>
+      ),
     },
     {
       render: (_, record) => {
@@ -118,8 +121,7 @@ const ListBlog: React.FC = () => {
     slug: blog?.slug,
     image: blog?.image,
     content: blog?.content,
-    // status: blog?.status,
-    status: [blog?.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+    status: blog?.status,
   }));
   const [dataList, setDataList] = useState<any>(null);
 

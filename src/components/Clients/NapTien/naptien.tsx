@@ -1,6 +1,7 @@
 import { InputNumber, Modal, Tabs, message } from "antd";
 import type { TabsProps } from "antd";
 import { usePaymentMomoMutation } from "../../../service/payMoMo.service";
+import { useSendPaymentVnPayMutation } from "../../../service/payVnpay.service";
 import { setMoney } from "../../ChoosePayment/ChoosePayment";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
@@ -9,6 +10,7 @@ const Recharge: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
   const [payMomo] = usePaymentMomoMutation();
+  const [sendPaymentVnpay] = useSendPaymentVnPayMutation();
   const getuserId = localStorage.getItem("user");
   const userId = JSON.parse(`${getuserId}`);
   const [inputValue, setInputValue] = useState("");
@@ -57,6 +59,15 @@ const Recharge: React.FC = () => {
       
       // dispatch(setMoney(value));
       window.location.href = `${(response as any)?.data?.payUrl}`;
+    } else if (selectedPaymentMethod == "vnpay") {
+      const dataPost: any = {
+        amount: money2,
+        id_user: userId.id,
+      };
+      const response = await sendPaymentVnpay(dataPost);
+      console.log(response);
+      
+      window.location.href = `${(response as any)?.data?.data}`;
     }
   };
   const items: TabsProps["items"] = [

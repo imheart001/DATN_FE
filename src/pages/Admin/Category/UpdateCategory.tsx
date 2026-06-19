@@ -17,6 +17,7 @@ import {
 } from "antd";
 
 import { useUpdateCateMutation } from "../../../service/cate.service";
+import { getValidationErrorMessage } from "../../../utils";
 
 interface DataType {
   id: string;
@@ -45,7 +46,7 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
   }, [dataCate]);
   const onFinish = async (values: any) => {
     try {
-      await updateCate({ ...values, id: dataCate.id });
+      await updateCate({ ...values, id: dataCate.id }).unwrap();
 
       message.success("Cập nhật loại phim thành công");
 
@@ -53,7 +54,7 @@ const UpdateCategory: React.FC<EditCateProps> = ({ dataCate }) => {
 
       navigate("/admin/listcate");
     } catch (error) {
-      message.error("Cập nhật loại phim thất bại");
+      message.error(getValidationErrorMessage(error, "Cập nhật loại phim thất bại"));
     }
   };
   const [open, setOpen] = useState(false);

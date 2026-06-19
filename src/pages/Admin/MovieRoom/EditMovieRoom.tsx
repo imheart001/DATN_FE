@@ -17,6 +17,7 @@ import {
 import { useUpdateMovieRoomMutation } from "../../../service/movieroom.service";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { ICinemas } from "../../../interface/model";
+import { getValidationErrorMessage } from "../../../utils";
 
 interface DataType {
   id: string;
@@ -34,6 +35,7 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { Option } = Select;
+  const [open, setOpen] = useState(false);
 
   let user = JSON.parse(localStorage.getItem("user")!);
 
@@ -46,17 +48,17 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
   const optionRole1 = (cinemas as any)?.data?.map((item: any) => item);
 
   useEffect(() => {
-    if (dataMovieRoom) {
+    if (open && dataMovieRoom) {
       form.setFieldsValue({
         name: dataMovieRoom.name,
         id_cinema: dataMovieRoom.id_cinema,
       });
     }
-  }, [dataMovieRoom]);
+  }, [open, dataMovieRoom, form]);
   const onFinish = async (values: any) => {
     console.log("🚀 ~ file: EditMovieRoom.tsx:57 ~ onFinish ~ values:", values)
     try {
-      await updateMovieRoom({ ...values, id: dataMovieRoom.id });
+      await updateMovieRoom({ ...values, id: dataMovieRoom.id }).unwrap();
 
       message.success("Cập nhật phòng chiếu thành công");
 
@@ -64,10 +66,9 @@ const UpdateMovieRoom: React.FC<EditMovieRoomProps> = ({ dataMovieRoom }) => {
 
       navigate("/admin/movieroom");
     } catch (error) {
-      message.error("Cập nhật phòng chiếu thất bại");
+      message.error(getValidationErrorMessage(error, "Cập nhật phòng chiếu thất bại"));
     }
   };
-  const [open, setOpen] = useState(false);
 
   const showDrawer = () => {
     setOpen(true);

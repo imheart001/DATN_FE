@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Modal } from "antd";
 import { useGetAllCateDetailByFilmQuery } from "../service/catedetail.service";
 import { useGetCommentByUserIdQuery } from "../service/commentfilm.service";
+import { extractNumber } from "../utils";
 
 type Props = {
   data: any;
@@ -50,7 +51,7 @@ const FilmShowing = ({ data }: Props) => {
             </svg>
           </div>
           <div className="absolute right-0 top-0 m-2 rounded-xl bg-black p-1 px-2 font-bold text-white">
-            {data?.limit_age}+
+            {extractNumber(data?.limit_age)}+
           </div>
         </button>
       </div>
@@ -83,7 +84,7 @@ const FilmShowing = ({ data }: Props) => {
             </div>
           </span>
         ) : null}
-        <span className="shrink-0">{data?.limit_age}+</span>
+        <span className="shrink-0">{extractNumber(data?.limit_age)}+</span>
       </div>
 
       {new Date(data?.release_date) > currentDate && (

@@ -32,7 +32,7 @@ import {
   useRevenueByReleaseMutation,
 } from "../../../service/filmRelease.service";
 import { formatter } from "../../../utils/formatCurrency";
-import { compareDates, compareReleaseDate } from "../../../utils";
+import { compareDates, compareReleaseDate, validateImageFile, getUploadErrorMessage, getValidationErrorMessage, extractNumber } from "../../../utils";
 
 interface DataType {
   key: string;
@@ -66,11 +66,11 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         slug: dataID.slug,
         name: dataID.nameFilm,
         trailer: dataID.trailer,
-        time: dataID.time,
+        time: extractNumber(dataID.time),
         release_date: dayjs(dataID.dateSt), // Sử dụng thư viện dayjs để xử lý ngày
         end_date: dayjs(dataID.dateEnd),
         description: dataID.description,
-        limit_age: dataID.limit_age,
+        limit_age: extractNumber(dataID.limit_age),
         poster: dataID.poster,
       });
       setLinkImage(dataID.images);
@@ -78,6 +78,14 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
     }
   }, [dataID]);
   const onFinish = async (values: any) => {
+    if (!linkImage) {
+      message.error("Vui lòng tải lên hình ảnh cho phim!");
+      return;
+    }
+    if (!uploadPoster) {
+      message.error("Vui lòng tải lên poster cho phim!");
+      return;
+    }
     try {
       values.release_date = values.release_date.format("YYYY-MM-DD");
       values.end_date = values.end_date.format("YYYY-MM-DD");
@@ -90,8 +98,7 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
       navigate("/admin/listfilm");
     } catch (error: any) {
       console.error(error);
-      const errMsg = error?.data?.error?.name?.[0] || error?.data?.message || "Cập nhật sản phẩm thất bại";
-      message.error(errMsg);
+      message.error(getValidationErrorMessage(error, "Cập nhật sản phẩm thất bại"));
     }
   };
   const [open, setOpen] = useState(false);
@@ -117,9 +124,18 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
   const [uploadPoster, setUploadPoster] = useState<string | null>(null);
 
   const handleUpdateImage = async (e: any) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate type and size
+    for (const file of files) {
+      if (!validateImageFile(file)) {
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
-      const files = e.target.files;
       const formData = new FormData();
       formData.append("upload_preset", "da_an_tot_nghiep");
       formData.append("folder", FOLDER_NAME);
@@ -128,30 +144,42 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
         const response = await uploadImageApi(formData);
         if (response) {
           setLinkImage(response.url);
-          setIsLoading(false);
         }
       }
-    } catch (error) {
-      message.error("loi");
+    } catch (error: any) {
+      message.error(getUploadErrorMessage(error));
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleUpdateImagePoster = async (e: any) => {
-    // setIsLoadingPoster(true);
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate type and size
+    for (const file of files) {
+      if (!validateImageFile(file)) {
+        return;
+      }
+    }
+
+    setIsLoadingPoster(true);
     try {
-      const files = e.target.files;
       const formData = new FormData();
       formData.append("upload_preset", "da_an_tot_nghiep");
       formData.append("folder", FOLDER_NAME);
       for (const file of files) {
         formData.append("file", file);
         const response = await uploadImageApi(formData);
-        setUploadPoster(response.url);
-        setIsLoadingPoster(false);
+        if (response) {
+          setUploadPoster(response.url);
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
+      message.error(getUploadErrorMessage(error));
+    } finally {
       setIsLoadingPoster(false);
-      message.error("loi");
     }
   };
 
@@ -220,14 +248,17 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                     value={uploadImage}
                     className="flex-1 !hidden"
                     onChange={(e) => handleUpdateImage(e)}
-                    id="update-image"
+                    id={`edit-film-image-${dataID.name}`}
                   />
-                  <label
-                    htmlFor="update-image"
-                    className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition"
-                  >
-                    upload image
-                  </label>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor={`edit-film-image-${dataID.name}`}
+                      className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition text-center"
+                    >
+                      upload image
+                    </label>
+                    <span className="text-xs text-gray-400 mt-1">Tối đa 10MB (PNG, JPG, WEBP)</span>
+                  </div>
                 </div>
               </Form.Item>
             </Col>
@@ -273,9 +304,25 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
               <Form.Item
                 name="time"
                 label="Thời Lượng"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { type: "number", message: "Thời lượng phải là số" },
+                  {
+                    validator: (_, value) => {
+                      if (value !== undefined && value !== null) {
+                        if (value <= 0) {
+                          return Promise.reject("Thời lượng phải lớn hơn 0 phút");
+                        }
+                        if (value > 1000) {
+                          return Promise.reject("Thời lượng không hợp lý (tối đa 1000 phút)");
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
-                <Input placeholder="Thời Lượng" />
+                <InputNumber className="w-full" placeholder="Thời Lượng" />
               </Form.Item>
             </Col>
             <Col span={6}>
@@ -306,7 +353,23 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                 className="w-full"
                 name="limit_age"
                 label="Giới hạn tuổi"
-                rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
+                rules={[
+                  { required: true, message: "Trường dữ liệu bắt buộc" },
+                  { type: "number", message: "Giới hạn tuổi phải là số" },
+                  {
+                    validator: (_, value) => {
+                      if (value !== undefined && value !== null) {
+                        if (value < 0) {
+                          return Promise.reject("Độ tuổi không thể âm");
+                        }
+                        if (value > 100) {
+                          return Promise.reject("Độ tuổi không hợp lệ (tối đa 100)");
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
               >
                 <InputNumber className="w-full" placeholder="Giới hạn tuổi" />
               </Form.Item>
@@ -319,14 +382,17 @@ const EditFilm: React.FC<EditFilmProps> = ({ dataID }) => {
                     value={uploadImage}
                     className="flex-1 !hidden"
                     onChange={(e) => handleUpdateImagePoster(e)}
-                    id="update-image-poster"
+                    id={`edit-film-poster-${dataID.name}`}
                   />
-                  <label
-                    htmlFor="update-image-poster"
-                    className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition"
-                  >
-                    upload image
-                  </label>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor={`edit-film-poster-${dataID.name}`}
+                      className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition text-center"
+                    >
+                      upload image
+                    </label>
+                    <span className="text-xs text-gray-400 mt-1">Tối đa 10MB (PNG, JPG, WEBP)</span>
+                  </div>
                 </div>
               </Form.Item>
             </Col>

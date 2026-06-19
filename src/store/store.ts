@@ -40,6 +40,7 @@ import commentsAPI from "../service/commentBlog.service";
 import refundAPI from "../service/refund.service";
 import commentsFilmAPI from "../service/commentfilm.service";
 import filmReleaseAPI from "../service/filmRelease.service";
+import useCoinAPI from "../service/usecoin.service";
 
 // Import redux-persist
 const persistConfig = {
@@ -83,6 +84,7 @@ const rootReducer = combineReducers({
   [analyticApi.reducerPath]: analyticApi.reducer,
   [memberAPI.reducerPath]: memberAPI.reducer,
   [filmReleaseAPI.reducerPath]: filmReleaseAPI.reducer,
+  [useCoinAPI.reducerPath]: useCoinAPI.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -119,7 +121,8 @@ const store = configureStore({
       blogsAPI.middleware,
       commentsAPI.middleware,
       refundAPI.middleware,
-      filmReleaseAPI.middleware
+      filmReleaseAPI.middleware,
+      useCoinAPI.middleware
     );
 
     return middlewareArray;

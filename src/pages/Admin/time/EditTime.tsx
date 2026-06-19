@@ -16,6 +16,7 @@ import {
   message,
 } from "antd";
 import { useUpdateTimeMutation } from "../../../service/time.service";
+import { getValidationErrorMessage } from "../../../utils";
 
 const { Option } = Select;
 interface DataType {
@@ -40,7 +41,7 @@ const EditTime: React.FC<EditTimeProps> = ({ dataTime }) => {
   }, [dataTime]);
   const onFinish = async (values: any) => {
     try {
-      await updateTime({ ...values, id: dataTime.id });
+      await updateTime({ ...values, id: dataTime.id }).unwrap();
 
       message.success("Cập nhật giờ thành công");
 
@@ -48,7 +49,7 @@ const EditTime: React.FC<EditTimeProps> = ({ dataTime }) => {
 
       navigate("/admin/time");
     } catch (error) {
-      message.error("Cập nhật giờ thất bại");
+      message.error(getValidationErrorMessage(error, "Cập nhật giờ thất bại"));
     }
   };
   const [open, setOpen] = useState(false);

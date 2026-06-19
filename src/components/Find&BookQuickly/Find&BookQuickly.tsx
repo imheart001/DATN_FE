@@ -119,78 +119,121 @@ const FindBookQuickly: React.FC = () => {
   };
 
   return (
-    <section>
-      <section className="mx-auto max-w-5xl space-y-2 rounded-lg border-cyan-500 bg-white p-4 shadow-xl shadow-cyan-500/50">
-        <section>
-          <h1 className="block border-b-2 border-red-600 text-center text-xl font-bold text-red-600">
-            Đặt vé nhanh ở đây
-          </h1>
-          <p className="mt-3 text-center text-sm text-slate-500">{helperText}</p>
-        </section>
+    <section className="py-8 px-4">
+      <div className="mx-auto max-w-5xl rounded-2xl bg-white p-6 md:p-8 shadow-[0_10px_50px_rgba(6,182,212,0.15)] border border-cyan-100/50 relative overflow-hidden transition-all duration-300 hover:shadow-[0_15px_60px_rgba(6,182,212,0.25)]">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-100/20 rounded-full blur-3xl -mr-20 -mt-20 -z-10" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-rose-100/20 rounded-full blur-3xl -ml-20 -mb-20 -z-10" />
 
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-5">
-          <section>
+        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-5">
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-cyan-50 text-cyan-600 uppercase tracking-wider mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+              Đặt vé trực tuyến
+            </span>
+            <h2 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">
+              MUA VÉ NHANH
+            </h2>
+          </div>
+          <div className="flex items-center gap-2 bg-gray-50 border border-gray-100 rounded-lg px-4 py-2 text-sm text-gray-500 font-medium">
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            <span>{helperText}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-center">
+          {/* Select Film */}
+          <div className="relative flex flex-col bg-gray-50 hover:bg-gray-100/80 focus-within:bg-white focus-within:ring-2 focus-within:ring-cyan-500/20 border border-gray-100 rounded-xl transition-all duration-200 h-16 justify-end pb-1.5">
+            <label className="absolute top-2 left-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 pointer-events-none z-10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l4.24 4.24"/><path d="M14.83 9.17l4.24-4.24"/><path d="M14.83 14.83l4.24 4.24"/><path d="M9.17 14.83l-4.24 4.24"/><circle cx="12" cy="12" r="4"/></svg>
+              Chọn Phim
+            </label>
             <Select
-              className="w-full"
-              placeholder="Tìm phim..."
+              bordered={false}
+              className="w-full font-medium pt-3"
+              placeholder="Chọn phim..."
               options={filmOptions}
               value={selectedFilm ?? undefined}
               onChange={handleFilmChange}
               allowClear
+              showSearch
+              optionFilterProp="label"
             />
-          </section>
+          </div>
 
-          <section>
+          {/* Select Cinema */}
+          <div className={`relative flex flex-col bg-gray-50 hover:bg-gray-100/80 focus-within:bg-white focus-within:ring-2 focus-within:ring-cyan-500/20 border border-gray-100 rounded-xl transition-all duration-200 h-16 justify-end pb-1.5 ${!selectedFilm ? "opacity-50 pointer-events-none" : ""}`}>
+            <label className="absolute top-2 left-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 pointer-events-none z-10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              Chọn Rạp
+            </label>
             <Select
-              className="w-full"
-              placeholder="Rạp"
+              bordered={false}
+              className="w-full font-medium pt-3"
+              placeholder="Chọn rạp..."
               options={cinemaOptions}
               value={selectedCinema ?? undefined}
               onChange={handleCinemaChange}
               disabled={!selectedFilm}
               allowClear
+              showSearch
+              optionFilterProp="label"
             />
-          </section>
+          </div>
 
-          <section>
+          {/* Select Date */}
+          <div className={`relative flex flex-col bg-gray-50 hover:bg-gray-100/80 focus-within:bg-white focus-within:ring-2 focus-within:ring-cyan-500/20 border border-gray-100 rounded-xl transition-all duration-200 h-16 justify-end pb-1.5 ${(!selectedFilm || !selectedCinema || dateOptions.length === 0) ? "opacity-50 pointer-events-none" : ""}`}>
+            <label className="absolute top-2 left-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 pointer-events-none z-10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              Chọn Ngày
+            </label>
             <Select
-              className="w-full"
-              placeholder="Ngày chiếu"
+              bordered={false}
+              className="w-full font-medium pt-3"
+              placeholder="Chọn ngày..."
               options={dateOptions}
               value={selectedDate ?? undefined}
               onChange={handleDateChange}
               disabled={!selectedFilm || !selectedCinema || dateOptions.length === 0}
               allowClear
             />
-          </section>
+          </div>
 
-          <section>
+          {/* Select Showtime */}
+          <div className={`relative flex flex-col bg-gray-50 hover:bg-gray-100/80 focus-within:bg-white focus-within:ring-2 focus-within:ring-cyan-500/20 border border-gray-100 rounded-xl transition-all duration-200 h-16 justify-end pb-1.5 ${(!selectedDate || timeOptions.length === 0) ? "opacity-50 pointer-events-none" : ""}`}>
+            <label className="absolute top-2 left-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 pointer-events-none z-10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Suất Chiếu
+            </label>
             <Select
-              className="w-full"
-              placeholder="Suất chiếu"
+              bordered={false}
+              className="w-full font-medium pt-3"
+              placeholder="Chọn suất..."
               options={timeOptions}
               value={selectedShowId ?? undefined}
               onChange={handleShowtimeChange}
               disabled={!selectedDate || timeOptions.length === 0}
               allowClear
             />
-          </section>
+          </div>
 
-          <section>
+          {/* Book Button */}
+          <div className="w-full lg:pt-1">
             <button
               onClick={handleLinkBookTicket}
               disabled={!selectedShowId}
-              className={`my-2 w-full rounded-md py-2 text-[16px] transition ${
+              className={`w-full py-3.5 px-4 rounded-xl font-bold text-[14px] uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
                 selectedShowId
-                  ? "bg-black text-[#FFFFFF] shadow-xl shadow-cyan-500/50 hover:bg-[#EAE8E4] hover:text-black"
-                  : "cursor-not-allowed bg-slate-300 text-slate-500"
+                  ? "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-lg shadow-rose-500/25 hover:shadow-xl hover:shadow-rose-500/35 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
               }`}
             >
-              Mua Vé Ngay
+              <span>Mua Vé Ngay</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </button>
-          </section>
-        </section>
-      </section>
+          </div>
+        </div>
+      </div>
     </section>
   );
 };

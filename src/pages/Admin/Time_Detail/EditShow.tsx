@@ -20,6 +20,7 @@ import { IFilms, IMovieRoom, ITime } from "../../../interface/model";
 import { useUpdateShowTimeMutation } from "../../../service/show.service";
 import dayjs from "dayjs";
 import { useFetchMovieRoomQuery } from "../../../service/movieroom.service";
+import { getValidationErrorMessage } from "../../../utils";
 
 interface DataType {
   id: string;
@@ -63,8 +64,7 @@ const EditShow: React.FC<EditShowProps> = ({ dataShow }) => {
       navigate("/admin/show");
     } catch (error: any) {
       console.error(error);
-      const errMsg = error?.data?.error?.date?.[0] || error?.data?.message || "Cập nhật sản phẩm thất bại";
-      message.error(errMsg);
+      message.error(getValidationErrorMessage(error, "Cập nhật suất chiếu thất bại"));
     }
   };
   const [open, setOpen] = useState(false);

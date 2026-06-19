@@ -21,7 +21,7 @@ import {
 } from "../../../service/films.service";
 import { IFilms } from "../../../interface/model";
 import Loading from "../../../components/isLoading/Loading";
-import { compareDates, compareReleaseDate } from "../../../utils";
+import { compareDates, compareReleaseDate, extractNumber } from "../../../utils";
 import { FilterValue } from "antd/es/table/interface";
 interface DataType {
   key: string;
@@ -48,30 +48,46 @@ const ListFilm: React.FC = () => {
     Record<string, FilterValue | null>
   >({});
   const { data: films, isLoading } = useFetchProductQuery();
-  const [movies, setMovise] = useState<any>(null);
+  const [searchText, setSearchText] = useState("");
+  const [dateRange, setDateRange] = useState<any>(null);
   const [removeProduct] = useRemoveProductMutation();
   if (isLoading) {
     return <Loading />;
   }
-  const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => ({
-    key: index.toString(),
-    name: film?.id,
-    slug: film.slug,
-    trailer: film.trailer,
-    status: film.status,
-    description: film.description,
-    release_date: film.release_date,
-    end_date: film.end_date,
-    nameFilm: film?.name,
-    limit_age: film?.limit_age,
-    poster: film?.poster,
-    time: film?.time,
-    images: film?.image,
-    dateSt: new Date(film.release_date),
-    dateEnd: new Date(film.end_date),
-    releaseCount: (film as any).releases?.length ?? 1,
-    tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
-  }));
+  const dataFilm = (films as any)?.data?.map((film: IFilms, index: number) => {
+    let activeRelease = (film as any).releases?.find((r: any) => compareDates(r.release_date, r.end_date));
+    
+    if (!activeRelease) {
+      activeRelease = (film as any).releases?.find((r: any) => compareReleaseDate(r.release_date));
+    }
+    
+    const effectiveRelease = activeRelease || ((film as any).releases && (film as any).releases.length > 0
+      ? [...(film as any).releases].sort((a, b) => new Date(b.release_date).getTime() - new Date(a.release_date).getTime())[0]
+      : null);
+
+    const relDate = effectiveRelease ? effectiveRelease.release_date : film.release_date;
+    const endDate = effectiveRelease ? effectiveRelease.end_date : film.end_date;
+
+    return {
+      key: index.toString(),
+      name: film?.id,
+      slug: film.slug,
+      trailer: film.trailer,
+      status: film.status,
+      description: film.description,
+      release_date: relDate,
+      end_date: endDate,
+      nameFilm: film?.name,
+      limit_age: film?.limit_age,
+      poster: film?.poster,
+      time: film?.time,
+      images: film?.image,
+      dateSt: new Date(relDate),
+      dateEnd: new Date(endDate),
+      releaseCount: (film as any).releases?.length ?? 1,
+      tags: [film.status === 1 ? "Hoạt động" : "Ngừng hoạt động"],
+    };
+  });
   console.log(films);
 
   const user = JSON.parse(localStorage.getItem("user")!);
@@ -100,6 +116,7 @@ const ListFilm: React.FC = () => {
       title: "Thời lượng",
       dataIndex: "time",
       key: "time",
+      render: (time) => <span>{extractNumber(time)} phút</span>,
     },
     {
       title: "Ngày phát hành",
@@ -206,11 +223,8 @@ const ListFilm: React.FC = () => {
   ];
 
   /* tim kien san pham */
-  const onSearch = (value: any, _e: any) => {
-    const results = dataFilm.filter((item: any) =>
-      item.nameFilm.toLowerCase().includes(value.toLowerCase())
-    );
-    setMovise(results);
+  const onSearch = (value: any) => {
+    setSearchText(value);
   };
   const handleChange: TableProps<DataType>["onChange"] = (
     pagination,
@@ -218,6 +232,30 @@ const ListFilm: React.FC = () => {
   ) => {
     setFilteredInfo(filters);
   };
+
+  const filteredData = dataFilm.filter((item: any) => {
+    // 1. Filter by Search Query
+    const matchesSearch =
+      item.nameFilm.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.name.toString().toLowerCase().includes(searchText.toLowerCase());
+
+    // 2. Filter by Date Range
+    if (!dateRange || !dateRange[0] || !dateRange[1]) {
+      return matchesSearch;
+    }
+    const [start, end] = dateRange;
+    const filmStart = new Date(item.release_date);
+    const filmEnd = new Date(item.end_date);
+
+    const filterStart = start.toDate();
+    const filterEnd = end.toDate();
+    filterStart.setHours(0, 0, 0, 0);
+    filterEnd.setHours(23, 59, 59, 999);
+
+    const overlaps = filmStart <= filterEnd && filmEnd >= filterStart;
+    return matchesSearch && overlaps;
+  });
+
   return (
     <>
       <div className="">
@@ -227,21 +265,21 @@ const ListFilm: React.FC = () => {
             placeholder="Nhập tên phim hoặc mã phim"
             style={{ width: 600 }}
             onSearch={onSearch}
+            allowClear
+            onChange={(e) => setSearchText(e.target.value)}
           />
-          <RangePicker />
+          <RangePicker
+            value={dateRange}
+            onChange={(dates) => setDateRange(dates)}
+          />
           {role === 1 && <AddFilm />}
         </div>
       </div>
-      {!movies && (
-        <Table
-          columns={columns}
-          dataSource={dataFilm}
-          onChange={handleChange}
-        />
-      )}
-      {movies && (
-        <Table columns={columns} dataSource={movies} onChange={handleChange} />
-      )}
+      <Table
+        columns={columns}
+        dataSource={filteredData}
+        onChange={handleChange}
+      />
     </>
   );
 };

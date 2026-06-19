@@ -7,6 +7,7 @@ import {
   Drawer,
   Form,
   Input,
+  InputNumber,
   Row,
   // Select,
   Space,
@@ -17,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { useAddFoodMutation } from "../../../service/food.service";
 import { uploadImageApi } from "../../../apis/upload-image.api";
 import { FOLDER_NAME } from "../../../configs/config";
+import { validateImageFile, getUploadErrorMessage, getValidationErrorMessage } from "../../../utils";
 // const { Option } = Select;
 
 const AddFood: React.FC = () => {
@@ -33,6 +35,10 @@ const AddFood: React.FC = () => {
   };
 
   const onFinish = async (values: any) => {
+    if (!linkImage) {
+      message.error("Vui lòng tải lên hình ảnh cho đồ ăn!");
+      return;
+    }
     const data = { ...values, image: linkImage };
 
     try {
@@ -43,7 +49,7 @@ const AddFood: React.FC = () => {
       navigate("/admin/food");
     } catch (error) {
       console.log("🚀 ~ file: AddFood.tsx:45 ~ onFinish ~ error:", error)
-      message.error("Thêm sản phẩm thất bại");
+      message.error(getValidationErrorMessage(error, "Thêm sản phẩm thất bại"));
     }
   };
 
@@ -53,9 +59,18 @@ const AddFood: React.FC = () => {
   const [linkImage, setLinkImage] = useState<string | null>(null);
 
   const handleUpdateImageFood = async (e: any) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate type and size
+    for (const file of files) {
+      if (!validateImageFile(file)) {
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
-      const files = e.target.files;
       const formData = new FormData();
       formData.append("upload_preset", "da_an_tot_nghiep");
       formData.append("folder", FOLDER_NAME);
@@ -64,11 +79,12 @@ const AddFood: React.FC = () => {
         const response = await uploadImageApi(formData);
         if (response) {
           setLinkImage(response.url);
-          setIsLoading(false);
         }
       }
-    } catch (error) {
-      message.error("loi");
+    } catch (error: any) {
+      message.error(getUploadErrorMessage(error));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -139,12 +155,15 @@ const AddFood: React.FC = () => {
                     onChange={(e) => handleUpdateImageFood(e)}
                     id="update-image-poster"
                   />
-                  <label
-                    htmlFor="update-image-poster"
-                    className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
-                  >
-                    upload image
-                  </label>
+                  <div className="flex flex-col">
+                    <label
+                      htmlFor="update-image-poster"
+                      className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition text-center"
+                    >
+                      upload image
+                    </label>
+                    <span className="text-xs text-gray-400 mt-1">Tối đa 10MB (PNG, JPG, WEBP)</span>
+                  </div>
                 </div>
               </Form.Item>
             </Col>
@@ -176,23 +195,24 @@ const AddFood: React.FC = () => {
                   { required: true, message: "Trường dữ liệu bắt buộc" },
                   {
                     validator: (_, value) => {
-                      if (isNaN(value)) {
-                        return Promise.reject("Vui lòng nhập một số hợp lệ");
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                  {
-                    validator: (_, value) => {
-                      if (value < 0) {
-                        return Promise.reject("Giá không thể là số âm");
+                      if (value !== undefined && value !== null && value !== "") {
+                        const num = Number(value);
+                        if (isNaN(num)) {
+                          return Promise.reject("Vui lòng nhập một số hợp lệ");
+                        }
+                        if (num < 0) {
+                          return Promise.reject("Giá không thể là số âm");
+                        }
+                        if (num > 10000000) {
+                          return Promise.reject("Giá tiền không thể vượt quá 10.000.000 Vn₫");
+                        }
                       }
                       return Promise.resolve();
                     },
                   },
                 ]}
               >
-                <Input placeholder="Giá tiền" />
+                <InputNumber placeholder="Giá tiền" style={{ width: "100%" }} />
               </Form.Item>
             </Col>
 
@@ -204,16 +224,20 @@ const AddFood: React.FC = () => {
                   { required: true, message: "Trường dữ liệu bắt buộc" },
                   {
                     validator: (_, value) => {
-                      if (isNaN(value)) {
-                        return Promise.reject("Vui lòng nhập một số hợp lệ");
-                      }
-                      return Promise.resolve();
-                    },
-                  },
-                  {
-                    validator: (_, value) => {
-                      if (value < 0) {
-                        return Promise.reject("Số lượng không thể là số âm");
+                      if (value !== undefined && value !== null && value !== "") {
+                        const num = Number(value);
+                        if (isNaN(num)) {
+                          return Promise.reject("Vui lòng nhập một số hợp lệ");
+                        }
+                        if (num < 0) {
+                          return Promise.reject("Số lượng không thể là số âm");
+                        }
+                        if (num > 1000000) {
+                          return Promise.reject("Số lượng không thể vượt quá 1.000.000");
+                        }
+                        if (!Number.isInteger(num)) {
+                          return Promise.reject("Số lượng phải là số nguyên");
+                        }
                       }
                       return Promise.resolve();
                     },
@@ -221,7 +245,7 @@ const AddFood: React.FC = () => {
                 ]}
                 initialValue={100}
               >
-                <Input placeholder="Số lượng" />
+                <InputNumber placeholder="Số lượng" style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>

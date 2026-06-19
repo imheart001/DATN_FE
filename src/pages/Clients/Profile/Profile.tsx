@@ -4,6 +4,7 @@ import { useUpdateUserMutation } from "../../../service/signup_login.service";
 import { message } from "antd";
 import { FOLDER_NAME } from "../../../configs/config";
 import { uploadImageApi } from "../../../apis/upload-image.api";
+import { validateImageFile, getUploadErrorMessage } from "../../../utils";
 
 const Profile = () => {
   const [name, setName] = useState("");
@@ -91,9 +92,18 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdateImage = async (e: any) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate type and size
+    for (const file of files) {
+      if (!validateImageFile(file)) {
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
-      const files = e.target.files;
       const formData = new FormData();
       formData.append("upload_preset", "da_an_tot_nghiep");
       formData.append("folder", FOLDER_NAME);
@@ -102,11 +112,12 @@ const Profile = () => {
         const response = await uploadImageApi(formData);
         if (response) {
           setLinkImage(response.url);
-          setIsLoading(false);
         }
       }
-    } catch (error) {
-      message.error("loi");
+    } catch (error: any) {
+      message.error(getUploadErrorMessage(error));
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -159,12 +170,15 @@ const Profile = () => {
                   onChange={(e) => handleUpdateImage(e)}
                   id="update-image"
                 />
-                <label
-                  htmlFor="update-image"
-                  className="inline-block py-2 px-5 rounded-lg bg-blue-200 text-white capitalize"
-                >
-                  upload image
-                </label>
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="update-image"
+                    className="inline-block py-2 px-5 rounded-lg bg-blue-600 text-white capitalize cursor-pointer hover:bg-blue-700 transition text-center"
+                  >
+                    upload image
+                  </label>
+                  <span className="text-xs text-gray-400 mt-1">Tối đa 10MB (PNG, JPG, WEBP)</span>
+                </div>
               </div>
             </div>
             <div className="col-span-6 sm:col-span-3">

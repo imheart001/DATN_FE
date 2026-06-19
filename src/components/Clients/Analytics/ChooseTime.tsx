@@ -1,64 +1,78 @@
 import React, { useState, useEffect } from "react";
-import moment, { Moment } from "moment";
-import type { DatePickerProps, TimePickerProps } from "antd";
-import { DatePicker, Select, Space, TimePicker } from "antd";
-import { Dayjs } from "dayjs"; // Import Dayjs type
+import dayjs, { Dayjs } from "dayjs";
+import { DatePicker, Select, Space } from "antd";
 
 const { Option } = Select;
 
 type PickerType = "date" | "month" | "year";
 const dateFormat = "DD/MM/YYYY";
+
 const PickerWithType = ({
   type,
+  day,
+  month,
+  year,
   onChange,
   setDay,
   setMonth,
-  setYear, // Add setDayy as a prop
+  setYear,
 }: {
   type: PickerType;
+  day: number | undefined;
+  month: number | undefined;
+  year: number | undefined;
   onChange: (day: number, month: number, year: number) => void;
   setDay: React.Dispatch<React.SetStateAction<number | undefined>>;
   setMonth: React.Dispatch<React.SetStateAction<number | undefined>>;
   setYear: React.Dispatch<React.SetStateAction<number | undefined>>;
 }) => {
-  const handleChange = (value: Moment | null, dateString: string) => {
-    let day: number | undefined;
-    let month: number | undefined;
-    let year: number | undefined;
+  const handleChange = (value: Dayjs | null, dateString: string) => {
+    let d: number | undefined;
+    let m: number | undefined;
+    let y: number | undefined;
 
     if (value) {
-      day = value.date();
-      month = value.month() + 1; // Month is zero-based
-      year = value.year();
+      d = value.date();
+      m = value.month() + 1; // Month is zero-based
+      y = value.year();
     }
 
-    // Provide default values if undefined
-    onChange(
-      day !== undefined ? day : 0,
-      month !== undefined ? month : 0,
-      year !== undefined ? year : 0
-    );
-
-    // Set dayy state
-    setDay(day);
-    setMonth(month);
-    setYear(year);
+    if (type === "date") {
+      setDay(d);
+      setMonth(m);
+      setYear(y);
+      onChange(d !== undefined ? d : 0, m !== undefined ? m : 0, y !== undefined ? y : 0);
+    } else if (type === "month") {
+      setDay(undefined);
+      setMonth(m);
+      setYear(y);
+      onChange(0, m !== undefined ? m : 0, y !== undefined ? y : 0);
+    } else if (type === "year") {
+      setDay(undefined);
+      setMonth(undefined);
+      setYear(y);
+      onChange(0, 0, y !== undefined ? y : 0);
+    }
   };
 
-  const initialDate = moment();
+  // Derive value for DatePicker from current parent state (controlled component)
+  const currentValue = (day || month || year)
+    ? dayjs()
+        .year(year || dayjs().year())
+        .month((month || dayjs().month() + 1) - 1)
+        .date(day || 1)
+    : null;
 
-  useEffect(() => {
-    // Set initial values when the component mounts
-    setDay(initialDate.date());
-    setMonth(initialDate.month() + 1);
-    setYear(initialDate.year());
-    onChange(initialDate.date(), initialDate.month() + 1, initialDate.year());
-  }, []); // Empty dependency array to run the effect only once
+  const getFormat = () => {
+    if (type === "month") return "MM/YYYY";
+    if (type === "year") return "YYYY";
+    return dateFormat;
+  };
 
   if (type === "date") {
     return (
       <DatePicker
-        defaultValue={initialDate as Moment as any} // Use defaultValue instead of value
+        value={currentValue}
         onChange={handleChange as any}
         format={dateFormat}
       />
@@ -67,13 +81,14 @@ const PickerWithType = ({
 
   return (
     <DatePicker
-      defaultValue={initialDate as Moment as any} // Use defaultValue instead of value
+      value={currentValue}
       picker={type}
-      format={dateFormat}
+      format={getFormat()}
       onChange={handleChange as any}
     />
   );
 };
+
 interface ChooseTimeProps {
   day: any;
   setDay: any;
@@ -81,7 +96,10 @@ interface ChooseTimeProps {
   month: any;
   year: any;
   setYear: any;
+  setStartDate?: any;
+  setEndDate?: any;
 }
+
 const ChooseTime: React.FC<ChooseTimeProps> = ({
   day,
   setDay,
@@ -89,27 +107,100 @@ const ChooseTime: React.FC<ChooseTimeProps> = ({
   month,
   setYear,
   year,
+  setStartDate,
+  setEndDate,
 }) => {
-  const [type, setType] = useState<PickerType>("date");
+  const [type, setType] = useState<PickerType | "range">("date");
+
+  // Initialize values when component loads
+  useEffect(() => {
+    const today = dayjs();
+    if (day === undefined && month === undefined && year === undefined && !setStartDate && !setEndDate) {
+      setDay(today.date());
+      setMonth(today.month() + 1);
+      setYear(today.year());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (type !== "range") {
+      if (setStartDate) setStartDate(undefined);
+      if (setEndDate) setEndDate(undefined);
+    }
+  }, [type, setStartDate, setEndDate]);
+
+  const handleTypeChange = (newType: PickerType | "range") => {
+    setType(newType);
+    const today = dayjs();
+    if (newType === "range") {
+      setDay(undefined);
+      setMonth(undefined);
+      setYear(undefined);
+    } else {
+      if (setStartDate) setStartDate(undefined);
+      if (setEndDate) setEndDate(undefined);
+
+      // Preserve logical states when switching between picker types
+      if (newType === "year") {
+        setDay(undefined);
+        setMonth(undefined);
+        if (!year) setYear(today.year());
+      } else if (newType === "month") {
+        setDay(undefined);
+        if (!month) setMonth(today.month() + 1);
+        if (!year) setYear(today.year());
+      } else if (newType === "date") {
+        if (!day) setDay(today.date());
+        if (!month) setMonth(today.month() + 1);
+        if (!year) setYear(today.year());
+      }
+    }
+  };
+
+  const handleRangeChange = (values: any) => {
+    if (values && values[0] && values[1]) {
+      const startStr = values[0].format("YYYY-MM-DD");
+      const endStr = values[1].format("YYYY-MM-DD");
+      if (setStartDate) setStartDate(startStr);
+      if (setEndDate) setEndDate(endStr);
+      setDay(undefined);
+      setMonth(undefined);
+      setYear(undefined);
+    } else {
+      if (setStartDate) setStartDate(undefined);
+      if (setEndDate) setEndDate(undefined);
+    }
+  };
 
   return (
     <Space>
-      <Select value={type} onChange={setType}>
-        <Option value="date">Date</Option>
-        <Option value="month">Month</Option>
-        <Option value="year">Year</Option>
+      <Select value={type} onChange={handleTypeChange} style={{ width: 130 }}>
+        <Option value="date">Ngày</Option>
+        <Option value="month">Tháng</Option>
+        <Option value="year">Năm</Option>
+        <Option value="range">Khoảng ngày</Option>
       </Select>
-      <PickerWithType
-        type={type}
-        onChange={(day, month, year) => {
-          console.log("Day:", day);
-          console.log("Month:", month);
-          console.log("Year:", year);
-        }}
-        setDay={setDay}
-        setMonth={setMonth}
-        setYear={setYear} // Pass setDayy function
-      />
+      {type === "range" ? (
+        <DatePicker.RangePicker
+          format={dateFormat}
+          onChange={handleRangeChange}
+        />
+      ) : (
+        <PickerWithType
+          type={type as PickerType}
+          day={day}
+          month={month}
+          year={year}
+          onChange={(day, month, year) => {
+            console.log("Day:", day);
+            console.log("Month:", month);
+            console.log("Year:", year);
+          }}
+          setDay={setDay}
+          setMonth={setMonth}
+          setYear={setYear}
+        />
+      )}
     </Space>
   );
 };

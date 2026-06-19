@@ -5,6 +5,7 @@ import { Button, Col, Drawer, Form, Input, Row, Select, Space, message } from "a
 import { useUpdateUserMutation } from "../../../service/signup_login.service";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { ICinemas } from "../../../interface/model";
+import { getValidationErrorMessage } from "../../../utils";
 
 interface DataType {
   id: string;
@@ -25,38 +26,38 @@ const EditUser: React.FC<EditUserProps> = ({ dataUser }) => {
   const navigate = useNavigate();
   const { data: cinemas } = useFetchCinemaQuery();
   const [showIdCinema, setShowIdCinema] = useState(false);
+  const [open, setOpen] = useState(false);
   useEffect(() => {
-    if (dataUser) {
+    if (open && dataUser) {
       form.setFieldsValue({
         name: dataUser.name,
         phone: dataUser.phone,
         email: dataUser.email,
         role: dataUser.role,
-        id_cinema: dataUser.id_cinema !== null ? [dataUser.id_cinema] : undefined,
+        id_cinema: dataUser.id_cinema !== null ? dataUser.id_cinema : undefined,
       });
+      if (dataUser.role === 2 || dataUser.role === 3) {
+        setShowIdCinema(true);
+      } else {
+        setShowIdCinema(false);
+      }
     }
-  }, [dataUser]);
+  }, [open, dataUser]);
 
   const onFinish = async (values: any) => {
-    
     try {
-      const res = await updateUser({ ...values, id: dataUser.id });
-      if (res?.error) {
-        message.error(res?.error.data.errors.email);
-
-      } else {
-        message.success("Cập nhật quyền hạn thành công");
-
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-
-        navigate("/admin/user");
+      const submitValues = { ...values };
+      if (values.role !== 2 && values.role !== 3) {
+        submitValues.id_cinema = null;
       }
-
+      await updateUser({ ...submitValues, id: dataUser.id }).unwrap();
+      message.success("Cập nhật quyền hạn thành công");
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      navigate("/admin/user");
     } catch (error) {
-      message.error("Cập nhật quyền hạn thất bại");
+      message.error(getValidationErrorMessage(error, "Cập nhật quyền hạn thất bại"));
     }
   };
-  const [open, setOpen] = useState(false);
 
   const showDrawer = () => {
     setOpen(true);
@@ -66,13 +67,11 @@ const EditUser: React.FC<EditUserProps> = ({ dataUser }) => {
     setOpen(false);
   };
   const handleRoleChange = (value: any) => {
-      console.log(value);
-  console.log(showIdCinema);
-      
-    if (value === "2" || value === "3") {
+    if (value === 2 || value === 3) {
       setShowIdCinema(true);
-    }else{
+    } else {
       setShowIdCinema(false);
+      form.setFieldsValue({ id_cinema: null });
     }
   };
   
@@ -85,7 +84,7 @@ const EditUser: React.FC<EditUserProps> = ({ dataUser }) => {
       </Button>
 
       <Drawer
-        title="Update user"
+        title="Cập nhật người dùng"
         width={720}
         onClose={() => {
           onClose();
@@ -154,14 +153,14 @@ const EditUser: React.FC<EditUserProps> = ({ dataUser }) => {
             <Col span={12}>
               <Form.Item
                 name="role"
-                label="role"
+                label="Vai trò"
                 rules={[{ required: true, message: "Trường dữ liệu bắt buộc" }]}
               >
                 <Select onChange={handleRoleChange}>
-                  <Select.Option value="1">Admin Tổng</Select.Option>
-                  <Select.Option value="3">Admin Theo Rạp</Select.Option>
-                  <Select.Option value="2">Nhân Viên</Select.Option>
-                  <Select.Option value="0">Người Dùng</Select.Option>
+                  <Select.Option value={1}>Admin Tổng</Select.Option>
+                  <Select.Option value={3}>Admin Theo Rạp</Select.Option>
+                  <Select.Option value={2}>Nhân Viên</Select.Option>
+                  <Select.Option value={0}>Người Dùng</Select.Option>
                 </Select>
               </Form.Item>
             </Col>

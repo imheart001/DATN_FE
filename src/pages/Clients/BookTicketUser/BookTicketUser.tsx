@@ -31,7 +31,7 @@ const BookTicketUser = () => {
   const [filteredInfo, setFilteredInfo] = useState<
     Record<string, FilterValue | null>
   >({});
-  const { data: fetchBookTicket } = useGetBookTicketByUserQuery(idUser || 0);
+  const { data: fetchBookTicket, isLoading, isError } = useGetBookTicketByUserQuery(idUser || 0);
   const { data: film } = useFetchProductQuery();
   const [dataBook, setDataBook] = useState([]);
   const [open, setOpen] = useState(false);
@@ -293,6 +293,10 @@ const BookTicketUser = () => {
     },
   ];
   useEffect(() => {
+    if (!fetchBookTicket) {
+      setDataBook([]);
+      return;
+    }
     const dataBookTicket = (fetchBookTicket as any)?.map(
       (bookticket: any, index: number) => {
         let statusText = "";
@@ -341,7 +345,7 @@ const BookTicketUser = () => {
         };
       }
     );
-    setDataBook(dataBookTicket);
+    setDataBook(dataBookTicket || []);
   }, [fetchBookTicket]);
   const handleChange: TableProps<DataType>["onChange"] = (
     _pagination,
@@ -351,6 +355,16 @@ const BookTicketUser = () => {
 
     setFilteredInfo(filters);
   };
+  if (!idUser) {
+    return <div className="text-center py-10">Vui lòng đăng nhập để xem lịch sử đặt vé.</div>;
+  }
+  if (isLoading) {
+    return <div className="text-center py-10">Đang tải lịch sử đặt vé...</div>;
+  }
+  if (isError) {
+    return <div className="text-center py-10 text-red-500">Đã xảy ra lỗi khi tải lịch sử đặt vé.</div>;
+  }
+
   return (
     <div>
       <Table

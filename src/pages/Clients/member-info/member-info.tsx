@@ -13,17 +13,29 @@ import { formatDatee } from "../../../utils";
 
 
 const MemberInfo = () => {
-  const { data } = useFetchMembersQuery();
+  const { data, isLoading: membersLoading, isError: membersError } = useFetchMembersQuery();
 
   const getIfUser = localStorage.getItem("user");
-  const IfUser = JSON.parse(`${getIfUser}`);
-  const { data: memberUser } = useGetPointByIdUserQuery(IfUser.id);
-  const user_id = IfUser.id;
+  const IfUser = getIfUser ? JSON.parse(getIfUser) : null;
+  const user_id = IfUser?.id;
+  const { data: memberUser, isLoading: pointLoading, isError: pointError } = useGetPointByIdUserQuery(user_id || 0, { skip: !user_id });
   const dataUser = data?.data?.filter(
     (item) => item.id_user === Number(user_id)
-  );
+  ) || [];
 
   console.log(memberUser);
+
+  if (!IfUser) {
+    return <div className="text-center py-10">Vui lòng đăng nhập để xem thông tin thành viên.</div>;
+  }
+
+  if (membersLoading || pointLoading) {
+    return <div className="text-center py-10">Đang tải thông tin thành viên...</div>;
+  }
+
+  if (membersError || pointError) {
+    return <div className="text-center py-10 text-red-500">Đã xảy ra lỗi khi tải thông tin thành viên.</div>;
+  }
 
   return (
     <>

@@ -16,6 +16,7 @@ import {
   message,
 } from "antd";
 import { useUpdateCinemaMutation } from "../../../service/brand.service";
+import { getValidationErrorMessage } from "../../../utils";
 
 const { Option } = Select;
 interface DataType {
@@ -43,7 +44,7 @@ const EditCinema: React.FC<EditCinemaProps> = ({ dataCinema }) => {
   const onFinish = async (values: any) => {
     console.log("🚀 ~ file: EditCinema.tsx:44 ~ onFinish ~ values:", values)
     try {
-      await updateCinema({ ...values, id: dataCinema.id });
+      await updateCinema({ ...values, id: dataCinema.id }).unwrap();
 
       message.success("Cập nhật sản phẩm thành công");
 
@@ -51,7 +52,7 @@ const EditCinema: React.FC<EditCinemaProps> = ({ dataCinema }) => {
 
       navigate("/admin/cinema");
     } catch (error) {
-      message.error("Cập nhật sản phẩm thất bại");
+      message.error(getValidationErrorMessage(error, "Cập nhật sản phẩm thất bại"));
     }
   };
   const [open, setOpen] = useState(false);

@@ -50,6 +50,7 @@ const RevenueFilmInMon: React.FC<RevenueFilmInMonProps> = ({ data }) => (
   <Table
     columns={columns}
     dataSource={data}
+    rowKey={(record, index) => index?.toString() || ""}
     scroll={{ x: 500, y: 270 }}
     bordered
     title={() => "Top 5 phim có doanh thu cao nhất trong tháng"}

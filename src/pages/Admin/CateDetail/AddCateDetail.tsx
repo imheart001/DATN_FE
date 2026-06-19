@@ -16,6 +16,7 @@ import { useAddCateDetailMutation } from "../../../service/catedetail.service";
 import { useFetchCateQuery } from "../../../service/cate.service";
 import { ICategorys, IFilms } from "../../../interface/model";
 import { useFetchProductQuery } from "../../../service/films.service";
+import { getValidationErrorMessage } from "../../../utils";
 const { Option } = Select;
 
 const AddCateDetail: React.FC = () => {
@@ -44,7 +45,7 @@ const AddCateDetail: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/category_detail");
     } catch (error) {
-      message.error("Thêm sản phẩm thất bại");
+      message.error(getValidationErrorMessage(error, "Thêm sản phẩm thất bại"));
     }
   };
 

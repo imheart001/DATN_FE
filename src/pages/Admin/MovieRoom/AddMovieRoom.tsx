@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useAddMovieRoomMutation } from "../../../service/movieroom.service";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
 import { ICinemas } from "../../../interface/model";
+import { getValidationErrorMessage } from "../../../utils";
 const { Option } = Select;
 
 const AddMovieRoom: React.FC = () => {
@@ -39,7 +40,7 @@ const AddMovieRoom: React.FC = () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       navigate("/admin/movieroom");
     } catch (error) {
-      message.error("Thêm phòng chiếu thất bại");
+      message.error(getValidationErrorMessage(error, "Thêm phòng chiếu thất bại"));
     }
     console.log(values);
   };

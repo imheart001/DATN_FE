@@ -10,6 +10,7 @@ import { useAppSelector } from "../../../store/hooks";
 import { useBookingShowtimes } from "../../../hooks/useBookingShowtimes";
 import BookingShowtimePicker from "../../../components/Clients/Booking/BookingShowtimePicker";
 import { useFetchCinemaQuery } from "../../../service/brand.service";
+import { extractNumber } from "../../../utils";
 
 const Movie_About = () => {
   const { id } = useParams();
@@ -76,7 +77,7 @@ const Movie_About = () => {
                 </h2>
 
                 <p className="my-4 text-center text-white">
-                  THỜI LƯỢNG: {(film as any)?.data?.time}
+                  THỜI LƯỢNG: {extractNumber((film as any)?.data?.time)} phút
                 </p>
 
                 <div className="my-4 flex items-center justify-center space-x-2 text-white">

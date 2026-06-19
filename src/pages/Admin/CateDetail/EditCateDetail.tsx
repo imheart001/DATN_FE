@@ -8,6 +8,7 @@ import { useUpdateCateDetailMutation } from "../../../service/catedetail.service
 import { IFilms } from "../../../interface/model";
 import { useFetchProductQuery } from "../../../service/films.service";
 import { useFetchCateQuery } from "../../../service/cate.service";
+import { getValidationErrorMessage } from "../../../utils";
 const { Option } = Select;
 
 interface DataType {
@@ -25,19 +26,20 @@ const UpdateCategory: React.FC<EditCateDetailProps> = ({ dataCateDetail }) => {
   const { data: films } = useFetchProductQuery();
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
   console.log(dataCateDetail);
 
   useEffect(() => {
-    if (dataCateDetail) {
+    if (open && dataCateDetail) {
       form.setFieldsValue({
         category_id: dataCateDetail.category_id,
         film_id: dataCateDetail.film_id,
       });
     }
-  }, [dataCateDetail]);
+  }, [open, dataCateDetail, form]);
   const onFinish = async (values: any) => {
     try {
-      await updateCateDetail({ ...values, id: dataCateDetail.id });
+      await updateCateDetail({ ...values, id: dataCateDetail.id }).unwrap();
 
       message.success("Cập nhật sản phẩm thành công");
 
@@ -45,10 +47,9 @@ const UpdateCategory: React.FC<EditCateDetailProps> = ({ dataCateDetail }) => {
 
       navigate("/admin/category_detail");
     } catch (error) {
-      message.error("Cập nhật sản phẩm thất bại");
+      message.error(getValidationErrorMessage(error, "Cập nhật sản phẩm thất bại"));
     }
   };
-  const [open, setOpen] = useState(false);
   console.log(dataCateDetail);
 
   const showDrawer = () => {
