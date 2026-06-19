@@ -30,8 +30,17 @@ const seatkepingAPI = createApi({
       }),
       invalidatesTags: ["kepingseat"],
     }),
+
+    clearUserSeats: builder.mutation({
+      query: (body: { id_time_detail: string; id_user: number }) => ({
+        url: "/clear_user_seats",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["kepingseat"],
+    }),
   }),
 });
-export const { useGetAllSeatKepingsQuery, useKeptSeatMutation } = seatkepingAPI;
+export const { useGetAllSeatKepingsQuery, useKeptSeatMutation, useClearUserSeatsMutation } = seatkepingAPI;
 export default seatkepingAPI;
 

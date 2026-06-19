@@ -16,6 +16,7 @@ import {
   setChooseVoucher,
   setChangePoint,
   setTotalPriceSeat,
+  clearTKinformation,
 } from "../../../components/CinemaSlice/selectSeat";
 
 import { useFetchFoodQuery } from "../../../service/food.service";
@@ -27,6 +28,7 @@ import * as dayjs from "dayjs";
 import {
   useGetAllSeatKepingsQuery,
   useKeptSeatMutation,
+  useClearUserSeatsMutation,
 } from "../../../service/seatkeping.service";
 import type { CountdownProps } from "antd";
 
@@ -65,13 +67,13 @@ const BookingSeat = () => {
   const { data: dataAllByTime_Byid } = useGetAllDataShowTimeByIdQuery(
     id as string
   );
-  const [deadline, setDeadline] = useState(Date.now() + 1000 * 60 * 1);
+  const [deadline, setDeadline] = useState(Date.now() + 1000 * 60 * 10);
   const [countdownKey, setCountdownKey] = useState(1); // Change key to reset Countdown
 
   const navigate = useNavigate();
 
   const startCountdown = () => {
-    setDeadline(Date.now() + 1000 * 60 * 1);
+    setDeadline(Date.now() + 1000 * 60 * 10);
     setCountdownKey((prevKey) => prevKey + 1); // Change key to reset Countdown
   };
 
@@ -99,6 +101,7 @@ const BookingSeat = () => {
   } = useGetAllSeatKepingsQuery(`${id}`);
 
   const [keptSeat] = useKeptSeatMutation();
+  const [clearUserSeats] = useClearUserSeatsMutation();
   const [selectedSeats, setSelectedSeats] = useState<SeatInfo[]>([]);
   // const fetchData = async () => {
   //   try {
@@ -478,6 +481,17 @@ const BookingSeat = () => {
     };
   }, [id, userId?.id]);
   useEffect(() => {}, [foodQuantitiesUI, dispatch]);
+  useEffect(() => {
+    return () => {
+      if (id && userId?.id) {
+        clearUserSeats({
+          id_time_detail: id,
+          id_user: userId.id
+        });
+      }
+      dispatch(clearTKinformation());
+    };
+  }, [id, userId?.id, clearUserSeats, dispatch]);
   useEffect(() => {
     // Calculate the total amount before discount
     const totalAmount = totalMoney + totalComboAmount;
